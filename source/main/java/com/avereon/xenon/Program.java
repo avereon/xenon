@@ -646,9 +646,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( rb().text( BundleKey.PROGRAM, "program.close.title" ) );
-			alert.setHeaderText( rb().text( BundleKey.PROGRAM, "program.close.message" ) );
-			alert.setContentText( rb().text( BundleKey.PROGRAM, "program.close.prompt" ) );
+			alert.setTitle( Rb.text( BundleKey.PROGRAM, "program.close.title" ) );
+			alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "program.close.message" ) );
+			alert.setContentText( Rb.text( BundleKey.PROGRAM, "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -716,6 +716,7 @@ public class Program extends Application implements ProgramProduct {
 		return card;
 	}
 
+	@Deprecated
 	@Override
 	public ProductBundle rb() {
 		return programResourceBundle;
@@ -1207,7 +1208,7 @@ public class Program extends Application implements ProgramProduct {
 	) {
 		// The problem with using the class name is it can change if the class package or name is changed.
 		AssetType type = assetManager.getAssetType( assetType.getKey() );
-		String name = rb().text( "tool", toolRbKey + "-name" );
+		String name = Rb.text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
 		ToolRegistration metadata = new ToolRegistration( this, toolClass );
@@ -1262,7 +1263,7 @@ public class Program extends Application implements ProgramProduct {
 	//		}
 	//
 	//		// The progress window title
-	//		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+	//		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
 	//
 	//		// Force the location of the updater log file
 	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
@@ -1288,8 +1289,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = rb().text( BundleKey.UPDATE, "updates" );
-		String message = rb().text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String message = Rb.text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 

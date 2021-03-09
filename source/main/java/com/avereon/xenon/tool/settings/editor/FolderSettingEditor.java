@@ -110,7 +110,7 @@ public class FolderSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle( product.rb().text( "settings", "select-folder" ) );
+		chooser.setTitle( Rb.text( getProduct(), "settings", "select-folder" ) );
 
 		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( fileName ).toFile() );
 		File selectedFile = chooser.showDialog( product.getProgram().getWorkspaceManager().getActiveStage() );

@@ -1,6 +1,7 @@
 package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
@@ -42,7 +43,7 @@ public class DownloadTask extends Task<Download> {
 	}
 
 	public DownloadTask( Product product, URI uri, Path target ) {
-		super( product.rb().text( "prompt", "download" ) + " " + uri.toString(), Priority.LOW );
+		super( Rb.text( "prompt", "download" ) + " " + uri.toString(), Priority.LOW );
 		this.uri = uri;
 		this.target = target;
 	}

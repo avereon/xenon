@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
@@ -231,9 +232,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modified" ) );
-		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modified-message" ) );
-		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
+		alert.setTitle( Rb.text( BundleKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( Rb.text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
@@ -265,9 +266,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			boolean shouldContinue = !shutdownVerify;
 			if( shutdownVerify ) {
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-				alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
-				alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
-				alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
+				alert.setTitle( Rb.text( "workspace", "workspace-close-title" ) );
+				alert.setHeaderText( Rb.text( "workspace", "workspace-close-message" ) );
+				alert.setContentText( Rb.text( "workspace", "workspace-close-prompt" ) );
 				alert.initOwner( workspace.getStage() );
 
 				Stage stage = program.getWorkspaceManager().getActiveStage();

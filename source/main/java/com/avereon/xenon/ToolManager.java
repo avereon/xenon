@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
@@ -260,7 +261,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
-		String taskName = program.rb().text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		String taskName = Rb.text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
 			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );

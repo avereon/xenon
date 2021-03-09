@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
@@ -557,9 +558,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	public void close( Asset asset ) {
 		if( asset.isModified() && canSaveAsset( asset ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-			alert.setTitle( program.rb().text( BundleKey.ASSET, "close-save-title" ) );
-			alert.setHeaderText( program.rb().text( BundleKey.ASSET, "close-save-message" ) );
-			alert.setContentText( program.rb().text( BundleKey.ASSET, "close-save-prompt" ) );
+			alert.setTitle( Rb.text( BundleKey.ASSET, "close-save-title" ) );
+			alert.setHeaderText( Rb.text( BundleKey.ASSET, "close-save-message" ) );
+			alert.setContentText( Rb.text( BundleKey.ASSET, "close-save-prompt" ) );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -593,8 +594,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		URI uri = UriUtil.resolve( string );
 
 		if( uri == null ) {
-			String title = program.rb().text( "asset", "assets" );
-			String message = program.rb().text( "program", "asset-unable-to-resolve" );
+			String title = Rb.text( "asset", "assets" );
+			String message = Rb.text( "program", "asset-unable-to-resolve" );
 			program.getNoticeManager().warning( title, message, string );
 			return null;
 		}
@@ -1206,8 +1207,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
 			} catch( NoToolRegisteredException exception ) {
-				String title = program.rb().text( "program", "no-tool-for-asset-title" );
-				String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
+				String title = Rb.text( "program", "no-tool-for-asset-title" );
+				String message = Rb.text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
 				program.getNoticeManager().warning( title, message, asset.getName() );
 				return null;
 			}
@@ -1395,7 +1396,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				for( Throwable throwable : throwables.keySet() ) {
 					String errorName = throwable.getClass().getSimpleName();
 					String taskName = getClass().getSimpleName();
-					String message = program.rb().text( "program", "task-error-message", errorName, taskName );
+					String message = Rb.text( "program", "task-error-message", errorName, taskName );
 					if( TestUtil.isTest() ) throwable.printStackTrace( System.err );
 					log.log( Log.WARN, message, throwable );
 				}

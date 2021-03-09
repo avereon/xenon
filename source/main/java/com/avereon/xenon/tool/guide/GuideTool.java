@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
@@ -94,7 +95,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "guide-name" ) );
+		setTitle( Rb.text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
 
 		guideTree.focusedProperty().addListener( (p,o,n)-> guide.reselectSelectedItems() );
@@ -194,7 +195,7 @@ public class GuideTool extends ProgramTool {
 			}
 
 			String title = newGuide.getTitle();
-			if( TextUtil.isEmpty( title ) ) title = getProduct().rb().text( "tool", "guide-name" );
+			if( TextUtil.isEmpty( title ) ) title = Rb.text( "tool", "guide-name" );
 			setTitle( title );
 
 			String icon = newGuide.getIcon();

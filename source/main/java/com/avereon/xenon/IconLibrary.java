@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.zenna.icon.*;
@@ -174,7 +175,7 @@ public class IconLibrary {
 	private VectorImage getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 		ImageIcon icon = new ImageIcon( url ).resize( size );
-		String taskName = getProgram().rb().text( BundleKey.PROMPT, "load-icon", url );
+		String taskName = Rb.text( BundleKey.PROMPT, "load-icon", url );
 		program.getTaskManager().submit( Task.of( taskName, icon.getPreloadRunner() ) );
 		return icon;
 	}

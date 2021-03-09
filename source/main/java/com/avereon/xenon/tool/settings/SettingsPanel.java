@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
@@ -82,7 +83,7 @@ public class SettingsPanel extends VBox {
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
-			String name = product.rb().text( bundleKey, group.getId() );
+			String name = Rb.text( product, bundleKey, group.getId() );
 			Control pane = createGroupPane( product, bundleKey, page, name, group );
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );

@@ -5,6 +5,7 @@
     <module name="acornmod" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.acornmod" />
     <option name="VM_PARAMETERS" value="-Duser.language=es" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../acornmod" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.avereon.xenon.ProgramTestConfig" />

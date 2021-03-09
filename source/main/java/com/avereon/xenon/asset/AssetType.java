@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -88,15 +89,15 @@ public abstract class AssetType implements Comparable<AssetType> {
 	}
 
 	public String getName() {
-		return product.rb().text( "asset", rbKey + "-name" );
+		return Rb.text( getProduct(), "asset", rbKey + "-name" );
 	}
 
 	public String getDescription() {
-		return product.rb().text( "asset", rbKey + "-description" );
+		return Rb.text( getProduct(), "asset", rbKey + "-description" );
 	}
 
 	public String getIcon() {
-		return product.rb().textOr( "asset", rbKey + "-icon", "asset" );
+		return Rb.textOr( getProduct(), "asset", rbKey + "-icon", "asset" );
 	}
 
 	/**

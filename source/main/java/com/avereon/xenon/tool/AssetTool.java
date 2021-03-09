@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
@@ -168,7 +169,7 @@ public class AssetTool extends GuidedTool {
 
 		// Set the title depending on the mode requested
 		String action = mode.name().toLowerCase();
-		setTitle( getProduct().rb().text( "action", action + ".name" ) );
+		setTitle( Rb.text( "action", action + ".name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
@@ -311,7 +312,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
-		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = getProduct().rb().text( "program", messageKey, parameters );
+		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = Rb.text( "program", messageKey, parameters );
 
 		Fx.run( () -> {
 			userMessage.setText( message );
@@ -392,7 +393,7 @@ public class AssetTool extends GuidedTool {
 			try {
 				Asset asset = assetStringCellDataFeatures.getValue();
 				long size = asset.getSize();
-				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( program.rb().text( "asset", "asset-open-folder-size", size ) );
+				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( Rb.text( "asset", "asset-open-folder-size", size ) );
 				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
 			} catch( AssetException exception ) {
 				log.log( Log.ERROR, exception );

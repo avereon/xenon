@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProductBundle;
+import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -24,40 +25,38 @@ public class ActionLibrary {
 
 	private final EventHandler<KeyEvent> shortcutHandler;
 
-	public ActionLibrary( Program program ) {
+	public ActionLibrary( Program product ) {
 		this.actionsById = new ConcurrentHashMap<>();
 		this.actionsByAccelerator = new ConcurrentHashMap<>();
 		this.shortcutHandler = this::handleEvent;
 
-		ProductBundle bundle = program.rb();
-
 		// Create default actions
-		register( bundle, "program" );
-		register( bundle, "file" );
-		register( bundle, "new" );
-		register( bundle, "open" );
-		register( bundle, "save" );
-		register( bundle, "save-as" );
-		register( bundle, "copy-as" );
-		register( bundle, "save-all" );
-		register( bundle, "close" );
-		register( bundle, "close-all" );
-		register( bundle, "exit" );
+		register( product, "program" );
+		register( product, "file" );
+		register( product, "new" );
+		register( product, "open" );
+		register( product, "save" );
+		register( product, "save-as" );
+		register( product, "copy-as" );
+		register( product, "save-all" );
+		register( product, "close" );
+		register( product, "close-all" );
+		register( product, "exit" );
 
-		register( bundle, "edit" );
-		register( bundle, "undo" );
-		register( bundle, "redo" );
-		register( bundle, "cut" );
-		register( bundle, "copy" );
-		register( bundle, "paste" );
-		register( bundle, "delete" );
-		register( bundle, "indent" );
-		register( bundle, "unindent" );
-		register( bundle, "properties" );
+		register( product, "edit" );
+		register( product, "undo" );
+		register( product, "redo" );
+		register( product, "cut" );
+		register( product, "copy" );
+		register( product, "paste" );
+		register( product, "delete" );
+		register( product, "indent" );
+		register( product, "unindent" );
+		register( product, "properties" );
 
-		register( bundle, "view" );
-		register( bundle, "workspace-new" );
-		register( bundle, "workspace-close" );
+		register( product, "view" );
+		register( product, "workspace-new" );
+		register( product, "workspace-close" );
 		//		register( bundle, "tool-new" );
 		//		register( bundle, "view-default" );
 		//		register( bundle, "view-split-horizontal" );
@@ -66,58 +65,58 @@ public class ActionLibrary {
 		//		register( bundle, "view-merge-south" );
 		//		register( bundle, "view-merge-east" );
 		//		register( bundle, "view-merge-west" );
-		register( bundle, "statusbar-show" );
-		register( bundle, "settings" );
+		register( product, "statusbar-show" );
+		register( product, "settings" );
 
-		register( bundle, "tools" );
+		register( product, "tools" );
 
-		register( bundle, "help" );
-		register( bundle, "help-content" );
-		register( bundle, "welcome" );
-		register( bundle, "notice" );
-		register( bundle, "product" );
-		register( bundle, "update" );
-		register( bundle, "about" );
+		register( product, "help" );
+		register( product, "help-content" );
+		register( product, "welcome" );
+		register( product, "notice" );
+		register( product, "product" );
+		register( product, "update" );
+		register( product, "about" );
 
-		register( bundle, "development" );
-		register( bundle, "test-action-1" );
-		register( bundle, "test-action-2" );
-		register( bundle, "test-action-3" );
-		register( bundle, "test-action-4" );
-		register( bundle, "test-action-5" );
-		register( bundle, "mock-update" );
-		register( bundle, "restart" );
-		register( bundle, "reset" );
+		register( product, "development" );
+		register( product, "test-action-1" );
+		register( product, "test-action-2" );
+		register( product, "test-action-3" );
+		register( product, "test-action-4" );
+		register( product, "test-action-5" );
+		register( product, "mock-update" );
+		register( product, "restart" );
+		register( product, "reset" );
 
-		register( bundle, "workarea" );
-		register( bundle, "workarea-new" );
-		register( bundle, "workarea-rename" );
-		register( bundle, "workarea-close" );
+		register( product, "workarea" );
+		register( product, "workarea-new" );
+		register( product, "workarea-rename" );
+		register( product, "workarea-close" );
 
-		register( bundle, "task" );
-		register( bundle, "themes" );
-		register( bundle, "wallpaper-toggle" );
-		register( bundle, "wallpaper-prior" );
-		register( bundle, "wallpaper-next" );
+		register( product, "task" );
+		register( product, "themes" );
+		register( product, "wallpaper-toggle" );
+		register( product, "wallpaper-prior" );
+		register( product, "wallpaper-next" );
 
-		register( bundle, "reset" );
-		register( bundle, "runpause" );
+		register( product, "reset" );
+		register( product, "runpause" );
 
-		register( bundle, "refresh" );
-		register( bundle, "enable" );
-		register( bundle, "disable" );
-		register( bundle, "install" );
-		register( bundle, "remove" );
-		register( bundle, "add-market" );
-		register( bundle, "remove-market" );
+		register( product, "refresh" );
+		register( product, "enable" );
+		register( product, "disable" );
+		register( product, "install" );
+		register( product, "remove" );
+		register( product, "add-market" );
+		register( product, "remove-market" );
 
 		// Navigation
-		register( bundle, "prior" );
-		register( bundle, "next" );
-		register( bundle, "up" );
-		register( bundle, "down" );
+		register( product, "prior" );
+		register( product, "next" );
+		register( product, "up" );
+		register( product, "down" );
 
-		register( bundle, "options" );
+		register( product, "options" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -126,17 +125,17 @@ public class ActionLibrary {
 		return proxy;
 	}
 
-	public void register( ProductBundle bundle, String id ) {
+	public void register( Product product, String id ) {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.textOr( BundleKey.ACTION, id + Action.ICON_SUFFIX, "" );
-		String name = bundle.textOr( BundleKey.ACTION, id + Action.NAME_SUFFIX, id );
-		String type = bundle.textOr( BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
-		String mnemonic = bundle.textOr( BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
-		String shortcut = bundle.textOr( BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
-		String command = bundle.textOr( BundleKey.ACTION, id + Action.COMMAND_SUFFIX, null );
-		String description = bundle.textOr( BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
+		String icon = Rb.textOr( product, BundleKey.ACTION, id + Action.ICON_SUFFIX, "" );
+		String name = Rb.textOr( product, BundleKey.ACTION, id + Action.NAME_SUFFIX, id );
+		String type = Rb.textOr( product, BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
+		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
+		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
+		String command = Rb.textOr( product, BundleKey.ACTION, id + Action.COMMAND_SUFFIX, null );
+		String description = Rb.textOr( product, BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
@@ -147,7 +146,7 @@ public class ActionLibrary {
 		proxy.setCommand( command );
 		if( command != null ) proxy.setName( name + " (" + command + ")" );
 		proxy.setDescription( description );
-		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
+		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
 
 		actionsById.put( id, proxy );
 
@@ -178,11 +177,11 @@ public class ActionLibrary {
 		actionsByAccelerator.keySet().stream().filter( k -> k.match( event ) ).findFirst().ifPresent( k -> actionsByAccelerator.getOrDefault( k, NOOP ).handle( new ActionEvent() ) );
 	}
 
-	private void addStates( ProductBundle bundle, String id, ActionProxy proxy ) {
-		String[] states = bundle.textOr( BundleKey.ACTION, id + ".states", "" ).split( "," );
+	private void addStates( Product product, String id, ActionProxy proxy ) {
+		String[] states = Rb.textOr( product, BundleKey.ACTION, id + ".states", "" ).split( "," );
 		for( String state : states ) {
-			String stateName = bundle.textOr( BundleKey.ACTION, id + "." + state + ".name", "" );
-			String stateIcon = bundle.textOr( BundleKey.ACTION, id + "." + state + ".icon", "" );
+			String stateName = Rb.textOr( product, BundleKey.ACTION, id + "." + state + ".name", "" );
+			String stateIcon = Rb.textOr( product, BundleKey.ACTION, id + "." + state + ".icon", "" );
 			proxy.addState( state, stateName, stateIcon );
 		}
 	}

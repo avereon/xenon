@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
@@ -40,7 +41,7 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "settings-name" ) );
+		setTitle( Rb.text( "tool", "settings-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "settings" ) );
 	}
 

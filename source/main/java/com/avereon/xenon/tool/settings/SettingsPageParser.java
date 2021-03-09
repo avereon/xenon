@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.BundleKey;
@@ -138,7 +139,7 @@ public class SettingsPageParser {
 		}
 
 		// Special handling of empty titles
-		if( TextUtil.isEmpty( title ) ) title = product.rb().textOr( bundleKey, id, id );
+		if( TextUtil.isEmpty( title ) ) title = Rb.textOr( product, bundleKey, id, id );
 
 		SettingsPage page = new SettingsPage( parent );
 		page.setProduct( product );
@@ -270,7 +271,7 @@ public class SettingsPageParser {
 		// Determine the option name
 		String optionName = text;
 		String nameRbKey = toBundleKey( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = product.rb().text( bundleKey, nameRbKey );
+		if( optionName == null ) optionName = Rb.text( product, bundleKey, nameRbKey );
 
 		// Determine the option value
 		String optionValue = attributes.get( VALUE );

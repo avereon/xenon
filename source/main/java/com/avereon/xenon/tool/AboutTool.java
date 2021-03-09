@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
-import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
@@ -133,12 +133,11 @@ public class AboutTool extends GuidedTool {
 	}
 
 	private Guide createGuide() {
-		ProductBundle rb = getProduct().rb();
 		Guide guide = new Guide();
 
-		GuideNode summaryNode = new GuideNode( getProgram(), AboutTool.SUMMARY, rb.text( "tool", "about-summary" ), "about" );
-		GuideNode detailsNode = new GuideNode( getProgram(), AboutTool.DETAILS, rb.text( "tool", "about-details" ), "about" );
-		GuideNode productsNode = new GuideNode( getProgram(), AboutTool.MODS, rb.text( "tool", "about-mods" ), "about" );
+		GuideNode summaryNode = new GuideNode( getProgram(), AboutTool.SUMMARY, Rb.text( "tool", "about-summary" ), "about" );
+		GuideNode detailsNode = new GuideNode( getProgram(), AboutTool.DETAILS, Rb.text( "tool", "about-details" ), "about" );
+		GuideNode productsNode = new GuideNode( getProgram(), AboutTool.MODS, Rb.text( "tool", "about-mods" ), "about" );
 
 		summaryNode.setOrder( 0 );
 		detailsNode.setOrder( 1 );
@@ -190,8 +189,8 @@ public class AboutTool extends GuidedTool {
 		public SummaryPane() {
 			setId( "tool-about-summary" );
 
-			lastUpdateCheckPrompt = getProduct().rb().text( BundleKey.UPDATE, "product-update-check-last" );
-			nextUpdateCheckPrompt = getProduct().rb().text( BundleKey.UPDATE, "product-update-check-next" );
+			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
+			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
 
 			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
 			add( productName = makeLabel( "tool-about-title" ) );
@@ -224,7 +223,7 @@ public class AboutTool extends GuidedTool {
 		}
 
 		public void update( ProductCard card ) {
-			String from = getProgram().rb().text( "tool", "about-from" );
+			String from = Rb.text( "tool", "about-from" );
 			productName.setText( card.getName() );
 			if( card.getRelease().getVersion().isSnapshot() ) {
 				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
@@ -244,12 +243,12 @@ public class AboutTool extends GuidedTool {
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
 			String osNameString = System.getProperty( "os.name" );
-			osLabel.setText( getProduct().rb().text( "tool", "about-system" ) );
+			osLabel.setText( Rb.text( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
-			//informationLabel.setText( getProgram().rb().text( BundleKey.LABEL, "information" ) );
+			//informationLabel.setText( Rb.text( BundleKey.LABEL, "information" ) );
 			updateUpdateCheckInfo();
 		}
 
@@ -258,8 +257,8 @@ public class AboutTool extends GuidedTool {
 			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-			String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
-			String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
+			String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
+			String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
 			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ),
 				DateUtil.DEFAULT_DATE_FORMAT,
 				TimeZone.getDefault()

@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.weave.UpdateCommandBuilder;
@@ -17,9 +18,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This thread is used when a program restart is requested. Similar to a
- * shutdown hook, this thread is run as the program (not the JVM) is exiting,
- * and allows the JVM to terminate.
+ * This thread is used when a program restart is requested. Similar to a shutdown hook, this thread is run as the program (not the JVM) is exiting, and allows the JVM to terminate.
  *
  * @author Mark Soderquist
  */
@@ -91,7 +90,7 @@ public class RestartHook extends Thread {
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
 		Path updaterFolder = manager.getUpdaterFolder();
-		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
+		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
 		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
@@ -134,7 +133,7 @@ public class RestartHook extends Thread {
 		if( mock ) {
 			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
 			for( String name : names ) {
-				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
+				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
 				boolean isProgram = name.equals( program.getCard().getName() );
 				int steps = isProgram ? 15 : 3;
 				steps += random.nextInt( 5 );
@@ -155,7 +154,7 @@ public class RestartHook extends Thread {
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String launchPath = OperatingSystem.getJavaLauncherPath();
-				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
+				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 

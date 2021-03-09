@@ -67,6 +67,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		this.parent = parent;
 	}
 
+	@Deprecated
 	@Override
 	public ProductBundle rb() {
 		if( resourceBundle == null ) resourceBundle = new ProductBundle( getProgram(), this );
@@ -104,7 +105,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param id
 	 * @return
 	 */
-	protected Mod registerAction( ProductBundle bundle, String id ) {
+	protected Mod registerAction( Product bundle, String id ) {
 		getProgram().getActionLibrary().register( bundle, id );
 		return this;
 	}

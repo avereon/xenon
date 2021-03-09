@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
@@ -37,12 +38,12 @@ public class WelcomeTool extends ProgramTool {
 		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
 		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
 
-		String documentButtonTitle = product.rb().text( BundleKey.LABEL, "documentation" );
-		String documentButtonDescription = product.rb().text( BundleKey.LABEL, "documentation-desc" );
-		String documentButtonUrl = product.rb().text( BundleKey.LABEL, "documentation-url" );
-		String modsButtonTitle = product.rb().text( BundleKey.LABEL, "mods" );
-		String modsButtonDescription = product.rb().text( BundleKey.LABEL, "mods-desc" );
-		String modsButtonUrl = product.rb().text( BundleKey.LABEL, "mods-url" );
+		String documentButtonTitle = Rb.text( BundleKey.LABEL, "documentation" );
+		String documentButtonDescription = Rb.text( BundleKey.LABEL, "documentation-desc" );
+		String documentButtonUrl = Rb.text( BundleKey.LABEL, "documentation-url" );
+		String modsButtonTitle = Rb.text( BundleKey.LABEL, "mods" );
+		String modsButtonDescription = Rb.text( BundleKey.LABEL, "mods-desc" );
+		String modsButtonUrl = Rb.text( BundleKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -75,7 +76,7 @@ public class WelcomeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( BundleKey.TOOL, "welcome-name" ) );
+		setTitle( Rb.text( BundleKey.TOOL, "welcome-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 

@@ -112,7 +112,7 @@ public class FileSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( product.rb().text( "settings", "select-file" ) );
+		fileChooser.setTitle( Rb.text( getProduct(), "settings", "select-file" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );

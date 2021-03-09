@@ -470,14 +470,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public String getLastUpdateCheckText() {
 		long lastUpdateCheck = getLastUpdateCheck();
-		String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
+		String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
 		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	public String getNextUpdateCheckText() {
 		long nextUpdateCheck = getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
-		String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
+		String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
 		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 

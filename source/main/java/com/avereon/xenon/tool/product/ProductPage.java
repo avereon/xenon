@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.DownloadRequest;
@@ -36,10 +37,10 @@ abstract class ProductPage extends ProductToolPage {
 		this.program = program;
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
-		setTitle( program.rb().text( BundleKey.TOOL, "product-" + productType ) );
+		setTitle( Rb.text( BundleKey.TOOL, "product-" + productType ) );
 
-		this.refreshMessage = program.rb().text( BundleKey.TOOL, "product-" + productType + "-refresh" );
-		this.missingMessage = program.rb().text( BundleKey.TOOL, "product-" + productType + "-missing" );
+		this.refreshMessage = Rb.text( BundleKey.TOOL, "product-" + productType + "-refresh" );
+		this.missingMessage = Rb.text( BundleKey.TOOL, "product-" + productType + "-missing" );
 
 		message = new Label();
 		message.setPrefWidth( Double.MAX_VALUE );

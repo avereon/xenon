@@ -3,6 +3,7 @@ package com.avereon.xenon.product;
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
+import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
@@ -10,8 +11,8 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskChain;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
@@ -125,7 +126,7 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> requests ) {
-		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-install-selected" );
+		String name = Rb.text( BundleKey.UPDATE, "task-products-install-selected" );
 
 		return TaskChain
 			.of( () -> startResourceDownloads( requests ) )
@@ -137,7 +138,7 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Void> uninstallProducts( Set<ProductCard> products ) {
-		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
+		String name = Rb.text( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
 		return TaskChain
 			.of( () -> doUninstallProducts( products ) )
@@ -373,7 +374,7 @@ public class ProductManagerLogic {
 		private final DownloadRequest request;
 
 		private DownloadProductResourceTask( RepoState repo, DownloadRequest request ) {
-			setName( getProgram().rb().text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
+			setName( Rb.text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
 			this.repo = repo;
 			this.request = request;
 		}
@@ -539,7 +540,7 @@ public class ProductManagerLogic {
 			}
 
 			// Verify the product is installed
-			String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
+			String title = Rb.text( BundleKey.UPDATE, "updates" );
 			Path installFolder = getProgram().getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
 			if( installFolder == null ) {
 				// This situation happens in development when running a mod from the classpath
@@ -622,9 +623,9 @@ public class ProductManagerLogic {
 	// Utility methods -----------------------------------------------------------
 
 	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
-		String updatesNotAvailable = getProgram().rb().text( BundleKey.UPDATE, "updates-not-available" );
-		String updatesCannotConnect = getProgram().rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String updatesNotAvailable = Rb.text( BundleKey.UPDATE, "updates-not-available" );
+		String updatesCannotConnect = Rb.text( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
@@ -636,8 +637,8 @@ public class ProductManagerLogic {
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
 		if( updates.size() == 0 ) return;
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates-found" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "updates-found-review" );
+		String title = Rb.text( BundleKey.UPDATE, "updates-found" );
+		String message = Rb.text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) )
@@ -663,8 +664,8 @@ public class ProductManagerLogic {
 	}
 
 	private void showNotice() {
-		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
+		String header = Rb.text( BundleKey.UPDATE, "restart-required" );
+		String message = Rb.text( BundleKey.UPDATE, "restart-recommended-notice" );
 
 		Notice notice = new Notice( header, message, () -> Fx.run( this::showAlert ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
@@ -673,11 +674,11 @@ public class ProductManagerLogic {
 	}
 
 	private void showAlert() {
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
-		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-alert" );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String header = Rb.text( BundleKey.UPDATE, "restart-required" );
+		String message = Rb.text( BundleKey.UPDATE, "restart-recommended-alert" );
 
-		ButtonType discard = new ButtonType( getProgram().rb().text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		ButtonType discard = new ButtonType( Rb.text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( getProgram().getIconLibrary().getIcon( "update", 64 ) );
 		alert.setTitle( title );

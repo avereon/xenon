@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.Profile;
@@ -74,7 +75,7 @@ public class TaskTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "task-name" ) );
+		setTitle( Rb.text( "tool", "task-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "task" ) );
 
 		taskManagerWatcher = e -> Fx.run( () -> addTaskPane( e.getTask() ) );
