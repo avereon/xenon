@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
@@ -35,7 +36,7 @@ public class FontSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey(), "SansSerif|12" );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		button = new Button();

@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
@@ -41,7 +42,7 @@ public abstract class TextSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		switch( type ) {

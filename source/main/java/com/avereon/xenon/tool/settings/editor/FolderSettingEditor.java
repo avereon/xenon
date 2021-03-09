@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.ProgramProduct;
@@ -37,7 +38,7 @@ public class FolderSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
@@ -45,7 +46,7 @@ public class FolderSettingEditor extends SettingEditor {
 		field.setId( rbKey );
 
 		Button button = new Button();
-		button.setText( product.rb().text( "settings", "browse" ) );
+		button.setText( Rb.text( getProduct(), "settings", "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		nodes = List.of( label, field, button );

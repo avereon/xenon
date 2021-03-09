@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
@@ -26,7 +27,7 @@ public class CheckBoxSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
 
-		String label = product.rb().text( "settings", rbKey );
+		String label = Rb.text( getProduct(), "settings", rbKey );
 
 		checkbox = new CheckBox();
 		checkbox.setSelected( selected );

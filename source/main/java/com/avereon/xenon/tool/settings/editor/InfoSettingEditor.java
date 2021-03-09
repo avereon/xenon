@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
@@ -41,7 +42,7 @@ public abstract class InfoSettingEditor extends SettingEditor {
 			text = new TextField();
 			text.getStyleClass().add( "settings-infoline" );
 		}
-		text.setText( product.rb().text( "settings", rbKey ) );
+		text.setText( Rb.text( getProduct(), "settings", rbKey ) );
 		text.setEditable( false );
 		text.setId( rbKey );
 

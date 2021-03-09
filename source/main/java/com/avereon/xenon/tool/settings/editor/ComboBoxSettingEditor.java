@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
@@ -29,7 +30,7 @@ public class ComboBoxSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey() );
 
-		Label label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		Label label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		List<SettingOption> options = setting.getOptions();
