@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.event.EventHandler;
-import com.avereon.product.ProductBundle;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
@@ -168,15 +167,6 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 				super.close();
 			}
 		} );
-	}
-
-	/**
-	 * A convenience method to get the product resource bundle from the tool.
-	 *
-	 * @return The product resource bundle
-	 */
-	protected ProductBundle rb() {
-		return getProduct().rb();
 	}
 
 	/**

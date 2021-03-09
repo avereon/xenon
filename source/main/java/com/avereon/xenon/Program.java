@@ -4,7 +4,6 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
-import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.product.Release;
@@ -101,8 +100,6 @@ public class Program extends Application implements ProgramProduct {
 	private String profile;
 
 	private IconLibrary iconLibrary;
-
-	private ProductBundle programResourceBundle;
 
 	private ActionLibrary actionLibrary;
 
@@ -208,7 +205,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Create the product resource bundle
 		Rb.init( this );
-		programResourceBundle = new ProductBundle( this );
 		time( "resource-bundle" );
 
 		// Configure logging, depends on parameters and program data folder
@@ -714,12 +710,6 @@ public class Program extends Application implements ProgramProduct {
 	@Override
 	public ProductCard getCard() {
 		return card;
-	}
-
-	@Deprecated
-	@Override
-	public ProductBundle rb() {
-		return programResourceBundle;
 	}
 
 	public final Path getDataFolder() {

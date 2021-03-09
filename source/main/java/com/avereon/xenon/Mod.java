@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Product;
-import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
@@ -40,8 +39,6 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private ProductCard card;
 
-	private ProductBundle resourceBundle;
-
 	private Map<String, SettingsPage> settingsPages;
 
 	public Mod() {
@@ -65,13 +62,6 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	public void setParent( Product parent ) {
 		this.parent = parent;
-	}
-
-	@Deprecated
-	@Override
-	public ProductBundle rb() {
-		if( resourceBundle == null ) resourceBundle = new ProductBundle( getProgram(), this );
-		return resourceBundle;
 	}
 
 	/**
