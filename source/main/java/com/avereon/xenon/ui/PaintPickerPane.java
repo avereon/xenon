@@ -46,6 +46,7 @@ public class PaintPickerPane extends VBox {
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
+		mode.getItems().addAll( PaintMode.NONE, PaintMode.SOLID );
 
 		// The paint stop editor
 		//RangeSlider paintStopEditor = new RangeSlider();
@@ -164,6 +165,8 @@ public class PaintPickerPane extends VBox {
 
 		public static final PaintMode RADIAL;
 
+		public static final PaintMode OTHER;
+
 		private final String key;
 
 		private final String label;
@@ -175,6 +178,7 @@ public class PaintPickerPane extends VBox {
 			SOLID = new PaintMode( "solid", Rb.text( BundleKey.LABEL, "solid" ) );
 			LINEAR = new PaintMode( "linear", Rb.text( BundleKey.LABEL, "linear" ) );
 			RADIAL = new PaintMode( "radial", Rb.text( BundleKey.LABEL, "radial" ) );
+			OTHER = new PaintMode( "other", Rb.text( BundleKey.LABEL, "other" ) );
 		}
 
 		public PaintMode( String key, String label ) {
@@ -207,7 +211,8 @@ public class PaintPickerPane extends VBox {
 				case '#' -> PaintMode.SOLID;
 				case '[' -> PaintMode.LINEAR;
 				case '(' -> PaintMode.RADIAL;
-				default -> throw new IllegalStateException( "Unexpected value: " + paint );
+				default -> PaintMode.OTHER;
+				//default -> throw new IllegalStateException( "Unexpected value: " + paint );
 			};
 		}
 

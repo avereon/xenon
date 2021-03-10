@@ -33,6 +33,7 @@ public class PaintSettingEditor extends SettingEditor {
 		super( product, bundleKey, setting );
 		label = new Label();
 		paintPicker = new PaintPicker();
+		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
 		paintPicker.getOptions().addAll( setting.getOptions().stream().map( o -> switch( o.getKey() ) {
 			case "none" -> PaintPickerPane.PaintMode.NONE;
 			case "solid" -> PaintPickerPane.PaintMode.SOLID;
