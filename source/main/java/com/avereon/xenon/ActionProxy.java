@@ -227,10 +227,10 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		if( actionStack.size() == 0 ) return;
+		if( event.isConsumed() || actionStack.size() == 0 || !isEnabled() ) return;
 		actionStack.peek().handle( event );
-		if( isEnabled() ) event.consume();
 		setState( getNextState() );
+		event.consume();
 	}
 
 	public void pushAction( Action action ) {

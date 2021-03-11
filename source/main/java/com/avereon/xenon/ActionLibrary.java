@@ -3,7 +3,6 @@ package com.avereon.xenon;
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.util.Log;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
@@ -173,8 +172,18 @@ public class ActionLibrary {
 	}
 
 	private void handleEvent( KeyEvent event ) {
+		// Filter out modifier key events
 		if( event.getCode().isModifierKey() ) return;
-		actionsByAccelerator.keySet().stream().filter( k -> k.match( event ) ).findFirst().ifPresent( k -> actionsByAccelerator.getOrDefault( k, NOOP ).handle( new ActionEvent() ) );
+
+		// FIXME How can we tell that an event was, or will be, handled by the normal subsystem?
+		// Otherwise, we will cause duplicate events for everything the subsystem also handles
+		// Things we tried but didn't work
+		// - Checking the event.isConsumed() flag
+
+		// If the event has a modifier then it should be handled by the normal subsystem
+		//if( getModifiers( event ).length > 0 ) return;
+
+		//actionsByAccelerator.keySet().stream().filter( k -> k.match( event ) ).findFirst().ifPresent( k -> actionsByAccelerator.getOrDefault( k, NOOP ).handle( new ActionEvent() ) );
 	}
 
 	private void addStates( Product product, String id, ActionProxy proxy ) {
