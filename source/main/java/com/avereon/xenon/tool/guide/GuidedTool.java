@@ -47,32 +47,33 @@ public abstract class GuidedTool extends ProgramTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 
-		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
-		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
+		getCurrentGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
+		getCurrentGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
+		getCurrentGuide().focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
 
 		Fx.run( () -> {
 			// Set the expanded ids before setting the selected ids
-			getGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-			getGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			getCurrentGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			getCurrentGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
-		getGuide().setActive( true );
+		getCurrentGuide().setActive( true );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		getGuide().setActive( false );
+		getCurrentGuide().setActive( false );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
-		getGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		getCurrentGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
+		getCurrentGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
 		super.deallocate();
 	}
 
@@ -88,19 +89,23 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	/**
-	 * This method should be overridden by tool implementations to provide the
-	 * guide that is appropriate for the tool.
+	 * Convenience method for quick access to the current guide.
 	 *
-	 * @return The tool guide
+	 * @return The current guide
 	 */
-	@Deprecated
-	Guide getGuide() {
+	Guide getCurrentGuide() {
 		return guideContext.getCurrentGuide();
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
 
 	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
+
+	protected void guideFocusChanged( boolean focused, Set<GuideNode> nodes ) {}
+
+	private void doGuideFocused( boolean focused ) {
+		guideFocusChanged( focused, getGuideContext().getCurrentGuide().selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+	}
 
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 

@@ -55,21 +55,21 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
-		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
 
-		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
 	}
 
 	@Test
 	void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
 		// NOTE When testing expanded nodes the node to expand cannot be a leaf
 		// Assert initial state
-		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 
-		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 	}
@@ -79,19 +79,19 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
-		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
-		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
 	}
 
 	@Test
 	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
-		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
-		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}

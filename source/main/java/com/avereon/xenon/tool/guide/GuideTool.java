@@ -98,7 +98,7 @@ public class GuideTool extends ProgramTool {
 		setTitle( Rb.text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
 
-		guideTree.focusedProperty().addListener( (p,o,n)-> guide.reselectSelectedItems() );
+		guideTree.focusedProperty().addListener( ( p, o, n ) -> guide.reselectSelectedItems() );
 	}
 
 	@Override
@@ -165,6 +165,9 @@ public class GuideTool extends ProgramTool {
 			// Unset the guide view selection mode
 			guideTree.getSelectionModel().setSelectionMode( SelectionMode.SINGLE );
 
+			// Unset the guide view focused property
+			this.guide.focusedProperty().unbind();
+
 			// Unset the guide view root
 			guideTree.setRoot( null );
 		}
@@ -185,6 +188,9 @@ public class GuideTool extends ProgramTool {
 			// Add the guide selected item property listener
 			// This listens to the guide for changes to the selected items
 			this.guide.selectedItemsProperty().addListener( guideSelectedItemsListener );
+
+			// Bind the focused property
+			this.guide.focusedProperty().bind( guideTree.focusedProperty() );
 
 			// Set the selected items
 			Set<TreeItem<GuideNode>> items = this.guide.selectedItemsProperty().get();
@@ -212,16 +218,7 @@ public class GuideTool extends ProgramTool {
 	 * @param selectedItems The selected items list.
 	 */
 	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
-		//		// The tree should already be expanded before calling this method
-		//		for( TreeItem<GuideNode> item : selectedItems ) {
-		//			item = item.getParent();
-		//			while( item != null ) {
-		//				item.setExpanded( true );
-		//				item = item.getParent();
-		//			}
-		//		}
-
-		// FIXME The following logic leaves selected item artifacts when auto-expand is on
+		// NOTE The tree should already be expanded before calling this method
 
 		// Map the guide view tree item ids to indexes
 		int index = 0;
@@ -247,7 +244,7 @@ public class GuideTool extends ProgramTool {
 	}
 
 	private void expandAndCollapsePaths( TreeItem<GuideNode> selectedItem ) {
-		Fx.run( ()  -> {
+		Fx.run( () -> {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 			boolean collapse = settings.get( "workspace-guide-auto-collapse", Boolean.class, false );
 			boolean expand = settings.get( "workspace-guide-auto-expand", Boolean.class, false );
@@ -269,7 +266,7 @@ public class GuideTool extends ProgramTool {
 					item.setExpanded( false );
 				}
 			}
-		});
+		} );
 	}
 
 	@SuppressWarnings( "unchecked" )

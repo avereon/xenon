@@ -34,6 +34,8 @@ public class Guide {
 
 	private final StringProperty iconProperty;
 
+	private final BooleanProperty focused;
+
 	private final BooleanProperty activeProperty;
 
 	private final BooleanProperty dragAndDropEnabledProperty;
@@ -46,6 +48,7 @@ public class Guide {
 		this.root = new TreeItem<>();
 		titleProperty = new SimpleStringProperty();
 		iconProperty = new SimpleStringProperty();
+		focused = new SimpleBooleanProperty( false );
 		activeProperty = new SimpleBooleanProperty( false );
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
@@ -145,6 +148,14 @@ public class Guide {
 
 	public void setSelectionMode( SelectionMode selectionMode ) {
 		this.selectionMode = selectionMode == null ? SelectionMode.SINGLE : selectionMode;
+	}
+
+	public boolean isFocused() {
+		return focused.get();
+	}
+
+	public BooleanProperty focusedProperty() {
+		return focused;
 	}
 
 	public boolean isActive() {
