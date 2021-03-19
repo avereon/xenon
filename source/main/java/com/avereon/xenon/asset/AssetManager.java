@@ -51,6 +51,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<Codec.Pattern, Map<String, Set<Codec>>> registeredCodecs;
 
+	private final DelayedAction autosave;
+
 	private final FxEventHub eventBus;
 
 	private final NewActionHandler newActionHandler;
@@ -71,6 +73,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final CurrentAssetWatcher currentAssetWatcher;
 
+	private final GeneralAssetWatcher generalAssetWatcher;
+
 	private final Object currentAssetLock = new Object();
 
 	private boolean running;
@@ -83,8 +87,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
 
+		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
+		autosave.setMinTriggerLimit( 2500 );
+		autosave.setMaxTriggerLimit( 5000 );
 		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
+		generalAssetWatcher = new GeneralAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
@@ -759,7 +767,17 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Request that the specified assets be saved. This method submits a task to the task manager and returns immediately.
+	 * Request that all modified assets be saved. This method submits a task to
+	 * the task manager and returns immediately.
+	 */
+	public void saveAll() {
+		saveAssets( getModifiedAssets() );
+		autosave.reset();
+	}
+
+	/**
+	 * Request that the specified assets be saved. This method submits a task to
+	 * the task manager and returns immediately.
 	 *
 	 * @param asset The asset to save
 	 */
@@ -1058,6 +1076,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !type.callAssetOpen( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
 
+		// Register the general asset listener
+		asset.register( AssetEvent.ANY, generalAssetWatcher );
+
 		// Open the asset
 		asset.open( this );
 
@@ -1113,7 +1134,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) return false;
 		if( !isManagedAssetOpen( asset ) ) return false;
 
+		// Close the asset
 		asset.close( this );
+
+		// Unregister the general asset listener
+		asset.unregister( AssetEvent.ANY, generalAssetWatcher );
+
+		// Remove the asset from the list of open assets
 		openAssets.remove( asset );
 		identifiedAssets.remove( asset.getUri() );
 
@@ -1311,7 +1338,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public void handle( ActionEvent event ) {
 			try {
-				saveAssets( getModifiedAssets() );
+				autosave.trigger();
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, exception );
 			}
@@ -1487,6 +1514,15 @@ public class AssetManager implements Controllable<AssetManager> {
 		public void handle( AssetEvent event ) {
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
+		}
+
+	}
+
+	private class GeneralAssetWatcher implements EventHandler<AssetEvent> {
+
+		@Override
+		public void handle( AssetEvent event ) {
+			autosave.update();
 		}
 
 	}
