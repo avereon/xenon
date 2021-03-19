@@ -3,10 +3,8 @@ package com.avereon.xenon;
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.util.Log;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 
 import java.lang.System.Logger;
 import java.util.Map;
@@ -16,18 +14,10 @@ public class ActionLibrary {
 
 	private static final Logger log = Log.get();
 
-	private static final ActionProxy NOOP = new ActionProxy();
-
 	private final Map<String, ActionProxy> actionsById;
-
-	private final Map<KeyCombination, ActionProxy> actionsByAccelerator;
-
-	private final EventHandler<KeyEvent> shortcutHandler;
 
 	public ActionLibrary( Program product ) {
 		this.actionsById = new ConcurrentHashMap<>();
-		this.actionsByAccelerator = new ConcurrentHashMap<>();
-		this.shortcutHandler = this::handleEvent;
 
 		// Create default actions
 		register( product, "program" );
@@ -148,42 +138,26 @@ public class ActionLibrary {
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
 
 		actionsById.put( id, proxy );
-
-		KeyCombination accelerator = proxy.getAccelerator();
-		if( accelerator != null ) actionsByAccelerator.put( accelerator, proxy );
 	}
 
-	// This handler is to capture key combinations for actions that are not in menus or toolbars
 	public void registerScene( Scene scene ) {
-		scene.addEventHandler( KeyEvent.KEY_PRESSED, shortcutHandler );
+		actionsById.values().forEach( a -> doAcceleratorInstall( a, scene ) );
 	}
 
 	public void unregisterScene( Scene scene ) {
-		scene.removeEventHandler( KeyEvent.KEY_PRESSED, shortcutHandler );
+		actionsById.values().forEach( a -> doAcceleratorUninstall( a, scene ) );
 	}
 
-	private KeyCombination.Modifier[] getModifiers( KeyEvent event ) {
-		KeyCombination.Modifier s = event.isShiftDown() ? KeyCombination.SHIFT_DOWN : KeyCombination.SHIFT_ANY;
-		KeyCombination.Modifier c = event.isControlDown() ? KeyCombination.CONTROL_DOWN : KeyCombination.CONTROL_ANY;
-		KeyCombination.Modifier a = event.isAltDown() ? KeyCombination.ALT_DOWN : KeyCombination.ALT_ANY;
-		KeyCombination.Modifier m = event.isMetaDown() ? KeyCombination.META_DOWN : KeyCombination.META_ANY;
-		KeyCombination.Modifier t = event.isShortcutDown() ? KeyCombination.SHORTCUT_DOWN : KeyCombination.SHORTCUT_ANY;
-		return new KeyCombination.Modifier[]{ s, c, a, m, t };
+	private void doAcceleratorInstall( ActionProxy proxy, Scene scene ) {
+		final Map<KeyCombination, Runnable> accelerators = scene.getAccelerators();
+		final KeyCombination accelerator = proxy.getAccelerator();
+		if( accelerator != null ) accelerators.computeIfAbsent( accelerator, k -> proxy::fire );
 	}
 
-	private void handleEvent( KeyEvent event ) {
-		// Filter out modifier key events
-		if( event.getCode().isModifierKey() ) return;
-
-		// FIXME How can we tell that an event was, or will be, handled by the normal subsystem?
-		// Otherwise, we will cause duplicate events for everything the subsystem also handles
-		// Things we tried but didn't work
-		// - Checking the event.isConsumed() flag
-
-		// If the event has a modifier then it should be handled by the normal subsystem
-		//if( getModifiers( event ).length > 0 ) return;
-
-		//actionsByAccelerator.keySet().stream().filter( k -> k.match( event ) ).findFirst().ifPresent( k -> actionsByAccelerator.getOrDefault( k, NOOP ).handle( new ActionEvent() ) );
+	private void doAcceleratorUninstall( ActionProxy proxy, Scene scene ) {
+		final Map<KeyCombination, Runnable> accelerators = scene.getAccelerators();
+		final KeyCombination accelerator = proxy.getAccelerator();
+		if( accelerator != null ) accelerators.computeIfPresent( accelerator, ( k, v ) -> null );
 	}
 
 	private void addStates( Product product, String id, ActionProxy proxy ) {

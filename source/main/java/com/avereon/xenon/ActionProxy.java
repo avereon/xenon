@@ -3,7 +3,9 @@ package com.avereon.xenon;
 import com.avereon.xenon.util.ActionUtil;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
+import javafx.event.EventDispatchChain;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.scene.input.KeyCombination;
 
 import java.util.*;
@@ -15,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * more than one action can be pushed and pulled from the proxy without loosing
  * what was already registered.
  */
-public class ActionProxy implements EventHandler<ActionEvent> {
+public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	public static final int NO_MNEMONIC = -1;
 
@@ -226,11 +228,20 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	@Override
+	public EventDispatchChain buildEventDispatchChain( EventDispatchChain eventDispatchChain ) {
+		return eventDispatchChain;
+	}
+
+	@Override
 	public void handle( ActionEvent event ) {
 		if( event.isConsumed() || actionStack.size() == 0 || !isEnabled() ) return;
 		actionStack.peek().handle( event );
 		setState( getNextState() );
 		event.consume();
+	}
+
+	public void fire() {
+		handle( new ActionEvent( this, this ) );
 	}
 
 	public void pushAction( Action action ) {
