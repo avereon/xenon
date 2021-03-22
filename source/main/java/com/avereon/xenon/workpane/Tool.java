@@ -412,7 +412,7 @@ public abstract class Tool extends StackPane {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.CLOSED, closer );
+			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}

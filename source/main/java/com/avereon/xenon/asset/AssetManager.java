@@ -1165,8 +1165,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// "Disconnect" the old current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
-				currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().unregister( AssetEvent.ANY, currentAssetWatcher );
 			}
 
 			// Change current asset
@@ -1174,8 +1174,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// "Connect" the new current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().register( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
 
 			// Notify program of current asset change
@@ -1301,13 +1301,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveActionHandler extends Action {
 
-		private final boolean saveAs;
-
 		private final boolean copy;
 
 		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
 			super( program );
-			this.saveAs = saveAs;
 			this.copy = copy;
 		}
 
@@ -1318,7 +1315,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			if( saveAs ) openAsset( ProgramAssetChooserType.SAVE_URI );
 			saveAsset( getCurrentAsset() );
 		}
 
@@ -1512,6 +1508,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
+			System.err.println( "asset event=" + event );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
 		}

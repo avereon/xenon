@@ -61,7 +61,7 @@ public class Asset extends Node {
 
 	private static final Logger log = Log.get();
 
-	private final FxEventHub eventBus;
+	private final FxEventHub eventHub;
 
 	private final UndoManager<NodeChange> undoManager;
 
@@ -93,22 +93,21 @@ public class Asset extends Node {
 	}
 
 	public Asset( URI uri, AssetType type ) {
+		this.eventHub = new FxEventHub().parent( super.getEventHub() );
+		this.undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply, NodeChange::merge );
+
 		setUri( uri );
 		setType( type );
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
 
-		eventBus = new FxEventHub().parent( super.getEventHub() );
-
-		// Create the undo manager
-		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply, NodeChange::merge );
 		// TODO These two listeners are part of a possible implementation to merge undo changes according to Txn boundaries
 		register( TxnEvent.COMMIT_BEGIN, e -> {
 			// start merging undo events
-		});
+		} );
 		register( TxnEvent.COMMIT_END, e -> {
 			// stop merging undo events
-		});
+		} );
 	}
 
 	/**
@@ -296,7 +295,7 @@ public class Asset extends Node {
 		if( scheme != null ) scheme.open( this );
 
 		open = true;
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
+		getEventHub().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -312,7 +311,7 @@ public class Asset extends Node {
 		setModified( false );
 		loaded = true;
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
+		getEventHub().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 		manager.getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		notifyAll();
@@ -331,7 +330,7 @@ public class Asset extends Node {
 		setModified( false );
 		saved = true;
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
+		getEventHub().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
 	}
 
 	public synchronized final boolean isClosed() {
@@ -345,7 +344,7 @@ public class Asset extends Node {
 		if( scheme != null ) scheme.close( this );
 		open = false;
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
+		getEventHub().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
 	}
 
 	public boolean exists() throws AssetException {
@@ -423,20 +422,26 @@ public class Asset extends Node {
 
 	@Override
 	public void dispatch( TxnEvent event ) {
-		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
-		super.dispatch( event );
-
-		if( getEventBus() == null ) return;
-
+//		if( event instanceof NodeEvent ) {
+//			NodeEvent e = (NodeEvent)event;
+//			//			if( e.getNode().getValue( "preview", false )) {
+//			//				System.out.println( "Preview event leak=" + event.getEventType() );
+//			//			}
+//			System.out.println( "Asset.dispatch() event=" + event );
+//			if( e.getNode().getClass().getSimpleName().equals( "DesignLayer" ) ) {
+//				System.out.println( "DesignLayer event=" + event.getEventType() );
+//			}
+//		}
 		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
+			getEventHub().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
 		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
+			getEventHub().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
 		}
+		super.dispatch( event );
 	}
 
-	public FxEventHub getEventBus() {
-		return eventBus;
+	public FxEventHub getEventHub() {
+		return eventHub;
 	}
 
 	@Override
@@ -457,13 +462,7 @@ public class Asset extends Node {
 		URI uri = getUri();
 		AssetType type = getType();
 		String assetTypeName = type == null ? "Unknown asset type" : type.getName();
-		return isNew() ? assetTypeName : uri.toString();
-	}
-
-	public String toUserString() {
-		String string = toString();
-		if( string.startsWith( "file:" ) ) string = string.substring( 5 );
-		return string;
+		return isNew() ? assetTypeName : String.valueOf( uri );
 	}
 
 	private String getDefaultName() {
