@@ -8,6 +8,7 @@ import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zerra.event.FxEventHub;
 import org.fxmisc.undo.UndoManager;
@@ -94,7 +95,11 @@ public class Asset extends Node {
 
 	public Asset( URI uri, AssetType type ) {
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
-		this.undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply, NodeChange::merge );
+		this.undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( DataNodeUndo.events( this ),
+			DataNodeUndo::invert,
+			DataNodeUndo::apply,
+			DataNodeUndo::merge
+		);
 
 		setUri( uri );
 		setType( type );
@@ -422,16 +427,16 @@ public class Asset extends Node {
 
 	@Override
 	public void dispatch( TxnEvent event ) {
-//		if( event instanceof NodeEvent ) {
-//			NodeEvent e = (NodeEvent)event;
-//			//			if( e.getNode().getValue( "preview", false )) {
-//			//				System.out.println( "Preview event leak=" + event.getEventType() );
-//			//			}
-//			System.out.println( "Asset.dispatch() event=" + event );
-//			if( e.getNode().getClass().getSimpleName().equals( "DesignLayer" ) ) {
-//				System.out.println( "DesignLayer event=" + event.getEventType() );
-//			}
-//		}
+		//		if( event instanceof NodeEvent ) {
+		//			NodeEvent e = (NodeEvent)event;
+		//			//			if( e.getNode().getValue( "preview", false )) {
+		//			//				System.out.println( "Preview event leak=" + event.getEventType() );
+		//			//			}
+		//			System.out.println( "Asset.dispatch() event=" + event );
+		//			if( e.getNode().getClass().getSimpleName().equals( "DesignLayer" ) ) {
+		//				System.out.println( "DesignLayer event=" + event.getEventType() );
+		//			}
+		//		}
 		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
 			getEventHub().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
 		} else if( event.getEventType() == NodeEvent.MODIFIED ) {

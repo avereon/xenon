@@ -30,7 +30,7 @@ public class NodeChangeTest {
 
 		// Enable undo change capture
 		this.node.setValue( NodeChange.CAPTURE_UNDO_CHANGES, true );
-		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( node ), NodeChange::invert, NodeChange::apply );
+		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( DataNodeUndo.events( node ), DataNodeUndo::invert, DataNodeUndo::apply, DataNodeUndo::merge );
 	}
 
 	@Test
@@ -60,6 +60,29 @@ public class NodeChangeTest {
 		assertThat( node.getValue( "a" ), is( 0 ) );
 		assertFalse( undoManager.isRedoAvailable() );
 		assertTrue( undoManager.isUndoAvailable() );
+	}
+
+	@Test
+	void testMerge() {
+		assertThat( node.getValue( "a" ), is( nullValue() ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+
+		node.setValue( "a", 0 );
+		node.setValue( "a", 1 );
+		node.setValue( "a", 2 );
+		node.setValue( "a", 3 );
+		undoManager.preventMerge();
+		node.setValue( "a", 4 );
+		assertThat( node.getValue( "a" ), is( 4 ) );
+
+		undoManager.undo();
+		assertThat( node.getValue( "a" ), is( 3 ) );
+
+		undoManager.undo();
+		assertThat( node.getValue( "a" ), is( nullValue() ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertTrue( undoManager.isRedoAvailable() );
 	}
 
 	@Test

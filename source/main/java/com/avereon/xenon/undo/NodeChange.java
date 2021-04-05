@@ -1,18 +1,19 @@
 package com.avereon.xenon.undo;
 
 import com.avereon.data.Node;
-import com.avereon.data.NodeEvent;
-import org.reactfx.EventSource;
-import org.reactfx.EventStream;
+import com.avereon.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class NodeChange {
 
 	public static final String CAPTURE_UNDO_CHANGES = "capture-undo-changes";
 
 	public static final boolean DEFAULT_CAPTURE_UNDO_CHANGES = false;
+
+	private static final System.Logger log = Log.get();
 
 	private final Node node;
 
@@ -22,35 +23,42 @@ public class NodeChange {
 
 	private final Object newValue;
 
+	private final List<NodeChange> changes;
+
 	public NodeChange( Node node, String key, Object oldValue, Object newValue ) {
 		this.node = node;
 		this.key = key;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
+		this.changes = List.of( this );
 	}
 
-	public NodeChange invert() {
-		return new NodeChange( node, key, newValue, oldValue );
+	NodeChange( List<NodeChange> changes ) {
+		this.node = null;
+		this.key = null;
+		this.oldValue = null;
+		this.newValue = null;
+		this.changes = new ArrayList<>( changes );
 	}
 
-	public void apply() {
-		node.setValue( key, newValue );
+	Node getNode() {
+		return node;
 	}
 
-	public static Optional<NodeChange> merge( NodeChange a, NodeChange b ) {
-		return Optional.empty();
+	String getKey() {
+		return key;
 	}
 
-	public static EventStream<NodeChange> events( Node node ) {
-		EventSource<NodeChange> source = new EventSource<>();
-		node.register( NodeEvent.VALUE_CHANGED, e -> {
-			Node eventNode = e.getNode();
-			String eventKey = e.getKey();
-			boolean isModifying = eventNode.isModifyingKey( eventKey );
-			boolean isCaptureUndoChanges = node.getValue( CAPTURE_UNDO_CHANGES, DEFAULT_CAPTURE_UNDO_CHANGES );
-			if( isModifying && isCaptureUndoChanges ) source.push( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
-		} );
-		return source;
+	Object getOldValue() {
+		return oldValue;
+	}
+
+	Object getNewValue() {
+		return newValue;
+	}
+
+	List<NodeChange> getChanges() {
+		return changes;
 	}
 
 	@Override
@@ -58,11 +66,17 @@ public class NodeChange {
 		if( this == other ) return true;
 		if( other == null || getClass() != other.getClass() ) return false;
 		NodeChange that = (NodeChange)other;
-		return node.equals( that.node ) && key.equals( that.key ) && Objects.equals( oldValue, that.oldValue ) && Objects.equals( newValue, that.newValue );
+		if( this.node != null ) {
+			return Objects.equals( this.node, that.node ) && Objects.equals( this.key, that.key ) && Objects.equals( oldValue, that.oldValue ) && Objects.equals( newValue, that.newValue );
+		}
+		//return Objects.equals( this.changes, that.changes );
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash( node, key, oldValue, newValue );
+		if( this.node != null ) return Objects.hash( node, key, oldValue, newValue );
+		return super.hashCode();
 	}
+
 }
