@@ -11,6 +11,8 @@ public class NodeChange {
 
 	public static final String CAPTURE_UNDO_CHANGES = "capture-undo-changes";
 
+	public static final String CAPTURE_REDO_CHANGES = "capture-redo-changes";
+
 	public static final boolean DEFAULT_CAPTURE_UNDO_CHANGES = false;
 
 	private static final System.Logger log = Log.get();
@@ -23,13 +25,20 @@ public class NodeChange {
 
 	private final Object newValue;
 
+	private final boolean redo;
+
 	private final List<NodeChange> changes;
 
 	public NodeChange( Node node, String key, Object oldValue, Object newValue ) {
+		this( node, key, oldValue, newValue, false );
+	}
+
+	public NodeChange( Node node, String key, Object oldValue, Object newValue, boolean isRedo ) {
 		this.node = node;
 		this.key = key;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
+		this.redo = isRedo;
 		this.changes = List.of( this );
 	}
 
@@ -38,6 +47,7 @@ public class NodeChange {
 		this.key = null;
 		this.oldValue = null;
 		this.newValue = null;
+		this.redo = false;
 		this.changes = new ArrayList<>( changes );
 	}
 
@@ -55,6 +65,10 @@ public class NodeChange {
 
 	Object getNewValue() {
 		return newValue;
+	}
+
+	public boolean isRedo() {
+		return redo;
 	}
 
 	List<NodeChange> getChanges() {
