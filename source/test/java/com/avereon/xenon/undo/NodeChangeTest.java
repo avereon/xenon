@@ -1,8 +1,6 @@
 package com.avereon.xenon.undo;
 
 import com.avereon.data.Node;
-import org.fxmisc.undo.UndoManager;
-import org.fxmisc.undo.UndoManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +16,7 @@ public class NodeChangeTest {
 
 	private Node child;
 
-	private UndoManager<NodeChange> undoManager;
+	private NodeUndoManager undoManager;
 
 	@BeforeEach
 	void setup() {
@@ -30,7 +28,7 @@ public class NodeChangeTest {
 
 		// Enable undo change capture
 		this.node.setValue( NodeChange.CAPTURE_UNDO_CHANGES, true );
-		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( DataNodeUndo.events( node ), DataNodeUndo::invert, DataNodeUndo::apply, DataNodeUndo::merge );
+		undoManager = new NodeUndoManager( node );
 	}
 
 	@Test
@@ -39,6 +37,7 @@ public class NodeChangeTest {
 		assertFalse( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );
 		node.setValue( "a", 0 );
+		undoManager.commit();
 		assertThat( node.getValue( "a" ), is( 0 ) );
 		assertTrue( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );
@@ -47,6 +46,7 @@ public class NodeChangeTest {
 	@Test
 	void testUndo() {
 		testSetValue();
+		System.out.println( "--- undo ---" );
 		undoManager.undo();
 		assertThat( node.getValue( "a" ), is( nullValue() ) );
 		assertFalse( undoManager.isUndoAvailable() );
@@ -72,7 +72,7 @@ public class NodeChangeTest {
 		node.setValue( "a", 1 );
 		node.setValue( "a", 2 );
 		node.setValue( "a", 3 );
-		undoManager.preventMerge();
+		undoManager.commit();
 		node.setValue( "a", 4 );
 		assertThat( node.getValue( "a" ), is( 4 ) );
 
@@ -95,7 +95,7 @@ public class NodeChangeTest {
 		child.setValue( "c", 1 );
 		child.setValue( "c", 2 );
 		child.setValue( "c", 3 );
-		undoManager.preventMerge();
+		undoManager.commit();
 		child.setValue( "c", 4 );
 		assertThat( child.getValue( "c" ), is( 4 ) );
 
@@ -149,7 +149,7 @@ public class NodeChangeTest {
 		childC.setValue( "x", 4 );
 		childC.setValue( "y", 4 );
 		childC.setValue( "z", 4 );
-		undoManager.preventMerge();
+		undoManager.commit();
 		System.out.println( "---merge---" );
 
 		childB.setValue( "x", 11 );
@@ -158,7 +158,7 @@ public class NodeChangeTest {
 		childD.setValue( "x", 14 );
 		childD.setValue( "y", 14 );
 		childD.setValue( "z", 14 );
-		undoManager.preventMerge();
+		undoManager.commit();
 		System.out.println( "---merge done---" );
 
 		assertTrue( undoManager.isUndoAvailable() );
@@ -176,7 +176,7 @@ public class NodeChangeTest {
 
 		System.out.println( "---undo---" );
 		undoManager.undo();
-		//undoManager.preventMerge();
+		//undoManager.commit();
 		assertThat( childB.getValue( "x" ), is( 1 ) );
 		assertThat( childB.getValue( "y" ), is( 1 ) );
 		assertThat( childB.getValue( "z" ), is( 1 ) );
@@ -210,6 +210,7 @@ public class NodeChangeTest {
 		assertFalse( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );
 		child.setValue( "c", 0 );
+		undoManager.commit();
 		assertThat( child.getValue( "c" ), is( 0 ) );
 		assertTrue( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );

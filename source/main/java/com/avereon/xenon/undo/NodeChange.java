@@ -9,7 +9,9 @@ import java.util.Objects;
 
 public class NodeChange {
 
-	public static final String CAPTURE_UNDO_CHANGES = "capture-undo-changes";
+	public static final String CAPTURE_UNDO_CHANGES = NodeChange.class.getName() + ":capture-undo-changes";
+
+	public static final String PUBLISH_UNDO_CHANGES = NodeChange.class.getName() + ":publish-undo-changes";
 
 	public static final String CAPTURE_REDO_CHANGES = "capture-redo-changes";
 
@@ -75,16 +77,24 @@ public class NodeChange {
 		return changes;
 	}
 
+	public String toString() {
+		return node + " " + key + "=" + oldValue + " -> " + newValue;
+	}
+
 	@Override
 	public boolean equals( Object other ) {
 		if( this == other ) return true;
 		if( other == null || getClass() != other.getClass() ) return false;
+
+		// FIXME Should only have to compare the change lists
+
 		NodeChange that = (NodeChange)other;
-		if( this.node != null ) {
+		//if( this.node != null ) {
 			return Objects.equals( this.node, that.node ) && Objects.equals( this.key, that.key ) && Objects.equals( oldValue, that.oldValue ) && Objects.equals( newValue, that.newValue );
-		}
+		//}
+
+		//return true;
 		//return Objects.equals( this.changes, that.changes );
-		return true;
 	}
 
 	@Override
