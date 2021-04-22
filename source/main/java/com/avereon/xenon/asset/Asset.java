@@ -109,9 +109,13 @@ public class Asset extends Node {
 		// TODO These two listeners are part of a possible implementation to merge undo changes according to Txn boundaries
 		register( TxnEvent.COMMIT_BEGIN, e -> {
 			// start merging undo events
+			// NOTE This is not getting called as anticipated
+			System.err.println( "TXN commit begin");
 		} );
 		register( TxnEvent.COMMIT_END, e -> {
 			// stop merging undo events
+			// NOTE This is not getting called as anticipated
+			System.err.println( "TXN commit end");
 		} );
 	}
 
