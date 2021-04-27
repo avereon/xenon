@@ -16,11 +16,7 @@ public class NodeUndoManager implements UndoManager<List<NodeChange>> {
 
 	public NodeUndoManager( Node node ) {
 		this.node = node;
-		this.manager = UndoManagerFactory.unlimitedHistoryMultiChangeUM( DataNodeUndo2.events( node ), DataNodeUndo2::invert, DataNodeUndo2::apply, DataNodeUndo2::merge );
-	}
-
-	public void commit() {
-		node.setValue( NodeChange.PUBLISH_UNDO_CHANGES, true );
+		this.manager = UndoManagerFactory.unlimitedHistoryMultiChangeUM( DataNodeUndo2.events( node ), DataNodeUndo2::invert, DataNodeUndo2::apply );
 	}
 
 	@Override

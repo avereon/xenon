@@ -11,7 +11,7 @@ public class NodeChange {
 
 	public static final String CAPTURE_UNDO_CHANGES = NodeChange.class.getName() + ":capture-undo-changes";
 
-	public static final String PUBLISH_UNDO_CHANGES = NodeChange.class.getName() + ":publish-undo-changes";
+	//public static final String PUBLISH_UNDO_CHANGES = NodeChange.class.getName() + ":publish-undo-changes";
 
 	public static final String CAPTURE_REDO_CHANGES = "capture-redo-changes";
 
