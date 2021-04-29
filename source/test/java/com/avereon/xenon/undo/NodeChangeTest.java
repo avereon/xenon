@@ -2,14 +2,16 @@ package com.avereon.xenon.undo;
 
 import com.avereon.data.Node;
 import com.avereon.transaction.Txn;
+import org.fxmisc.undo.UndoManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NodeChangeTest {
 
@@ -17,7 +19,7 @@ public class NodeChangeTest {
 
 	private Node child;
 
-	private NodeUndoManager undoManager;
+	private UndoManager<List<NodeChange>> undoManager;
 
 	@BeforeEach
 	void setup() {
@@ -29,7 +31,7 @@ public class NodeChangeTest {
 
 		// Enable undo change capture
 		this.node.setValue( NodeChange.CAPTURE_UNDO_CHANGES, true );
-		undoManager = new NodeUndoManager( node );
+		undoManager = DataNodeUndo.manager( node );
 	}
 
 	@Test

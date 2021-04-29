@@ -12,7 +12,6 @@ import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zerra.event.FxEventHub;
 import org.fxmisc.undo.UndoManager;
-import org.fxmisc.undo.UndoManagerFactory;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -64,7 +63,7 @@ public class Asset extends Node {
 
 	private final FxEventHub eventHub;
 
-	private final UndoManager<NodeChange> undoManager;
+	private final UndoManager<List<NodeChange>> undoManager;
 
 	private boolean captureUndoChanges;
 
@@ -95,28 +94,12 @@ public class Asset extends Node {
 
 	public Asset( URI uri, AssetType type ) {
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
-		this.undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( DataNodeUndo.events( this ),
-			DataNodeUndo::invert,
-			DataNodeUndo::apply,
-			DataNodeUndo::merge
-		);
+		this.undoManager = DataNodeUndo.manager( this );
 
 		setUri( uri );
 		setType( type );
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
-
-		// TODO These two listeners are part of a possible implementation to merge undo changes according to Txn boundaries
-		register( TxnEvent.COMMIT_BEGIN, e -> {
-			// start merging undo events
-			// NOTE This is not getting called as anticipated
-			System.err.println( "TXN commit begin");
-		} );
-		register( TxnEvent.COMMIT_END, e -> {
-			// stop merging undo events
-			// NOTE This is not getting called as anticipated
-			System.err.println( "TXN commit end");
-		} );
 	}
 
 	/**
@@ -224,7 +207,7 @@ public class Asset extends Node {
 		}
 	}
 
-	public UndoManager<NodeChange> getUndoManager() {
+	public UndoManager<List<NodeChange>> getUndoManager() {
 		return undoManager;
 	}
 
