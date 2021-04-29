@@ -5,11 +5,13 @@ import com.avereon.event.EventType;
 
 public class GuideEvent extends Event {
 
-	public static final EventType<GuideEvent> ANY = new EventType<>( "ANY" );
+	public static final EventType<GuideEvent> GUIDE = new EventType<>( Event.ANY, "GUIDE" );
 
-	public static final EventType<GuideEvent> GUIDE_CHANGING = new EventType<>( ANY, "GUIDE_CHANGING" );
+	public static final EventType<GuideEvent> ANY = GUIDE;
 
-	public static final EventType<GuideEvent> GUIDE_CHANGED = new EventType<>( ANY, "GUIDE_CHANGED" );
+	public static final EventType<GuideEvent> GUIDE_CHANGING = new EventType<>( GUIDE, "GUIDE_CHANGING" );
+
+	public static final EventType<GuideEvent> GUIDE_CHANGED = new EventType<>( GUIDE, "GUIDE_CHANGED" );
 
 	private Guide oldGuide;
 
