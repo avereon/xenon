@@ -1508,7 +1508,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			System.err.println( "asset event=" + event );
+			//System.err.println( "asset event=" + event );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
 		}
