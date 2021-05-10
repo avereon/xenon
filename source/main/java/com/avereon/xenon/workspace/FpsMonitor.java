@@ -58,7 +58,7 @@ public class FpsMonitor extends AbstractMonitor {
 			for( int index = 0; index < BUFFER_SIZE; index++ ) {
 				long value = rates[ index ];
 				if( value != 0 ) {
-					total += value;
+					total += (int)value;
 					count++;
 				}
 			}
