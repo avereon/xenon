@@ -12,9 +12,9 @@ import org.reactfx.EventSource;
 import org.reactfx.EventStream;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class DataNodeUndo {
 
@@ -23,17 +23,13 @@ public class DataNodeUndo {
 	private static final System.Logger log = Log.get();
 
 	public static UndoManager<List<NodeChange>> manager( Node node ) {
-		return UndoManagerFactory.unlimitedHistoryMultiChangeUM( events( node ),
-			DataNodeUndo::invert,
-			DataNodeUndo::apply,
-			DataNodeUndo::merge
-		);
+		return UndoManagerFactory.unlimitedHistoryMultiChangeUM( events( node ), DataNodeUndo::invert, DataNodeUndo::apply );
 	}
 
 	public static EventStream<List<NodeChange>> events( Node node ) {
 		EventSource<List<NodeChange>> source = new EventSource<>();
 
-		node.setValue( UNDO_CHANGES, new LinkedList<>() );
+		node.setValue( UNDO_CHANGES, Collections.synchronizedList( new LinkedList<>() ) );
 
 		node.register( NodeEvent.VALUE_CHANGED, e -> {
 			Node eventNode = e.getNode();
@@ -41,18 +37,16 @@ public class DataNodeUndo {
 			boolean isModifying = eventNode.isModifyingKey( eventKey );
 			boolean isCaptureUndoChanges = node.getValue( NodeChange.CAPTURE_UNDO_CHANGES, NodeChange.DEFAULT_CAPTURE_UNDO_CHANGES );
 
-			synchronized( node ) {
+			if( isModifying && isCaptureUndoChanges ) {
 				List<NodeChange> changes = node.getValue( UNDO_CHANGES );
-				if( isModifying && isCaptureUndoChanges ) changes.add( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
+				changes.add( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
 			}
 		} );
 
 		node.register( TxnEvent.COMMIT_END, e -> {
-			synchronized( node ) {
-				List<NodeChange> changes = node.getValue( UNDO_CHANGES );
-				source.push( new ArrayList<>( changes ) );
-				changes.clear();
-			}
+			List<NodeChange> changes = node.getValue( UNDO_CHANGES );
+			source.push( new ArrayList<>( changes ) );
+			changes.clear();
 		} );
 
 		return source;
@@ -66,12 +60,8 @@ public class DataNodeUndo {
 		try( Txn ignore = Txn.create() ) {
 			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue(), false ) );
 		} catch( TxnException exception ) {
-			log.log( Log.WARN, "Unable to apply node changes" );
+			log.log( Log.WARN, "Unable to apply node changes", exception );
 		}
-	}
-
-	public static Optional<NodeChange> merge( NodeChange a, NodeChange b ) {
-		return Optional.empty();
 	}
 
 }
