@@ -66,6 +66,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: java
+
       - name: Compile
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
@@ -73,6 +78,9 @@ jobs:
       - name: Unit Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} test
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
 
       - name: Deploy Arifacts
         run: |
