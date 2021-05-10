@@ -111,7 +111,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 			if( object instanceof LogRecord ) {
 				LogManager.getLogManager().getLogger( "" ).log( (LogRecord)object );
 			} else {
-				log.log( Log.INFO,  String.valueOf( object ) );
+				log.log( Log.INFO, String.valueOf( object ) );
 			}
 		}
 	}
