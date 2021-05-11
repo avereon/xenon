@@ -11,13 +11,20 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NodeChangeTest {
 
-	private Node node;
+	private MockNode node;
 
-	private Node child;
+	private MockNode child;
+
+	private MockNode setNode1;
+
+	private MockNode setNode2;
+
+	private MockNode setNode3;
 
 	private UndoManager<List<NodeChange>> undoManager;
 
@@ -28,6 +35,10 @@ public class NodeChangeTest {
 		this.child = new MockNode();
 		this.child.addModifyingKeys( "c" );
 		this.node.setValue( "child", child );
+
+		this.setNode1 = new MockNode( "set-node-1" );
+		this.setNode2 = new MockNode( "set-node-2" );
+		this.setNode3 = new MockNode( "set-node-3" );
 
 		// Enable undo change capture
 		this.node.setValue( NodeChange.CAPTURE_UNDO_CHANGES, true );
@@ -64,7 +75,7 @@ public class NodeChangeTest {
 	}
 
 	@Test
-	void testMerge() throws Exception {
+	void testMultipleUndo() throws Exception {
 		assertThat( node.getValue( "a" ), is( nullValue() ) );
 		assertFalse( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );
@@ -88,7 +99,7 @@ public class NodeChangeTest {
 	}
 
 	@Test
-	void testMergeWithChildNode() throws Exception {
+	void testMultipleUndoWithChildNode() throws Exception {
 		assertThat( child.getValue( "c" ), is( nullValue() ) );
 		assertFalse( undoManager.isUndoAvailable() );
 		assertFalse( undoManager.isRedoAvailable() );
@@ -112,7 +123,7 @@ public class NodeChangeTest {
 	}
 
 	@Test
-	void testMergeWithMultipleNodes() throws Exception {
+	void testMultipleUndoWithMultipleNodes() throws Exception {
 		Node childB = new MockNode();
 		Node childC = new MockNode();
 		Node childD = new MockNode();
@@ -229,6 +240,106 @@ public class NodeChangeTest {
 		assertThat( child.getValue( "c" ), is( 0 ) );
 		assertFalse( undoManager.isRedoAvailable() );
 		assertTrue( undoManager.isUndoAvailable() );
+	}
+
+	@Test
+	void testSetSetValue() {
+		assertThat( node.getNodes().size(), is( 0 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+
+		node.addNode( setNode1 );
+		assertTrue( node.isModified() );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testUndoSetValue() {
+		testSetSetValue();
+		undoManager.undo();
+		assertFalse( node.isModified() );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertTrue( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testRedoSetValue() {
+		testUndoSetValue();
+		undoManager.redo();
+		assertTrue( node.isModified() );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testSetRemoveSetValue() {
+		assertThat( node.getNodes().size(), is( 0 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+
+		node.addNode( setNode1 );
+		node.removeNode( setNode1 );
+		assertThat( node.getNodes().size(), is( 0 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testUndoSetRemoveSetValue() {
+		testSetRemoveSetValue();
+		undoManager.undo();
+		//assertFalse( node.isModified() );
+		assertThat( node.getNodes().size(), is( 2 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertTrue( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testRedoSetRemoveSetValue() {
+		testUndoSetRemoveSetValue();
+		undoManager.redo();
+		//assertTrue( node.isModified() );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testSetRemoveMultipleSetValues() {
+		assertThat( node.getNodes().size(), is( 0 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+
+		node.addNode( setNode1 );
+		node.addNode( setNode2 );
+		node.removeNode( setNode1 );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testUndoSetRemoveMultipleSetValues() {
+		testSetRemoveMultipleSetValues();
+		undoManager.undo();
+		//assertFalse( node.isModified() );
+		assertThat( node.getNodes().size(), is( 2 ) );
+		assertFalse( undoManager.isUndoAvailable() );
+		assertTrue( undoManager.isRedoAvailable() );
+	}
+
+	@Test
+	void testRedoSetRemoveMultipleSetValues() {
+		testUndoSetRemoveMultipleSetValues();
+		undoManager.redo();
+		//assertTrue( node.isModified() );
+		assertThat( node.getNodes().size(), is( 1 ) );
+		assertTrue( undoManager.isUndoAvailable() );
+		assertFalse( undoManager.isRedoAvailable() );
 	}
 
 }

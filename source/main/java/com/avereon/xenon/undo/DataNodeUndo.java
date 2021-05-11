@@ -58,6 +58,7 @@ public class DataNodeUndo {
 
 	public static void apply( List<NodeChange> changes ) {
 		try( Txn ignore = Txn.create() ) {
+			// FIXME Using setValue does not work properly for NodeSets
 			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue(), false ) );
 		} catch( TxnException exception ) {
 			log.log( Log.WARN, "Unable to apply node changes", exception );
