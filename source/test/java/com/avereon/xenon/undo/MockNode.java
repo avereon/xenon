@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class MockNode extends IdNode {
 
-	private static final String NODES = "shapes";
+	private static final String NODES = "nodes";
 
 	public MockNode() {
 		super();

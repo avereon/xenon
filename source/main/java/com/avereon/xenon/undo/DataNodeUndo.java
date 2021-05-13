@@ -12,7 +12,6 @@ import org.reactfx.EventSource;
 import org.reactfx.EventStream;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,10 +25,11 @@ public class DataNodeUndo {
 		return UndoManagerFactory.unlimitedHistoryMultiChangeUM( events( node ), DataNodeUndo::invert, DataNodeUndo::apply );
 	}
 
+	@SuppressWarnings( "SynchronizationOnLocalVariableOrMethodParameter" )
 	public static EventStream<List<NodeChange>> events( Node node ) {
-		EventSource<List<NodeChange>> source = new EventSource<>();
+		EventSource<List<NodeChange>> events = new EventSource<>();
 
-		node.setValue( UNDO_CHANGES, Collections.synchronizedList( new LinkedList<>() ) );
+		node.setValue( UNDO_CHANGES, new LinkedList<>() );
 
 		node.register( NodeEvent.VALUE_CHANGED, e -> {
 			Node eventNode = e.getNode();
@@ -38,18 +38,22 @@ public class DataNodeUndo {
 			boolean isCaptureUndoChanges = node.getValue( NodeChange.CAPTURE_UNDO_CHANGES, NodeChange.DEFAULT_CAPTURE_UNDO_CHANGES );
 
 			if( isModifying && isCaptureUndoChanges ) {
-				List<NodeChange> changes = node.getValue( UNDO_CHANGES );
-				changes.add( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
+				LinkedList<NodeChange> changes = node.getValue( UNDO_CHANGES );
+				synchronized( changes ) {
+					changes.add( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
+				}
 			}
 		} );
 
 		node.register( TxnEvent.COMMIT_END, e -> {
-			List<NodeChange> changes = node.getValue( UNDO_CHANGES );
-			source.push( new ArrayList<>( changes ) );
-			changes.clear();
+			LinkedList<NodeChange> changes = node.getValue( UNDO_CHANGES );
+			synchronized( changes ) {
+				events.push( new ArrayList<>( changes ) );
+				changes.clear();
+			}
 		} );
 
-		return source;
+		return events;
 	}
 
 	public static NodeChange invert( NodeChange change ) {
@@ -58,8 +62,8 @@ public class DataNodeUndo {
 
 	public static void apply( List<NodeChange> changes ) {
 		try( Txn ignore = Txn.create() ) {
-			// FIXME Using setValue does not work properly for NodeSets
-			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue(), false ) );
+			//changes.forEach( c -> System.out.println( "apply change=" + c ));
+			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue() ) );
 		} catch( TxnException exception ) {
 			log.log( Log.WARN, "Unable to apply node changes", exception );
 		}
