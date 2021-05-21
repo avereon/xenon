@@ -27,8 +27,6 @@
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../recon/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../mazer/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../aveon/pom.xml" goal="resources:resources" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../arena/pom.xml" goal="resources:resources" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../amazo/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../carta/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../weave/pom.xml" goal="resources:resources" />
     </method>
