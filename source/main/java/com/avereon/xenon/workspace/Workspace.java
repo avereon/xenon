@@ -43,6 +43,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.avereon.xenon.util.ActionUtil.SEPARATOR;
+
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
@@ -125,7 +127,7 @@ public class Workspace implements WritableIdentity {
 		toolbarToolButtons = new ConcurrentHashMap<>();
 		toolbarToolButtonSeparator = new Separator();
 		toolbarToolSpring = ActionUtil.createSpring();
-		toolbar = createToolBar( program );
+		toolbar = createProgramToolBar( program );
 
 		statusBar = createStatusBar( program );
 
@@ -259,32 +261,29 @@ public class Workspace implements WritableIdentity {
 		return menubar;
 	}
 
-	private ToolBar createToolBar( Program program ) {
+	private static Menu createMenu( Program program, Object[] items ) {
+		if( items.length == 0 ) return null;
+		Menu menu = ActionUtil.createMenu( program, String.valueOf( items[ 0 ] ) );
+		for( Object item : items ) {
+			if( item instanceof Object[] ) {
+				menu.getItems().add( createMenu( program, (Object[])item ) );
+			} else if( item == SEPARATOR ) {
+				menu.getItems().add( new SeparatorMenuItem() );
+			} else {
+				menu.getItems().add( ActionUtil.createMenuItem( program, String.valueOf( item ) ) );
+			}
+		}
+		return menu;
+	}
+
+	private ToolBar createProgramToolBar( Program program ) {
 		ToolBar toolbar = new ToolBar();
-		String[] ids = new String[]{ "new", "open", "save", "properties", ActionUtil.SEPARATOR, "undo", "redo", ActionUtil.SEPARATOR, "cut", "copy", "paste" };
-		toolbar.getItems().addAll( ActionUtil.createToolBarItems( program, ids ) );
+		Object[] ids = new Object[]{ "new", "open", "save", "properties", SEPARATOR, "undo", "redo", SEPARATOR, "cut", "copy", "paste" };
+		toolbar.getItems().addAll( createToolBar( program, ids ).getItems() );
 		toolbar.getItems().add( toolbarToolSpring );
 
-		// Workarea menu
-		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-rename" ) );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-close" ) );
-
-		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
-		workareaMenuBar.getMenus().add( workareaMenu );
-
-		// Workarea selector
-		workareaSelector = new ComboBox<>();
-		workareaSelector.setItems( workareas );
-		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
-		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
-
-		toolbar.getItems().add( workareaMenuBar );
-		toolbar.getItems().add( workareaSelector );
+		toolbar.getItems().add( createWorkareaMenu( program ) );
+		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
 		toolbar.getItems().add( ActionUtil.createPad() );
 		Button noticeButton = ActionUtil.createToolBarButton( program, "notice" );
@@ -300,6 +299,37 @@ public class Workspace implements WritableIdentity {
 		toolbar.getItems().add( noticeButton );
 
 		return toolbar;
+	}
+
+	private static ToolBar createToolBar( Program program, Object[] items ) {
+		ToolBar toolbar = new ToolBar();
+		for( Object item : items ) {
+			if( item instanceof Object[] ) {
+				toolbar.getItems().add( ActionUtil.createToolBarItem( program, createToolBar( program, (Object[])item ) ) );
+			} else if( item == SEPARATOR ) {
+				toolbar.getItems().add( new Separator() );
+			} else {
+				toolbar.getItems().add( ActionUtil.createToolBarItem( program, String.valueOf( item ) ) );
+			}
+		}
+		return toolbar;
+	}
+
+	private static MenuBar createWorkareaMenu( Program program ) {
+		Object[] items = new Object[]{ "workarea", "workarea-new", SEPARATOR, "workarea-rename", SEPARATOR, "workarea-close" };
+
+		MenuBar workareaMenuBar = new MenuBar();
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
+		workareaMenuBar.getMenus().add( createMenu( program, items ) );
+		return workareaMenuBar;
+	}
+
+	private ComboBox<Workarea> createWorkareaSelector() {
+		ComboBox<Workarea> selector = new ComboBox<>();
+		selector.setItems( workareas );
+		selector.setButtonCell( new WorkareaPropertyCell() );
+		selector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
+		return selector;
 	}
 
 	private StatusBar createStatusBar( Program program ) {
@@ -328,7 +358,7 @@ public class Workspace implements WritableIdentity {
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolSpring );
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
-		toolbar.getItems().addAll( index, ActionUtil.createToolBarItems( getProgram(), ids ) );
+		toolbar.getItems().addAll( index, createToolBar( getProgram(), ids ).getItems() );
 	}
 
 	public void pullToolbarActions() {

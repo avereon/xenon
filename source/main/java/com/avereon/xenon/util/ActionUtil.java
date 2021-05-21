@@ -14,9 +14,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
 import java.lang.System.Logger;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Deprecated
 public class ActionUtil {
 
 	private static final Logger log = Log.get();
@@ -40,7 +42,6 @@ public class ActionUtil {
 	public static Menu createSubMenu( Program program, ActionProxy action ) {
 		return createMenu( program, action, true );
 	}
-
 
 	private static Menu createMenu( Program program, ActionProxy action, boolean submenu ) {
 		Menu item = new Menu();
@@ -92,15 +93,18 @@ public class ActionUtil {
 		return item;
 	}
 
+	public static Node createToolBarItem( Program program, ToolBar bar ) {
+		return bar;
+	}
+
+	public static Node createToolBarItem( Program program, String id ) {
+		boolean isSeparator = ActionUtil.SEPARATOR.equals( id );
+		return isSeparator ? new Separator() : ActionUtil.createToolBarButton( program, id );
+	}
+
+	@Deprecated
 	public static List<Node> createToolBarItems( Program program, String... ids ) {
-		List<Node> nodes = new ArrayList<>();
-
-		for( String id : ids ) {
-			boolean isSeparator = ActionUtil.SEPARATOR.equals( id );
-			nodes.add( isSeparator ? new Separator() : ActionUtil.createToolBarButton( program, id ) );
-		}
-
-		return nodes;
+		return Arrays.stream( ids ).map( i -> createToolBarItem( program, i ) ).collect( Collectors.toList());
 	}
 
 	public static Button createToolBarButton( Program program, String id ) {
