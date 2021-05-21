@@ -128,7 +128,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	public Set<URI> getAssetDependencies() {
-		return Collections.unmodifiableSet( Collections.emptySet() );
+		return Collections.emptySet();
 	}
 
 	public Settings getAssetSettings() {
