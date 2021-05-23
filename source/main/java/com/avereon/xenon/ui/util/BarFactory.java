@@ -12,6 +12,12 @@ public abstract class BarFactory {
 
 	public static final String CLOSE_GROUP = "]";
 
+	public static final String COMMA_SPLITTER = ",";
+
+	public static final String SPACE_SPLITTER = " ";
+
+	public static final String DELIMITERS = SEPARATOR + OPEN_GROUP + CLOSE_GROUP + COMMA_SPLITTER + SPACE_SPLITTER;
+
 	/**
 	 * <p>
 	 * Parse a bar descriptor string into groups of tokens that can be
@@ -30,9 +36,10 @@ public abstract class BarFactory {
 	 */
 	static List<Token> parseDescriptor( String descriptor ) {
 		List<String> sTokens = StreamSupport
-			.stream( Spliterators.spliteratorUnknownSize( new StringTokenizer( descriptor, "[]|,", true ).asIterator(), Spliterator.ORDERED ), false )
+			.stream( Spliterators.spliteratorUnknownSize( new StringTokenizer( descriptor, DELIMITERS, true ).asIterator(), Spliterator.ORDERED ), false )
 			.map( String::valueOf )
-			.filter( s -> !",".equals( s ) )
+			.filter( s -> !COMMA_SPLITTER.equals( s ) )
+			.filter( s -> !SPACE_SPLITTER.equals( s ) )
 			.collect( Collectors.toList() );
 		return parseTokens( new LinkedList<>( sTokens ) );
 	}
@@ -125,7 +132,7 @@ public abstract class BarFactory {
 
 		@Override
 		public boolean equals( Object object ) {
-			if( !(object instanceof Token)) return false;
+			if( !(object instanceof Token) ) return false;
 			Token that = (Token)object;
 			return Objects.equals( this.id, that.id );
 		}

@@ -712,19 +712,19 @@ public class Program extends Application implements ProgramProduct {
 		return card;
 	}
 
-	public final Path getDataFolder() {
+	public Path getDataFolder() {
 		return programDataFolder;
 	}
 
-	public final Path getLogFolder() {
+	public Path getLogFolder() {
 		return programLogFolder;
 	}
 
-	public final UpdateManager getUpdateManager() {
+	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
 
-	public final TaskManager getTaskManager() {
+	public TaskManager getTaskManager() {
 		return taskManager;
 	}
 
@@ -732,44 +732,44 @@ public class Program extends Application implements ProgramProduct {
 	//		return taskManager;
 	//	}
 
-	public final IconLibrary getIconLibrary() {
+	public IconLibrary getIconLibrary() {
 		return iconLibrary;
 	}
 
-	public final ActionLibrary getActionLibrary() {
+	public ActionLibrary getActionLibrary() {
 		return actionLibrary;
 	}
 
-	public final SettingsManager getSettingsManager() {
+	public SettingsManager getSettingsManager() {
 		return settingsManager;
 	}
 
 	@Override
-	public final Settings getSettings() {
+	public Settings getSettings() {
 		return programSettings;
 	}
 
-	public final ToolManager getToolManager() {
+	public ToolManager getToolManager() {
 		return toolManager;
 	}
 
-	public final AssetManager getAssetManager() {
+	public AssetManager getAssetManager() {
 		return assetManager;
 	}
 
-	public final ThemeManager getThemeManager() {
+	public ThemeManager getThemeManager() {
 		return themeManager;
 	}
 
-	public final WorkspaceManager getWorkspaceManager() {
+	public WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
 	}
 
-	public final ProductManager getProductManager() {
+	public ProductManager getProductManager() {
 		return productManager;
 	}
 
-	public final NoticeManager getNoticeManager() {
+	public NoticeManager getNoticeManager() {
 		return noticeManager;
 	}
 
@@ -950,8 +950,7 @@ public class Program extends Application implements ProgramProduct {
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
 		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
-		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty(
-			"os.arch" ) );
+		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
 	}
 
 	private void printStatus( boolean startup ) {
