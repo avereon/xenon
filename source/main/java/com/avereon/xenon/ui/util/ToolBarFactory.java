@@ -19,7 +19,7 @@ public class ToolBarFactory extends BarFactory {
 	public static ToolBar createToolBar( Program program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
-		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, t ) ).collect( Collectors.toList() ) );
+		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).collect( Collectors.toList() ) );
 		return toolbar;
 	}
 
@@ -39,17 +39,28 @@ public class ToolBarFactory extends BarFactory {
 		return pad;
 	}
 
-	private static Node createToolBarItem( Program program, Token item ) {
+	private static Node createToolBarItem( Program program, ToolBar parent, Token item ) {
 		if( item.isSeparator() ) {
 			return new Separator();
 		} else if( item.getChildren().isEmpty() ) {
-			return createToolBarButton( program, item.getId() );
+			return createToolBarButton( program, item );
 		} else {
-			// TODO Create a button that has a "popup" toolbar
-			// Bind the orientation to the parent orientation
-			//toolbar.getItems().add( createToolBar( program, createToolBarItem( program, item ) ) );
-			return createToolBarButton( program, item.getId() );
+			return createToolTray( program, parent, item );
 		}
+	}
+
+	private static Button createToolTray( Program program, ToolBar parent, Token item ) {
+		Button button = createToolBarButton( program, item );
+
+		// TODO Create a button that has a "popup" toolbar
+		// Bind the orientation to the parent orientation
+		//toolbar.getItems().add( createToolBar( program, createToolBarItem( program, item ) ) );
+
+		return button;
+	}
+
+	private static Button createToolBarButton( Program program, Token token ) {
+		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ) );
 	}
 
 	private static Button createToolBarButton( Program program, ActionProxy action ) {
