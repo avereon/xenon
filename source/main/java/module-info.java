@@ -46,6 +46,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
+	exports com.avereon.xenon.ui.util;
 
 	uses Mod;
 }

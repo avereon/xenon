@@ -72,7 +72,7 @@ public abstract class BarFactory {
 
 		private final List<Token> children;
 
-		private final boolean isKey;
+		private final boolean isAction;
 
 		private final boolean isSeparator;
 
@@ -87,7 +87,7 @@ public abstract class BarFactory {
 			this.isSeparator = SEPARATOR.equals( id );
 			this.isOpenGroup = OPEN_GROUP.equals( id );
 			this.isCloseGroup = CLOSE_GROUP.equals( id );
-			this.isKey = !(isSeparator | isOpenGroup | isCloseGroup);
+			this.isAction = !(isSeparator | isOpenGroup | isCloseGroup);
 		}
 
 		public String getId() {
@@ -102,8 +102,8 @@ public abstract class BarFactory {
 			this.children.add( token );
 		}
 
-		public boolean isKey() {
-			return isKey;
+		public boolean isAction() {
+			return isAction;
 		}
 
 		public boolean isSeparator() {

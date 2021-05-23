@@ -6,13 +6,15 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.ui.util.MenuBarFactory;
+import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.zerra.event.FxEventHub;
@@ -42,8 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.avereon.xenon.util.ActionUtil.SEPARATOR;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -121,12 +121,11 @@ public class Workspace implements WritableIdentity {
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
-		// FIXME Should this default setup be defined in config files or something else?
 		menubar = createMenuBar( program );
 
 		toolbarToolButtons = new ConcurrentHashMap<>();
 		toolbarToolButtonSeparator = new Separator();
-		toolbarToolSpring = ActionUtil.createSpring();
+		toolbarToolSpring = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
 		statusBar = createStatusBar( program );
@@ -190,103 +189,53 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private MenuBar createMenuBar( Program program ) {
-		MenuBar menubar = new MenuBar();
-		Menu menu;
+		// FIXME Should this default setup be defined in config files or something else?
+
+		// The menu definitions
+		String file = "file[new,open,save,save-as,copy-as|close|exit]";
+		String edit = "edit[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
+		String view = "view[workspace-new,workspace-close|statusbar-show]";
+		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";
+		String development = "development[test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+
+		// Construct the menubar descriptor
+		StringBuilder descriptor = new StringBuilder();
+		descriptor.append( file );
+		descriptor.append( "," ).append( edit );
+		descriptor.append( "," ).append( view );
+		descriptor.append( "," ).append( help );
+		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
+
+		// Build the menubar
+		MenuBar menubar = MenuBarFactory.createMenuBar( program, descriptor.toString() );
 
 		// FIXME This does not work if there are two menu bars (like this program uses)
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
-		menu = ActionUtil.createMenu( program, "file" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
-		menubar.getMenus().add( menu );
-
-		menu = ActionUtil.createMenu( program, "edit" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "redo" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "cut" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "copy" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "paste" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "delete" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
-		menubar.getMenus().add( menu );
-
-		menu = ActionUtil.createMenu( program, "view" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
-		menubar.getMenus().add( menu );
-
-		Menu tools = ActionUtil.createSubMenu( program, "tools" );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-
-		menu = ActionUtil.createMenu( program, "help" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-		//menu.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( tools );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
-		menubar.getMenus().add( menu );
-
-		menu = ActionUtil.createMenu( program, "development" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-1" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-2" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
-		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( menu );
-
 		return menubar;
 	}
 
-	private static Menu createMenu( Program program, Object[] items ) {
-		if( items.length == 0 ) return null;
-		Menu menu = ActionUtil.createMenu( program, String.valueOf( items[ 0 ] ) );
-		for( Object item : items ) {
-			if( item instanceof Object[] ) {
-				menu.getItems().add( createMenu( program, (Object[])item ) );
-			} else if( item == SEPARATOR ) {
-				menu.getItems().add( new SeparatorMenuItem() );
-			} else {
-				menu.getItems().add( ActionUtil.createMenuItem( program, String.valueOf( item ) ) );
-			}
-		}
-		return menu;
-	}
-
 	private ToolBar createProgramToolBar( Program program ) {
-		ToolBar toolbar = new ToolBar();
-		Object[] ids = new Object[]{ "new", "open", "save", "properties", SEPARATOR, "undo", "redo", SEPARATOR, "cut", "copy", "paste" };
-		toolbar.getItems().addAll( createToolBar( program, ids ).getItems() );
-		toolbar.getItems().add( toolbarToolSpring );
+		// FIXME Should this default setup be defined in config files or something else?
 
+		String descriptor = "new,open,save,properties|undo,redo|cut,copy,paste";
+		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
+
+		// Add the workarea menu and selector
+		toolbar.getItems().add( toolbarToolSpring );
 		toolbar.getItems().add( createWorkareaMenu( program ) );
 		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
-		toolbar.getItems().add( ActionUtil.createPad() );
-		Button noticeButton = ActionUtil.createToolBarButton( program, "notice" );
+		// Add the notice button
+		toolbar.getItems().add( ToolBarFactory.createPad() );
+		toolbar.getItems().add( createNoticeToolbarButton() );
+
+		return toolbar;
+	}
+
+	private Button createNoticeToolbarButton() {
+		Button noticeButton = ToolBarFactory.createToolBarButton( program, "notice" );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
 		noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
@@ -296,31 +245,15 @@ public class Workspace implements WritableIdentity {
 				noticeButton.setText( String.valueOf( count ) );
 			} );
 		} );
-		toolbar.getItems().add( noticeButton );
-
-		return toolbar;
-	}
-
-	private static ToolBar createToolBar( Program program, Object[] items ) {
-		ToolBar toolbar = new ToolBar();
-		for( Object item : items ) {
-			if( item instanceof Object[] ) {
-				toolbar.getItems().add( ActionUtil.createToolBarItem( program, createToolBar( program, (Object[])item ) ) );
-			} else if( item == SEPARATOR ) {
-				toolbar.getItems().add( new Separator() );
-			} else {
-				toolbar.getItems().add( ActionUtil.createToolBarItem( program, String.valueOf( item ) ) );
-			}
-		}
-		return toolbar;
+		return noticeButton;
 	}
 
 	private static MenuBar createWorkareaMenu( Program program ) {
-		Object[] items = new Object[]{ "workarea", "workarea-new", SEPARATOR, "workarea-rename", SEPARATOR, "workarea-close" };
+		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
 		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
-		workareaMenuBar.getMenus().add( createMenu( program, items ) );
+		workareaMenuBar.getMenus().add( MenuBarFactory.createMenu( program, descriptor, true ) );
 		return workareaMenuBar;
 	}
 
@@ -355,10 +288,11 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void pushToolbarActions( String... ids ) {
+		String descriptor = TextUtil.toString( ids, "," );
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolSpring );
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
-		toolbar.getItems().addAll( index, createToolBar( getProgram(), ids ).getItems() );
+		toolbar.getItems().addAll( index, ToolBarFactory.createToolBar( getProgram(), descriptor ).getItems() );
 	}
 
 	public void pullToolbarActions() {
@@ -502,6 +436,7 @@ public class Workspace implements WritableIdentity {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
+	@SuppressWarnings( "CommentedOutCode" )
 	public void updateFromSettings( Settings settings ) {
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
@@ -524,10 +459,10 @@ public class Workspace implements WritableIdentity {
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 
-		// On Linux, setWidth() and setHeight() incorrectly do not take the stage
-		// window decorations into account. The way to deal with this is to watch
+		// On Linux, setWidth() and setHeight() do not take the stage window
+		// decorations into account. The way to deal with this is to watch
 		// the scene size and set the scene size on creation.
-		// Do not use the following.
+		// Do not use the following:
 		// if( w != null ) stage.setWidth( w );
 		// if( h != null ) stage.setHeight( h );
 
