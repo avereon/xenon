@@ -10,6 +10,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.stage.Popup;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +52,12 @@ public class ToolBarFactory extends BarFactory {
 
 	private static Button createToolTray( Program program, ToolBar parent, Token item ) {
 		Button button = createToolBarButton( program, item );
+
+		ToolBar tray = new ToolBar();
+		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).collect( Collectors.toList() ) );
+		Popup popup = new Popup();
+		popup.getContent().add( tray );
+
 
 		// TODO Create a button that has a "popup" toolbar
 		// Bind the orientation to the parent orientation
