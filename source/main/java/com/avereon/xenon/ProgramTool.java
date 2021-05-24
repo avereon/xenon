@@ -199,11 +199,19 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		getProgram().getTaskManager().submit( Task.of( "", runnable ) );
 	}
 
-	protected void pushToolActions( String... actions ) {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( actions );
+	protected void pushMenus( String descriptor ) {
+		//getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
 	}
 
-	protected void pullToolActions() {
+	protected void pullMenus() {
+		//getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
+	}
+
+	protected void pushTools( String descriptor ) {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( descriptor );
+	}
+
+	protected void pullTools() {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
 	}
 
@@ -230,13 +238,13 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		TaskChain.of( "wait for ready", () -> {
 			waitForTool();
 			return null;
-		}).link( () -> {
+		} ).link( () -> {
 			waitForAsset( getAsset() );
 			return null;
-		}).link( () -> {
+		} ).link( () -> {
 			callToolReady( request );
 			return null;
-		}).run( getProgram() );
+		} ).run( getProgram() );
 	}
 
 	private void waitForTool() throws InterruptedException {

@@ -6,7 +6,6 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
-import com.avereon.util.TextUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -287,8 +286,7 @@ public class Workspace implements WritableIdentity {
 		return statusBar;
 	}
 
-	public void pushToolbarActions( String... ids ) {
-		String descriptor = TextUtil.toString( ids, "," );
+	public void pushToolbarActions( String descriptor ) {
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolSpring );
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );

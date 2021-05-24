@@ -187,13 +187,13 @@ public class AssetTool extends GuidedTool {
 		pushAction( "prior", priorAction );
 		pushAction( "next", nextAction );
 		pushAction( "up", parentAction );
-		pushToolActions( "prior", "next", "up" );
+		pushTools( "prior next up" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		super.conceal();
-		pullToolActions();
+		pullTools();
 		pullAction( "up", parentAction );
 		pullAction( "next", nextAction );
 		pullAction( "prior", priorAction );

@@ -24,4 +24,11 @@ public class MenuBarFactoryTest extends BaseUiFactoryTest {
 		assertThat( menu.getItems().size(), is( 4 ) );
 	}
 
+	@Test
+	void testCreateMenuWithSubmenu() {
+		Menu menu = MenuBarFactory.createMenu( getProgram(), "file[new open save[save save-as save-all] close]", false );
+		assertThat( menu.getItems().size(), is( 4 ) );
+		assertThat( ((Menu)menu.getItems().get( 2 )).getItems().size(), is( 3 ) );
+	}
+
 }
