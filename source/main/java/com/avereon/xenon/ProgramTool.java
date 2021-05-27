@@ -107,6 +107,8 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	private boolean isReady;
 
+	private boolean setActiveWhenReady;
+
 	public ProgramTool( ProgramProduct product, Asset asset ) {
 		super( asset );
 		this.product = product;
@@ -234,6 +236,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		getStylesheets().add( Objects.requireNonNull( loader.getResource( stylesheet ) ).toExternalForm() );
 	}
 
+	public void setActiveWhenReady() {
+		this.setActiveWhenReady = true;
+	}
+
 	void waitForReady( OpenAssetRequest request ) {
 		TaskChain.of( "wait for ready", () -> {
 			waitForTool();
@@ -280,6 +286,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		isReady = true;
 		Fx.run( () -> {
 			try {
+				if( setActiveWhenReady ) {
+					getWorkpane().setActiveTool( this );
+					setActiveWhenReady = false;
+				}
 				ready( request );
 				open( request );
 			} catch( ToolException exception ) {
