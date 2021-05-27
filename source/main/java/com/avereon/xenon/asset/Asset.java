@@ -247,8 +247,9 @@ public class Asset extends Node {
 		return getValue( MODEL );
 	}
 
-	public <M> void setModel( M model ) {
+	public <M> M setModel( M model ) {
 		setValue( MODEL, model );
+		return model;
 	}
 
 	/**

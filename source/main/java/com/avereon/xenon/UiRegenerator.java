@@ -306,7 +306,7 @@ class UiRegenerator {
 
 			// Add the tools to the view
 			for( ProgramTool tool : tools ) {
-				pane.addTool( tool, view, tool.isActive() );
+				pane.addTool( tool, view, false );
 
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
