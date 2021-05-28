@@ -11,8 +11,8 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskChain;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,8 +22,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.Random;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class TaskTool extends ProgramTool {
 		Button failChain = new Button( "Fail Chain" );
 		failChain.setOnAction( ( event ) -> startTaskChain( true ) );
 
-		ScrollPane scroller = new ScrollPane( taskPanes = new VBox() );
+		ScrollPane scroller = new ScrollPane( taskPanes = new VBox( UiFactory.PAD ) );
 		scroller.setFitToWidth( true );
 
 		HBox buttonBox = new HBox( UiFactory.PAD, testTask, failTask, testChain, failChain );
@@ -97,6 +97,7 @@ public class TaskTool extends ProgramTool {
 			if( tasks.contains( task ) ) return;
 			tasks.add( task );
 			TaskPane pane = new TaskPane( task );
+
 			task.register( TaskEvent.PROGRESS, e -> Fx.run( () -> pane.setProgress( e.getTask().getPercent() ) ) );
 			task.register( TaskEvent.FINISH, e -> Fx.run( () -> removeTaskPane( pane ) ) );
 			if( !task.isDone() ) taskPanes.getChildren().add( pane );
@@ -127,24 +128,26 @@ public class TaskTool extends ProgramTool {
 		return new RandomTask( start, fail ).call();
 	}
 
-	private class TaskPane extends MigPane {
+	private class TaskPane extends HBox {
 
 		private final Task<?> task;
 
 		private final ProgressBar progress;
 
 		private TaskPane( Task<?> task ) {
+			super( UiFactory.PAD );
 			this.task = task;
+
 			progress = new ProgressBar();
 			Label name = new Label( task.getName() );
+			name.setMaxWidth( Double.MAX_VALUE );
+			HBox.setHgrow( name, Priority.ALWAYS );
 
 			Button cancel = new Button();
 			cancel.setGraphic( getProgram().getIconLibrary().getIcon( "close" ) );
 			cancel.setOnAction( ( e ) -> task.cancel( true ) );
 
-			add( progress, "w 100!" );
-			add( name, "spany, pushx" );
-			add( cancel, "pushy" );
+			getChildren().addAll( progress, name, cancel );
 		}
 
 		public Task<?> getTask() {

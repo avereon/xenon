@@ -8,6 +8,7 @@ import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.product.ModEvent;
@@ -23,9 +24,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -150,7 +152,7 @@ public class AboutTool extends GuidedTool {
 		return guide;
 	}
 
-	private class SummaryPane extends MigPane {
+	private class SummaryPane extends HBox {
 
 		private Label productName;
 
@@ -187,39 +189,36 @@ public class AboutTool extends GuidedTool {
 		private Label nextUpdateTimestamp;
 
 		public SummaryPane() {
+			super( UiFactory.PAD );
 			setId( "tool-about-summary" );
 
 			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
 			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
 
-			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
-			add( productName = makeLabel( "tool-about-title" ) );
-			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
-			add( productProvider = makeLabel( "tool-about-provider" ), "newline" );
-			add( makeSeparator(), "newline" );
-			add( lastUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
-			add( nextUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
+			getChildren().add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ) );
 
-			add( makeSeparator(), "newline" );
-			add( makeSeparator(), "newline" );
-			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
-			add( javaLabel = makeLabel( "tool-about-header" ), "newline" );
-			//add( javaName = makeLabel( "tool-about-name" ), "newline" );
-			add( javaVmName = makeLabel( "tool-about-version" ), "newline" );
-			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
-			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
+			VBox information = new VBox( UiFactory.PAD );
+			information.getChildren().add( productName = makeLabel( "tool-about-title" ) );
+			information.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( lastUpdateTimestamp = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( nextUpdateTimestamp = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( javaLabel = makeLabel( "tool-about-header" ) );
+			//information.getChildren().add( javaName = makeLabel( "tool-about-name" ) );
+			information.getChildren().add( javaVmName = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( javaVersion = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( javaProvider = makeLabel( "tool-about-provider" ) );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( osLabel = makeLabel( "tool-about-header" ) );
+			information.getChildren().add( osName = makeLabel( "tool-about-name" ) );
+			information.getChildren().add( osVersion = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( osProvider = makeLabel( "tool-about-provider" ) );
 
-			add( makeSeparator(), "newline" );
-			add( makeSeparator(), "newline" );
-			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
-			add( osLabel = makeLabel( "tool-about-header" ), "newline" );
-			add( osName = makeLabel( "tool-about-name" ), "newline" );
-			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
-			add( osProvider = makeLabel( "tool-about-provider" ), "newline" );
-
-			//			add( makeSeparator(), "newline" );
-			//			add( makeSeparator(), "newline" );
-			//			add( informationLabel = makeLabel( "tool-about-header" ), "newline" );
+			getChildren().add( information );
 		}
 
 		public void update( ProductCard card ) {
@@ -259,14 +258,8 @@ public class AboutTool extends GuidedTool {
 
 			String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
 			String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
-			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ),
-				DateUtil.DEFAULT_DATE_FORMAT,
-				TimeZone.getDefault()
-			);
-			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ),
-				DateUtil.DEFAULT_DATE_FORMAT,
-				TimeZone.getDefault()
-			);
+			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 
 			Platform.runLater( () -> {
 				lastUpdateTimestamp.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
@@ -596,7 +589,7 @@ public class AboutTool extends GuidedTool {
 		getChildren().add( page );
 	}
 
-	private String toOrderedMap( Map<?,?> map ) {
+	private String toOrderedMap( Map<?, ?> map ) {
 		StringBuilder builder = new StringBuilder();
 
 		// Load the keys into a list.

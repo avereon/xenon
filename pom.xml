@@ -67,15 +67,10 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
-		<reactfx.version>2.0-M5</reactfx.version>
-		<undofx.version>2.1.0</undofx.version>
-
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
-		<miglayout.version>5.2</miglayout.version>
-
-		<!-- Build dependencies -->
-		<izpack.version>5.1.3</izpack.version>
+		<reactfx.version>2.0-M5</reactfx.version>
+		<undofx.version>2.1.0</undofx.version>
 	</properties>
 
 	<dependencies>
@@ -144,19 +139,6 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
-			<exclusions>
-				<!-- Exclude the openjfx libraries, they are already available -->
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.miglayout</groupId>
-			<artifactId>miglayout-javafx</artifactId>
-			<version>${miglayout.version}</version>
 			<exclusions>
 				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
@@ -743,28 +725,6 @@
 										</resource>
 									</resources>
 									<outputDirectory>${basedir}/target/pack/${product.platform}</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<!-- Generate the installer -->
-					<plugin>
-						<groupId>org.codehaus.izpack</groupId>
-						<artifactId>izpack-maven-plugin</artifactId>
-						<version>${izpack.version}</version>
-						<executions>
-							<execution>
-								<id>izpack-deploy</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>izpack</goal>
-								</goals>
-								<configuration>
-									<enableAttachArtifact>false</enableAttachArtifact>
-									<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
-									<baseDir>${project.build.directory}</baseDir>
-									<finalName>install</finalName>
 								</configuration>
 							</execution>
 						</executions>

@@ -15,19 +15,22 @@ import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.System.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-class ProductPane extends MigPane {
+class ProductPane extends GridPane {
 
 	private static final Logger log = Log.get();
 
@@ -70,7 +73,8 @@ class ProductPane extends MigPane {
 	private BooleanProperty selectedProperty;
 
 	ProductPane( ProductTool tool, ProductCard source, ProductCard update ) {
-		super( "insets 0, gap " + UiFactory.PAD + ", hidemode 3" );
+		setHgap( UiFactory.PAD );
+		setVgap( UiFactory.PAD );
 
 		this.tool = tool;
 		this.source = source;
@@ -87,9 +91,7 @@ class ProductPane extends MigPane {
 		iconLabel.setId( "tool-product-artifact-icon" );
 		nameLabel = new Label( source.getName() );
 		nameLabel.setId( "tool-product-artifact-name" );
-		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update
-			.getRelease()
-			.toHumanString( TimeZone.getDefault() ) );
+		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
 		versionLabel.setId( "tool-product-artifact-version" );
 		summaryLabel = new Label( source.getSummary() );
 		summaryLabel.setId( "tool-product-artifact-summary" );
@@ -114,18 +116,25 @@ class ProductPane extends MigPane {
 
 		stateContainer = new HBox( stateLabel );
 
-		add( iconLabel, "spany, aligny center" );
-		add( nameLabel );
-		add( hyphenLabel );
-		add( providerLabel, "pushx" );
-		add( sizeLabel );
-		add( stateContainer, "tag right" );
-		add( enableSwitch, "w min" );
-		add( actionButton1 );
-
-		add( summaryLabel, "newline, spanx 4" );
-		add( versionLabel, "tag right" );
-		add( actionButton2 );
+		// FIXME Need to squish hidden things on a row
+		GridPane.setRowSpan( iconLabel, 2 );
+		GridPane.setHgrow( providerLabel, Priority.ALWAYS );
+		GridPane.setHalignment( stateContainer, HPos.RIGHT );
+		GridPane.setColumnSpan( summaryLabel, 4 );
+		GridPane.setHalignment( versionLabel, HPos.RIGHT );
+		stateLabel.setTextAlignment( TextAlignment.RIGHT );
+		versionLabel.setTextAlignment( TextAlignment.RIGHT );
+		add( iconLabel, 0, 0 );
+		add( nameLabel, 1, 0 );
+		add( hyphenLabel, 2, 0 );
+		add( providerLabel, 3, 0 );
+		add( sizeLabel, 4, 0 );
+		add( stateContainer, 5, 0 );
+		add( enableSwitch, 6, 0 );
+		add( actionButton1, 7, 0 );
+		add( summaryLabel, 1, 1 );
+		add( versionLabel, 6, 1 );
+		add( actionButton2, 7, 1 );
 	}
 
 	public ProductCard getSource() {
