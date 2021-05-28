@@ -13,6 +13,8 @@ public class MenuBarFactory extends BarFactory {
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
+	public static final String MENU_ID_PREFIX = "menu-";
+
 	public static MenuBar createMenuBar( Program program, String descriptor ) {
 		List<Token> tokens = parseDescriptor( descriptor );
 
@@ -32,8 +34,8 @@ public class MenuBarFactory extends BarFactory {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
 		Menu menu = new Menu();
-		menu.setId( "menu-" + action.getId() );
-		menu.getStyleClass().add( "menu-" + action.getId() );
+		menu.setId( MENU_ID_PREFIX + action.getId() );
+		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
 		menu.setText( action.getMnemonicName() );
 		if( submenu ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );

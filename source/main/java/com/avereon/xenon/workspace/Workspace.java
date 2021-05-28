@@ -18,6 +18,7 @@ import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -39,10 +40,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -52,6 +51,10 @@ public class Workspace implements WritableIdentity {
 	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
 
 	private static final System.Logger log = Log.get();
+
+	public static final String EDIT_ACTION = "edit";
+
+	public static final String VIEW_ACTION = "view";
 
 	private final Program program;
 
@@ -65,19 +68,27 @@ public class Workspace implements WritableIdentity {
 
 	private final BorderPane workareaLayout;
 
-	private Pane menubarContainer;
-
-	private HBox toolbarContainer;
-
 	private final MenuBar menubar;
+
+	// This menu is used to mark the beginning of the space where tools can push
+	// their own actions as well as be a standard menu.
+	private final Menu menubarToolStart;
+
+	// This menu is used to mark the end of the space where tools can push their
+	// own actions as well as be a standard menu.
+	private final Menu menubarToolEnd;
 
 	private final ToolBar toolbar;
 
-	private final Map<String, Button> toolbarToolButtons;
+	// This separator is also used to mark the beginning of the space where tools
+	// can push their own actions as well as provide a separator between the
+	// standard actions and the tool actions.
+	private final Separator toolbarToolStart;
 
-	private final Separator toolbarToolButtonSeparator;
-
-	private final Region toolbarToolSpring;
+	// This region is also used to mark the end of the space where tools can push
+	// their own actions as well as provide the space between the tool actions and
+	// the workspace menu.
+	private final Region toolbarToolEnd;
 
 	private final StatusBar statusBar;
 
@@ -121,10 +132,11 @@ public class Workspace implements WritableIdentity {
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
 		menubar = createMenuBar( program );
+		menubarToolStart = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		menubarToolEnd = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		toolbarToolButtons = new ConcurrentHashMap<>();
-		toolbarToolButtonSeparator = new Separator();
-		toolbarToolSpring = ToolBarFactory.createSpring();
+		toolbarToolStart = new Separator();
+		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
 		statusBar = createStatusBar( program );
@@ -192,8 +204,8 @@ public class Workspace implements WritableIdentity {
 
 		// The menu definitions
 		String file = "file[new,open,save,save-as,copy-as|close|exit]";
-		String edit = "edit[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
-		String view = "view[workspace-new,workspace-close|statusbar-show]";
+		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
+		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show]";
 		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";
 		String development = "development[test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 
@@ -222,7 +234,7 @@ public class Workspace implements WritableIdentity {
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
 		// Add the workarea menu and selector
-		toolbar.getItems().add( toolbarToolSpring );
+		toolbar.getItems().add( toolbarToolEnd );
 		toolbar.getItems().add( createWorkareaMenu( program ) );
 		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
@@ -286,19 +298,39 @@ public class Workspace implements WritableIdentity {
 		return statusBar;
 	}
 
+	public void pushMenubarActions( String descriptor ) {
+		pullMenubarActions();
+		descriptor = "tool[" + descriptor + "]";
+		int index = menubar.getMenus().indexOf( menubarToolEnd );
+		//menubar.getMenus().add( index++, menubarToolStart );
+		menubar.getMenus().addAll( index, MenuBarFactory.createMenuBar( getProgram(), descriptor ).getMenus() );
+	}
+
+	public void pullMenubarActions() {
+		int index = menubar.getMenus().indexOf( menubarToolStart );
+		if( index < 0 ) return;
+		index++;
+
+		Menu node = menubar.getMenus().get( index );
+		while( node != menubarToolEnd ) {
+			menubar.getMenus().remove( index );
+			node = menubar.getMenus().get( index );
+		}
+	}
+
 	public void pushToolbarActions( String descriptor ) {
 		pullToolbarActions();
-		int index = toolbar.getItems().indexOf( toolbarToolSpring );
-		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
+		int index = toolbar.getItems().indexOf( toolbarToolEnd );
+		toolbar.getItems().add( index++, toolbarToolStart );
 		toolbar.getItems().addAll( index, ToolBarFactory.createToolBar( getProgram(), descriptor ).getItems() );
 	}
 
 	public void pullToolbarActions() {
-		int index = toolbar.getItems().indexOf( toolbarToolButtonSeparator );
+		int index = toolbar.getItems().indexOf( toolbarToolStart );
 		if( index < 0 ) return;
 
 		Node node = toolbar.getItems().get( index );
-		while( node != toolbarToolSpring ) {
+		while( node != toolbarToolEnd ) {
 			toolbar.getItems().remove( index );
 			node = toolbar.getItems().get( index );
 		}

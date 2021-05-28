@@ -197,16 +197,23 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	 */
 	protected void open( OpenAssetRequest request ) throws ToolException {}
 
+	@Override
+	protected void activate() throws ToolException {
+		if( changeCurrentAsset() ) pullMenus();
+		if( changeCurrentAsset() ) pullTools();
+		super.conceal();
+	}
+
 	protected void runTask( Runnable runnable ) {
 		getProgram().getTaskManager().submit( Task.of( "", runnable ) );
 	}
 
 	protected void pushMenus( String descriptor ) {
-		//getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
 	}
 
 	protected void pullMenus() {
-		//getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
+		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
 	}
 
 	protected void pushTools( String descriptor ) {
