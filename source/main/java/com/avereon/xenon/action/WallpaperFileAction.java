@@ -16,7 +16,7 @@ public abstract class WallpaperFileAction extends Action {
 	}
 
 	protected int getImageIndex() {
-		Settings settings = getProgram().getProgramSettings();
+		Settings settings = getProgram().getSettings();
 		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
 
 		int index;
@@ -30,12 +30,12 @@ public abstract class WallpaperFileAction extends Action {
 	}
 
 	protected void setImageIndex( int index ) {
-		getProgram().getProgramSettings().set( "workspace-scenery-image-index", String.valueOf( index ) );
+		getProgram().getSettings().set( "workspace-scenery-image-index", String.valueOf( index ) );
 	}
 
 	protected List<Path> listImageFiles() {
 		try {
-			String imagePath = getProgram().getProgramSettings().get( "workspace-scenery-image-path", "" );
+			String imagePath = getProgram().getSettings().get( "workspace-scenery-image-path", "" );
 			return WorkspaceBackground.listImageFiles( Paths.get( imagePath ) );
 		} catch( IOException exception ) {
 			return List.of();

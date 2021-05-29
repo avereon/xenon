@@ -52,7 +52,7 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -ex-background-tabs: #CBC6A199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #CBC6A1B2;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #CBC6A1CC;" ) );
-		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #FEF7C966;" ) );
+		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #FEF7C9E5;" ) );
 		assertThat( lines.next(), is( "  -ex-workspace-drop-hint: #00000033;" ) );
 		assertThat( lines.next(), is( "}" ) );
 
@@ -99,7 +99,7 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -ex-background-tabs: #48566199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #485661B2;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #485661CC;" ) );
-		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #1A2C3A66;" ) );
+		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #1A2C3AE5;" ) );
 		assertThat( lines.next(), is( "  -ex-workspace-drop-hint: #FFFFFF33;" ) );
 		assertThat( lines.next(), is( "}" ) );
 

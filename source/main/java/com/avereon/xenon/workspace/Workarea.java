@@ -1,18 +1,26 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.venza.event.FxEventWrapper;
+import com.avereon.util.Log;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.workpane.Tool;
-import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.*;
+import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;
+import javafx.geometry.Side;
+import javafx.scene.input.TransferMode;
 
+import java.net.URI;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Workarea implements WritableIdentity {
+
+	private static final System.Logger log = Log.get();
 
 	private final StringProperty name;
 
@@ -26,8 +34,6 @@ public class Workarea implements WritableIdentity {
 
 	// private ToolBar extraToolBarItems
 
-	private String id;
-
 	public Workarea() {
 		name = new SimpleStringProperty( this, "name", "" );
 		active = new SimpleBooleanProperty( this, "active", false );
@@ -35,9 +41,12 @@ public class Workarea implements WritableIdentity {
 
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
-		workpane.addEventHandler( ToolEvent.CONCEALED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( null ) );
-		workpane.addEventHandler( ToolEvent.ANY, e -> getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) ) );
+		workpane.addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
+		workpane.addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
+		workpane.addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
+
+		// TODO Could be moved to UiFactory
+		workpane.setOnToolDrop( new DropHandler( this ) );
 	}
 
 	public final StringProperty nameProperty() {
@@ -110,6 +119,64 @@ public class Workarea implements WritableIdentity {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	private void doSetCurrentAsset( ToolEvent e ) {
+		ProgramTool tool = (ProgramTool)e.getTool();
+		if( !tool.changeCurrentAsset() ) return;
+		getWorkspace().getProgram().getAssetManager().setCurrentAsset( tool.getAsset() );
+	}
+
+	private void doClearCurrentAsset( ToolEvent e ) {
+		getWorkspace().getProgram().getAssetManager().setCurrentAsset( null );
+	}
+
+	private void doDispatchToolEventToWorkspace( ToolEvent e ) {
+		getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) );
+	}
+
+	private static class DropHandler implements DropListener {
+
+		private final Workarea workarea;
+
+		public DropHandler( Workarea workarea ) {
+			this.workarea = workarea;
+		}
+
+		@Override
+		public TransferMode[] getSupportedModes( Tool tool ) {
+			ToolInstanceMode instanceMode = getProgram().getToolManager().getToolInstanceMode( ((ProgramTool)tool).getClass() );
+			return instanceMode == ToolInstanceMode.SINGLETON ? MOVE_ONLY : TransferMode.ANY;
+		}
+
+		@Override
+		public void handleDrop( DropEvent event ) throws Exception {
+			TransferMode mode = event.getTransferMode();
+			Tool sourceTool = event.getSource();
+			WorkpaneView targetView = event.getTarget();
+			int index = event.getIndex();
+			Side side = event.getSide();
+			List<URI> uris = event.getUris();
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
+
+			if( sourceTool == null ) {
+				// NOTE If the event source is null the drag came from outside the program
+				uris.forEach( u -> getProgram().getAssetManager().openAsset( u, targetView, side ) );
+			} else {
+				if( mode == TransferMode.MOVE ) {
+					// Check if being dropped on self
+					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+					Workpane.moveTool( sourceTool, targetView, side, index );
+				} else if( mode == TransferMode.COPY ) {
+					getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView, side );
+				}
+			}
+		}
+
+		private Program getProgram() {
+			return workarea.getWorkspace().getProgram();
+		}
+
 	}
 
 }

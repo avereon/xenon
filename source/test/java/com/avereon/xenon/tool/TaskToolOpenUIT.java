@@ -14,8 +14,7 @@ class TaskToolOpenUIT extends TaskToolUIT {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		clickOn( "#menu-help" );
-		clickOn( "#menuitem-task" );
+		openTaskMenu();
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );

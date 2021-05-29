@@ -1,10 +1,11 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.xenon.product.ProductUpdate;
-import com.avereon.zenna.UpdateCommandBuilder;
-import com.avereon.zenna.UpdateFlag;
-import com.avereon.zenna.UpdateTask;
+import com.avereon.weave.UpdateCommandBuilder;
+import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.UpdateTask;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -17,9 +18,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This thread is used when a program restart is requested. Similar to a
- * shutdown hook, this thread is run as the program (not the JVM) is exiting,
- * and allows the JVM to terminate.
+ * This thread is used when a program restart is requested. Similar to a shutdown hook, this thread is run as the program (not the JVM) is exiting, and allows the JVM to terminate.
  *
  * @author Mark Soderquist
  */
@@ -32,6 +31,8 @@ public class RestartHook extends Thread {
 	}
 
 	private static final Logger log = Log.get();
+
+	private static final String DELETE_SUFFIX = "delete";
 
 	private final Program program;
 
@@ -89,8 +90,9 @@ public class RestartHook extends Thread {
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
 		Path updaterFolder = manager.getUpdaterFolder();
-		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
+		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
+		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
 
 		if( mode == Mode.MOCK_UPDATE ) {
@@ -131,7 +133,7 @@ public class RestartHook extends Thread {
 		if( mock ) {
 			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
 			for( String name : names ) {
-				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
+				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
 				boolean isProgram = name.equals( program.getCard().getName() );
 				int steps = isProgram ? 15 : 3;
 				steps += random.nextInt( 5 );
@@ -144,23 +146,17 @@ public class RestartHook extends Thread {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
 				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
-				Path unpack = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-unpack" );
 				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
-				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-delete" );
+				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-" + DELETE_SUFFIX );
 
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
-				String unpackPath = unpack.toString().replace( File.separator, "/" );
 				String deletePath = delete.toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
-				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
+				String launchPath = OperatingSystem.getJavaLauncherPath();
+				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
-
-				// Make sure the unpack path is clear
-				ucb.add( UpdateTask.DELETE, unpackPath );
-				// ...and unpack the update
-				ucb.add( UpdateTask.UNPACK, updatePath, unpackPath );
 
 				// Make sure the delete path is clear
 				ucb.add( UpdateTask.DELETE, deletePath );
@@ -169,10 +165,10 @@ public class RestartHook extends Thread {
 
 				// Move the current product to the backup path
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
-				// ...and move the unpacked product to the target path
-				ucb.add( UpdateTask.MOVE, unpackPath, targetPath );
+				// ...and unpack the update
+				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
 				// ...and update the program launcher
-				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
+				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", launchPath );
 
 				// Cleanup
 				ucb.add( UpdateTask.DELETE, deletePath );
@@ -196,17 +192,14 @@ public class RestartHook extends Thread {
 		if( builder == null ) return;
 
 		try {
-			log.log( Log.TRACE, "Starting " + mode + " process..." );
-			//System.out.println( "Starting " + mode + " process..." );
+			System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
-			log.log( Log.INFO, mode + " process started!" );
-			//System.out.println( mode + " process started!" );
+			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error restarting program", throwable );
-			//throwable.printStackTrace( System.err );
+			throwable.printStackTrace( System.err );
 		}
 	}
 

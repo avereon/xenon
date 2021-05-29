@@ -1,16 +1,21 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.venza.font.FontUtil;
+import com.avereon.zerra.font.FontUtil;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
+
 import java.lang.System.Logger;
+import java.util.List;
 
 public class FontSettingEditor extends SettingEditor {
 
@@ -20,20 +25,25 @@ public class FontSettingEditor extends SettingEditor {
 
 	private Button button;
 
-	public FontSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public FontSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, "SansSerif|12" );
+		String value = setting.getSettings().get( getKey(), "SansSerif|12" );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		button = new Button();
 		button.setMaxWidth( Double.MAX_VALUE );
 		updateFont( value );
+
+		nodes = List.of( label, button );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -44,20 +54,13 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		button.setDisable( disable );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		button.setVisible( visible );
-	}
-
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
 	}
 
 	private void updateFont( String value ) {

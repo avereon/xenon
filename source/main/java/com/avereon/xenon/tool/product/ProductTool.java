@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -47,8 +47,6 @@ public class ProductTool extends GuidedTool {
 
 	private RepoPage repoPage;
 
-	private Guide guide;
-
 	private String currentPageId;
 
 	public ProductTool( ProgramProduct product, Asset asset ) {
@@ -76,11 +74,13 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
+
+		getGuideContext().getGuides().add( createGuide() );
 	}
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "product-name" ) );
+		setTitle( Rb.text(getProduct(), "tool", "product-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "product" ) );
 	}
 
@@ -130,26 +130,26 @@ public class ProductTool extends GuidedTool {
 		super.deallocate();
 	}
 
-	@Override
-	protected Guide getGuide() {
-		if( this.guide != null ) return this.guide;
-
+	private Guide createGuide() {
 		Guide guide = new Guide();
-		ProductBundle rb = getProduct().rb();
 
-		GuideNode installed = new GuideNode( getProgram(), INSTALLED, rb.text( "tool", "product-installed" ), "module" );
+		GuideNode installed = new GuideNode( getProgram(), INSTALLED, Rb.text(getProduct(), "tool", "product-installed" ), "module" );
+		installed.setOrder( 0 );
 		guide.addNode( installed );
 
-		GuideNode available = new GuideNode( getProgram(), AVAILABLE, rb.text( "tool", "product-available" ), "module" );
+		GuideNode available = new GuideNode( getProgram(), AVAILABLE, Rb.text(getProduct(), "tool", "product-available" ), "module" );
+		available.setOrder( 1 );
 		guide.addNode( available );
 
-		GuideNode updates = new GuideNode( getProgram(), UPDATES, rb.text( "tool", "product-updates" ), "download" );
+		GuideNode updates = new GuideNode( getProgram(), UPDATES, Rb.text(getProduct(), "tool", "product-updates" ), "download" );
+		updates.setOrder( 2 );
 		guide.addNode( updates );
 
-		GuideNode sources = new GuideNode( getProgram(), SOURCES, rb.text( "tool", "product-sources" ), "market" );
+		GuideNode sources = new GuideNode( getProgram(), SOURCES, Rb.text(getProduct(), "tool", "product-sources" ), "market" );
+		sources.setOrder( 3 );
 		guide.addNode( sources );
 
-		return this.guide = guide;
+		return guide;
 	}
 
 	@Override

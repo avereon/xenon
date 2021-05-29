@@ -1,13 +1,17 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProductBundle;
+import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
+import com.avereon.settings.Settings;
 import com.avereon.util.Log;
-import com.avereon.venza.image.RenderedIcon;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.tool.settings.SettingsPage;
+import com.avereon.zerra.image.VectorImage;
 
+import java.io.IOException;
 import java.lang.System.Logger;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * The Mod class provides the basic interface and implementation of a Mod. Mods
@@ -23,13 +27,19 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
+	private static final String DEFAULT_SETTINGS = "settings/default.properties";
+
+	private static final String SETTINGS_PAGES = "settings/pages.xml";
+
 	private static final Logger log = Log.get();
 
 	private Program program;
 
+	private Product parent;
+
 	private ProductCard card;
 
-	private ProductBundle resourceBundle;
+	private Map<String, SettingsPage> settingsPages;
 
 	public Mod() {
 		card = new ProductCard().jsonCard( this );
@@ -46,14 +56,12 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	@Override
-	public ClassLoader getClassLoader() {
-		return getClass().getClassLoader();
+	public Product getParent() {
+		return parent;
 	}
 
-	@Override
-	public ProductBundle rb() {
-		if( resourceBundle == null ) resourceBundle = new ProductBundle( this );
-		return resourceBundle;
+	public void setParent( Product parent ) {
+		this.parent = parent;
 	}
 
 	/**
@@ -63,7 +71,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to register
 	 * @return the mod
 	 */
-	protected Mod registerIcon( String id, RenderedIcon icon ) {
+	protected Mod registerIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().register( id, icon );
 		return this;
 	}
@@ -75,7 +83,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to unregister
 	 * @return the mod
 	 */
-	protected Mod unregisterIcon( String id, RenderedIcon icon ) {
+	protected Mod unregisterIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}
@@ -87,7 +95,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param id
 	 * @return
 	 */
-	protected Mod registerAction( ProductBundle bundle, String id ) {
+	protected Mod registerAction( Product bundle, String id ) {
 		getProgram().getActionLibrary().register( bundle, id );
 		return this;
 	}
@@ -163,6 +171,21 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		return this;
 	}
 
+	protected Mod loadDefaultSettings() throws IOException {
+		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
+		return this;
+	}
+
+	protected Mod registerSettingsPages() {
+		settingsPages = getProgram().getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
+		return this;
+	}
+
+	protected Mod unregisterSettingsPages() {
+		getProgram().getSettingsManager().removeSettingsPages( settingsPages );
+		return this;
+	}
+
 	/**
 	 * Called by the product manager to initialize the mod. This method should not
 	 * be called by other classes.
@@ -193,7 +216,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * process after the {@link #register} method is called. This method is also
 	 * called when a mod is enabled from the product tool.
 	 */
-	public void startup() {}
+	public void startup() throws Exception {}
 
 	/**
 	 * Called by the program to shutdown a mod instance. This method is typically
@@ -203,7 +226,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * {@link #unregister} method is called. This method is also called when a mod
 	 * is disabled from the product tool.
 	 */
-	public void shutdown() {}
+	public void shutdown() throws Exception {}
 
 	/**
 	 * Called by the program to unregister a mod instance. This method is
@@ -214,12 +237,17 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	public void unregister() {}
 
+	@Override
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getProductSettings( getCard() );
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Path getDataFolder() {
-		return program.getDataFolder().resolve( card.getProductKey() );
+		return getProgram().getDataFolder().resolve( getCard().getProductKey() );
 	}
 
 	/**
@@ -227,7 +255,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	@Override
 	public int compareTo( Mod that ) {
-		return this.card.getArtifact().compareTo( that.card.getArtifact() );
+		return this.getCard().getArtifact().compareTo( that.getCard().getArtifact() );
 	}
 
 	/**
@@ -235,7 +263,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	@Override
 	public String toString() {
-		return card.getName();
+		return getCard().getName();
 	}
 
 }

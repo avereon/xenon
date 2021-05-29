@@ -13,11 +13,11 @@ public class NoticePane extends GridPane {
 
 	private static final Logger log = Log.get();
 
-	private Program program;
+	private final Program program;
 
-	private Notice notice;
+	private final Notice notice;
 
-	private Node closeIcon;
+	private final Node closeIcon;
 
 	public NoticePane( Program program, Notice notice, boolean flyout ) {
 		this.program = program;

@@ -1,15 +1,15 @@
 package com.avereon.xenon.util;
 
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 
 import java.util.Timer;
 
 public class TimerUtil {
 
-	private static Timer timer = new Timer( true );
+	private static final Timer timer = new Timer( true );
 
 	public static void fxTask( Runnable runnable, long delay ) {
-		timer.schedule( Lambda.timerTask( () -> Platform.runLater( runnable ) ), delay );
+		timer.schedule( Lambda.timerTask( () -> Fx.run( runnable ) ), delay );
 	}
 
 }

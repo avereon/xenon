@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.0.0</version>
+		<version>3.1.0-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
@@ -17,7 +17,7 @@
 	<artifactId>xenon</artifactId>
 	<!-- To do a release, merge to the stage branch, update the version and then merge to the stable branch -->
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.3</version>
+	<version>1.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -69,22 +69,8 @@
 
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
-		<zevra.version>0.4</zevra.version>
-		<venza.version>0.3</venza.version>
-		<rossa.version>0.3</rossa.version>
-		<zenna.version>0.4</zenna.version>
-		<openjfx.version>14.0.1</openjfx.version>
-		<controlsfx.version>11.0.1</controlsfx.version>
-		<miglayout.version>5.2</miglayout.version>
-
-		<!-- Test dependencies -->
-		<testfx.version>4.0.16-alpha</testfx.version>
-		<monocle.version>jdk-12.0.1+2</monocle.version>
-
-		<!-- Build dependencies -->
-		<cameo.version>2.6</cameo.version>
-		<curex.version>1.1</curex.version>
-		<izpack.version>5.1.3</izpack.version>
+		<reactfx.version>2.0-M5</reactfx.version>
+		<undofx.version>2.1.0</undofx.version>
 	</properties>
 
 	<dependencies>
@@ -97,14 +83,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>venza</artifactId>
-			<version>${venza.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.avereon</groupId>
-			<artifactId>rossa</artifactId>
-			<version>${rossa.version}</version>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
 		</dependency>
 
 		<dependency>
@@ -113,11 +93,11 @@
 			<version>${zenna.version}</version>
 		</dependency>
 
-		<!--		<dependency>-->
-		<!--			<groupId>org.apache.commons</groupId>-->
-		<!--			<artifactId>commons-vfs2</artifactId>-->
-		<!--			<version>2.6.0</version>-->
-		<!--		</dependency>-->
+		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>weave</artifactId>
+			<version>${weave.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -144,6 +124,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.reactfx</groupId>
+			<artifactId>reactfx</artifactId>
+			<version>${reactfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.fxmisc.undo</groupId>
+			<artifactId>undofx</artifactId>
+			<version>${undofx.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
@@ -156,18 +148,11 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.miglayout</groupId>
-			<artifactId>miglayout-javafx</artifactId>
-			<version>${miglayout.version}</version>
-			<exclusions>
-				<!-- Exclude the openjfx libraries, they are already available -->
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+		<!--		<dependency>-->
+		<!--			<groupId>org.apache.commons</groupId>-->
+		<!--			<artifactId>commons-vfs2</artifactId>-->
+		<!--			<version>2.6.0</version>-->
+		<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.testfx</groupId>
@@ -211,6 +196,13 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -235,12 +227,13 @@
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.ui.util=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
@@ -282,7 +275,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
 					<links>
-						<link>https://www.avereon.com/product/zenna/docs/api</link>
+						<link>https://www.avereon.com/product/weave/docs/api</link>
 						<link>https://www.avereon.com/product/zevra/docs/api</link>
 					</links>
 				</configuration>
@@ -307,12 +300,12 @@
 									<theme>light</theme>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon.png</target>
 									<theme>dark</theme>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon-light.png</target>
 									<theme>light</theme>
 								</image>
@@ -322,31 +315,31 @@
 									<target>${images-folder}/xenon.ico</target>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
@@ -356,31 +349,31 @@
 									<theme>light</theme>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
@@ -438,10 +431,32 @@
 										<module>miglayout.core</module>
 									</modules>
 								</jar>
+								<jar>
+									<name>reactfx*.jar</name>
+									<modules>
+										<module>javafx.base</module>
+										<module>javafx.graphics</module>
+										<module>javafx.controls</module>
+									</modules>
+								</jar>
+								<jar>
+									<name>undofx*.jar</name>
+									<modules>
+										<module>reactfx</module>
+									</modules>
+								</jar>
 							</jars>
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>14</source>
+					<target>14</target>
+				</configuration>
 			</plugin>
 
 		</plugins>
@@ -450,7 +465,40 @@
 
 	<profiles>
 		<profile>
-			<id>screenshots</id>
+			<id>screenshots1x</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${maven.exec.version}</version>
+						<executions>
+							<execution>
+								<id>screenshots1x</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
+									<arguments>
+										<argument>-Xmx128m</argument>
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>screenshots2x</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -468,29 +516,11 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx64m</argument>
+										<argument>-Xmx256m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
 										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>screenshots1x</id>
-								<phase>package</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<classpathScope>runtime</classpathScope>
-									<arguments>
-										<argument>-Xmx64m</argument>
-										<argument>-p</argument>
-										<modulepath/>
-										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
 									</arguments>
 								</configuration>
 							</execution>
@@ -525,9 +555,11 @@
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.tool=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
@@ -693,28 +725,6 @@
 										</resource>
 									</resources>
 									<outputDirectory>${basedir}/target/pack/${product.platform}</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<!-- Generate the installer -->
-					<plugin>
-						<groupId>org.codehaus.izpack</groupId>
-						<artifactId>izpack-maven-plugin</artifactId>
-						<version>${izpack.version}</version>
-						<executions>
-							<execution>
-								<id>izpack-deploy</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>izpack</goal>
-								</goals>
-								<configuration>
-									<enableAttachArtifact>false</enableAttachArtifact>
-									<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
-									<baseDir>${project.build.directory}</baseDir>
-									<finalName>install</finalName>
 								</configuration>
 							</execution>
 						</executions>

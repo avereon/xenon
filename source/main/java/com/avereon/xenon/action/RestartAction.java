@@ -8,6 +8,8 @@ import javafx.event.ActionEvent;
 
 public class RestartAction extends Action {
 
+	private static final System.Logger log = Log.get();
+
 	public RestartAction( Program program ) {
 		super( program );
 	}

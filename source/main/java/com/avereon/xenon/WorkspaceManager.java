@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
@@ -10,7 +11,7 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -40,7 +41,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
 
-		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+		program.getSettings().register( SettingsEvent.CHANGED, e -> {
 			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
 		} );
 	}
@@ -164,7 +165,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void showActiveWorkspace() {
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			Workspace workspace = getActiveWorkspace();
 			if( workspace == null ) return;
 			Stage stage = workspace.getStage();
@@ -224,16 +225,16 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
 		if( assets.isEmpty() ) return true;
 
-		boolean autoSave = getProgram().getProgramSettings().get( "shutdown-autosave", Boolean.class, false );
+		boolean autoSave = getProgram().getSettings().get( "shutdown-autosave", Boolean.class, false );
 		if( autoSave ) {
 			getProgram().getAssetManager().saveAssets( assets );
 			return true;
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modified" ) );
-		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modified-message" ) );
-		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
+		alert.setTitle( Rb.text( BundleKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( Rb.text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
@@ -255,7 +256,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
 		log.log( Log.WARN, "Number of visible workspaces: " + visibleWorkspaces );
 		boolean closeProgram = visibleWorkspaces == 1;
-		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
+		boolean shutdownVerify = getProgram().getSettings().get( "shutdown-verify", Boolean.class, true );
 
 		if( closeProgram ) {
 			program.requestExit( false, false );
@@ -265,9 +266,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			boolean shouldContinue = !shutdownVerify;
 			if( shutdownVerify ) {
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-				alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
-				alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
-				alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
+				alert.setTitle( Rb.text( "workspace", "workspace-close-title" ) );
+				alert.setHeaderText( Rb.text( "workspace", "workspace-close-message" ) );
+				alert.setContentText( Rb.text( "workspace", "workspace-close-prompt" ) );
 				alert.initOwner( workspace.getStage() );
 
 				Stage stage = program.getWorkspaceManager().getActiveStage();
@@ -295,7 +296,18 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
-		Platform.runLater( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
+		Fx.run( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
+	}
+
+	public Workspace findWorkspace( ProgramTool tool ) {
+		for( Workspace workspace : getWorkspaces() ) {
+			for( Workarea workarea : workspace.getWorkareas() ) {
+				for( Tool check : workarea.getWorkpane().getTools() ) {
+					if( check == tool ) return workspace;
+				}
+			}
+		}
+		return null;
 	}
 
 	void hideWindows() {

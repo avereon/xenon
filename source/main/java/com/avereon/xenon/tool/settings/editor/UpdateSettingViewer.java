@@ -1,13 +1,15 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.DateUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class UpdateSettingViewer extends SettingEditor {
@@ -23,16 +26,16 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private Label nextUpdateCheckField;
 
-	public UpdateSettingViewer( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public UpdateSettingViewer( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		Program program = product.getProgram();
-
-		Label lastUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-last" ) );
-		Label nextUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-next" ) );
+		Label lastUpdateCheckLabel = new Label( Rb.text( getProduct(), BundleKey.UPDATE, "product-update-check-last" ) );
+		Label nextUpdateCheckLabel = new Label( Rb.text( getProduct(), BundleKey.UPDATE, "product-update-check-next" ) );
 		lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
 		nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
 		lastUpdateCheckLabel.getStyleClass().add( "prompt" );
@@ -45,6 +48,8 @@ public class UpdateSettingViewer extends SettingEditor {
 
 		lastUpdateCheckLabel.setLabelFor( lastUpdateCheckField );
 		nextUpdateCheckLabel.setLabelFor( nextUpdateCheckField );
+
+		nodes = List.of( lastUpdateCheckLabel, lastUpdateCheckField, nextUpdateCheckLabel, nextUpdateCheckField );
 
 		Pane spring = new Pane();
 		HBox.setHgrow( spring, Priority.ALWAYS );
@@ -60,25 +65,19 @@ public class UpdateSettingViewer extends SettingEditor {
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		//
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override
-	public void setVisible( boolean visible ) {
-		lastUpdateCheckField.setVisible( visible );
-		nextUpdateCheckField.setVisible( visible );
-	}
-
-	@Override
-	public void handle( SettingsEvent event ) {
-		Platform.runLater( this::updateLabels );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		Fx.run( this::updateLabels );
 	}
 
 	private void updateLabels() {
 		Program program = product.getProgram();
-		String unknown = product.rb().text( BundleKey.UPDATE, "unknown" );
-		String notScheduled = product.rb().text( BundleKey.UPDATE, "not-scheduled" );
+		String unknown = Rb.text( getProduct(), BundleKey.UPDATE, "unknown" );
+		String notScheduled = Rb.text( getProduct(), BundleKey.UPDATE, "not-scheduled" );
 
 		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();

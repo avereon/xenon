@@ -1,31 +1,34 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
-import com.avereon.data.Node;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class SettingGroup extends Node {
+public class SettingGroup extends SettingDependant {
 
 	private static final String ID = "id";
 
-	private static final String DISABLE = "disable";
-
-	private static final String VISIBLE = "visible";
-
 	private static final String SETTINGS = "settings";
 
-	private static final String DEPENDENCIES = "dependencies";
+	private final SettingsPage page;
 
-	private Settings settings;
-
-	public SettingGroup( Settings settings ) {
-		this.settings = settings;
+	public SettingGroup( SettingsPage page ) {
+		this.page = page;
 		definePrimaryKey( ID );
-		setValue( SETTINGS, new CopyOnWriteArrayList<Setting>() );
-		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
+		setValue( SETTINGS, new CopyOnWriteArrayList<SettingData>() );
+	}
+
+	public SettingData getSetting( String key ) {
+		for( SettingData setting : getSettingsList() ) {
+			if( setting.getKey().equals( key ) ) return setting;
+		}
+		return null;
+	}
+
+	public SettingsPage getPage() {
+		return page;
 	}
 
 	public String getId() {
@@ -36,42 +39,17 @@ public class SettingGroup extends Node {
 		setValue( ID, id );
 	}
 
-	public boolean isDisable() {
-		return getValue( DISABLE, false );
-	}
-
-	public void setDisable( boolean enabled ) {
-		setValue( DISABLE, enabled );
-	}
-
-	public boolean isVisible() {
-		return getValue( VISIBLE, false );
-	}
-
-	public void setVisible( boolean visible ) {
-		setValue( VISIBLE, visible );
-	}
-
-	public List<Setting> getSettings() {
+	public List<SettingData> getSettingsList() {
 		return Collections.unmodifiableList( getValue( SETTINGS ) );
 	}
 
-	public void addSetting( Setting setting ) {
-		List<Setting> settings = getValue( SETTINGS );
+	public void addSetting( SettingData setting ) {
+		List<SettingData> settings = getValue( SETTINGS );
 		settings.add( setting );
 	}
 
-	public List<SettingDependency> getDependencies() {
-		return Collections.unmodifiableList( getValue( DEPENDENCIES ) );
-	}
-
-	public void addDependency( SettingDependency dependency ) {
-		List<SettingDependency> dependencies = getValue( DEPENDENCIES );
-		dependencies.add( dependency );
-	}
-
-	public void updateState() {
-		setVisible( SettingDependency.evaluate( getDependencies(), settings ) );
+	public Settings getSettings() {
+		return getPage().getSettings();
 	}
 
 }

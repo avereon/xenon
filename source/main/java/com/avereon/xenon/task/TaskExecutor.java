@@ -2,7 +2,10 @@ package com.avereon.xenon.task;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class TaskExecutor implements ExecutorService {
@@ -25,7 +28,7 @@ public class TaskExecutor implements ExecutorService {
 
 	@Override
 	public boolean isShutdown() {
-		throw new UnsupportedOperationException();
+		return !manager.isRunning();
 	}
 
 	@Override
@@ -50,7 +53,7 @@ public class TaskExecutor implements ExecutorService {
 
 	@Override
 	public Future<?> submit( Runnable task ) {
-		throw new UnsupportedOperationException();
+		return submit( (Callable<?>)Task.of( task ) );
 	}
 
 	@Override

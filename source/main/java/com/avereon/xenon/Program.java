@@ -4,12 +4,11 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
-import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
@@ -29,6 +28,8 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -47,7 +48,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -66,9 +69,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
-	private static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace( ".", "/" ) + "/settings/default.properties";
+	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
-	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
+	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
 	private static final boolean SHOW_TIMING = false;
 
@@ -97,8 +100,6 @@ public class Program extends Application implements ProgramProduct {
 	private String profile;
 
 	private IconLibrary iconLibrary;
-
-	private ProductBundle programResourceBundle;
 
 	private ActionLibrary actionLibrary;
 
@@ -131,6 +132,8 @@ public class Program extends Application implements ProgramProduct {
 	private RestartAction restartAction;
 
 	private SettingsAction settingsAction;
+
+	private PropertiesAction propertiesAction;
 
 	private ThemesAction themesAction;
 
@@ -201,7 +204,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-data-folder" );
 
 		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( this );
+		Rb.init( this );
 		time( "resource-bundle" );
 
 		// Configure logging, depends on parameters and program data folder
@@ -236,7 +239,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( loadDefaultSettings() );
+		programSettings.loadDefaultValues( this, DEFAULT_SETTINGS );
 		time( "program-settings" );
 
 		// Run the peer check before processing actions in case there is a peer already
@@ -316,16 +319,16 @@ public class Program extends Application implements ProgramProduct {
 
 		@Override
 		protected void cancelled() {
-			Platform.runLater( () -> splashScreen.hide() );
+			Fx.run( () -> splashScreen.hide() );
 			log.log( ERROR, "Startup task cancelled", getException() );
 			requestExit( true );
 		}
 
 		@Override
 		protected void failed() {
-			Platform.runLater( () -> splashScreen.hide() );
+			Fx.run( () -> splashScreen.hide() );
 			log.log( ERROR, "Startup task failed", getException() );
-			requestExit( true );
+			Fx.run( () -> requestExit( true ) );
 		}
 
 	}
@@ -362,12 +365,12 @@ public class Program extends Application implements ProgramProduct {
 		// Set the number of startup steps
 		int managerCount = 6;
 		int steps = managerCount + uiRegenerator.getToolCount();
-		Platform.runLater( () -> splashScreen.setSteps( steps ) );
+		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
 		this.card.jsonCard( this );
 
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 
 		// Start the asset manager
 		log.log( TRACE, "Starting asset manager..." );
@@ -376,38 +379,38 @@ public class Program extends Application implements ProgramProduct {
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
 		assetManager.start();
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Asset manager started." );
 
 		// Load the settings pages
-		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
+		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 
 		// Start the tool manager
 		log.log( TRACE, "Starting tool manager..." );
 		toolManager = new ToolManager( this );
 		registerTools( toolManager );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Tool manager started." );
 
 		// Create the theme manager
 		log.log( TRACE, "Starting theme manager..." );
 		themeManager = new ThemeManager( Program.this ).start();
 		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Theme manager started." );
 
 		// Create the workspace manager
 		log.log( TRACE, "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
 		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Workspace manager started." );
 
 		// Create the notice manager, depends on workspace manager
 		log.log( TRACE, "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Notice manager started." );
 
 		// Start the product manager
@@ -419,7 +422,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface, depends on workspace manager
 		log.log( TRACE, "Restore the user interface..." );
-		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
+		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.log( DEBUG, "User interface restored." );
 
@@ -427,12 +430,12 @@ public class Program extends Application implements ProgramProduct {
 		int totalSteps = splashScreen.getSteps();
 		int completedSteps = splashScreen.getCompletedSteps();
 		if( completedSteps != totalSteps ) log.log( WARNING, "Startup step mismatch: " + completedSteps + " of " + totalSteps );
-		Platform.runLater( () -> splashScreen.done() );
+		Fx.run( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			if( !parameters.isSet( ProgramFlag.DAEMON ) ) {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
@@ -450,7 +453,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
 		// Check to see if the application was updated
-		if( isProgramUpdated() ) Platform.runLater( this::notifyProgramUpdated );
+		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
@@ -612,15 +615,21 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		if( requestExit( true ) ) new RestartHook( this, mode, commands ).start();
+		RestartHook hook = new RestartHook( this, mode, commands );
+		Runtime.getRuntime().addShutdownHook( hook );
+		if( !requestExit( true ) ) Runtime.getRuntime().removeShutdownHook( hook );
 	}
 
 	public boolean requestExit( boolean skipChecks ) {
 		return requestExit( skipChecks, skipChecks );
 	}
 
-	@SuppressWarnings( "ConstantConditions" )
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
+		return doRequestExit( skipVerifyCheck, skipKeepAliveCheck );
+	}
+
+	@SuppressWarnings( "ConstantConditions" )
+	private boolean doRequestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
 		boolean shutdownVerify = true;
@@ -633,9 +642,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( rb().text( BundleKey.PROGRAM, "program.close.title" ) );
-			alert.setHeaderText( rb().text( BundleKey.PROGRAM, "program.close.message" ) );
-			alert.setContentText( rb().text( BundleKey.PROGRAM, "program.close.prompt" ) );
+			alert.setTitle( Rb.text( BundleKey.PROGRAM, "program.close.title" ) );
+			alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "program.close.message" ) );
+			alert.setContentText( Rb.text( BundleKey.PROGRAM, "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -644,7 +653,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// The workspaceManager can be null if the program is already running as a peer
-		if( workspaceManager != null ) Platform.runLater( () -> workspaceManager.hideWindows() );
+		if( workspaceManager != null ) Fx.run( () -> workspaceManager.hideWindows() );
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 
@@ -703,29 +712,19 @@ public class Program extends Application implements ProgramProduct {
 		return card;
 	}
 
-	@Override
-	public ClassLoader getClassLoader() {
-		return getClass().getClassLoader();
-	}
-
-	@Override
-	public ProductBundle rb() {
-		return programResourceBundle;
-	}
-
-	public final Path getDataFolder() {
+	public Path getDataFolder() {
 		return programDataFolder;
 	}
 
-	public final Path getLogFolder() {
+	public Path getLogFolder() {
 		return programLogFolder;
 	}
 
-	public final UpdateManager getUpdateManager() {
+	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
 
-	public final TaskManager getTaskManager() {
+	public TaskManager getTaskManager() {
 		return taskManager;
 	}
 
@@ -733,43 +732,44 @@ public class Program extends Application implements ProgramProduct {
 	//		return taskManager;
 	//	}
 
-	public final IconLibrary getIconLibrary() {
+	public IconLibrary getIconLibrary() {
 		return iconLibrary;
 	}
 
-	public final ActionLibrary getActionLibrary() {
+	public ActionLibrary getActionLibrary() {
 		return actionLibrary;
 	}
 
-	public final SettingsManager getSettingsManager() {
+	public SettingsManager getSettingsManager() {
 		return settingsManager;
 	}
 
-	public final Settings getProgramSettings() {
+	@Override
+	public Settings getSettings() {
 		return programSettings;
 	}
 
-	public final ToolManager getToolManager() {
+	public ToolManager getToolManager() {
 		return toolManager;
 	}
 
-	public final AssetManager getAssetManager() {
+	public AssetManager getAssetManager() {
 		return assetManager;
 	}
 
-	public final ThemeManager getThemeManager() {
+	public ThemeManager getThemeManager() {
 		return themeManager;
 	}
 
-	public final WorkspaceManager getWorkspaceManager() {
+	public WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
 	}
 
-	public final ProductManager getProductManager() {
+	public ProductManager getProductManager() {
 		return productManager;
 	}
 
-	public final NoticeManager getNoticeManager() {
+	public NoticeManager getNoticeManager() {
 		return noticeManager;
 	}
 
@@ -789,21 +789,6 @@ public class Program extends Application implements ProgramProduct {
 		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
-	}
-
-	/**
-	 * Load the default settings map from the classpath.
-	 *
-	 * @return The default settings map
-	 * @throws IOException If an IOException occurs
-	 */
-	private Map<String, Object> loadDefaultSettings() throws IOException {
-		Properties properties = new Properties();
-		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		InputStream defaultSettingsInput = getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES );
-		if( defaultSettingsInput != null ) properties.load( new InputStreamReader( defaultSettingsInput, TextUtil.CHARSET ) );
-		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
-		return defaultSettingsValues;
 	}
 
 	/**
@@ -871,7 +856,7 @@ public class Program extends Application implements ProgramProduct {
 			if( startup ) {
 				if( isHost() ) log.log( WARNING, "Program is already stopped!" );
 			} else {
-				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+				if( isHost() ) Fx.run( () -> requestExit( true ) );
 			}
 			return false;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
@@ -965,8 +950,7 @@ public class Program extends Application implements ProgramProduct {
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
 		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
-		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty(
-			"os.arch" ) );
+		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
 	}
 
 	private void printStatus( boolean startup ) {
@@ -1080,6 +1064,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
@@ -1111,6 +1096,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
+		getActionLibrary().getAction( "properties" ).pullAction( propertiesAction );
 		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
@@ -1154,9 +1140,11 @@ public class Program extends Application implements ProgramProduct {
 		manager.addAssetType( new ProgramAssetChooserType( this ) );
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
+		manager.addAssetType( new PropertiesType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.removeAssetType( new PropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
 		manager.removeAssetType( new ProgramAssetChooserType( this ) );
@@ -1182,6 +1170,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramAssetChooserType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
+		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
@@ -1190,6 +1179,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramAssetChooserType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
@@ -1207,7 +1197,7 @@ public class Program extends Application implements ProgramProduct {
 	) {
 		// The problem with using the class name is it can change if the class package or name is changed.
 		AssetType type = assetManager.getAssetType( assetType.getKey() );
-		String name = rb().text( "tool", toolRbKey + "-name" );
+		String name = Rb.text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
 		ToolRegistration metadata = new ToolRegistration( this, toolClass );
@@ -1262,7 +1252,7 @@ public class Program extends Application implements ProgramProduct {
 	//		}
 	//
 	//		// The progress window title
-	//		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+	//		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
 	//
 	//		// Force the location of the updater log file
 	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
@@ -1288,8 +1278,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = rb().text( BundleKey.UPDATE, "updates" );
-		String message = rb().text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String message = Rb.text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 

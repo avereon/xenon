@@ -6,18 +6,19 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.ui.util.MenuBarFactory;
+import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
-import javafx.application.Platform;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -26,90 +27,98 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-//import java.beans.PropertyChangeEvent;
-//import java.beans.PropertyChangeListener;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
 public class Workspace implements WritableIdentity {
 
+	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
+
 	private static final System.Logger log = Log.get();
 
-	private Program program;
+	public static final String EDIT_ACTION = "edit";
 
-	private Stage stage;
+	public static final String VIEW_ACTION = "view";
+
+	private final Program program;
+
+	private final Stage stage;
 
 	private Scene scene;
 
 	private boolean active;
 
-	private FxEventHub eventBus;
+	private final FxEventHub eventBus;
 
-	private StackPane workspaceStack;
+	private final BorderPane workareaLayout;
 
-	private BorderPane workareaLayout;
+	private final MenuBar menubar;
 
-	private Pane menubarContainer;
+	// This menu is used to mark the beginning of the space where tools can push
+	// their own actions as well as be a standard menu.
+	private final Menu menubarToolStart;
 
-	private HBox toolbarContainer;
+	// This menu is used to mark the end of the space where tools can push their
+	// own actions as well as be a standard menu.
+	private final Menu menubarToolEnd;
 
-	private MenuBar menubar;
+	private final ToolBar toolbar;
 
-	private ToolBar toolbar;
+	// This separator is also used to mark the beginning of the space where tools
+	// can push their own actions as well as provide a separator between the
+	// standard actions and the tool actions.
+	private final Separator toolbarToolStart;
 
-	private Map<String, Button> toolbarToolButtons;
+	// This region is also used to mark the end of the space where tools can push
+	// their own actions as well as provide the space between the tool actions and
+	// the workspace menu.
+	private final Region toolbarToolEnd;
 
-	private Separator toolbarToolButtonSeparator;
-
-	private Region toolbarToolSpring;
-
-	private StatusBar statusBar;
-
-	private Group memoryMonitorContainer;
+	private final StatusBar statusBar;
 
 	private MemoryMonitor memoryMonitor;
 
-	private Group taskMonitorContainer;
-
 	private TaskMonitor taskMonitor;
 
-	private WorkspaceBackground background;
+	private FpsMonitor fpsMonitor;
 
-	private Pane dropHintLayer;
+	private final WorkspaceBackground background;
 
-	private Pane workpaneContainer;
+	private final Pane workpaneContainer;
 
-	private VBox noticeContainer;
-
-	private BorderPane noticeLayout;
+	private final VBox noticeContainer;
 
 	private ComboBox<Workarea> workareaSelector;
 
-	private ObservableList<Workarea> workareas;
+	private final ObservableList<Workarea> workareas;
+
+	private final WorkareaNameWatcher workareaNameWatcher;
+
+	private final BackgroundSettingsHandler backgroundSettingsHandler;
+
+	private final MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
+
+	private final TaskMonitorSettingsHandler taskMonitorSettingsHandler;
+
+	private final FpsMonitorSettingsHandler fpsMonitorSettingsHandler;
 
 	private Workarea activeWorkarea;
-
-	private WorkareaNameWatcher workareaNameWatcher;
-
-	private BackgroundSettingsHandler backgroundSettingsHandler;
-
-	private MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
-
-	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
-
-	private static Timer timer = new Timer( true );
 
 	public Workspace( final Program program ) {
 		this.program = program;
@@ -120,14 +129,15 @@ public class Workspace implements WritableIdentity {
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
+		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
-		// FIXME Should this default setup be defined in config files or something else?
 		menubar = createMenuBar( program );
+		menubarToolStart = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		menubarToolEnd = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		toolbarToolButtons = new ConcurrentHashMap<>();
-		toolbarToolButtonSeparator = new Separator();
-		toolbarToolSpring = ActionUtil.createSpring();
-		toolbar = createToolBar( program );
+		toolbarToolStart = new Separator();
+		toolbarToolEnd = ToolBarFactory.createSpring();
+		toolbar = createProgramToolBar( program );
 
 		statusBar = createStatusBar( program );
 
@@ -135,17 +145,18 @@ public class Workspace implements WritableIdentity {
 		noticeContainer.getStyleClass().add( "notice-container" );
 		noticeContainer.setPickOnBounds( false );
 
-		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		BorderPane noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
 		noticeLayout.setPickOnBounds( false );
 
 		// Workpane Container
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		StackPane workspaceStack = new StackPane( workpaneContainer, noticeLayout );
 		workspaceStack.setPickOnBounds( false );
 
 		workareaLayout = new BorderPane();
+		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 		workareaLayout.setTop( new VBox( menubar, toolbar ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
@@ -160,6 +171,22 @@ public class Workspace implements WritableIdentity {
 		stage.focusedProperty().addListener( ( p, o, n ) -> {
 			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
+
+		//stage.outputScaleXProperty().addListener( (p,o,n) -> {
+		//	log.log( Log.WARN, "The window output scale X changed to " + n );
+		//} );
+		//stage.outputScaleYProperty().addListener( (p,o,n) -> {
+		//	log.log( Log.WARN, "The window output scale Y changed to " + n );
+		//} );
+
+		// This worked, just not the way I expected. The UI was rendered at a lower
+		// resolution, but then just scaled back up so it looked fuzzy.
+		//stage.renderScaleXProperty().bind( stage.outputScaleXProperty().multiply( 0.5 ) );
+		//stage.renderScaleYProperty().bind( stage.outputScaleYProperty().multiply( 0.5 ) );
+
+		memoryMonitor.start();
+		taskMonitor.start();
+		fpsMonitor.start();
 	}
 
 	public void setTheme( String url ) {
@@ -173,153 +200,137 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private MenuBar createMenuBar( Program program ) {
-		MenuBar menubar = new MenuBar();
+		// FIXME Should this default setup be defined in config files or something else?
+
+		// The menu definitions
+		String file = "file[new,open,save,save-as,copy-as|close|exit]";
+		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
+		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show]";
+		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";
+		String development = "development[test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+
+		// Construct the menubar descriptor
+		StringBuilder descriptor = new StringBuilder();
+		descriptor.append( file );
+		descriptor.append( "," ).append( edit );
+		descriptor.append( "," ).append( view );
+		descriptor.append( "," ).append( help );
+		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
+
+		// Build the menubar
+		MenuBar menubar = MenuBarFactory.createMenuBar( program, descriptor.toString() );
 
 		// FIXME This does not work if there are two menu bars (like this program uses)
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
-		Menu file = ActionUtil.createMenu( program, "file" );
-		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
-		file.getItems().add( new SeparatorMenuItem() );
-		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
-
-		Menu edit = ActionUtil.createMenu( program, "edit" );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "redo" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "cut" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "copy" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "paste" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "delete" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
-
-		Menu view = ActionUtil.createMenu( program, "view" );
-		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		view.getItems().add( new SeparatorMenuItem() );
-		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
-
-		Menu tools = ActionUtil.createSubMenu( program, "tools" );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		tools.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-
-		Menu help = ActionUtil.createMenu( program, "help" );
-		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( tools );
-		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
-
-		Menu dev = ActionUtil.createMenu( program, "development" );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-1" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-2" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
-		dev.getItems().add( new SeparatorMenuItem() );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		//dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-
-		menubar.getMenus().addAll( file, edit, view, help );
-		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
-
 		return menubar;
 	}
 
-	private ToolBar createToolBar( Program program ) {
-		ToolBar toolbar = new ToolBar();
-		String[] ids = new String[]{ "new", "open", "save", "properties", ActionUtil.SEPARATOR, "undo", "redo", ActionUtil.SEPARATOR, "cut", "copy", "paste" };
-		toolbar.getItems().addAll( ActionUtil.createToolBarItems( program, ids ) );
-		toolbar.getItems().add( toolbarToolSpring );
+	private ToolBar createProgramToolBar( Program program ) {
+		// FIXME Should this default setup be defined in config files or something else?
 
-		// Workarea menu
-		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-rename" ) );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-close" ) );
+		String descriptor = "new,open,save,properties|undo,redo|cut,copy,paste";
+		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
-		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
-		workareaMenuBar.getMenus().add( workareaMenu );
+		// Add the workarea menu and selector
+		toolbar.getItems().add( toolbarToolEnd );
+		toolbar.getItems().add( createWorkareaMenu( program ) );
+		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
-		// Workarea selector
-		workareaSelector = new ComboBox<>();
-		workareaSelector.setItems( workareas );
-		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
-		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
+		// Add the notice button
+		toolbar.getItems().add( ToolBarFactory.createPad() );
+		toolbar.getItems().add( createNoticeToolbarButton() );
 
-		toolbar.getItems().add( workareaMenuBar );
-		toolbar.getItems().add( workareaSelector );
+		return toolbar;
+	}
 
-		toolbar.getItems().add( ActionUtil.createPad() );
-		Button noticeButton = ActionUtil.createToolBarButton( program, "notice" );
+	private Button createNoticeToolbarButton() {
+		Button noticeButton = ToolBarFactory.createToolBarButton( program, "notice" );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
 		noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
-			Platform.runLater( () -> {
+			Fx.run( () -> {
 				program.getActionLibrary().getAction( "notice" ).setIcon( program.getNoticeManager().getUnreadNoticeType().getIcon() );
 				noticeButton.setText( String.valueOf( count ) );
 			} );
 		} );
-		toolbar.getItems().add( noticeButton );
+		return noticeButton;
+	}
 
-		return toolbar;
+	private static MenuBar createWorkareaMenu( Program program ) {
+		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
+
+		MenuBar workareaMenuBar = new MenuBar();
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
+		workareaMenuBar.getMenus().add( MenuBarFactory.createMenu( program, descriptor, true ) );
+		return workareaMenuBar;
+	}
+
+	private ComboBox<Workarea> createWorkareaSelector() {
+		ComboBox<Workarea> selector = new ComboBox<>();
+		selector.setItems( workareas );
+		selector.setButtonCell( new WorkareaPropertyCell() );
+		selector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
+		return selector;
 	}
 
 	private StatusBar createStatusBar( Program program ) {
 		StatusBar statusBar = new StatusBar();
 
 		// Task Monitor
-		taskMonitor = new TaskMonitor( program.getTaskManager() );
-		taskMonitorContainer = new Group();
-
-		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
+		taskMonitor = new TaskMonitor( program );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
-		memoryMonitorContainer = new Group();
+
+		// FPS Monitor
+		fpsMonitor = new FpsMonitor();
 
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		statusBar.addRight( memoryMonitorContainer );
-		statusBar.addRight( taskMonitorContainer );
+		statusBar.addRightItems( memoryMonitor.getMonitorGroup() );
+		statusBar.addRightItems( taskMonitor.getMonitorGroup() );
+		statusBar.addRightItems( fpsMonitor.getMonitorGroup() );
 
 		return statusBar;
 	}
 
-	public void pushToolbarActions( String... ids ) {
+	public void pushMenubarActions( String descriptor ) {
+		pullMenubarActions();
+		descriptor = "tool[" + descriptor + "]";
+		int index = menubar.getMenus().indexOf( menubarToolEnd );
+		//menubar.getMenus().add( index++, menubarToolStart );
+		menubar.getMenus().addAll( index, MenuBarFactory.createMenuBar( getProgram(), descriptor ).getMenus() );
+	}
+
+	public void pullMenubarActions() {
+		int index = menubar.getMenus().indexOf( menubarToolStart );
+		if( index < 0 ) return;
+		index++;
+
+		Menu node = menubar.getMenus().get( index );
+		while( node != menubarToolEnd ) {
+			menubar.getMenus().remove( index );
+			node = menubar.getMenus().get( index );
+		}
+	}
+
+	public void pushToolbarActions( String descriptor ) {
 		pullToolbarActions();
-		int index = toolbar.getItems().indexOf( toolbarToolSpring );
-		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
-		toolbar.getItems().addAll( index, ActionUtil.createToolBarItems( getProgram(), ids ) );
+		int index = toolbar.getItems().indexOf( toolbarToolEnd );
+		toolbar.getItems().add( index++, toolbarToolStart );
+		toolbar.getItems().addAll( index, ToolBarFactory.createToolBar( getProgram(), descriptor ).getItems() );
 	}
 
 	public void pullToolbarActions() {
-		int index = toolbar.getItems().indexOf( toolbarToolButtonSeparator );
+		int index = toolbar.getItems().indexOf( toolbarToolStart );
 		if( index < 0 ) return;
 
 		Node node = toolbar.getItems().get( index );
-		while( node != toolbarToolSpring ) {
+		while( node != toolbarToolEnd ) {
 			toolbar.getItems().remove( index );
 			node = toolbar.getItems().get( index );
 		}
@@ -414,19 +425,19 @@ public class Workspace implements WritableIdentity {
 		noticeContainer.getChildren().add( 0, pane );
 
 		pane.setOnMouseClicked( ( event ) -> {
-			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
+			noticeContainer.getChildren().remove( pane );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
-			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
+			noticeContainer.getChildren().remove( pane );
 			event.consume();
 		} );
 
-		int balloonTimeout = getProgram().getProgramSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
+		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
@@ -455,6 +466,7 @@ public class Workspace implements WritableIdentity {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
+	@SuppressWarnings( "CommentedOutCode" )
 	public void updateFromSettings( Settings settings ) {
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
@@ -463,6 +475,7 @@ public class Workspace implements WritableIdentity {
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
 		scene = new Scene( workareaLayout, w, h );
+		scene.setFill( Color.BLACK );
 		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage
@@ -476,10 +489,10 @@ public class Workspace implements WritableIdentity {
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 
-		// On Linux, setWidth() and setHeight() incorrectly do not take the stage
-		// window decorations into account. The way to deal with this is to watch
+		// On Linux, setWidth() and setHeight() do not take the stage window
+		// decorations into account. The way to deal with this is to watch
 		// the scene size and set the scene size on creation.
-		// Do not use the following.
+		// Do not use the following:
 		// if( w != null ) stage.setWidth( w );
 		// if( h != null ) stage.setHeight( h );
 
@@ -506,23 +519,36 @@ public class Workspace implements WritableIdentity {
 		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 	}
 
-	public void snapshot( Path file ) {
-		Platform.runLater( () -> {
-			WritableImage image = getStage().getScene().snapshot( null );
+	public void screenshot( Path file ) {
+		Fx.waitFor( 5, 1000 );
+		Fx.run( () -> {
+			double renderScaleX = getStage().getRenderScaleX();
+			double renderScaleY = getStage().getRenderScaleY();
+
+			WritableImage buffer = new WritableImage( (int)Math.rint( renderScaleX * scene.getWidth() ), (int)Math.rint( renderScaleY * scene.getHeight() ) );
+			SnapshotParameters spa = new SnapshotParameters();
+			spa.setTransform( Transform.scale( renderScaleX, renderScaleY ) );
+
+			WritableImage image = scene.getRoot().snapshot( spa, buffer );
+
 			try {
+				Files.createDirectories( file.getParent() );
 				ImageIO.write( SwingFXUtils.fromFXImage( image, null ), "png", file.toFile() );
 			} catch( IOException exception ) {
 				exception.printStackTrace();
 			}
 		} );
+		Fx.waitFor( 5, 1000 );
 	}
 
 	public void close() {
 		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
+		fpsMonitor.close();
 		getStage().close();
 	}
 
@@ -546,9 +572,9 @@ public class Workspace implements WritableIdentity {
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+			updateContainer( memoryMonitor, enabled );
 			memoryMonitor.setTextVisible( showText );
 			memoryMonitor.setShowPercent( showPercent );
 			settings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
@@ -559,21 +585,28 @@ public class Workspace implements WritableIdentity {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-			updateContainer( taskMonitorContainer, taskMonitor, enabled );
+			updateContainer( taskMonitor, enabled );
 			taskMonitor.setTextVisible( showText );
 			taskMonitor.setShowPercent( showPercent );
 			settings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 		} );
 	}
 
-	private void updateContainer( Group container, Node tool, boolean enabled ) {
-		if( enabled ) {
-			if( !container.getChildren().contains( tool ) ) container.getChildren().add( tool );
-		} else {
-			container.getChildren().remove( tool );
-		}
+	private void updateFpsMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-fps-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Fx.run( () -> {
+			settings.unregister( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
+			updateContainer( fpsMonitor, enabled );
+			settings.register( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
+		} );
+	}
+
+	private void updateContainer( AbstractMonitor monitor, boolean enabled ) {
+		Group container = monitor.getMonitorGroup();
+		container.getChildren().clear();
+		if( enabled ) container.getChildren().add( monitor );
 	}
 
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
@@ -599,6 +632,15 @@ public class Workspace implements WritableIdentity {
 		@Override
 		public void handle( SettingsEvent event ) {
 			updateTaskMonitorFromSettings( event.getSettings() );
+		}
+
+	}
+
+	private class FpsMonitorSettingsHandler implements EventHandler<SettingsEvent> {
+
+		@Override
+		public void handle( SettingsEvent event ) {
+			updateFpsMonitorFromSettings( event.getSettings() );
 		}
 
 	}

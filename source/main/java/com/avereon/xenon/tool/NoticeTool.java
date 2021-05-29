@@ -2,6 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
@@ -12,7 +13,7 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -36,7 +37,7 @@ public class NoticeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-notice" );
 
-		String clearAllText = product.rb().text( BundleKey.TOOL, "notice-clear-all" );
+		String clearAllText = Rb.text( BundleKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
 		clearAllButton.getStyleClass().addAll( "padded" );
 		clearAllButton.setOnMouseClicked( ( event ) -> this.clearAll() );
@@ -61,7 +62,7 @@ public class NoticeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "notice-name" ) );
+		setTitle( Rb.text( "tool", "notice-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "notice" ) );
 		((NoticeModel)getAssetModel()).register( NodeEvent.NODE_CHANGED, assetHandler = ( e ) -> updateNotices() );
 	}
@@ -89,7 +90,7 @@ public class NoticeTool extends ProgramTool {
 	private void updateNotices() {
 		List<Notice> notices = getProgram().getNoticeManager().getNotices();
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );

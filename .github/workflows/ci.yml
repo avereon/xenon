@@ -3,10 +3,11 @@ name: Avereon Xenon Continuous
 on:
   push:
     branches:
-      - master
+      - main
       - stable
   schedule:
-    - cron: '0 12 * * *'
+    # Noon Saturday UTC
+    - cron: '0 12 * * 6'
 
 env:
   AVN_PRODUCT: "xenon"
@@ -28,10 +29,10 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Build, Test, Jar and Javadoc
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
@@ -65,6 +66,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: java
+
       - name: Compile
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
@@ -72,6 +78,9 @@ jobs:
       - name: Unit Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} test
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
 
       - name: Deploy Arifacts
         run: |
@@ -85,12 +94,6 @@ jobs:
           scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-dark.png 2>&1
           scp -B target/main/images/${AVN_PRODUCT}-light.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-light.png 2>&1
 
-      - name: Post Screenshots
-        run: |
-          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/client/screenshots;"
-          if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/screenshots/*.png ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/client/screenshots/ 2>&1
-
       - name: Post JavaDoc
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
@@ -100,12 +103,114 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
+  screenshots1x:
+    needs: build
+    name: Screenshots 1x
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
+    env:
+      AVN_PLATFORM: "linux"
+      XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
+
+      - name: Configuration
+        shell: bash
+        run: |
+          source .github/config.sh
+
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+
+      - name: Maven Repository Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Generate Screenshots
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots1x package
+
+      - name: Post Screenshots
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/screenshots;"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -Br target/screenshots/* ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/screenshots/ 2>&1
+
+  screenshots2x:
+    needs: build
+    name: Screenshots 2x
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
+    env:
+      AVN_PLATFORM: "linux"
+      XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
+
+      - name: Configuration
+        shell: bash
+        run: |
+          source .github/config.sh
+
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+
+      - name: Maven Repository Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Generate Screenshots
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
+
+      - name: Post Screenshots
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/screenshots;"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -Br target/screenshots/* ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/screenshots/ 2>&1
+
   linux:
     needs: build
     name: Linux Binaries
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
     steps:
@@ -148,26 +253,22 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Assemblies
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies - No UI Tests
+      - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         run: |
           scp -B target/jpackage/*.deb ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.deb 2>&1
       #    scp -B target/jpackage/*.rpm ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         run: |
@@ -182,7 +283,7 @@ jobs:
     name: Mac OS Binaries
     runs-on: macos-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "macosx"
     steps:
@@ -225,26 +326,22 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Assemblies
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies - No UI Tests
+      - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         run: |
           scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
       #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         run: |
@@ -259,7 +356,7 @@ jobs:
     name: Windows Binaries
     runs-on: windows-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "windows"
     steps:
@@ -303,17 +400,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Assemblies
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies - No UI Tests
+      - name: Build Assemblies
         run: |
           mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         shell: bash
@@ -321,10 +414,10 @@ jobs:
           scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
       #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        shell: bash
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        shell: bash
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         shell: bash

@@ -1,71 +1,78 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.venza.color.Colors;
+import com.avereon.zerra.color.Colors;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
-public class ColorSettingEditor extends SettingEditor implements EventHandler<ActionEvent> {
+import java.util.List;
+
+public class ColorSettingEditor extends SettingEditor {
 
 	private Label label;
 
 	private ColorPicker colorPicker;
 
-	public ColorSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public ColorSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, "#000000ff" );
+		String value = setting.getSettings().get( getKey(), "#000000ff" );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		colorPicker = new ColorPicker();
-		colorPicker.setValue( Colors.web( value ) );
+		colorPicker.setValue( Colors.parse( value ) );
 		colorPicker.setId( rbKey );
 		colorPicker.setMaxWidth( Double.MAX_VALUE );
 
+		nodes = List.of( label, colorPicker );
+
 		// Add the event handlers
-		colorPicker.setOnAction( this );
+		colorPicker.setOnAction( this::doPickerValueChanged );
 
 		// Set component state
 		setDisable( setting.isDisable() );
 		setVisible( setting.isVisible() );
 
 		// Add the components
-		GridPane.setHgrow( colorPicker, Priority.ALWAYS );
 		pane.addRow( row, label, colorPicker );
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		colorPicker.setDisable( disable );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		colorPicker.setVisible( visible );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		Object value = event.getNewValue();
+		Color color;
+		try {
+			color = Colors.parse( String.valueOf( value ) );
+		} catch( Exception exception ) {
+			color = Color.BLACK;
+		}
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) colorPicker.setValue( color );
 	}
 
-	@Override
-	public void handle( ActionEvent event ) {
-		setting.getSettings().set( setting.getKey(), Colors.web( colorPicker.getValue() ) );
-	}
-
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue().toString() ) );
+	private void doPickerValueChanged( ActionEvent event ) {
+		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
 	}
 
 }

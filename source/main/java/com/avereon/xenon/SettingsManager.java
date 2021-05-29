@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -8,14 +7,14 @@ import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import javafx.application.Platform;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
 
 import java.io.IOException;
@@ -29,13 +28,15 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final String ROOT = "settings";
 
-	private Program program;
+	private static final String GENERAL = "general";
 
-	private Guide guide;
+	private final Program program;
 
-	private StoredSettings settings;
+	private final Guide guide;
 
-	private FxEventHub eventBus;
+	private final StoredSettings settings;
+
+	private final FxEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -67,9 +68,9 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return getSettings( PathUtil.resolve( root, path ) );
 	}
 
-	public Settings getProductSettings( Product product ) {
-		return getSettings( getSettingsPath( product.getCard() ) );
-	}
+	//	public Settings getProductSettings( Product product ) {
+	//		return getSettings( getSettingsPath( product.getCard() ) );
+	//	}
 
 	public Settings getProductSettings( ProductCard card ) {
 		return getSettings( getSettingsPath( card ) );
@@ -91,27 +92,28 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		optionProviders.put( id, provider );
 	}
 
-	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
+	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
-			pages = new SettingsPageParser( product, settings ).parse( path );
-			addSettingsPages( pages );
+			pages = SettingsPageParser.parse( product, path );
+			addSettingsPages( pages, settings );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Error loading settings page: " + path, exception );
 		}
 		return pages;
 	}
 
-	public void addSettingsPages( Map<String, SettingsPage> pages ) {
+	public void addSettingsPages( Map<String, SettingsPage> pages, Settings settings ) {
 		synchronized( rootSettingsPages ) {
 			log.log( Log.DEBUG, "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
+				page.setSettings( settings );
 				rootSettingsPages.putIfAbsent( page.getId(), page );
 			}
 
-			Platform.runLater( this::updateSettingsGuide );
+			Fx.run( this::updateSettingsGuide );
 		}
 	}
 
@@ -123,8 +125,23 @@ public class SettingsManager implements Controllable<SettingsManager> {
 				rootSettingsPages.remove( page.getId() );
 			}
 
-			Platform.runLater( this::updateSettingsGuide );
+			Fx.run( this::updateSettingsGuide );
 		}
+	}
+
+	public List<String> getPageIds() {
+		return getPageIds( rootSettingsPages );
+	}
+
+	private List<String> getPageIds( Map<String, SettingsPage> pages ) {
+		List<String> ids = new ArrayList<>();
+
+		for( SettingsPage page : pages.values() ) {
+			ids.add( page.getId() );
+			ids.addAll( getPageIds( page.getPages() ) );
+		}
+
+		return ids;
 	}
 
 	public SettingsPage getSettingsPage( String id ) {
@@ -140,38 +157,25 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private void createGuide( GuideNode node, Map<String, SettingsPage> pages ) {
-		// Create a map of the title keys except the general key, it gets special handling
-		Map<String, String> titledKeys = new HashMap<>();
-		for( SettingsPage page : pages.values() ) {
-			if( "general".equals( page.getId() ) ) continue;
-			titledKeys.put( page.getTitle(), page.getId() );
-		}
-
-		// Create a sorted list of the titles other than General
-		List<String> titles = new ArrayList<>( titledKeys.keySet() );
-		Collections.sort( titles );
-
 		// Clear the guide nodes
 		guide.clear( node );
 
-		// Add the general node to the guide
-		addGuideNode( null, pages.get( "general" ) );
-
-		// Add the remaining nodes to the guide
-		for( String title : titles ) {
-			addGuideNode( node, pages.get( titledKeys.get( title ) ) );
+		for( SettingsPage page : pages.values() ) {
+			GuideNode pageNode = addGuideNode( node, pages.get( page.getId() ) );
+			int order = GENERAL.equals( page.getId() ) ? 0 : 1;
+			pageNode.setOrder( order );
 		}
 	}
 
-	private void addGuideNode( GuideNode parent, SettingsPage page ) {
-		if( page == null ) return;
+	private GuideNode addGuideNode( GuideNode parent, SettingsPage page ) {
+		if( page == null ) return null;
 
 		allSettingsPages.put( page.getId(), page );
 
-		GuideNode guideNode = new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() );
-		guide.addNode( parent, guideNode );
-
+		GuideNode guideNode = guide.addNode( parent, new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() ) );
 		createGuide( guideNode, page.getPages() );
+
+		return guideNode;
 	}
 
 	@Override
@@ -214,6 +218,17 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public FxEventHub getEventBus() {
 		return eventBus;
+	}
+
+	private static class SettingsTitleComparator implements Comparator<SettingsPage> {
+
+		@Override
+		public int compare( SettingsPage o1, SettingsPage o2 ) {
+			if( GENERAL.equals( o1.getId() ) ) return -1;
+			if( GENERAL.equals( o2.getId() ) ) return 1;
+			return o1.getTitle().compareTo( o2.getTitle() );
+		}
+
 	}
 
 }

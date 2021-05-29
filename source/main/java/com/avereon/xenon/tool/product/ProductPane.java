@@ -1,8 +1,9 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
+import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -10,22 +11,26 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.System.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-class ProductPane extends MigPane {
+class ProductPane extends GridPane {
 
 	private static final Logger log = Log.get();
 
@@ -57,6 +62,8 @@ class ProductPane extends MigPane {
 
 	private Label stateLabel;
 
+	private final Label sizeLabel;
+
 	private ToggleSwitch enableSwitch;
 
 	private Button actionButton1;
@@ -66,7 +73,8 @@ class ProductPane extends MigPane {
 	private BooleanProperty selectedProperty;
 
 	ProductPane( ProductTool tool, ProductCard source, ProductCard update ) {
-		super( "insets 0, gap " + UiFactory.PAD + ", hidemode 3" );
+		setHgap( UiFactory.PAD );
+		setVgap( UiFactory.PAD );
 
 		this.tool = tool;
 		this.source = source;
@@ -83,9 +91,7 @@ class ProductPane extends MigPane {
 		iconLabel.setId( "tool-product-artifact-icon" );
 		nameLabel = new Label( source.getName() );
 		nameLabel.setId( "tool-product-artifact-name" );
-		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update
-			.getRelease()
-			.toHumanString( TimeZone.getDefault() ) );
+		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
 		versionLabel.setId( "tool-product-artifact-version" );
 		summaryLabel = new Label( source.getSummary() );
 		summaryLabel.setId( "tool-product-artifact-summary" );
@@ -97,6 +103,8 @@ class ProductPane extends MigPane {
 		stateLabel = new Label( "State" );
 		stateLabel.setId( "tool-product-artifact-state" );
 
+		sizeLabel = new Label( "" );
+		sizeLabel.setId( "tool-product-size" );
 		progress = new ProgressBar();
 		progress.setId( "tool-product-progress" );
 
@@ -107,18 +115,31 @@ class ProductPane extends MigPane {
 		actionButton2 = new Button( "" );
 
 		stateContainer = new HBox( stateLabel );
+		stateContainer.setAlignment( Pos.CENTER_RIGHT );
 
-		add( iconLabel, "spany, aligny center" );
-		add( nameLabel );
-		add( hyphenLabel );
-		add( providerLabel, "pushx" );
-		add( stateContainer, "tag right" );
-		add( enableSwitch, "w min" );
-		add( actionButton1 );
+		GridPane.setRowSpan( iconLabel, 2 );
+		GridPane.setHgrow( providerLabel, Priority.ALWAYS );
+		GridPane.setHalignment( stateContainer, HPos.RIGHT );
+		GridPane.setHalignment( enableSwitch, HPos.RIGHT );
+		GridPane.setHalignment( actionButton1, HPos.RIGHT );
 
-		add( summaryLabel, "newline, spanx 3" );
-		add( versionLabel, "tag right" );
-		add( actionButton2 );
+		GridPane.setColumnSpan( summaryLabel, 4 );
+		GridPane.setHgrow( summaryLabel, Priority.ALWAYS );
+		GridPane.setHalignment( versionLabel, HPos.RIGHT );
+		GridPane.setHalignment( actionButton2, HPos.RIGHT );
+
+		add( iconLabel, 0, 0 );
+		add( nameLabel, 1, 0 );
+		add( hyphenLabel, 2, 0 );
+		add( providerLabel, 3, 0 );
+		add( sizeLabel, 4, 0 );
+		add( stateContainer, 5, 0 );
+		add( enableSwitch, 6, 0 );
+		add( actionButton1, 6, 0 );
+
+		add( summaryLabel, 1, 1 );
+		add( versionLabel, 5, 1 );
+		add( actionButton2, 6, 1 );
 	}
 
 	public ProductCard getSource() {
@@ -139,6 +160,10 @@ class ProductPane extends MigPane {
 
 	public BooleanProperty selectedProperty() {
 		return selectedProperty;
+	}
+
+	void setSize( long size ) {
+		if( size >= 0 ) this.sizeLabel.setText( FileUtil.getHumanSizeBase2( size ) );
 	}
 
 	void setProgress( double progress ) {
@@ -185,7 +210,7 @@ class ProductPane extends MigPane {
 		if( inProgress ) {
 			stateContainer.getChildren().add( progress );
 		} else {
-			stateLabel.setText( program.rb().text( BundleKey.LABEL, stateLabelKey ) );
+			stateLabel.setText( Rb.text( BundleKey.LABEL, stateLabelKey ) );
 			stateContainer.getChildren().add( stateLabel );
 		}
 
@@ -245,9 +270,9 @@ class ProductPane extends MigPane {
 	private void requestRemoveProduct() {
 		String modName = getSource().getName();
 
-		String title = program.rb().text( BundleKey.PRODUCT, "products" );
-		String header = program.rb().text( BundleKey.PRODUCT, "product-remove-header", modName );
-		String message = program.rb().text( BundleKey.PRODUCT, "product-remove-message" );
+		String title = Rb.text( BundleKey.PRODUCT, "products" );
+		String header = Rb.text( BundleKey.PRODUCT, "product-remove-header", modName );
+		String message = Rb.text( BundleKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );
@@ -266,9 +291,9 @@ class ProductPane extends MigPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN,  "Error uninstalling product", exception );
+				ProductTool.log.log( Log.WARN, "Error uninstalling product", exception );
 			}
-			Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
+			Fx.run( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );
 	}
 

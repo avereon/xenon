@@ -14,7 +14,7 @@ import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -29,17 +29,18 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private static final Logger log = Log.get();
 
-	private Program program;
+	private final Program program;
+
+	private final List<Notice> startupNotices;
+
+	private final IntegerProperty unreadCount;
 
 	private Asset asset;
-
-	private List<Notice> startupNotices;
-
-	private IntegerProperty unreadCount = new SimpleIntegerProperty();
 
 	public NoticeManager( Program program ) {
 		this.program = program;
 		this.startupNotices = new CopyOnWriteArrayList<>();
+		this.unreadCount = new SimpleIntegerProperty();
 	}
 
 	public List<Notice> getNotices() {
@@ -59,19 +60,21 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
 		notice.setAction( () -> {
 			AssetManager manager = getProgram().getAssetManager();
-			URI uri = URI.create( FaultScheme.ID + ":" + System.identityHashCode( throwable ) );
+			URI uri = URI.create( String.format( "%s:%d", FaultScheme.ID, System.identityHashCode( throwable ) ) );
 			manager.openAsset( uri, throwable );
 		} );
 		addNotice( notice );
 	}
 
 	public void addNotice( Notice notice ) {
+		if( notice.getId() == null ) throw new NullPointerException( "Notice id cannot be null: id=" + notice.getId() );
+
 		if( !getProgram().getWorkspaceManager().isUiReady() ) {
 			startupNotices.add( notice );
 			return;
 		}
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
 			if( tools.size() > 0 ) {

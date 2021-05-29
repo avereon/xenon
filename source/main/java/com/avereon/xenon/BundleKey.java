@@ -10,6 +10,7 @@ public interface BundleKey {
 	String PROMPT = "prompt";
 	String ASSET = "asset";
 	String SETTINGS = "settings";
+	String PROPS = "props";
 	String TOOL = "tool";
 	String UPDATE = "update";
 	String WORKAREA = "workarea";

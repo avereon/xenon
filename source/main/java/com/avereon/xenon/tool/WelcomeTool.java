@@ -1,18 +1,22 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Ellipse;
-import org.tbee.javafx.scene.layout.MigPane;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class WelcomeTool extends ProgramTool {
 
@@ -20,7 +24,9 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
-	private static final double ICON_SIZE = 96;
+	private static final double PRODUCT_ICON_SIZE = 96;
+
+	private static final double ICON_SIZE = 64;
 
 	private static final double SLOPE_RADIUS = 5000;
 
@@ -28,7 +34,16 @@ public class WelcomeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-welcome" );
 
-		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
+		Node icon = ((Program)product).getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
+		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
+		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
+
+		String documentButtonTitle = Rb.text( BundleKey.LABEL, "documentation" );
+		String documentButtonDescription = Rb.text( BundleKey.LABEL, "documentation-desc" );
+		String documentButtonUrl = Rb.text( BundleKey.LABEL, "documentation-url" );
+		String modsButtonTitle = Rb.text( BundleKey.LABEL, "mods" );
+		String modsButtonDescription = Rb.text( BundleKey.LABEL, "mods-desc" );
+		String modsButtonUrl = Rb.text( BundleKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -39,19 +54,29 @@ public class WelcomeTool extends ProgramTool {
 		Pane accentPane = new Pane();
 		accentPane.getChildren().addAll( accent );
 
-		MigPane contentPane = new MigPane();
-		contentPane.add( icon, "spany, aligny top" );
-		contentPane.add( label );
+		Button docsButton = createButton( docsIcon, documentButtonTitle, documentButtonDescription, documentButtonUrl );
+		GridPane.setConstraints( docsButton, 0, 0 );
+		Button modsButton = createButton( modsIcon, modsButtonTitle, modsButtonDescription, modsButtonUrl );
+		GridPane.setConstraints( modsButton, 1, 0 );
 
-		StackPane stack = new StackPane();
-		stack.getChildren().addAll( accentPane, contentPane );
+		GridPane buttonGrid = new GridPane();
+		buttonGrid.getStyleClass().addAll( "buttons" );
+		ColumnConstraints column1 = new ColumnConstraints();
+		column1.setPercentWidth( 50 );
+		ColumnConstraints column2 = new ColumnConstraints();
+		column2.setPercentWidth( 50 );
+		buttonGrid.getColumnConstraints().addAll( column1, column2 );
+		buttonGrid.getChildren().addAll( docsButton, modsButton );
 
-		getChildren().addAll( stack );
+		VBox contentPane = new VBox( UiFactory.PAD, label, buttonGrid );
+		contentPane.setPadding( new Insets( UiFactory.PAD ) );
+
+		getChildren().addAll( accentPane, contentPane );
 	}
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "welcome-name" ) );
+		setTitle( Rb.text( BundleKey.TOOL, "welcome-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 
@@ -65,4 +90,25 @@ public class WelcomeTool extends ProgramTool {
 		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
 	}
 
+	private Button createButton( Node icon, String title, String description, String uri ) {
+		Label titleLabel = new Label( title );
+		titleLabel.getStyleClass().addAll( "title" );
+		Label descriptionLabel = new Label( description );
+		descriptionLabel.getStyleClass().addAll( "description" );
+
+		VBox text = new VBox( titleLabel, descriptionLabel );
+		BorderPane content = new BorderPane( text, null, null, null, icon );
+		Button button = new Button( "", content );
+		button.setMaxWidth( Double.MAX_VALUE );
+
+		button.setOnAction( e -> getProgram().getTaskManager().submit( Task.of( "", () -> {
+			try {
+				Desktop.getDesktop().browse( new URI( uri ) );
+			} catch( IOException | URISyntaxException ioException ) {
+				log.log( Log.WARN, "Unable to open uri=" + uri );
+			}
+		} ) ) );
+
+		return button;
+	}
 }

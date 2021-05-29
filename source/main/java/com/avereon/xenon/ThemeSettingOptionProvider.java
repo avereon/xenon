@@ -27,9 +27,4 @@ public class ThemeSettingOptionProvider implements SettingOptionProvider {
 		return getProgram().getThemeManager().getMetadata( key ).getName();
 	}
 
-	@Override
-	public String getValue( String key ) {
-		return key;
-	}
-
 }

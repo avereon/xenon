@@ -1,9 +1,9 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -14,7 +14,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -51,8 +51,6 @@ public class AssetTool extends GuidedTool {
 
 	private Mode mode = Mode.OPEN;
 
-	private final Guide guide;
-
 	private final TextField uriField;
 
 	private final Button goButton;
@@ -81,7 +79,7 @@ public class AssetTool extends GuidedTool {
 
 	private Asset currentAsset;
 
-	private LinkedList<String> history;
+	private final LinkedList<String> history;
 
 	private int currentIndex;
 
@@ -106,7 +104,6 @@ public class AssetTool extends GuidedTool {
 		userNotice.setId( "user-notice" );
 		userNotice.setAlignment( Pos.CENTER );
 		closeLabel.setOnMousePressed( e -> closeUserNotice() );
-		closeUserNotice();
 
 		// Asset table
 		table = new TableView<>( children = FXCollections.observableArrayList() );
@@ -124,7 +121,6 @@ public class AssetTool extends GuidedTool {
 		table.getColumns().add( assetLabel );
 		table.getColumns().add( assetUri );
 		table.getColumns().add( assetSize );
-
 		table.getSortOrder().add( assetLabel );
 
 		// Tool layout
@@ -157,7 +153,8 @@ public class AssetTool extends GuidedTool {
 			if( item != null && e.getClickCount() >= clickCount ) selectAsset( item.getUri().toString() );
 		} );
 
-		guide = initializeGuide();
+		getGuideContext().getGuides().add( createGuide() );
+		closeUserNotice();
 	}
 
 	@Override
@@ -172,12 +169,12 @@ public class AssetTool extends GuidedTool {
 
 		// Set the title depending on the mode requested
 		String action = mode.name().toLowerCase();
-		setTitle( getProduct().rb().text( "action", action + ".name" ) );
+		setTitle( Rb.text( "action", action + ".name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Select the current asset
-		String currentFolderString = getProgram().getProgramSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
 				log.log( Log.INFO, "Current folder string=" + currentFolderString );
 		URI uri = URI.create( currentFolderString );
 //		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
@@ -190,21 +187,16 @@ public class AssetTool extends GuidedTool {
 		pushAction( "prior", priorAction );
 		pushAction( "next", nextAction );
 		pushAction( "up", parentAction );
-		pushToolActions( "prior", "next", "up" );
+		pushTools( "prior next up" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		super.conceal();
-		pullToolActions();
+		pullTools();
 		pullAction( "up", parentAction );
 		pullAction( "next", nextAction );
 		pullAction( "prior", priorAction );
-	}
-
-	@Override
-	protected Guide getGuide() {
-		return guide;
 	}
 
 	@Override
@@ -238,7 +230,6 @@ public class AssetTool extends GuidedTool {
 		Objects.requireNonNull( text );
 
 		if( updateHistory ) {
-			log.log( Log.WARN, "History size=" + history.size() + " > " + currentIndex );
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
@@ -247,7 +238,6 @@ public class AssetTool extends GuidedTool {
 			currentIndex++;
 		}
 
-		FxUtil.assertFxThread();
 		uriField.setText( text );
 
 		try {
@@ -292,7 +282,7 @@ public class AssetTool extends GuidedTool {
 
 	private void loadFolder( Asset asset ) {
 		if( "file".equals( asset.getUri().getScheme() ) ){
-			getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+			getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
 		}
 		currentAsset = asset;
 		updateActionState();
@@ -302,7 +292,7 @@ public class AssetTool extends GuidedTool {
 			try {
 				parentAsset = getProgram().getAssetManager().getParent( asset );
 				List<Asset> assets = asset.getChildren();
-				Platform.runLater( () -> {
+				Fx.run( () -> {
 					children.clear();
 					children.addAll( assets );
 					table.sort();
@@ -315,16 +305,16 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void activateUriField() {
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			uriField.requestFocus();
 			uriField.positionCaret( uriField.getText().length() );
 		} );
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
-		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = getProduct().rb().text( "program", messageKey, parameters );
+		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = Rb.text( "program", messageKey, parameters );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			userMessage.setText( message );
 			userNotice.setManaged( true );
 			userNotice.setVisible( true );
@@ -336,7 +326,7 @@ public class AssetTool extends GuidedTool {
 		userNotice.setManaged( false );
 	}
 
-	private Guide initializeGuide() {
+	private Guide createGuide() {
 		Guide guide = new Guide();
 
 		// TODO Load the asset roots
@@ -360,7 +350,7 @@ public class AssetTool extends GuidedTool {
 	private GuideNode createGuideNode( String name, String icon, String path ) throws AssetException {
 		Asset asset = getProgram().getAssetManager().createAsset( path );
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
-		asset.register( Asset.ICON_VALUE_KEY, e -> node.setIcon( e.getNewValue() ) );
+		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );
 		return node;
 	}
 
@@ -403,7 +393,7 @@ public class AssetTool extends GuidedTool {
 			try {
 				Asset asset = assetStringCellDataFeatures.getValue();
 				long size = asset.getSize();
-				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( program.rb().text( "asset", "asset-open-folder-size", size ) );
+				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( Rb.text( "asset", "asset-open-folder-size", size ) );
 				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
 			} catch( AssetException exception ) {
 				log.log( Log.ERROR, exception );

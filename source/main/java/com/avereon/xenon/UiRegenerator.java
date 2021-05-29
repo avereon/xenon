@@ -293,7 +293,7 @@ class UiRegenerator {
 	}
 
 	private void linkTools() {
-		Tool activeTool = null;
+		ProgramTool activeTool = null;
 
 		for( WorkpaneView view : viewTools.keySet() ) {
 			Workpane pane = view.getWorkpane();
@@ -306,7 +306,7 @@ class UiRegenerator {
 
 			// Add the tools to the view
 			for( ProgramTool tool : tools ) {
-				pane.addTool( tool, view, tool.isActive() );
+				pane.addTool( tool, view, false );
 
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
@@ -315,7 +315,7 @@ class UiRegenerator {
 			}
 		}
 
-		if( activeTool != null ) activeTool.getWorkpane().setActiveTool( activeTool );
+		if( activeTool != null ) activeTool.setActiveWhenReady() ;
 	}
 
 	private List<String> getUiSettingsIds( String path ) {

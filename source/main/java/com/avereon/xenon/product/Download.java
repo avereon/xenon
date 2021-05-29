@@ -13,11 +13,11 @@ import java.nio.file.Path;
  */
 public class Download extends OutputStream {
 
-	private URI source;
+	private final URI source;
 
-	private int length;
+	private final int length;
 
-	private String encoding;
+	private final String encoding;
 
 	private Path target;
 
@@ -81,7 +81,10 @@ public class Download extends OutputStream {
 
 	private OutputStream getOutputStream() throws IOException {
 		if( output == null ) {
-			if( target == null ) target = FileUtil.deleteOnExit( FileUtil.createTempFile( "download", "data" ) );
+			if( target == null ) {
+				target = FileUtil.createTempFile( "download", "data" );
+				target.toFile().deleteOnExit();
+			}
 			output = new BufferedOutputStream( new FileOutputStream( target.toFile() ) );
 		}
 		return output;

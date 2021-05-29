@@ -3,8 +3,8 @@ package com.avereon.xenon.workspace;
 import com.avereon.settings.Settings;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
-import com.avereon.venza.color.Colors;
-import com.avereon.venza.javafx.FxUtil;
+import com.avereon.zerra.color.Colors;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -82,8 +82,8 @@ public class WorkspaceBackground extends StackPane {
 
 	private void configureBackPane( Settings settings ) {
 		boolean backDirection = "2".equals( settings.get( "workspace-scenery-back-direction", "1" ) );
-		Color backColor1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
-		Color backColor2 = Colors.web( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
+		Color backColor1 = Colors.parse( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
+		Color backColor2 = Colors.parse( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
 		LinearGradient backFill;
 		Stop[] stops = new Stop[]{ new Stop( 0, backColor1 ), new Stop( 1, backColor2 ) };
 		if( backDirection ) {
@@ -176,8 +176,8 @@ public class WorkspaceBackground extends StackPane {
 	private boolean configureTintPane( Settings settings ) {
 		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
 		int tintMode = Integer.parseInt( settings.get( "workspace-scenery-tint-mode", "0" ) );
-		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
-		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
+		Color tintColor1 = Colors.parse( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
+		Color tintColor2 = Colors.parse( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
 		LinearGradient tintFill;
 		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
 

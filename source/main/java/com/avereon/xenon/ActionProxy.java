@@ -1,9 +1,11 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.ui.util.MenuBarFactory;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
+import javafx.event.EventDispatchChain;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.scene.input.KeyCombination;
 
 import java.util.*;
@@ -15,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * more than one action can be pushed and pulled from the proxy without loosing
  * what was already registered.
  */
-public class ActionProxy implements EventHandler<ActionEvent> {
+public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	public static final int NO_MNEMONIC = -1;
 
@@ -36,6 +38,8 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	private String shortcut;
 
 	private KeyCombination accelerator;
+
+	private String command;
 
 	private final List<String> states;
 
@@ -155,11 +159,19 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	public void setShortcut( String shortcut ) {
 		this.shortcut = shortcut;
-		this.accelerator = ActionUtil.parseShortcut( shortcut );
+		this.accelerator = MenuBarFactory.parseShortcut( shortcut );
 	}
 
 	public KeyCombination getAccelerator() {
 		return accelerator;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand( String command ) {
+		this.command = command;
 	}
 
 	public boolean isEnabled() {
@@ -216,13 +228,24 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	@Override
+	public EventDispatchChain buildEventDispatchChain( EventDispatchChain eventDispatchChain ) {
+		return eventDispatchChain;
+	}
+
+	@Override
 	public void handle( ActionEvent event ) {
-		if( actionStack.size() == 0 ) return;
+		if( event.isConsumed() || actionStack.size() == 0 || !isEnabled() ) return;
 		actionStack.peek().handle( event );
 		setState( getNextState() );
+		event.consume();
+	}
+
+	public void fire() {
+		handle( new ActionEvent( this, this ) );
 	}
 
 	public void pushAction( Action action ) {
+		if( action == null ) return;
 		pullAction( action );
 		actionStack.push( action );
 		action.setActionProxy( this );
@@ -230,6 +253,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public void pullAction( Action action ) {
+		if( action == null ) return;
 		action.setActionProxy( null );
 		actionStack.remove( action );
 		updateEnabled();

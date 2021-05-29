@@ -36,7 +36,7 @@ public class ToolTab extends Control {
 		getStyleClass().setAll( "tool-tab" );
 	}
 
-	public Tool getTool() {
+	public final Tool getTool() {
 		return tool;
 	}
 
@@ -88,7 +88,7 @@ public class ToolTab extends Control {
 		return selected;
 	}
 
-	private static final EventType<Event> SELECTION_CHANGED_EVENT = new EventType<>( Event.ANY, "SELECTION_CHANGED_EVENT" );
+	private static final EventType<Event> SELECTION_CHANGED_EVENT = new EventType<>( Event.ANY, "TOOL_TAB_SELECTION_CHANGED_EVENT" );
 
 	public final EventHandler<Event> getOnSelectionChanged() {
 		return onSelectionChanged == null ? null : onSelectionChanged.get();

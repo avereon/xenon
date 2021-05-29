@@ -1,25 +1,27 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.List;
 
-public class FileSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public class FileSettingEditor extends SettingEditor {
 
 	private Label label;
 
@@ -27,28 +29,33 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 	private Button button;
 
-	public FileSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public FileSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key );
+		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
 		field.setText( value );
 		field.setId( rbKey );
 
 		button = new Button();
-		button.setText( product.rb().text( "settings", "browse" ) );
+		button.setText( Rb.text( getProduct(), "settings", "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
+		nodes = List.of( label, field, button );
+
 		// Add the change handlers
-		field.focusedProperty().addListener( this );
-		field.setOnKeyPressed( this );
+		field.focusedProperty().addListener( this::doFocusChanged );
+		field.setOnKeyPressed( this::handleKeyEvent );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -64,65 +71,48 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		button.setDisable( disable );
-		label.setDisable( disable );
-		field.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		button.setVisible( visible );
-		label.setVisible( visible );
-		field.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	/**
 	 * Setting listener
 	 *
-	 * @param event
+	 * @param event The setting event
 	 */
 	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
 	}
 
 	/**
 	 * Key listener
 	 *
-	 * @param event
+	 * @param event The key event
 	 */
-	@Override
-	public void handle( KeyEvent event ) {
+	private void handleKeyEvent( KeyEvent event ) {
 		switch( event.getCode() ) {
-			case ESCAPE: {
-				field.setText( setting.getSettings().get( key ) );
-				break;
-			}
-			case ENTER: {
-				setting.getSettings().set( key, field.getText() );
-				break;
-			}
+			case ESCAPE -> field.setText( setting.getSettings().get( getKey() ) );
+			case ENTER -> setting.getSettings().set( getKey(), field.getText() );
 		}
 	}
 
 	/**
 	 * Focus listener
 	 *
-	 * @param observable
-	 * @param oldValue
-	 * @param newValue
+	 * @param observable The observable value
+	 * @param oldValue The old value
+	 * @param newValue The new value
 	 */
-	@Override
-	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		if( !newValue ) setting.getSettings().set( key, field.getText() );
+	private void doFocusChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+		if( !newValue ) setting.getSettings().set( getKey(), field.getText() );
 	}
 
 	private void getFile() {
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( product.rb().text( "settings", "select-file" ) );
+		fileChooser.setTitle( Rb.text( getProduct(), "settings", "select-file" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );
@@ -134,7 +124,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
 		if( selectedFile != null ) {
 			field.setText( selectedFile.toString() );
-			setting.getSettings().set( key, field.getText() );
+			setting.getSettings().set( getKey(), field.getText() );
 		}
 	}
 
