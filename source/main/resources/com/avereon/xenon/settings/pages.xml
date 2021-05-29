@@ -18,6 +18,22 @@
 				<option>50</option>
 			</setting>
 		</group>
+		<group id="autosave">
+			<setting key="autosave-trigger-min-info" editor="infoarea"/>
+			<setting key="autosave-trigger-min" editor="combobox">
+				<option value="100">100 ms</option>
+				<option value="200">200 ms</option>
+				<option value="500">500 ms</option>
+				<option value="1000">1 sec</option>
+			</setting>
+			<setting key="autosave-trigger-max-info" editor="infoarea"/>
+			<setting key="autosave-trigger-max" editor="combobox">
+				<option value="2000">2 secs</option>
+				<option value="3000">3 secs</option>
+				<option value="4000">4 secs</option>
+				<option value="5000">5 secs</option>
+			</setting>
+		</group>
 
 		<group id="shutdown">
 			<setting key="shutdown-verify" editor="checkbox"/>
@@ -102,7 +118,7 @@
 		<page id="background">
 			<group id="background">
 				<setting key="workspace-scenery-back-direction" editor="combobox">
-<!--					<option key="theme" value="0"/>-->
+					<!--					<option key="theme" value="0"/>-->
 					<option key="vertical" value="1"/>
 					<option key="horizontal" value="2"/>
 				</setting>
@@ -222,7 +238,7 @@
 
 		<page id="fps-monitor">
 			<group id="fps-monitor">
-			<setting key="workspace-fps-monitor-enabled" editor="checkbox"/>
+				<setting key="workspace-fps-monitor-enabled" editor="checkbox"/>
 			</group>
 		</page>
 	</page>

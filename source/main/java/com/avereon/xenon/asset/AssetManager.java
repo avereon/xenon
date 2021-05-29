@@ -35,6 +35,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
 
+	public static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
+
+	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
+
 	private static final Logger log = Log.get();
 
 	private final Program program;
@@ -88,8 +92,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		registeredCodecs = new ConcurrentHashMap<>();
 
 		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
-		autosave.setMinTriggerLimit( 2500 );
-		autosave.setMaxTriggerLimit( 5000 );
+		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
+		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
 		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
 		generalAssetWatcher = new GeneralAssetWatcher();
@@ -124,6 +128,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		//program.getEventHub().register( ToolEvent.ANY, activeToolWatcher );
 
 		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
+
+		program.getSettings().register( "autosave-trigger-min", e -> autosave.setMinTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
+		program.getSettings().register( "autosave-trigger-max", e -> autosave.setMaxTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
 
 		running = true;
 

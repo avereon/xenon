@@ -6,9 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.scene.Node;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -34,16 +32,10 @@ public abstract class InfoSettingEditor extends SettingEditor {
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
 
-		TextInputControl text;
-		if( type == Type.AREA ) {
-			text = new TextArea();
-			text.getStyleClass().add( "settings-infoarea" );
-		} else {
-			text = new TextField();
-			text.getStyleClass().add( "settings-infoline" );
-		}
+		Label text;
+		text = new Label();
+		text.getStyleClass().add( type == Type.AREA ? "settings-infoarea" : "settings-infoline" );
 		text.setText( Rb.text( getProduct(), "settings", rbKey ) );
-		text.setEditable( false );
 		text.setId( rbKey );
 
 		nodes = List.of( text );
