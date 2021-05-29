@@ -1,6 +1,8 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.task.TaskManagerEvent;
@@ -12,15 +14,17 @@ import java.util.List;
 
 public class TaskMonitor extends AbstractMonitor {
 
-	private TaskManager taskManager;
+	private final TaskManager taskManager;
 
-	private Rectangle tasks;
+	private final TaskWatcher taskWatcher;
 
-	private Rectangle threads;
+	private final Label label;
 
-	private List<Rectangle> bars = new ArrayList<>();
+	private final Rectangle tasks;
 
-	private Label label;
+	private final Rectangle threads;
+
+	private final List<Rectangle> bars;
 
 	private boolean textVisible;
 
@@ -30,14 +34,16 @@ public class TaskMonitor extends AbstractMonitor {
 
 	private int priorThreadCount;
 
-	private TaskWatcher taskWatcher;
+	public TaskMonitor( Program program ) {
+		this.taskManager = program.getTaskManager();
+		this.taskWatcher = new TaskWatcher();
 
-	public TaskMonitor( TaskManager taskManager ) {
-		this.taskManager = taskManager;
 		getStyleClass().add( "task-monitor" );
 
 		label = new Label();
 		label.getStyleClass().add( "task-monitor-label" );
+
+		bars = new ArrayList<>();
 
 		tasks = new Rectangle();
 		tasks.setManaged( false );
@@ -50,8 +56,8 @@ public class TaskMonitor extends AbstractMonitor {
 		getChildren().addAll( threads, tasks, label );
 		update();
 
-		// Register for TaskManagerEvents (TaskEvent and TaskThreadEvent)
-		taskManager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher = new TaskWatcher() );
+		// If the task monitor is clicked then open the task tool
+		setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
 	}
 
 	public boolean isTextVisible() {
@@ -72,6 +78,12 @@ public class TaskMonitor extends AbstractMonitor {
 		update();
 	}
 
+	@Override
+	protected void start() {
+		taskManager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher );
+	}
+
+	@Override
 	public void close() {
 		taskManager.getEventBus().unregister( TaskManagerEvent.ANY, taskWatcher );
 	}
@@ -149,7 +161,7 @@ public class TaskMonitor extends AbstractMonitor {
 		priorThreadCount = maxThreadCount;
 		getChildren().remove( label );
 		getChildren().removeAll( bars );
-		bars = new ArrayList<>();
+		bars.clear();
 		for( int index = 0; index < maxThreadCount; index++ ) {
 			Rectangle bar = new Rectangle();
 			bar.setManaged( false );

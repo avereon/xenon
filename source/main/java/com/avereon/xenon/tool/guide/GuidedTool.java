@@ -6,7 +6,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -25,12 +25,17 @@ public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
-	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
+	private final GuideContext guideContext;
 
-	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
+	private final GuideExpandedNodesListener guideExpandedNodesListener;
+
+	private final GuideSelectedNodesListener guideSelectedNodesListener;
 
 	public GuidedTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		guideContext = new GuideContext( this );
+		guideExpandedNodesListener = new GuideExpandedNodesListener();
+		guideSelectedNodesListener = new GuideSelectedNodesListener();
 	}
 
 	@Override
@@ -42,48 +47,65 @@ public abstract class GuidedTool extends ProgramTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 
-		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
-		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
+		getCurrentGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
+		getCurrentGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
+		getCurrentGuide().focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
 
-		// Set the expanded ids before setting the selected ids
-		Platform.runLater( () -> {
-			getGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-			getGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+		Fx.run( () -> {
+			// Set the expanded ids before setting the selected ids
+			getCurrentGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			getCurrentGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
-		getGuide().setActive( true );
+		getCurrentGuide().setActive( true );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		getGuide().setActive( false );
+		getCurrentGuide().setActive( false );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
-		getGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		getCurrentGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
+		getCurrentGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
 		super.deallocate();
 	}
 
 	/**
-	 * This method should be overridden by tool implementations to provide the
-	 * guide that is appropriate for the tool.
+	 * Get the guide context for the tool. The guide context is used to manage the
+	 * tool guides, pass events between this tool and the {@link GuideTool} and
+	 * pass events between the {@link GuideTool} and this tool.
 	 *
-	 * @return The tool guide
+	 * @return The guide context
 	 */
-	protected Guide getGuide() {
-		return Guide.EMPTY;
+	protected GuideContext getGuideContext() {
+		return guideContext;
+	}
+
+	/**
+	 * Convenience method for quick access to the current guide.
+	 *
+	 * @return The current guide
+	 */
+	Guide getCurrentGuide() {
+		return guideContext.getCurrentGuide();
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
 
 	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
+
+	protected void guideFocusChanged( boolean focused, Set<GuideNode> nodes ) {}
+
+	private void doGuideFocused( boolean focused ) {
+		guideFocusChanged( focused, getGuideContext().getCurrentGuide().selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+	}
 
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
@@ -118,7 +140,7 @@ public abstract class GuidedTool extends ProgramTool {
 				guideNodesSelected( oldNodes, newNodes );
 
 				// Run this later to set the tool to be the active tool again
-				Platform.runLater( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
+				//Fx.run( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
 			}
 		}
 

@@ -34,6 +34,12 @@ public class MockTool extends Tool {
 
 	private int eventIndex;
 
+	private Workpane workpane;
+
+	private boolean canFindSelfFromWorkpane;
+
+	private boolean canFindWorkpaneFromSelf;
+
 	public MockTool( Asset asset ) {
 		super( asset );
 		setTitle( "MockTool-" + counter.getAndIncrement() );
@@ -41,9 +47,23 @@ public class MockTool extends Tool {
 		setPlacement( super.getPlacement() );
 	}
 
+	void setWorkpane( Workpane workpane ) {
+		this.workpane = workpane;
+	}
+
+	public boolean canFindSelfFromWorkpane() {
+		return canFindSelfFromWorkpane;
+	}
+
+	public boolean canFindWorkpaneFromSelf() {
+		return canFindWorkpaneFromSelf;
+	}
+
 	@Override
 	public void allocate() {
 		events.add( new MethodCall( ALLOCATE ) );
+		canFindSelfFromWorkpane = workpane != null && workpane.getTools().contains( this );
+		canFindWorkpaneFromSelf = getWorkpane() == workpane;
 	}
 
 	@Override

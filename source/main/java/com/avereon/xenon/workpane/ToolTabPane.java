@@ -14,8 +14,11 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.TransferMode;
+
 import java.lang.System.Logger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The ToolPane class provides a custom tab pane component for the program
@@ -27,14 +30,16 @@ public class ToolTabPane extends Control {
 
 	private static final Logger log = Log.get();
 
-	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
+	private final ObservableList<ToolTab> tabs;
 
-	private ObservableList<ToolTab> tabs = FXCollections.observableArrayList();
+	private final ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel;
 
 	private ReadOnlyBooleanWrapper active;
 
 	public ToolTabPane() {
 		getStyleClass().addAll( "tool-pane" );
+		tabs = FXCollections.observableArrayList();
+		selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
 	}
 
@@ -99,48 +104,46 @@ public class ToolTabPane extends Control {
 		return getWorkpaneView().getWorkpane();
 	}
 
-	void handleDrop( DragEvent event, int index, Side side ) {
-		// NOTE If the event gesture source is null the drag came from outside the program
-
+	/**
+	 * The three workpane components (tab, header, toolarea) funnel drop events to
+	 * this method.
+	 *
+	 * @param event The drag event for the drop
+	 * @param area The workpane {@link DropEvent.Area} dropped on
+	 * @param index The tab index
+	 * @param side Which side of the tool area
+	 */
+	void handleDrop( DragEvent event, DropEvent.Area area, int index, Side side ) {
 		try {
-			boolean droppedOnArea = index == -2;
-			Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
-			Workpane sourcePane = sourceTool.getWorkpane();
-			WorkpaneView targetView = getWorkpaneView();
-			Workpane targetPane = getWorkpane();
+			Object gestureSource = event.getGestureSource();
+			Tool sourceTool = (gestureSource instanceof ToolTab) ? ((ToolTab)gestureSource).getTool() : null;
 
-			log.log( Log.DEBUG,  "DnD transfer mode: " + event.getTransferMode() );
+			List<URI> uris = new ArrayList<>();
+			if( event.getDragboard().getUrl() != null ) uris.add( new URI( event.getDragboard().getUrl() ) );
+			event.getDragboard().getFiles().forEach( f -> uris.add( f.toURI() ) );
 
-			if( event.getTransferMode() == TransferMode.MOVE ) {
-				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-				sourcePane.removeTool( sourceTool );
-			} else if( event.getTransferMode() == TransferMode.COPY ) {
-				sourceTool = cloneTool( sourceTool );
-			}
-
-			log.log( Log.WARN,  "Dropped on side :" + side );
-			if( side != null ) targetView = targetPane.split( targetView, side );
-
-			int targetViewTabCount = targetView.getTools().size();
-			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
-
-			targetPane.addTool( sourceTool, targetView, index, true );
-			sourcePane.setDropHint( null );
+			getWorkpane().handleDrop( new DropEvent( this,
+				DropEvent.DROP,
+				getWorkpane(),
+				event.getTransferMode(),
+				sourceTool,
+				getWorkpaneView(),
+				area,
+				index,
+				side,
+				uris
+			) );
+		} catch( Exception exception ) {
+			log.log( Log.ERROR, "Error handling tool drop", exception );
 		} finally {
 			event.setDropCompleted( true );
 			event.consume();
 		}
 	}
 
-	private Tool cloneTool( Tool tool ) {
-		// TODO Implement tool cloning
-		log.log( Log.WARN,  "Tool copy not implemented yet!" );
-		return tool;
-	}
-
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
 
-		private ToolTabPane pane;
+		private final ToolTabPane pane;
 
 		ToolPaneSelectionModel( ToolTabPane pane ) {
 			if( pane == null ) throw new NullPointerException( "ToolPane can not be null" );

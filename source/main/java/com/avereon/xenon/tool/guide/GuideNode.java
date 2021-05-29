@@ -1,9 +1,12 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.Node;
+import com.avereon.data.NodeComparator;
 import com.avereon.xenon.Program;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.TreeItem;
+
+import java.util.Comparator;
 
 public class GuideNode extends Node {
 
@@ -13,25 +16,32 @@ public class GuideNode extends Node {
 
 	public static final String NAME = "name";
 
+	public static final String ORDER = "order";
+
 	private static final String TREE_ITEM = "tree-item";
 
 	private final Program program;
 
-	public GuideNode( Program program ) {
+	GuideNode( Program program ) {
 		this( program, null, null, null );
 	}
 
-	public GuideNode( Program program, String id, String name ) {
+	GuideNode( Program program, String id, String name ) {
 		this( program, id, name, null );
 	}
 
 	public GuideNode( Program program, String id, String name, String icon ) {
+		this( program, id, name, icon, -1 );
+	}
+
+	public GuideNode( Program program, String id, String name, String icon, int order ) {
 		this.program = program;
 		definePrimaryKey( ID );
 		defineNaturalKey( NAME );
 		setId( id );
 		setName( name );
 		setIcon( icon );
+		setOrder( order );
 	}
 
 	public String getId() {
@@ -47,9 +57,9 @@ public class GuideNode extends Node {
 		return getValue( ICON );
 	}
 
-	public GuideNode setIcon( String name ) {
-		setValue( ICON, name );
-		if( exists( TREE_ITEM ) ) Platform.runLater( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( name ) ) );
+	public GuideNode setIcon( String icon ) {
+		setValue( ICON, icon );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( icon ) ) );
 		return this;
 	}
 
@@ -62,30 +72,45 @@ public class GuideNode extends Node {
 		return this;
 	}
 
+	public int getOrder() {
+		return getValue( ORDER );
+	}
+
+	public GuideNode setOrder( int order ) {
+		setValue( ORDER, order );
+		return this;
+	}
+
 	public GuideNode reset() {
-		if( exists( TREE_ITEM ) ) Platform.runLater( () -> getTreeItem().getChildren().clear() );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().getChildren().clear() );
 		return this;
 	}
 
-	public GuideNode add( GuideNode child ) {
-		Platform.runLater( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
-		return this;
+	//	public GuideNode add( GuideNode child ) {
+	//		Fx.run( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
+	//		return this;
+	//	}
+
+	//	public GuideNode remove( GuideNode child ) {
+	//		if( !exists( TREE_ITEM ) ) return this;
+	//		Fx.run( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
+	//		return this;
+	//	}
+
+	@Override
+	public <T extends Node> Comparator<T> getComparator() {
+		return new NodeComparator<>( ORDER, NAME );
 	}
 
-	public GuideNode remove( GuideNode child ) {
-		if( !exists( TREE_ITEM ) ) return this;
-		Platform.runLater( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
-		return this;
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 	TreeItem<GuideNode> getTreeItem() {
 		TreeItem<GuideNode> value = getValue( TREE_ITEM );
 		if( value == null ) value = setValue( TREE_ITEM, new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 		return value;
-	}
-
-	public String toString() {
-		return getName();
 	}
 
 }

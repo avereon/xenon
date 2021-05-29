@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ class RefreshUpdatableProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
-		Platform.runLater( () -> productTool.getUpdatesPage().showUpdating() );
+		Fx.run( () -> productTool.getUpdatesPage().showUpdating() );
 		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().findAvailableUpdates( force ) );
 		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 
@@ -49,7 +49,7 @@ class RefreshUpdatableProducts extends Task<Void> {
 			newCards.add( installedProducts.get( card.getProductKey() ) );
 		}
 
-		Platform.runLater( () -> productTool.getUpdatesPage().setProducts( newCards, productUpdates ) );
+		Fx.run( () -> productTool.getUpdatesPage().setProducts( newCards, productUpdates ) );
 
 		return null;
 	}

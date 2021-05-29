@@ -1,10 +1,11 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.ProductManager;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -20,8 +21,8 @@ class UpdateCheckInformationPane extends HBox {
 
 	UpdateCheckInformationPane( Program program ) {
 		this.program = program;
-		Label lastUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-last" ) );
-		Label nextUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-next" ) );
+		Label lastUpdateCheckLabel = new Label( Rb.text( BundleKey.UPDATE, "product-update-check-last" ) );
+		Label nextUpdateCheckLabel = new Label( Rb.text( BundleKey.UPDATE, "product-update-check-next" ) );
 		lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
 		nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
 		lastUpdateCheckLabel.getStyleClass().add( "prompt" );
@@ -53,7 +54,7 @@ class UpdateCheckInformationPane extends HBox {
 		String lastUpdateCheck = program.getProductManager().getLastUpdateCheckText();
 		String nextUpdateCheck = program.getProductManager().getNextUpdateCheckText();
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			lastUpdateCheckField.setText( lastUpdateCheck );
 			nextUpdateCheckField.setText( nextUpdateCheck );
 		} );

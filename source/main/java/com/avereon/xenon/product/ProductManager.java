@@ -3,16 +3,17 @@ package com.avereon.xenon.product;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import javafx.application.Platform;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 
 import java.io.IOException;
 import java.lang.System.Logger;
@@ -29,17 +30,12 @@ import java.util.stream.Collectors;
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
- * Discovery involves checking for updates over the network (usually over the
- * Internet) and comparing the release information of installed packs with the
- * release information of the discovered packs. If the discovered pack is
- * determined to be newer than the installed pack it is considered an update.
+ * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs. If the discovered pack is determined to
+ * be newer than the installed pack it is considered an update.
  * <p>
- * Staging involves downloading new pack data and preparing it to be applied by
- * the update application.
+ * Staging involves downloading new pack data and preparing it to be applied by the update application.
  * <p>
- * Applying involves configuring and executing a separate update process to
- * apply the staged updates. This requires the calling process to terminate to
- * allow the update process to change required files.
+ * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required files.
  */
 public class ProductManager implements Controllable<ProductManager>, Configurable {
 
@@ -183,7 +179,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
-		includedProducts.add( new com.avereon.zenna.Program().getCard() );
+		includedProducts.add( new com.avereon.weave.Program().getCard() );
 	}
 
 	private Program getProgram() {
@@ -243,12 +239,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			lastAvailableProductCheck = System.currentTimeMillis();
 
 			try {
-				availableProducts = new ProductManagerLogic( getProgram() )
-					.getAvailableProducts( force )
-					.get()
-					.stream()
-					.filter( ( card ) -> "mod".equals( card.getPackaging() ) )
-					.collect( Collectors.toSet() );
+				availableProducts = new ProductManagerLogic( getProgram() ).getAvailableProducts( force ).get().stream().filter( ( card ) -> "mod".equals( card.getPackaging() ) ).collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, "Error getting available products", exception );
@@ -271,8 +262,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Get the product cards for the currently installed products including the
-	 * program and all mods.
+	 * Get the product cards for the currently installed products including the program and all mods.
 	 *
 	 * @return A new set of currently installed product cards
 	 */
@@ -480,14 +470,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public String getLastUpdateCheckText() {
 		long lastUpdateCheck = getLastUpdateCheck();
-		String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
+		String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
 		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	public String getNextUpdateCheckText() {
 		long nextUpdateCheck = getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
-		String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
+		String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
 		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
@@ -504,8 +494,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as
-	 * necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -626,8 +615,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Gets the set of available product updates. If there are no posted updates
-	 * found an empty set is returned.
+	 * Gets the set of available product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of available updates.
 	 */
@@ -680,8 +668,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Called when product updates have been staged and the collection of staged
-	 * updates needs to be updated.
+	 * Called when product updates have been staged and the collection of staged updates needs to be updated.
 	 *
 	 * @param updates The collection of product updates that were staged
 	 */
@@ -719,8 +706,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and,
-	 * if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
 	 * applied.
 	 *
 	 * @return The number of updates applied.
@@ -730,7 +716,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
 
 		return count;
 	}
@@ -912,6 +898,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Load the modules
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
+		// Disable mods specified on the command line
+		List<String> disableMods = getProgram().getProgramParameters().getValues( ProgramFlag.DISABLE_MOD );
+		modules.values().stream().filter( mod -> disableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, false ) );
+
+		// Enable mods specified on the command line
+		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
+		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
+
 		// Allow the mods to register resources
 		modules.values().forEach( this::callModRegister );
 
@@ -989,9 +983,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 
 		// Look for standard mods (most common)
-		Arrays.stream( folders ).filter( ( f ) -> Files.exists( f ) ).filter( ( f ) -> Files.isDirectory( f ) ).forEach( ( folder ) -> {
+		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
 			try {
-				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
+				Files.list( folder ).filter( Files::isDirectory ).forEach( this::loadStandardMod );
 			} catch( IOException exception ) {
 				log.log( Log.ERROR, "Error loading modules from: " + folder, exception );
 			}
@@ -1128,6 +1122,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return userModuleFolder;
 	}
 
+	public Path getUpdatesFolder() {
+		return getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
+	}
+
 	private void loadModulePathMods() {
 		log.log( Log.TRACE, "Loading standard mod from: module-path" );
 		try {
@@ -1137,24 +1135,40 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void loadStandardMods( Path source ) {
+	private void loadStandardMod( Path folder ) {
 		// In this context module refers to Java modules and mod refers to program mods
+		// It is expected that each folder has only one mod
 
-		log.log( Log.TRACE, "Loading standard mod from: " + source );
-
-		// Obtain the boot module layer
-		ModuleLayer bootLayer = ModuleLayer.boot();
-		Configuration bootConfiguration = bootLayer.configuration();
-
-		// Create the mod module layer
-		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
-		ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
-
-		// Load the mods
+		log.log( Log.TRACE, "Loading standard mod from: " + folder );
 		try {
-			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
+			// Load the mod descriptor
+			ProductCard card = ProductCard.card( folder );
+
+			// Obtain the boot module layer
+			ModuleLayer bootLayer = ModuleLayer.boot();
+			Configuration bootConfiguration = bootLayer.configuration();
+
+			String modVersion = card.getPackagingVersion();
+			log.log( Log.DEBUG, "Mod version: " + modVersion );
+
+			ModuleFinder finder = ModuleFinder.of( folder );
+			if( "2".equals( modVersion ) ) {
+				finder = ModuleFinder.of( Files.list( folder ).filter( f -> f.getFileName().toString().endsWith( ".jar" ) ).distinct().toArray( Path[]::new ) );
+			}
+
+			// Create the mod module layer
+			Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), finder, Set.of() );
+			ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, getProgram().getClass().getClassLoader() );
+			ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
+
+			// Load the mod
+			loader.stream().findFirst().ifPresentOrElse( m -> {
+				loadMod( m.get(), folder );
+			}, () -> {
+				log.log( Log.ERROR, "Standard mod expected: " + folder );
+			} );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error loading standard mods: " + source, throwable );
+			log.log( Log.ERROR, "Error loading standard mods: " + folder, throwable );
 		}
 	}
 
@@ -1172,6 +1186,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				log.log( Log.WARN, "Mod already loaded: " + card.getProductKey() );
 				return;
 			}
+
+			// This will need to change if nested mods are to be supported
+			// Set the parent product
+			mod.setParent( getProgram() );
+
+			// Init Rb
+			Rb.init( mod );
 
 			// Configure logging for the mod
 			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );

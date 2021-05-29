@@ -1,19 +1,20 @@
 package com.avereon.xenon;
 
-import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
-import com.avereon.venza.javafx.Fx;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
-import com.avereon.xenon.workpane.*;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 
 import java.lang.invoke.MethodHandles;
@@ -23,16 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.*;
 
 public class ToolManager implements Controllable<ToolManager> {
-
-	public static final int ASSET_READY_TIMEOUT = 10;
-
-	public static final int TOOL_READY_TIMEOUT = 2;
 
 	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
@@ -118,7 +115,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
 		}
 
@@ -130,9 +127,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// Now that we have a tool...open dependent assets and associated tools
-		for( URI dependency : tool.getAssetDependencies() ) {
-			program.getAssetManager().openAsset( dependency, true, false );
-		}
+		if( !openDependencies( request, tool ) ) return null;
 
 		// Determine the placement override
 		// A null value allows the tool to determine its placement
@@ -140,10 +135,24 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-		scheduleAssetReady( request, finalTool );
-		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
+		final WorkpaneView finalView = view;
+		scheduleWaitForReady( request, finalTool );
+		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
+	}
+
+	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+		try {
+			for( URI dependency : tool.getAssetDependencies() ) {
+				program.getAssetManager().openAsset( dependency, true, false ).get();
+			}
+			return true;
+		} catch( InterruptedException ignored ) {
+		} catch( ExecutionException exception ) {
+			log.log( ERROR, "Error opening tool dependencies: " + request.getToolClass().getName(), exception );
+		}
+		return false;
 	}
 
 	/**
@@ -177,7 +186,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		try {
 			ProgramTool tool = getToolInstance( request );
-			scheduleAssetReady( request, tool );
+			scheduleWaitForReady( request, tool );
 			return tool;
 		} catch( Exception exception ) {
 			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
@@ -185,7 +194,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
+	public ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
 		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
 		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
 		return instanceMode;
@@ -252,7 +261,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
-		String taskName = program.rb().text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		String taskName = Rb.text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
 			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
@@ -298,80 +307,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
-	private void scheduleAssetReady( OpenAssetRequest request, ProgramTool tool ) {
-		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> {
-			Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( tool ) );
-			Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( tool.getAsset() ) );
-
-			try {
-				toolLatch.get();
-				assetLatch.get();
-				Platform.runLater( () -> {
-					try {
-						tool.ready( request );
-						tool.open( request );
-					} catch( ToolException exception ) {
-						log.log( Log.ERROR, exception );
-					}
-				} );
-			} catch( Exception exception ) {
-				log.log( Log.ERROR, exception );
-			}
-		} ) );
-	}
-
-	private static class ToolAddedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final ProgramTool tool;
-
-		public ToolAddedLatch( ProgramTool tool ) {
-			this.tool = tool;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
-			tool.addEventFilter( ToolEvent.ADDED, h );
-			try {
-				if( tool.getToolView() == null ) {
-					latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
-				}
-			} finally {
-				tool.removeEventFilter( ToolEvent.ADDED, h );
-			}
-			return null;
-		}
-
-	}
-
-	private static class AssetLoadedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final Asset asset;
-
-		public AssetLoadedLatch( Asset asset ) {
-			this.asset = asset;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			EventHandler<AssetEvent> h = e -> latch.countDown();
-			asset.register( AssetEvent.LOADED, h );
-			try {
-				if( !asset.isLoaded() ) {
-					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
-				}
-			} finally {
-				asset.unregister( AssetEvent.LOADED, h );
-			}
-			return null;
-		}
-
+	private void scheduleWaitForReady( OpenAssetRequest request, ProgramTool tool ) {
+		tool.waitForReady( request );
 	}
 
 }

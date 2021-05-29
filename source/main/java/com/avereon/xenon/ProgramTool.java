@@ -1,19 +1,27 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProductBundle;
+import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Platform;
+import com.avereon.xenon.workspace.Workspace;
+import com.avereon.zerra.javafx.Fx;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
@@ -89,30 +97,52 @@ import java.util.Set;
  */
 public abstract class ProgramTool extends Tool implements WritableIdentity {
 
+	public static final int ASSET_READY_TIMEOUT = 10;
+
+	public static final int TOOL_READY_TIMEOUT = 2;
+
 	private static final System.Logger log = Log.get();
 
 	private final ProgramProduct product;
 
+	private boolean isReady;
+
+	private boolean setActiveWhenReady;
+
 	public ProgramTool( ProgramProduct product, Asset asset ) {
 		super( asset );
 		this.product = product;
+		setTitle( asset.getName() );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( asset.getIcon(), "broken" ) );
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
-	public ProgramProduct getProduct() {
+	public final ProgramProduct getProduct() {
 		return product;
 	}
 
-	public Program getProgram() {
+	public final Program getProgram() {
 		return product.getProgram();
 	}
 
+	public void setIcon( String icon ) {
+		setGraphic( getProgram().getIconLibrary().getIcon( icon ) );
+	}
+
 	public Set<URI> getAssetDependencies() {
-		return Collections.unmodifiableSet( Collections.emptySet() );
+		return Collections.emptySet();
+	}
+
+	public Settings getAssetSettings() {
+		return getAsset().getSettings();
 	}
 
 	public Settings getSettings() {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
+	}
+
+	public boolean changeCurrentAsset() {
+		return true;
 	}
 
 	@Override
@@ -130,7 +160,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
 		if( !tools.contains( this ) ) return;
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			if( getAsset().isNewOrModified() ) {
 				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) ) ) super.close();
 			} else if( tools.size() == 1 ) {
@@ -142,18 +172,18 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	/**
-	 * A convenience method to get the product resource bundle from the tool.
+	 * Check if the tool is ready for use. Ready for use means that both the tool
+	 * and it's associated asset are initialized and loaded.
 	 *
-	 * @return The product resource bundle
+	 * @return True if ready for use, false otherwise.
 	 */
-	protected ProductBundle rb() {
-		return getProduct().rb();
+	protected boolean isReady() {
+		return isReady;
 	}
 
 	/**
 	 * The tool and asset are ready.
 	 */
-	@SuppressWarnings( "RedundantThrows" )
 	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
@@ -165,14 +195,32 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	 *
 	 * @param request The request used to open the asset
 	 */
-	@SuppressWarnings( "RedundantThrows" )
 	protected void open( OpenAssetRequest request ) throws ToolException {}
 
-	protected void pushToolActions( String... actions ) {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( actions );
+	@Override
+	protected void activate() throws ToolException {
+		if( changeCurrentAsset() ) pullMenus();
+		if( changeCurrentAsset() ) pullTools();
+		super.conceal();
 	}
 
-	protected void pullToolActions() {
+	protected void runTask( Runnable runnable ) {
+		getProgram().getTaskManager().submit( Task.of( "", runnable ) );
+	}
+
+	protected void pushMenus( String descriptor ) {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
+	}
+
+	protected void pullMenus() {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
+	}
+
+	protected void pushTools( String descriptor ) {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( descriptor );
+	}
+
+	protected void pullTools() {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
 	}
 
@@ -184,6 +232,77 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	protected ProgramTool pullAction( String key, Action action ) {
 		getProgram().getActionLibrary().getAction( key ).pullAction( action );
 		return this;
+	}
+
+	protected Workspace getWorkspace() {
+		return getProgram().getWorkspaceManager().findWorkspace( this );
+	}
+
+	protected void addStylesheet( String stylesheet ) {
+		ClassLoader loader = product.getClass().getClassLoader();
+		getStylesheets().add( Objects.requireNonNull( loader.getResource( stylesheet ) ).toExternalForm() );
+	}
+
+	public void setActiveWhenReady() {
+		this.setActiveWhenReady = true;
+	}
+
+	void waitForReady( OpenAssetRequest request ) {
+		TaskChain.of( "wait for ready", () -> {
+			waitForTool();
+			return null;
+		} ).link( () -> {
+			waitForAsset( getAsset() );
+			return null;
+		} ).link( () -> {
+			callToolReady( request );
+			return null;
+		} ).run( getProgram() );
+	}
+
+	private void waitForTool() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch( 1 );
+		javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
+
+		try {
+			addEventFilter( ToolEvent.ADDED, h );
+			if( getToolView() == null ) {
+				boolean timeout = !latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( timeout ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + this );
+			}
+		} finally {
+			removeEventFilter( ToolEvent.ADDED, h );
+		}
+	}
+
+	private void waitForAsset( Asset asset ) throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch( 1 );
+		EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
+		asset.register( AssetEvent.LOADED, assetLoadedHandler );
+		try {
+			if( !asset.isLoaded() ) {
+				latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
+			}
+		} finally {
+			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
+		}
+	}
+
+	private void callToolReady( OpenAssetRequest request ) {
+		isReady = true;
+		Fx.run( () -> {
+			try {
+				if( setActiveWhenReady ) {
+					getWorkpane().setActiveTool( this );
+					setActiveWhenReady = false;
+				}
+				ready( request );
+				open( request );
+			} catch( ToolException exception ) {
+				log.log( Log.ERROR, exception );
+			}
+		} );
 	}
 
 }

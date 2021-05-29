@@ -1,36 +1,43 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 
-public class CheckBoxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
+import java.util.List;
+
+public class CheckBoxSettingEditor extends SettingEditor {
 
 	private CheckBox checkbox;
 
-	public CheckBoxSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public CheckBoxSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		boolean selected = setting.getSettings().get( key, Boolean.class, false );
+		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
 
-		String label = product.rb().text( "settings", rbKey );
+		String label = Rb.text( getProduct(), "settings", rbKey );
 
 		checkbox = new CheckBox();
 		checkbox.setSelected( selected );
 		checkbox.setText( label );
 		checkbox.setId( rbKey );
 
+		nodes = List.of( checkbox );
+
 		// Add the change handlers
-		checkbox.selectedProperty().addListener( this );
+		checkbox.selectedProperty().addListener( this::doCheckboxValueChanged );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -42,25 +49,17 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		checkbox.setDisable( disable );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override
-	public void setVisible( boolean visible ) {
-		checkbox.setVisible( visible );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue().toString() ) );
 	}
 
-	// Checkbox listener
-	@Override
-	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		setting.getSettings().set( key, checkbox.isSelected() );
-	}
-
-	// Setting node listener
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue().toString() ) );
+	private void doCheckboxValueChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+		setting.getSettings().set( getKey(), checkbox.isSelected() );
 	}
 
 }

@@ -1,12 +1,12 @@
 package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 
-public class TextAreaSettingEditor extends TextLineSettingEditor {
+public class TextAreaSettingEditor extends TextSettingEditor {
 
-	public TextAreaSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting, Type.AREA );
+	public TextAreaSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting, Type.AREA );
 	}
 
 }

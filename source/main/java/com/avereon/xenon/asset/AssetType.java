@@ -1,10 +1,11 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 
 import java.lang.System.Logger;
 import java.util.Collections;
@@ -88,15 +89,15 @@ public abstract class AssetType implements Comparable<AssetType> {
 	}
 
 	public String getName() {
-		return product.rb().text( "asset", rbKey + "-name" );
+		return Rb.text( getProduct(), "asset", rbKey + "-name" );
 	}
 
 	public String getDescription() {
-		return product.rb().text( "asset", rbKey + "-description" );
+		return Rb.text( getProduct(), "asset", rbKey + "-description" );
 	}
 
 	public String getIcon() {
-		return product.rb().textOr( "asset", rbKey + "-icon", "asset" );
+		return Rb.textOr( getProduct(), "asset", rbKey + "-icon", "asset" );
 	}
 
 	/**
@@ -150,38 +151,13 @@ public abstract class AssetType implements Comparable<AssetType> {
 	}
 
 	/**
-	 * Initialize an asset with default state. This method should provide the
-	 * specified asset with a default state prior to being used in a tool.
+	 * This method is called when a new asset is requested to be opened. This
+	 * method is valuable if the asset requires user interaction when creating new
+	 * assets.
 	 * <p>
-	 * Unlike the {@link #assetUser(Program, Asset)} method this method is
-	 * always called whenever an asset is new, opened or restored. This method
-	 * should not be used for user interaction. User interaction should be
-	 * implemented in the {@link #assetUser(Program, Asset)} method.
-	 * <p>
-	 * Note: This method is called using a task thread and is not safe to use
-	 * directly on UI components. <br>
-	 *
-	 * @param program
-	 * @param asset
-	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
-	 * @throws AssetException if the asset failed to be initialized.
-	 */
-	public boolean assetInit( Program program, Asset asset ) throws AssetException {
-		return true;
-	}
-
-	boolean callAssetInit( Program program, Asset asset ) throws AssetException {
-		return assetInit( program, asset );
-	}
-
-	/**
-	 * This method is called just before a new asset is opened to allow for
-	 * user interaction. This method is valuable if the asset requires user
-	 * interaction when creating new assets.
-	 * <p>
-	 * Unlike the {@link #assetInit(Program, Asset)} method this method is
+	 * Unlike the {@link #assetOpen(Program, Asset)} method this method is
 	 * only called for new assets. If the asset is not new this method will not
-	 * be called as is the case for opening or restoring existing assets.
+	 * be called unlike the process for opening or restoring existing assets.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components.
@@ -191,19 +167,19 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @return True if the asset was opened, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
 	 * @throws AssetException if the asset failed to be opened.
 	 */
-	public boolean assetUser( Program program, Asset asset ) throws AssetException {
+	public boolean assetNew( Program program, Asset asset ) throws AssetException {
 		return true;
 	}
 
-	boolean callAssetUser( Program program, Asset asset ) throws AssetException {
+	boolean callAssetNew( Program program, Asset asset ) throws AssetException {
 		Object lock = new Object();
 		AtomicBoolean result = new AtomicBoolean();
 		AtomicReference<AssetException> resultException = new AtomicReference<>();
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			synchronized( lock ) {
 				try {
-					result.set( assetUser( program, asset ) );
+					result.set( assetNew( program, asset ) );
 				} catch( AssetException exception ) {
 					resultException.set( exception );
 				} finally {
@@ -222,6 +198,32 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 		if( resultException.get() != null ) throw resultException.get();
 		return result.get();
+	}
+
+	/**
+	 * This method is called as an asset is opened just before it is loaded. This
+	 * method can provide the specified asset with an initial state prior to being
+	 * loaded or used in a tool.
+	 * <p>
+	 * Unlike the {@link #assetNew(Program, Asset)} method this method is
+	 * always called whenever an asset is opened, new or otherwise. This method
+	 * should not be used for user interaction. User interaction should be
+	 * implemented in the {@link #assetNew(Program, Asset)} method.
+	 * <p>
+	 * Note: This method is called using a task thread and is not safe to use
+	 * directly on UI components. <br>
+	 *
+	 * @param program
+	 * @param asset
+	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
+	 * @throws AssetException if the asset failed to be initialized.
+	 */
+	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
+		return true;
+	}
+
+	boolean callAssetOpen( Program program, Asset asset ) throws AssetException {
+		return assetOpen( program, asset );
 	}
 
 	@Override

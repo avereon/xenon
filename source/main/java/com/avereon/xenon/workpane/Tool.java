@@ -4,12 +4,13 @@ import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
@@ -33,11 +34,15 @@ public abstract class Tool extends StackPane {
 
 	public static final Workpane.Placement DEFAULT_TOOL_PLACEMENT = Workpane.Placement.SMART;
 
-	private static ToolInfo toolInfo = new ToolInfo();
+	private static final ContextMenu EMPTY_CONTEXT_MENU = new ContextMenu();
+
+	private static final ToolInfo toolInfo = new ToolInfo();
 
 	private ObjectProperty<Node> graphicProperty;
 
 	private StringProperty titleProperty;
+
+	private ObjectProperty<Node> contextGraphicProperty;
 
 	private ObjectProperty<Node> closeGraphicProperty;
 
@@ -58,6 +63,7 @@ public abstract class Tool extends StackPane {
 
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
+		this.contextGraphicProperty = new SimpleObjectProperty<>();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		getStyleClass().add( "tool" );
@@ -68,7 +74,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Platform.runLater( () -> getWorkpane().setActiveTool( this ) ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Fx.run( () -> getWorkpane().setActiveTool( this ) ) );
 	}
 
 	public final Asset getAsset() {
@@ -148,6 +154,19 @@ public abstract class Tool extends StackPane {
 	}
 
 	@SuppressWarnings( "unused" )
+	public Node getContextGraphic() {
+		return contextGraphicProperty.getValue();
+	}
+
+	public void setContextGraphic( Node graphic ) {
+		contextGraphicProperty.setValue( graphic );
+	}
+
+	public ObjectProperty<Node> contextGraphicProperty() {
+		return contextGraphicProperty;
+	}
+
+	@SuppressWarnings( "unused" )
 	public Node getCloseGraphic() {
 		return closeGraphicProperty.getValue();
 	}
@@ -189,6 +208,16 @@ public abstract class Tool extends StackPane {
 		this.parent = parent;
 	}
 
+	/**
+	 * Get the context menu actions as a list of Strings. A submenu can be defined
+	 * by adding a List&lt;Object&gt; to the list.
+	 *
+	 * @return The context menu actions
+	 */
+	public ContextMenu getContextMenu() {
+		return EMPTY_CONTEXT_MENU;
+	}
+
 	public Workpane getWorkpane() {
 		WorkpaneView view = getToolView();
 		return view == null ? null : view.getWorkpane();
@@ -213,11 +242,6 @@ public abstract class Tool extends StackPane {
 
 	public void close() {
 		doClose();
-	}
-
-	private void doClose() {
-		Workpane workpane = getWorkpane();
-		if( workpane != null ) Platform.runLater( () -> workpane.closeTool( this, true ) );
 	}
 
 	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )
@@ -289,7 +313,18 @@ public abstract class Tool extends StackPane {
 	protected void deallocate() throws ToolException {}
 
 	/**
+	 * Determine if this tool is the the last tool of its type for the tool asset.
+	 *
+	 * @return True if this is the last tool of its type, false otherwise.
+	 */
+	protected boolean isLastTool() {
+		Asset asset = getAsset();
+		return getWorkpane().getTools( getClass() ).stream().filter( t -> t.getAsset() == asset ).count() == 1;
+	}
+
+	/**
 	 * Allocate the tool.
+	 *
 	 * @see #allocate
 	 */
 	final void callAllocate() {
@@ -306,6 +341,7 @@ public abstract class Tool extends StackPane {
 
 	/**
 	 * Display the tool.
+	 *
 	 * @see #display
 	 */
 	final void callDisplay() {
@@ -321,6 +357,7 @@ public abstract class Tool extends StackPane {
 
 	/**
 	 * Activate the tool.
+	 *
 	 * @see #activate
 	 */
 	final void callActivate() {
@@ -335,6 +372,7 @@ public abstract class Tool extends StackPane {
 
 	/**
 	 * Deactivate the tool.
+	 *
 	 * @see #deactivate
 	 */
 	final void callDeactivate() {
@@ -349,6 +387,7 @@ public abstract class Tool extends StackPane {
 
 	/**
 	 * Conceal the tool.
+	 *
 	 * @see #conceal
 	 */
 	final void callConceal() {
@@ -364,6 +403,7 @@ public abstract class Tool extends StackPane {
 
 	/**
 	 * Deallocate the tool.
+	 *
 	 * @see #deallocate
 	 */
 	final void callDeallocate() {
@@ -372,10 +412,15 @@ public abstract class Tool extends StackPane {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.CLOSED, closer );
+			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}
+	}
+
+	private void doClose() {
+		Workpane workpane = getWorkpane();
+		if( workpane != null ) Fx.run( () -> workpane.closeTool( this, true ) );
 	}
 
 }

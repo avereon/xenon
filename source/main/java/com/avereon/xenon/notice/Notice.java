@@ -1,14 +1,17 @@
 package com.avereon.xenon.notice;
 
+import com.avereon.data.IdNode;
+import com.avereon.transaction.Txn;
+import com.avereon.transaction.TxnException;
 import com.avereon.util.HashUtil;
 import com.avereon.util.Log;
-import com.avereon.data.Node;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+
 import java.lang.System.Logger;
 
-public class Notice extends Node {
+public class Notice extends IdNode {
 
 	public enum Balloon {
 
@@ -34,8 +37,6 @@ public class Notice extends Node {
 
 	private static final Logger log = Log.get();
 
-	private static final String ID = "id";
-
 	private static final String TIMESTAMP = "timestamp";
 
 	private static final String TYPE = "type";
@@ -52,7 +53,7 @@ public class Notice extends Node {
 
 	private static final String READ = "read";
 
-	private Object[] parameters;
+	private final Object[] parameters;
 
 	public Notice( Object title, Object message, Object... parameters ) {
 		this( title, message, null, null, parameters );
@@ -76,26 +77,26 @@ public class Notice extends Node {
 	 * @param parameters Parameters to be used in the message
 	 */
 	public Notice( Object title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
-		definePrimaryKey( ID );
-		defineNaturalKey( TITLE );
+		defineNaturalKey( ID );
 
 		this.parameters = parameters;
 
-		setValue( TIMESTAMP, System.currentTimeMillis() );
-		setValue( TITLE, title );
-		setValue( MESSAGE, message );
-		setValue( THROWABLE, throwable );
-		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
-		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
+		try( Txn ignored = Txn.create(true) ) {
+			setId( HashUtil.hash( title + getMessageStringContent( message ) ) );
 
-		setType( Type.NORM );
-		setAction( action );
+			setValue( TIMESTAMP, System.currentTimeMillis() );
+			setValue( TITLE, title );
+			setValue( MESSAGE, message );
+			setValue( THROWABLE, throwable );
+			setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 
-		setModified( false );
-	}
+			setType( Type.NORM );
+			setAction( action );
 
-	public String getId() {
-		return getValue( ID );
+			setModified( false );
+		} catch( TxnException exception ) {
+			exception.printStackTrace( System.err );
+		}
 	}
 
 	public Long getTimestamp() {
@@ -157,15 +158,14 @@ public class Notice extends Node {
 	}
 
 	private String formatMessage( Object message, Throwable throwable ) {
-		String string = message == null ? null : getMessageStringContent();
+		String string = message == null ? null : getMessageStringContent( message );
 		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
 		return string;
 	}
 
-	private String getMessageStringContent() {
+	private String getMessageStringContent( Object message ) {
 		StringBuilder builder = new StringBuilder();
 
-		Object message = getMessage();
 		if( message instanceof javafx.scene.Node ) {
 			if( message instanceof TextInputControl ) {
 				// Handle text input controls

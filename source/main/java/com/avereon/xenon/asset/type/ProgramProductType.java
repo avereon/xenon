@@ -29,7 +29,7 @@ public class ProgramProductType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) {
+	public boolean assetOpen( Program program, Asset asset ) {
 		asset.setModel( program.getCard() );
 		return true;
 	}

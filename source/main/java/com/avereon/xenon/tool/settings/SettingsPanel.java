@@ -2,13 +2,13 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
-import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -27,7 +27,9 @@ public class SettingsPanel extends VBox {
 
 	private static final Logger log = Log.get();
 
-	private Map<String, SettingOptionProvider> optionProviders;
+	private final SettingsPage page;
+
+	private final Map<String, SettingOptionProvider> optionProviders;
 
 	//	private String[] fontNames;
 	//
@@ -40,17 +42,20 @@ public class SettingsPanel extends VBox {
 	// TODO Add an undo button to set individual setting back to previous.
 
 	/**
-	 * @param product
-	 * @param page
-	 * @param optionProviders The map of available option providers
+	 * @param page The settings page for the panel
 	 */
-	public SettingsPanel( Product product, SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
-		this.optionProviders = optionProviders;
+	public SettingsPanel( SettingsPage page ) {
+		this( page, false );
+	}
 
-		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
-		//		String fontBold = product.getResourceBundle().getString( "settings", "font-bold" );
-		//		String fontItalic = product.getResourceBundle().getString( "settings", "font-italic" );
-		//		String fontBoldItalic = product.getResourceBundle().getString( "settings", "font-bold-italic" );
+	public SettingsPanel( SettingsPage page, boolean showTitle ) {
+		this.page = page;
+		this.optionProviders = page.getOptionProviders();
+
+		//		String fontPlain = product.getResourceBundle().getString( bundleKey, "font-plain" );
+		//		String fontBold = product.getResourceBundle().getString( bundleKey, "font-bold" );
+		//		String fontItalic = product.getResourceBundle().getString( bundleKey, "font-italic" );
+		//		String fontBoldItalic = product.getResourceBundle().getString( bundleKey, "font-bold-italic" );
 		//
 		//		List<String> fontFamilies = Font.getFamilies();
 		//		fontNames = fontFamilies.toArray( new String[ fontFamilies.size() ] );
@@ -59,28 +64,34 @@ public class SettingsPanel extends VBox {
 
 		//setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
-		// Get the title
-		String title = page.getTitle();
-		if( title == null ) title = product.rb().text( "settings", page.getId() );
+		if( showTitle ) {
+			// Add the title label
+			Label titleLabel = new Label( page.getTitle() );
+			titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
+			titleLabel.prefWidthProperty().bind( widthProperty() );
+			titleLabel.getStyleClass().add( "setting-title" );
+			titleLabel.setAlignment( Pos.CENTER );
+			//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
-		// Add the title label
-		Label titleLabel = new Label( title );
-		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-		titleLabel.prefWidthProperty().bind( widthProperty() );
-		titleLabel.getStyleClass().add( "setting-title" );
-		titleLabel.setAlignment( Pos.CENTER );
-		//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+			addBlankLine( this );
+			getChildren().add( titleLabel );
+			addBlankLine( this );
+		}
 
-		getChildren().add( titleLabel );
-		addBlankLine( this );
+		ProgramProduct product = page.getProduct();
+		String bundleKey = page.getBundleKey();
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
-			String name = product.rb().text( "settings", group.getId() );
-			Control pane = createGroupPane( product, page, name, group );
+			String name = Rb.text( product, bundleKey, group.getId() );
+			Control pane = createGroupPane( product, bundleKey, page, name, group );
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );
 		}
+	}
+
+	public SettingsPage getPage() {
+		return this.page;
 	}
 
 	private void addBlankLine( Pane pane ) {
@@ -91,8 +102,8 @@ public class SettingsPanel extends VBox {
 		pane.getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( Product product, SettingsPage page, String name, SettingGroup group ) {
-		Pane pane = createSettingsPane( product, page, group );
+	private Control createGroupPane( ProgramProduct product, String bundleKey, SettingsPage page, String name, SettingGroup group ) {
+		Pane pane = createSettingsPane( product, bundleKey, page, group );
 
 		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
 
@@ -112,34 +123,39 @@ public class SettingsPanel extends VBox {
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
-		GridPane pane = new GridPane();
-		pane.setHgap( UiFactory.PAD );
-		pane.setVgap( UiFactory.PAD );
+	private Pane createSettingsPane( ProgramProduct product, String bundleKey, SettingsPage page, SettingGroup group ) {
+		GridPane grid = new GridPane();
+		grid.setHgap( UiFactory.PAD );
+		grid.setVgap( UiFactory.PAD );
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
+		ColumnConstraints labelColumnConstraints = new ColumnConstraints();
+		ColumnConstraints editorColumnConstraints = new ColumnConstraints();
+		labelColumnConstraints.setHgrow( Priority.SOMETIMES );
+		editorColumnConstraints.setHgrow( Priority.ALWAYS );
+		grid.getColumnConstraints().addAll( labelColumnConstraints, editorColumnConstraints );
+
 		int row = 0;
-		for( Setting setting : group.getSettings() ) {
+		for( SettingData setting : group.getSettingsList() ) {
 			// Get the editor type
 			String editorType = setting.getEditor();
 			if( editorType == null ) editorType = "textline";
 
 			// Determine the editor class
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
-			if( editorClass == null ) editorClass = SettingEditor.getType( "textline" );
+			if( editorClass == null ) {
+				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
+				editorClass = SettingEditor.getType( "textline" );
+			}
 
 			// Determine setting option provider, if any
 			String providerId = setting.getProvider();
 			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
 
 			// Create the editor
-			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
-			} else {
-				SettingEditor editor = createSettingEditor( product, setting, editorClass );
-				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
-			}
+			SettingEditor editor = createSettingEditor( product, bundleKey, setting, editorClass );
+			if( editor != null ) editor.addComponents( grid, row++ );
+			if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
@@ -153,16 +169,16 @@ public class SettingsPanel extends VBox {
 			setting.updateState();
 		}
 
-		return pane;
+		return grid;
 	}
 
-	private SettingEditor createSettingEditor( Product product, Setting setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
-			editor = constructor.newInstance( (ProgramProduct)product, setting );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
+			editor = constructor.newInstance( product, bundleKey, setting );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error creating setting editor: " + editorClass.getName(), exception );
 		}
@@ -185,7 +201,7 @@ public class SettingsPanel extends VBox {
 		}
 	}
 
-	private void addSettingDependencyWatchers( Settings settings, Setting setting, SettingDependency dependency ) {
+	private void addSettingDependencyWatchers( Settings settings, SettingData setting, SettingDependency dependency ) {
 		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
@@ -198,9 +214,9 @@ public class SettingsPanel extends VBox {
 
 	private static final class GroupDependencyWatcher implements EventHandler<SettingsEvent> {
 
-		private SettingGroup group;
+		private final SettingGroup group;
 
-		private String key;
+		private final String key;
 
 		public GroupDependencyWatcher( SettingDependency dependency, SettingGroup setting ) {
 			this.group = setting;
@@ -219,9 +235,9 @@ public class SettingsPanel extends VBox {
 
 		private final String dependencyKey;
 
-		private final Setting setting;
+		private final SettingData setting;
 
-		public SettingDependencyWatcher( SettingDependency dependency, Setting setting ) {
+		public SettingDependencyWatcher( SettingDependency dependency, SettingData setting ) {
 			if( dependency.getKey() == null ) throw new NullPointerException( "Dependency key cannot be null for " + setting.getKey() );
 			this.dependencyKey = dependency.getKey();
 			this.setting = setting;
@@ -236,9 +252,9 @@ public class SettingsPanel extends VBox {
 
 	private static class GroupChangeHandler implements EventHandler<NodeEvent> {
 
-		private SettingGroup group;
+		private final SettingGroup group;
 
-		private Pane pane;
+		private final Pane pane;
 
 		public GroupChangeHandler( SettingGroup group, Pane pane ) {
 			this.group = group;
@@ -250,14 +266,8 @@ public class SettingsPanel extends VBox {
 			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case "disable": {
-					setDisable( (Boolean)event.getNewValue() );
-					break;
-				}
-				case "visible": {
-					setVisible( (Boolean)event.getNewValue() );
-					break;
-				}
+				case SettingData.DISABLE -> setDisable( event.getNewValue() );
+				case SettingData.VISIBLE -> setVisible( event.getNewValue() );
 			}
 		}
 
@@ -277,10 +287,10 @@ public class SettingsPanel extends VBox {
 
 		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
-			Setting setting = editor.getSetting();
+			SettingData setting = editor.getSetting();
 
 			// Register a handler when the setting value changes to update the editor
-			setting.getSettings().register( SettingsEvent.CHANGED, editor );
+			setting.getSettings().register( SettingsEvent.CHANGED, editor::doSettingValueChanged );
 
 			// Register a handler on the setting node to update other setting nodes
 			setting.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );
@@ -288,14 +298,8 @@ public class SettingsPanel extends VBox {
 
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
-				case Setting.DISABLE: {
-					Platform.runLater( () -> editor.setDisable( (Boolean)event.getNewValue() ) );
-					break;
-				}
-				case Setting.VISIBLE: {
-					Platform.runLater( () -> editor.setVisible( (Boolean)event.getNewValue() ) );
-					break;
-				}
+				case SettingData.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
+				case SettingData.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
 			}
 		}
 

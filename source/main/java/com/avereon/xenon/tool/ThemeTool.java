@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -65,7 +66,7 @@ public class ThemeTool extends GuidedTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "themes-name" ) );
+		setTitle( Rb.text( "tool", "themes-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "themes" ) );
 	}
 

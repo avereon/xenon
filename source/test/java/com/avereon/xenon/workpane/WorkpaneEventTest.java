@@ -23,8 +23,6 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		workpane.moveEdge( edge, 25 );
 
-		workpaneWatcher.getEvents().forEach( e -> System.out.println( e.getEventType() ) );
-
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 0 ), EdgeEvent.MOVED, workpane, edge );
 		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.CHANGED, workpane );
 		assertThat( workpaneWatcher.getEvents().size(), is( 2 ) );
@@ -195,8 +193,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 
 		count = 0;
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.OPENING, tool );
-		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ADDED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ORDERED, tool );
+		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ADDED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.OPENED, tool );
@@ -224,8 +222,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 
 		count = 0;
-		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ADDED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ORDERED, tool );
+		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ADDED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
 		assertThat( toolEventWatcher.events.size(), is( count ) );

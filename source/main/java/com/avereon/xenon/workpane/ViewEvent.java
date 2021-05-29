@@ -24,6 +24,8 @@ public class ViewEvent extends WorkpaneEvent {
 
 	public static final EventType<ViewEvent> DEACTIVATED = new EventType<>( VIEW, "DEACTIVATED" );
 
+	public static final EventType<ViewEvent> DROP = new EventType<>( VIEW, "DROP" );
+
 	private WorkpaneView view;
 
 	public ViewEvent( Object source, EventType<? extends ViewEvent> eventType, Workpane workpane, WorkpaneView view ) {

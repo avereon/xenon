@@ -4,7 +4,7 @@ import com.avereon.util.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.venza.color.Colors;
+import com.avereon.zerra.color.Colors;
 import javafx.scene.paint.Color;
 
 import java.io.FileWriter;
@@ -148,14 +148,14 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	 * @param light False for dark theme, true for light theme
 	 */
 	private void createTheme( String name, Color tint, Color accent, Color focus, boolean light ) {
-		Color base = light ? Colors.web( "#E0E0E0" ) : Colors.web( "#303030" );
+		Color base = light ? Colors.parse( "#E0E0E0" ) : Colors.parse( "#303030" );
 		if( tint != Color.TRANSPARENT ) base = Colors.mix( base, tint, 0.1 );
 		createTheme( name, Colors.opaque( base ), accent, Colors.mix( focus, Color.WHITE, 0.1 ) );
 	}
 
 	private void createMaterialDarkTheme( Color color ) {
 		String name = "Xenon Dark Material " + MaterialColor.getName( color );
-		Color base = Colors.mix( Colors.web( "#202020" ), color, 0.1 );
+		Color base = Colors.mix( Colors.parse( "#202020" ), color, 0.1 );
 		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
 		Color focus = color;
 		createTheme( name, format( base ), format( accent ), format( focus ) );
@@ -163,7 +163,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	private void createMaterialLightTheme( Color color ) {
 		String name = "Xenon Light Material " + MaterialColor.getName( color );
-		Color base = Colors.mix( Colors.web( "#E0E0E0" ), color, 0.1 );
+		Color base = Colors.mix( Colors.parse( "#E0E0E0" ), color, 0.1 );
 		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
 		Color focus = color;
 		createTheme( name, format( base ), format( accent ), format( focus ) );

@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,7 +24,7 @@ public class AutoDetectCodec extends Codec {
 
 	@Override
 	public String getName() {
-		return product.rb().text( "labels", "auto.detect" );
+		return Rb.text( "labels", "auto.detect" );
 	}
 
 	@Override

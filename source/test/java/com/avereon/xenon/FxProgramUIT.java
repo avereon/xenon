@@ -7,7 +7,7 @@ import com.avereon.util.SizeUnitBase10;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -22,11 +22,9 @@ import java.nio.file.Path;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
-	private final long max = Runtime.getRuntime().maxMemory();
+	protected static final int TIMEOUT = 2000;
 
 	protected Program program;
-
-	protected ProductCard metadata;
 
 	private ProgramWatcher programWatcher;
 
@@ -67,7 +65,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
-		metadata = program.getCard();
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new WorkpaneWatcher() );
@@ -99,7 +96,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	}
 
 	protected void closeProgram( boolean force ) {
-		Platform.runLater( () -> program.requestExit( force ) );
+		Fx.run( () -> program.requestExit( force ) );
 		WaitForAsyncUtils.waitForFxEvents();
 	}
 
@@ -113,12 +110,12 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
-		System.out.println( String.format(
-			"Memory use: %s - %s = %s",
+		System.out.printf(
+			"Memory use: %s - %s = %s%n",
 			FileUtil.getHumanSizeBase2( finalMemoryUse ),
 			FileUtil.getHumanSizeBase2( initialMemoryUse ),
 			FileUtil.getHumanSizeBase2( increaseSize )
-		) );
+		);
 
 		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format(

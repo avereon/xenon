@@ -22,6 +22,6 @@ class ToolOrderComparator implements Comparator<ProgramTool> {
 		if( order1 == null ) return -1;
 		if( order2 == null ) return 1;
 
-		return order1 - order2;
+		return order2 - order1;
 	}
 }

@@ -1,27 +1,25 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class Setting extends Node {
+public class SettingData extends SettingDependant {
+
+	public static final String ID = "id";
 
 	public static final String KEY = "key";
+
+	public static final String RBKEY = "rbkey";
 
 	public static final String VALUE = "value";
 
 	public static final String EDITOR = "editor";
-
-	public static final String DISABLE = "disable";
-
-	public static final String VISIBLE = "visible";
-
-	private static final String EDITABLE = "editable";
 
 	private static final String OPAQUE = "opaque";
 
@@ -29,20 +27,28 @@ public class Setting extends Node {
 
 	private static final String OPTION_PROVIDER = "option-provider";
 
-	private static final String DEPENDENCIES = "dependencies";
-
 	private static final System.Logger log = Log.get();
 
-	private final Settings settings;
+	private final SettingGroup group;
 
 	private SettingOptionProvider optionProvider;
 
-	public Setting( Settings settings ) {
-		this.settings = settings;
+	public SettingData( SettingGroup group ) {
+		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
-		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setModified( false );
-		addModifyingKeys( DISABLE, VISIBLE );
+	}
+
+	public SettingGroup getGroup() {
+		return group;
+	}
+
+	public String getId() {
+		return getValue( ID );
+	}
+
+	public void setId( String id ) {
+		setValue( ID, id );
 	}
 
 	public String getKey() {
@@ -52,6 +58,14 @@ public class Setting extends Node {
 	public void setKey( String key ) {
 		setValue( KEY, key );
 	}
+
+//	public String getRbKey() {
+//		return getValue( RBKEY );
+//	}
+//
+//	public void setRbKey( String key ) {
+//		setValue( RBKEY, key );
+//	}
 
 	public String getSettingValue() {
 		return getValue( VALUE );
@@ -69,34 +83,6 @@ public class Setting extends Node {
 		setValue( EDITOR, editor );
 	}
 
-	public boolean isDisable() {
-		return getValue( DISABLE, false );
-	}
-
-	public void setDisable( boolean disable ) {
-		setValue( DISABLE, disable );
-	}
-
-	public boolean isVisible() {
-		return getValue( VISIBLE, true );
-	}
-
-	public void setVisible( boolean visible ) {
-		setValue( VISIBLE, visible );
-	}
-
-	//	public boolean isEditable() {
-	//		return getValue( EDITABLE );
-	//	}
-	//
-	//	public void setEditable( boolean editable ) {
-	//		setValue( EDITABLE, editable );
-	//	}
-
-	public void updateState() {
-		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
-	}
-
 	/**
 	 * For color settings, if the color is required to be opaque.
 	 */
@@ -112,7 +98,7 @@ public class Setting extends Node {
 		return getValue( OPTION_PROVIDER );
 	}
 
-	public Setting setProvider( String provider ) {
+	public SettingData setProvider( String provider ) {
 		setValue( OPTION_PROVIDER, provider );
 		return this;
 	}
@@ -126,13 +112,7 @@ public class Setting extends Node {
 	}
 
 	public SettingOption getOption( String value ) {
-		for( SettingOption option : getOptions() ) {
-			if( option.getOptionValue().equals( value ) ) {
-				return option;
-			}
-		}
-
-		return null;
+		return getOptions().stream().filter( o -> Objects.equals( o.getOptionValue(), value ) ).findFirst().orElse( null );
 	}
 
 	public List<SettingOption> getOptions() {
@@ -152,28 +132,19 @@ public class Setting extends Node {
 		options.add( option );
 	}
 
-	public List<SettingDependency> getDependencies() {
-		return Collections.unmodifiableList( getValue( DEPENDENCIES ) );
-	}
-
-	public void addDependency( SettingDependency dependency ) {
-		List<SettingDependency> dependencies = getValue( DEPENDENCIES );
-		dependencies.add( dependency );
-	}
-
 	public Settings getSettings() {
-		return settings;
+		return getGroup().getSettings();
 	}
 
 	public String getBundleKey() {
-		return getBundleKey( getKey() );
+		return getBundleKey( getId(), getKey() );
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		String key = getValue( KEY );
+		String key = getValue( RBKEY );
 		builder.append( key );
 		builder.append( ":" );
 
@@ -184,10 +155,12 @@ public class Setting extends Node {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String key ) {
-		if( key == null ) return null;
-		if( key.startsWith( "/" ) ) key = key.substring( 1 );
-		return key.replace( '/', '-' );
+	private static String getBundleKey( String id, String key ) {
+		String localKey = key;
+		if( localKey == null ) localKey = id;
+		if( localKey == null ) return null;
+		if( localKey.startsWith( "/" ) ) localKey = localKey.substring( 1 );
+		return localKey.replace( '/', '-' );
 	}
 
 }

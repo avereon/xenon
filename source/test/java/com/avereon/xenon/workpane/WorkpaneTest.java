@@ -8,8 +8,19 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WorkpaneTest extends WorkpaneTestCase {
+
+	@Test
+	void testAddToolAllocateCheck() {
+		MockTool tool = new MockTool( asset );
+		tool.setWorkpane( workpane );
+		workpane.addTool( tool, false );
+		assertTrue( workpane.getTools().contains( tool ) );
+		assertTrue( tool.canFindSelfFromWorkpane() );
+		assertTrue( tool.canFindWorkpaneFromSelf() );
+	}
 
 	@Test
 	void testAddRemoveToolEvents() {

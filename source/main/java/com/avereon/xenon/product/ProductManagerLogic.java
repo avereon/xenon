@@ -3,6 +3,7 @@ package com.avereon.xenon.product;
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
+import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
@@ -10,12 +11,12 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.task.chain.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -70,7 +71,7 @@ public class ProductManagerLogic {
 		// TODO The force parameter just means to refresh the cache
 
 		return TaskChain
-			.init( this::startEnabledCatalogCardDownloads )
+			.of( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
 			.link( this::startAllProductCardDownloadTasks )
 			.link( this::collectProductCardDownloads )
@@ -115,7 +116,7 @@ public class ProductManagerLogic {
 	@Asynchronous
 	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<DownloadRequest> requests, boolean interactive ) {
 		return TaskChain
-			.init( () -> startResourceDownloads( requests ) )
+			.of( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
@@ -125,10 +126,10 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> requests ) {
-		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-install-selected" );
+		String name = Rb.text( BundleKey.UPDATE, "task-products-install-selected" );
 
 		return TaskChain
-			.init( () -> startResourceDownloads( requests ) )
+			.of( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( name, this::installProductUpdates )
@@ -137,10 +138,10 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Void> uninstallProducts( Set<ProductCard> products ) {
-		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
+		String name = Rb.text( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
 		return TaskChain
-			.init( () -> doUninstallProducts( products ) )
+			.of( () -> doUninstallProducts( products ) )
 			.link( name, ( removedProducts ) -> getProgram().getProductManager().saveRemovedProducts( removedProducts ) )
 			.run( getProgram() );
 	}
@@ -148,7 +149,7 @@ public class ProductManagerLogic {
 	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( boolean force ) {
 		Map<String, ProductCard> installedProducts = getProgram().getProductManager().getInstalledProductCardsMap();
 		return TaskChain
-			.init( () -> initFindPostedUpdates( force ) )
+			.of( () -> initFindPostedUpdates( force ) )
 			.link( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
 			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, installedProducts.values() ) )
@@ -322,7 +323,7 @@ public class ProductManagerLogic {
 	private void stageUpdates( Set<DownloadRequest> updates ) {
 		try {
 			TaskChain
-				.init( () -> startResourceDownloads( updates ) )
+				.of( () -> startResourceDownloads( updates ) )
 				.link( this::startProductResourceCollectors )
 				.link( this::collectProductUpdates )
 				.link( this::stageProductUpdates )
@@ -333,7 +334,7 @@ public class ProductManagerLogic {
 	}
 
 	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> requests ) {
-		Path stageFolder = getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
+		Path stageFolder = program.getProductManager().getUpdatesFolder();
 
 		log.log( Log.DEBUG, "Number of packs to stage: " + requests.size() );
 		log.log( Log.TRACE, "Pack stage folder: " + stageFolder );
@@ -373,7 +374,7 @@ public class ProductManagerLogic {
 		private final DownloadRequest request;
 
 		private DownloadProductResourceTask( RepoState repo, DownloadRequest request ) {
-			setName( getProgram().rb().text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
+			setName( Rb.text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
 			this.repo = repo;
 			this.request = request;
 		}
@@ -539,7 +540,7 @@ public class ProductManagerLogic {
 			}
 
 			// Verify the product is installed
-			String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
+			String title = Rb.text( BundleKey.UPDATE, "updates" );
 			Path installFolder = getProgram().getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
 			if( installFolder == null ) {
 				// This situation happens in development when running a mod from the classpath
@@ -622,28 +623,28 @@ public class ProductManagerLogic {
 	// Utility methods -----------------------------------------------------------
 
 	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
-		String updatesNotAvailable = getProgram().rb().text( BundleKey.UPDATE, "updates-not-available" );
-		String updatesCannotConnect = getProgram().rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String updatesNotAvailable = Rb.text( BundleKey.UPDATE, "updates-not-available" );
+		String updatesCannotConnect = Rb.text( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
+		Fx.run( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
 	private void openProductTool() {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
-		Platform.runLater( () -> getProgram().getAssetManager().openAsset( uri ) );
+		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
 		if( updates.size() == 0 ) return;
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates-found" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "updates-found-review" );
+		String title = Rb.text( BundleKey.UPDATE, "updates-found" );
+		String message = Rb.text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
-		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( notice ) );
+		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -656,28 +657,28 @@ public class ProductManagerLogic {
 
 	void notifyUpdatesReadyToApply( boolean interactive ) {
 		if( interactive ) {
-			Platform.runLater( this::showAlert );
+			Fx.run( this::showAlert );
 		} else {
-			Platform.runLater( this::showNotice );
+			Fx.run( this::showNotice );
 		}
 	}
 
 	private void showNotice() {
-		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
+		String header = Rb.text( BundleKey.UPDATE, "restart-required" );
+		String message = Rb.text( BundleKey.UPDATE, "restart-recommended-notice" );
 
-		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
+		Notice notice = new Notice( header, message, () -> Fx.run( this::showAlert ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		getProgram().getNoticeManager().addNotice( notice );
 	}
 
 	private void showAlert() {
-		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
-		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-alert" );
+		String title = Rb.text( BundleKey.UPDATE, "updates" );
+		String header = Rb.text( BundleKey.UPDATE, "restart-required" );
+		String message = Rb.text( BundleKey.UPDATE, "restart-recommended-alert" );
 
-		ButtonType discard = new ButtonType( getProgram().rb().text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		ButtonType discard = new ButtonType( Rb.text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( getProgram().getIconLibrary().getIcon( "update", 64 ) );
 		alert.setTitle( title );

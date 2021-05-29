@@ -32,7 +32,7 @@ public class ProgramAboutType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) {
+	public boolean assetOpen( Program program, Asset asset ) {
 		// Arguably "the program" is the asset model for the about data type. But
 		// that is a pretty big model. Not only that but the about tool needs to
 		// watch for changes in several things as well as things that do not

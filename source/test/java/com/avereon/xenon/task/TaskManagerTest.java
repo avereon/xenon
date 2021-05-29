@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
 
+	private static final int GET_TASK_TIMEOUT = 500;
+
 	private TaskManager manager;
 
 	private TaskWatcher watcher;
@@ -214,7 +216,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
-		assertThat( task.get( 100, TimeUnit.MILLISECONDS ), is( result ) );
+		assertThat( task.get( GET_TASK_TIMEOUT, TimeUnit.MILLISECONDS ), is( result ) );
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
@@ -237,14 +239,14 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager.submit( task );
 
 		// Check the parent task.
-		task.get( 100, TimeUnit.MILLISECONDS );
+		task.get( GET_TASK_TIMEOUT, TimeUnit.MILLISECONDS );
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 
 		// Check the nested task.
 		try {
-			assertThat( nestedTask.get( 100, TimeUnit.MILLISECONDS ), is( nullValue() ) );
+			assertThat( nestedTask.get( GET_TASK_TIMEOUT, TimeUnit.MILLISECONDS ), is( nullValue() ) );
 			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );

@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
@@ -42,8 +43,8 @@ public class NewAssetTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( BundleKey.TOOL, "asset-name" ) );
-		setGraphic( getProgram().getIconLibrary().getIcon( getProduct().rb().text( BundleKey.TOOL, "asset-icon" ) ) );
+		setTitle( Rb.text( BundleKey.TOOL, "asset-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( Rb.text( BundleKey.TOOL, "asset-icon" ) ) );
 	}
 
 	@Override

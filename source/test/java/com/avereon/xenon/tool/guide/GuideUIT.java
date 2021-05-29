@@ -1,8 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.FxProgramUIT;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class GuideUIT extends FxProgramUIT {
 
@@ -22,24 +22,64 @@ public class GuideUIT extends FxProgramUIT {
 	}
 
 	@Test
+	void testNodeAddRemove() throws Exception {
+		Guide guide = new Guide();
+		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
+
+		GuideNode node = new GuideNode( program, "test", "Test" );
+		guide.addNode( node );
+		Fx.waitForWithInterrupt( TIMEOUT );
+		assertThat( guide.getRoot().getChildren().get( 0 ), is( node.getTreeItem() ) );
+		assertThat( guide.getRoot().getChildren().size(), is( 1 ) );
+
+		guide.removeNode( node );
+		Fx.waitForWithInterrupt( TIMEOUT );
+		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
+	}
+
+	@Test
+	void testNodeAddRemoveChild() throws Exception {
+		Guide guide = new Guide();
+		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
+
+		GuideNode parent = new GuideNode( program, "parent", "Parent" );
+		GuideNode child = new GuideNode( program, "child", "Child" );
+		guide.addNode( parent );
+		guide.addNode( parent, child );
+		Fx.waitForWithInterrupt( TIMEOUT );
+		assertThat( guide.getRoot().getChildren().get( 0 ), is( parent.getTreeItem() ) );
+		assertThat( guide.getRoot().getChildren().size(), is( 1 ) );
+		assertThat( parent.getTreeItem().getChildren().get( 0 ), is( child.getTreeItem() ) );
+		assertThat( parent.getTreeItem().getChildren().size(), is( 1 ) );
+
+		guide.removeNode( child );
+		Fx.waitForWithInterrupt( TIMEOUT );
+		assertThat( parent.getTreeItem().getChildren().size(), is( 0 ) );
+
+		guide.removeNode( parent );
+		Fx.waitForWithInterrupt( TIMEOUT );
+		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
+	}
+
+	@Test
 	void testSetSelectedItems() throws Exception {
-		Platform.runLater( () -> guide.setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( 1000 );
+		Fx.run( () -> guide.setSelectedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWait( 1000 );
+		Fx.run( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
 	void testSetExpandedItems() throws Exception {
-		Platform.runLater( () -> guide.setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( 1000 );
+		Fx.run( () -> guide.setExpandedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWait( 1000 );
+		Fx.run( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 

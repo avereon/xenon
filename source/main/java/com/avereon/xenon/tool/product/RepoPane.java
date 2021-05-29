@@ -7,19 +7,20 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.Task;
+import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.ToggleSwitch;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.Objects;
 
-class RepoPane extends MigPane {
+class RepoPane extends GridPane {
 
 	private ProductTool productTool;
 
@@ -50,7 +51,8 @@ class RepoPane extends MigPane {
 	private HBox urlBox;
 
 	public RepoPane( ProductTool productTool, RepoPage page, RepoState source ) {
-		super( "insets 0, gap " + UiFactory.PAD );
+		setHgap( UiFactory.PAD );
+		setVgap( UiFactory.PAD );
 
 		this.productTool = productTool;
 		this.page = page;
@@ -100,16 +102,22 @@ class RepoPane extends MigPane {
 
 		enableSwitch = new ToggleSwitch();
 		enableSwitch.setSelected( source.isEnabled() );
-		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled(newValue) );
+		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled( newValue ) );
 
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
 		removeButton.setOnAction( ( event ) -> removeRepo() );
 
-		add( iconLabel, "spany, aligny center" );
-		add( nameBox, "growx, pushx" );
-		add( enableSwitch, "w min" );
-		add( urlBox, "newline, growx" );
-		add( removeButton );
+		GridPane.setRowSpan( iconLabel, 2 );
+		GridPane.setHgrow( nameBox, Priority.ALWAYS );
+		GridPane.setHalignment( enableSwitch, HPos.RIGHT );
+		GridPane.setHgrow( urlBox, Priority.ALWAYS );
+		GridPane.setHalignment( removeButton, HPos.RIGHT );
+
+		add( iconLabel, 0, 0 );
+		add( nameBox, 1, 0 );
+		add( enableSwitch, 2, 0 );
+		add( urlBox, 1, 1 );
+		add( removeButton, 2, 1 );
 	}
 
 	private RepoCard getSource() {
@@ -186,7 +194,7 @@ class RepoPane extends MigPane {
 				productTool.getProgram().getProductManager().removeRepo( source );
 				page.updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN,  "Error removing repository", exception );
+				ProductTool.log.log( Log.WARN, "Error removing repository", exception );
 			}
 		} ) );
 	}

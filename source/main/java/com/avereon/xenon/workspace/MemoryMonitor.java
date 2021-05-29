@@ -1,13 +1,10 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.util.FileUtil;
-import com.avereon.xenon.util.Lambda;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
 
 import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class MemoryMonitor extends AbstractMonitor {
 
@@ -33,12 +30,6 @@ public class MemoryMonitor extends AbstractMonitor {
 
 	private Label label;
 
-	static {
-		monitors = new CopyOnWriteArraySet<>();
-		Timer timer = new Timer( "Memory Monitor Timer", true );
-		timer.schedule( Lambda.timerTask( MemoryMonitor::updateAll ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
-	}
-
 	public MemoryMonitor() {
 		getStyleClass().add( "memory-monitor" );
 
@@ -55,9 +46,6 @@ public class MemoryMonitor extends AbstractMonitor {
 
 		getChildren().addAll( memoryAllocated, memoryUsed, label );
 		update();
-
-		monitors.add( this );
-
 	}
 
 	public boolean isTextVisible() {
@@ -76,10 +64,6 @@ public class MemoryMonitor extends AbstractMonitor {
 	public void setShowPercent( boolean showPercent ) {
 		this.showPercent = showPercent;
 		update();
-	}
-
-	public void close() {
-		monitors.remove( this );
 	}
 
 	@Override
@@ -130,12 +114,6 @@ public class MemoryMonitor extends AbstractMonitor {
 
 		this.label.setText( text.toString() );
 		requestLayout();
-	}
-
-	private static void updateAll() {
-		for( MemoryMonitor monitor : monitors ) {
-			monitor.requestUpdate();
-		}
 	}
 
 }

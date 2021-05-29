@@ -1,12 +1,14 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.data.Node;
-import com.avereon.product.Product;
+import com.avereon.settings.Settings;
+import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.ProgramProduct;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,7 +28,15 @@ public class SettingsPage extends Node {
 
 	private static final String SETTINGS = "settings";
 
-	public SettingsPage() {
+	private final SettingsPage page;
+
+	private String bundleKey = BundleKey.SETTINGS;
+
+	private Map<String, SettingOptionProvider> optionProviders;
+
+	public SettingsPage( SettingsPage page ) {
+		this.page = page;
+
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
 		setValue( PAGES, new ConcurrentHashMap<>() );
 
@@ -60,6 +70,13 @@ public class SettingsPage extends Node {
 		setValue( TITLE, title );
 	}
 
+	public SettingGroup getGroup( String id ) {
+		for( SettingGroup group : getGroups() ) {
+			if( group.getId().equals( id ) ) return group;
+		}
+		return null;
+	}
+
 	public List<SettingGroup> getGroups() {
 		return Collections.unmodifiableList( getValue( GROUPS ) );
 	}
@@ -78,20 +95,37 @@ public class SettingsPage extends Node {
 		pages.put( page.getId(), page );
 	}
 
-	public Product getProduct() {
+	public ProgramProduct getProduct() {
 		return getValue( PRODUCT );
 	}
 
-	public void setProduct( Product product ) {
+	public void setProduct( ProgramProduct product ) {
 		setValue( PRODUCT, product );
 	}
 
 	public Settings getSettings() {
+		if( page != null ) return page.getSettings();
 		return getValue( SETTINGS );
 	}
 
 	public void setSettings( Settings settings ) {
 		setValue( SETTINGS, settings );
+	}
+
+	public String getBundleKey() {
+		return bundleKey;
+	}
+
+	public void setBundleKey( String bundleKey ) {
+		this.bundleKey = bundleKey;
+	}
+
+	public Map<String, SettingOptionProvider> getOptionProviders() {
+		return Optional.ofNullable( optionProviders ).orElse( Map.of() );
+	}
+
+	public void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
 	}
 
 }

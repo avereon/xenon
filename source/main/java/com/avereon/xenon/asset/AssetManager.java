@@ -1,20 +1,21 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
-import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.zerra.event.FxEventHub;
 import javafx.event.ActionEvent;
+import javafx.geometry.Side;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -34,6 +35,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
 
+	public static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
+
+	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
+
 	private static final Logger log = Log.get();
 
 	private final Program program;
@@ -49,6 +54,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	private final Map<String, AssetType> assetTypes;
 
 	private final Map<Codec.Pattern, Map<String, Set<Codec>>> registeredCodecs;
+
+	private final DelayedAction autosave;
 
 	private final FxEventHub eventBus;
 
@@ -70,6 +77,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final CurrentAssetWatcher currentAssetWatcher;
 
+	private final GeneralAssetWatcher generalAssetWatcher;
+
 	private final Object currentAssetLock = new Object();
 
 	private boolean running;
@@ -82,8 +91,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
 
+		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
+		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
+		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
 		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
+		generalAssetWatcher = new GeneralAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
@@ -116,6 +129,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
 
+		program.getSettings().register( "autosave-trigger-min", e -> autosave.setMinTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
+		program.getSettings().register( "autosave-trigger-max", e -> autosave.setMaxTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
+
 		running = true;
 
 		return this;
@@ -141,7 +157,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public void setCurrentAsset( Asset asset ) {
-		if( asset != null && asset.getUri().equals( ProgramGuideType.URI ) ) return;
 		program.getTaskManager().submit( new SetCurrentAssetTask( asset ) );
 	}
 
@@ -149,16 +164,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getTaskManager().submit( new SetCurrentAssetTask( asset ) ).get();
 	}
 
-	public List<Asset> getOpenAssets() {
-		return new ArrayList<>( openAssets );
+	public Set<Asset> getOpenAssets() {
+		return new HashSet<>( openAssets );
 	}
 
-	public List<Asset> getModifiedAssets() {
-		List<Asset> modifiedAssets = new ArrayList<>();
-		for( Asset asset : getOpenAssets() ) {
-			if( asset.isModified() && canSaveAsset( asset ) ) modifiedAssets.add( asset );
-		}
-		return modifiedAssets;
+	public Set<Asset> getModifiedAssets() {
+		return getOpenAssets().stream().filter( Asset::isModified ).collect( Collectors.toSet() );
 	}
 
 	Set<AssetType> getUserAssetTypes() {
@@ -171,11 +182,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of externally modified assets
 	 */
 	public Set<Asset> getExternallyModifiedAssets() {
-		Set<Asset> externallyModifiedAssets = new HashSet<>();
-		for( Asset asset : getOpenAssets() ) {
-			if( asset.isExternallyModified() ) externallyModifiedAssets.add( asset );
-		}
-		return Collections.unmodifiableSet( externallyModifiedAssets );
+		return getOpenAssets().stream().filter( Asset::isExternallyModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -366,47 +373,49 @@ public class AssetManager implements Controllable<AssetManager> {
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
 	public Future<ProgramTool> openAsset( URI uri ) {
 		return openAsset( uri, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
+		return openAsset( uri, model, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
+		return openAsset( uri, null, null, openTool, setActive );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
+		return openAsset( uri, null, view, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
+		if( side != null ) view = view.getWorkpane().split( view, side );
+		return openAsset( uri, null, view, true, true );
+	}
+
+	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
-		request.setView( null );
-		request.setOpenTool( true );
-		request.setSetActive( true );
+		request.setView( view );
+		request.setOpenTool( openTool );
+		request.setSetActive( setActive );
 		request.setModel( model );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
+		return openAsset( asset, view, null );
 	}
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	private List<Future<ProgramTool>> openAsset( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
-		List<Future<ProgramTool>> futures = new ArrayList<>( uris.size() );
-
-		for( URI uri : uris ) {
-			OpenAssetRequest request = new OpenAssetRequest();
-			request.setUri( uri );
-			request.setView( view );
-			request.setOpenTool( openTool );
-			request.setSetActive( setActive );
-			futures.add( program.getTaskManager().submit( new NewOrOpenAssetTask( request ) ) );
-			setActive = false;
-		}
-
-		return futures;
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side ) {
+		if( side != null ) view = view.getWorkpane().split( view, side );
+		OpenAssetRequest request = new OpenAssetRequest();
+		request.setAsset( asset );
+		request.setView( view );
+		request.setOpenTool( true );
+		request.setSetActive( true );
+		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	/**
@@ -564,9 +573,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	public void close( Asset asset ) {
 		if( asset.isModified() && canSaveAsset( asset ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-			alert.setTitle( program.rb().text( BundleKey.ASSET, "close-save-title" ) );
-			alert.setHeaderText( program.rb().text( BundleKey.ASSET, "close-save-message" ) );
-			alert.setContentText( program.rb().text( BundleKey.ASSET, "close-save-prompt" ) );
+			alert.setTitle( Rb.text( BundleKey.ASSET, "close-save-title" ) );
+			alert.setHeaderText( Rb.text( BundleKey.ASSET, "close-save-message" ) );
+			alert.setContentText( Rb.text( BundleKey.ASSET, "close-save-prompt" ) );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -600,8 +609,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		URI uri = UriUtil.resolve( string );
 
 		if( uri == null ) {
-			String title = program.rb().text( "asset", "assets" );
-			String message = program.rb().text( "program", "asset-unable-to-resolve" );
+			String title = Rb.text( "asset", "assets" );
+			String message = Rb.text( "program", "asset-unable-to-resolve" );
 			program.getNoticeManager().warning( title, message, string );
 			return null;
 		}
@@ -765,7 +774,17 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Request that the specified assets be saved. This method submits a task to the task manager and returns immediately.
+	 * Request that all modified assets be saved. This method submits a task to
+	 * the task manager and returns immediately.
+	 */
+	public void saveAll() {
+		saveAssets( getModifiedAssets() );
+		autosave.reset();
+	}
+
+	/**
+	 * Request that the specified assets be saved. This method submits a task to
+	 * the task manager and returns immediately.
 	 *
 	 * @param asset The asset to save
 	 */
@@ -1061,8 +1080,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset
-		if( !type.callAssetInit( program, asset ) ) return false;
+		if( !type.callAssetOpen( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
+
+		// Register the general asset listener
+		asset.register( AssetEvent.ANY, generalAssetWatcher );
 
 		// Open the asset
 		asset.open( this );
@@ -1090,7 +1112,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.log( Log.TRACE, "Asset loaded: " + asset );
 
 		updateActionState();
@@ -1120,7 +1141,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) return false;
 		if( !isManagedAssetOpen( asset ) ) return false;
 
+		// Close the asset
 		asset.close( this );
+
+		// Unregister the general asset listener
+		asset.unregister( AssetEvent.ANY, generalAssetWatcher );
+
+		// Remove the asset from the list of open assets
 		openAssets.remove( asset );
 		identifiedAssets.remove( asset.getUri() );
 
@@ -1145,8 +1172,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// "Disconnect" the old current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
-				currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().unregister( AssetEvent.ANY, currentAssetWatcher );
 			}
 
 			// Change current asset
@@ -1154,8 +1181,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// "Connect" the new current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().register( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
 
 			// Notify program of current asset change
@@ -1192,8 +1219,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			// Create and configure the asset
-			Asset asset = createAsset( request.getType(), request.getUri() );
-			request.setAsset( asset );
+			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
+			Asset asset = request.getAsset();
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
 			if( model != null ) asset.setModel( model );
@@ -1207,15 +1234,15 @@ public class AssetManager implements Controllable<AssetManager> {
 			ProgramTool tool;
 			try {
 				// If the asset is new get user input from the asset type.
-				//if( asset.isNew() ) {
-				if( !asset.getType().callAssetUser( program, asset ) ) return null;
-				log.log( Log.TRACE, "Asset initialized with user values." );
-				//}
+				if( asset.isNew() ) {
+					if( !asset.getType().callAssetNew( program, asset ) ) return null;
+					log.log( Log.TRACE, "Asset initialized with user values." );
+				}
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
 			} catch( NoToolRegisteredException exception ) {
-				String title = program.rb().text( "program", "no-tool-for-asset-title" );
-				String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
+				String title = Rb.text( "program", "no-tool-for-asset-title" );
+				String message = Rb.text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
 				program.getNoticeManager().warning( title, message, asset.getName() );
 				return null;
 			}
@@ -1281,13 +1308,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveActionHandler extends Action {
 
-		private final boolean saveAs;
-
 		private final boolean copy;
 
 		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
 			super( program );
-			this.saveAs = saveAs;
 			this.copy = copy;
 		}
 
@@ -1298,7 +1322,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			if( saveAs ) openAsset( ProgramAssetChooserType.SAVE_URI );
 			saveAsset( getCurrentAsset() );
 		}
 
@@ -1318,7 +1341,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public void handle( ActionEvent event ) {
 			try {
-				saveAssets( getModifiedAssets() );
+				autosave.trigger();
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, exception );
 			}
@@ -1403,7 +1426,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				for( Throwable throwable : throwables.keySet() ) {
 					String errorName = throwable.getClass().getSimpleName();
 					String taskName = getClass().getSimpleName();
-					String message = program.rb().text( "program", "task-error-message", errorName, taskName );
+					String message = Rb.text( "program", "task-error-message", errorName, taskName );
 					if( TestUtil.isTest() ) throwable.printStackTrace( System.err );
 					log.log( Log.WARN, message, throwable );
 				}
@@ -1492,8 +1515,18 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
+			//System.err.println( "asset event=" + event );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
+		}
+
+	}
+
+	private class GeneralAssetWatcher implements EventHandler<AssetEvent> {
+
+		@Override
+		public void handle( AssetEvent event ) {
+			autosave.update();
 		}
 
 	}

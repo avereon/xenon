@@ -1,40 +1,44 @@
 package com.avereon.xenon.tool.settings.editor;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.util.List;
 
-public class ComboBoxSettingEditor extends SettingEditor implements ChangeListener<SettingOption> {
-
-	private Label label;
+public class ComboBoxSettingEditor extends SettingEditor {
 
 	private ComboBox<SettingOption> combobox;
 
-	public ComboBoxSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	private List<Node> nodes;
+
+	public ComboBoxSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key );
+		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		Label label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		List<SettingOption> options = setting.getOptions();
 		combobox = new ComboBox<>();
 		combobox.getItems().addAll( options );
 		combobox.setMaxWidth( Double.MAX_VALUE );
+
+		nodes = List.of( label, combobox );
 
 		SettingOption selected = setting.getOption( value );
 		if( selected == null ) {
@@ -44,43 +48,32 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		}
 
 		// Add the change handlers
-		combobox.valueProperty().addListener( this );
+		combobox.valueProperty().addListener( this::doComboBoxValueChanged );
 
 		// Set component state
 		setDisable( setting.isDisable() );
 		setVisible( setting.isVisible() );
 
 		// Add the components
-		GridPane.setHgrow( combobox, Priority.ALWAYS );
 		pane.addRow( row, label, combobox );
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		combobox.setDisable( disable );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		combobox.setVisible( visible );
-	}
-
-	// Selection change listener
-	@Override
-	public void changed( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
-		setting.getSettings().set( setting.getKey(), newValue.getOptionValue() );
-	}
-
-	// Setting listener
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) {
 			Object newValue = event.getNewValue();
 			SettingOption option = setting.getOption( newValue == null ? null : newValue.toString() );
 			combobox.getSelectionModel().select( option );
 		}
+	}
+
+	private void doComboBoxValueChanged( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
+		setting.getSettings().set( setting.getKey(), newValue == null ? null : newValue.getOptionValue() );
 	}
 
 }

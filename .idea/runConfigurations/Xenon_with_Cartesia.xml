@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Xenon with Cartesia" type="Application" factoryName="Application" singleton="true">
+    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
+    <module name="carta" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.carta" />
+    <option name="VM_PARAMETERS" value="-Duser.language=en" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../carta" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

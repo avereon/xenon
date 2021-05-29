@@ -1,11 +1,10 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.event.Event;
 import com.avereon.event.EventType;
 
 public class AssetSwitchedEvent extends AssetEvent {
 
-	public static final EventType<AssetSwitchedEvent> ASSET_SWITCHED = new EventType<>( Event.ANY, "CURRENT_ASSET" );
+	public static final EventType<AssetSwitchedEvent> ASSET_SWITCHED = new EventType<>( AssetEvent.ANY, "CURRENT_ASSET" );
 
 	public static final EventType<AssetSwitchedEvent> ANY = ASSET_SWITCHED;
 

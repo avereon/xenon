@@ -1,5 +1,6 @@
 package com.avereon.xenon.action;
 
+import com.avereon.product.Rb;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramScope;
@@ -31,9 +32,9 @@ public class CloseWorkareaAction extends Action {
 		if( !getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.WORKAREA, workarea.getModifiedAssets() ) ) return;
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
-		alert.setTitle( getProgram().rb().text( "workarea", "workarea-close-title" ) );
-		alert.setHeaderText( getProgram().rb().text( "workarea", "workarea-close-message" ) );
-		alert.setContentText( getProgram().rb().text( "workarea", "workarea-close-prompt", workarea.getName() ) );
+		alert.setTitle( Rb.text( "workarea", "workarea-close-title" ) );
+		alert.setHeaderText( Rb.text( "workarea", "workarea-close-message" ) );
+		alert.setContentText( Rb.text( "workarea", "workarea-close-prompt", workarea.getName() ) );
 
 		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );

@@ -144,6 +144,10 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return super.toString() + ": " + getName();
 	}
 
+	public static <N> Task<N> of( Callable<N> callable ) {
+		return of( callable.getClass().getSimpleName() + "-Task", callable );
+	}
+
 	public static <N> Task<N> of( String name, Callable<N> callable ) {
 		if( callable == null ) throw new NullPointerException( "Callable cannot be null" );
 		return new Task<>( name ) {
@@ -154,6 +158,10 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 			}
 
 		};
+	}
+
+	public static Task<?> of( Runnable runnable ) {
+		return of( runnable.getClass().getSimpleName() + "-Task", runnable );
 	}
 
 	public static Task<?> of( String name, Runnable runnable ) {
@@ -292,7 +300,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		}
 	}
 
-	private TaskManager getTaskManager() {
+	protected TaskManager getTaskManager() {
 		return manager;
 	}
 
