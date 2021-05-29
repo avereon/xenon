@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.1.0-SNAPSHOT</version>
+		<version>3.1.0</version>
 		<relativePath/>
 	</parent>
 
@@ -17,7 +17,7 @@
 	<artifactId>xenon</artifactId>
 	<!-- To do a release, merge to the stage branch, update the version and then merge to the stable branch -->
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.4-SNAPSHOT</version>
+	<version>1.4</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
