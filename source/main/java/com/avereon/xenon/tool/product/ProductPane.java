@@ -116,7 +116,6 @@ class ProductPane extends GridPane {
 
 		stateContainer = new HBox( stateLabel );
 
-		// FIXME Need to squish hidden things on a row
 		GridPane.setRowSpan( iconLabel, 2 );
 		GridPane.setHgrow( providerLabel, Priority.ALWAYS );
 		GridPane.setHalignment( stateContainer, HPos.RIGHT );
