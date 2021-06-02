@@ -16,12 +16,12 @@ import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
 
@@ -115,14 +115,19 @@ class ProductPane extends GridPane {
 		actionButton2 = new Button( "" );
 
 		stateContainer = new HBox( stateLabel );
+		stateContainer.setAlignment( Pos.CENTER_RIGHT );
 
 		GridPane.setRowSpan( iconLabel, 2 );
 		GridPane.setHgrow( providerLabel, Priority.ALWAYS );
 		GridPane.setHalignment( stateContainer, HPos.RIGHT );
+		GridPane.setHalignment( enableSwitch, HPos.RIGHT );
+		GridPane.setHalignment( actionButton1, HPos.RIGHT );
+
 		GridPane.setColumnSpan( summaryLabel, 4 );
+		GridPane.setHgrow( summaryLabel, Priority.ALWAYS );
 		GridPane.setHalignment( versionLabel, HPos.RIGHT );
-		stateLabel.setTextAlignment( TextAlignment.RIGHT );
-		versionLabel.setTextAlignment( TextAlignment.RIGHT );
+		GridPane.setHalignment( actionButton2, HPos.RIGHT );
+
 		add( iconLabel, 0, 0 );
 		add( nameLabel, 1, 0 );
 		add( hyphenLabel, 2, 0 );
@@ -130,10 +135,11 @@ class ProductPane extends GridPane {
 		add( sizeLabel, 4, 0 );
 		add( stateContainer, 5, 0 );
 		add( enableSwitch, 6, 0 );
-		add( actionButton1, 7, 0 );
+		add( actionButton1, 6, 0 );
+
 		add( summaryLabel, 1, 1 );
-		add( versionLabel, 6, 1 );
-		add( actionButton2, 7, 1 );
+		add( versionLabel, 5, 1 );
+		add( actionButton2, 6, 1 );
 	}
 
 	public ProductCard getSource() {
