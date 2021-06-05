@@ -1047,7 +1047,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
-			asset = new Asset( uri, type );
+			asset = new Asset( type, uri );
 			resolveScheme( asset );
 			identifiedAssets.put( uri, asset );
 			asset.setIcon( asset.isFolder() ? "folder" : "file" );

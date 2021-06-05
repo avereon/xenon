@@ -4,6 +4,7 @@ import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
@@ -84,15 +85,20 @@ public class Asset extends Node {
 	//private volatile boolean ready;
 
 	public Asset( URI uri ) {
-		this( uri, null );
+		this( null, uri );
 	}
 
 	// Testing only
 	public Asset( String uri ) {
-		this( java.net.URI.create( uri ), null );
+		this( null, java.net.URI.create( uri ) );
 	}
 
-	public Asset( URI uri, AssetType type ) {
+	public Asset( AssetType type ) {
+		this( type, null );
+	}
+
+	public Asset( AssetType type, URI uri ) {
+		if( uri == null ) uri = java.net.URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
