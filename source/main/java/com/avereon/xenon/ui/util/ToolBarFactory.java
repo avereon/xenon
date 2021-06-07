@@ -4,12 +4,10 @@ import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
@@ -83,15 +81,16 @@ public class ToolBarFactory extends BarFactory {
 
 	private static void doToggleTrayDialog( Button button, Popup popup, ToolBar tray ) {
 		if( !popup.isShowing() ) {
-			Bounds buttonBounds = FxUtil.localToParent( tray.getItems().get( 0 ), button );
+			// Initially show the tray off screen so it can be laid out before the tray offset is calculated
+			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
 
-			double buffer = ((Control)tray.getItems().get( 0 )).getPadding().getLeft();
+			// Calculate offset after the tray is shown so the tray
+			double offset = FxUtil.localToParent( tray.getItems().get( 0 ), button ).getMinX();
+			Point2D anchor = button.localToScreen( new Point2D( -offset, button.getHeight() ) );
 
-			// NEXT Figure out this offset
-			Point2D anchor = button.localToScreen( new Point2D( 0, button.getHeight() ) );
-			popup.setX( anchor.getX() - buffer );
+			// Move the popup to the correct location
+			popup.setX( anchor.getX() );
 			popup.setY( anchor.getY() );
-			popup.show( button.getScene().getWindow() );
 		} else {
 			popup.hide();
 		}
