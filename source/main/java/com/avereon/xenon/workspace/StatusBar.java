@@ -14,22 +14,36 @@ public class StatusBar extends BorderPane {
 
 	private final HBox rightStatusBarItems;
 
+	private final HBox leftToolStatusItems;
+
+	private final HBox rightToolStatusItems;
+
 	public StatusBar() {
 		getStyleClass().addAll( "status-bar" );
 
 		leftStatusBarItems = new HBox();
 		leftStatusBarItems.getStyleClass().addAll( "box" );
 
+		leftToolStatusItems = new HBox();
+
+		rightToolStatusItems = new HBox();
+
 		rightStatusBarItems = new HBox();
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
 		setLeft( leftStatusBarItems );
+		setCenter( new BorderPane( null, null, rightToolStatusItems, null, leftToolStatusItems ) );
 		setRight( rightStatusBarItems );
 	}
 
-	public void setLeftItems( Node... nodes ) {
-		leftStatusBarItems.getChildren().clear();
-		addLeftItems( nodes );
+	public void setLeftToolItems( Node... nodes ) {
+		leftToolStatusItems.getChildren().clear();
+		leftToolStatusItems.getChildren().addAll( nodes );
+	}
+
+	public void setRightToolItems( Node... nodes ) {
+		rightToolStatusItems.getChildren().clear();
+		rightToolStatusItems.getChildren().addAll( nodes );
 	}
 
 	public void addLeftItems( Node... nodes ) {
@@ -40,15 +54,10 @@ public class StatusBar extends BorderPane {
 		leftStatusBarItems.getChildren().removeAll( node );
 	}
 
-	public void setRightItems( Node... nodes ) {
-		rightStatusBarItems.getChildren().clear();
-		addRightItems( nodes );
-	}
-
 	public void addRightItems( Node... nodes ) {
 		List<Node> items = Arrays.asList( nodes );
 		Collections.reverse( items );
-		items.stream().filter( n -> !rightStatusBarItems.getChildren().contains( n ) ).forEach( n -> rightStatusBarItems.getChildren().add(0, n ) );
+		items.stream().filter( n -> !rightStatusBarItems.getChildren().contains( n ) ).forEach( n -> rightStatusBarItems.getChildren().add( 0, n ) );
 	}
 
 	public void removeRightItems( Node node ) {
