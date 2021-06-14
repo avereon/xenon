@@ -368,7 +368,7 @@ public class Program extends Application implements ProgramProduct {
 		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
-		this.card.jsonCard( this );
+		ProductCard.card( this );
 
 		Fx.run( () -> splashScreen.update() );
 

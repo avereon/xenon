@@ -51,7 +51,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
-		ProductCard metadata = ProductCard.card( Program.class );
+		ProductCard metadata = ProductCard.info( Program.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
 		if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );

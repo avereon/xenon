@@ -32,7 +32,7 @@ public class InstallerBannerImage extends RenderedImage {
 		setHeight( 180 );
 
 		try {
-			card = new ProductCard().jsonCard( getClass() );
+			card = ProductCard.card( getClass() );
 			providerUrl = new URL( card.getProviderUrl() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();

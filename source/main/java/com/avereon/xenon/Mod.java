@@ -42,7 +42,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	private Map<String, SettingsPage> settingsPages;
 
 	public Mod() {
-		card = new ProductCard().jsonCard( this );
+		card = ProductCard.card( this );
 	}
 
 	@Override
