@@ -7,7 +7,7 @@ class ProgramConfig {
 	private static ProductCard card;
 
 	static ProductCard loadProductCard() {
-		if( card == null ) card = new ProductCard().card( Program.class );
+		if( card == null ) card = ProductCard.card( Program.class );
 		return card;
 	}
 
