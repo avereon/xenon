@@ -300,6 +300,23 @@ public class Program extends Application implements ProgramProduct {
 		getTaskManager().submit( new StartupTask() );
 	}
 
+	public Program initForTesting( com.avereon.util.Parameters parameters ) throws Exception {
+		setProgramParameters( parameters );
+		init();
+		iconLibrary = new IconLibrary( this );
+		actionLibrary = new ActionLibrary( this );
+		ProductCard.card( this );
+		assetManager = new AssetManager( Program.this );
+		assetManager.getEventBus().parent( getFxEventHub() );
+		registerSchemes( assetManager );
+		registerAssetTypes( assetManager );
+		toolManager = new ToolManager( this );
+		themeManager = new ThemeManager( Program.this ).start();
+		workspaceManager = new WorkspaceManager( Program.this ).start();
+		noticeManager = new NoticeManager( Program.this ).start();
+		return this;
+	}
+
 	private class StartupTask extends Task<Void> {
 
 		private StartupTask() {
@@ -678,7 +695,7 @@ public class Program extends Application implements ProgramProduct {
 		return parameters;
 	}
 
-	void setProgramParameters( com.avereon.util.Parameters parameters ) {
+	public void setProgramParameters( com.avereon.util.Parameters parameters ) {
 		this.parameters = parameters;
 	}
 
