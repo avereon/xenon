@@ -1142,7 +1142,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		log.log( Log.TRACE, "Loading standard mod from: " + folder );
 		try {
 			// Load the mod descriptor
-			ProductCard card = ProductCard.info( folder );
+			ProductCard card = ProductCard.card( folder );
 
 			// Obtain the boot module layer
 			ModuleLayer bootLayer = ModuleLayer.boot();
