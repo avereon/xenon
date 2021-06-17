@@ -249,13 +249,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
 
-      - name: Unit Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} test
-
-      #      - name: UI Tests
+      #      - name: Unit Tests
       #        run: |
-      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      #          mvn ${{env.MAVEN_PARMS}} test
+
+      - name: Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -322,13 +322,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
 
-      - name: Unit Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} test
+          #      - name: Unit Tests
+          #        run: |
+          #          mvn ${{env.MAVEN_PARMS}} test
 
-      #      - name: UI Tests
-      #        run: |
-      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      - name: Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -396,13 +396,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
 
-      - name: Unit Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} test
+#      - name: Unit Tests
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} test
 
-      #      - name: UI Tests
-      #        run: |
-      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      - name: Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
