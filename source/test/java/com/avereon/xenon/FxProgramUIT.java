@@ -1,12 +1,13 @@
 package com.avereon.xenon;
 
+import com.avereon.event.EventWatcher;
 import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
-import com.avereon.xenon.workpane.WorkpaneWatcher;
+import com.avereon.zerra.event.FxEventWatcher;
 import com.avereon.zerra.javafx.Fx;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -20,17 +21,19 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected static final int TIMEOUT = 2000;
 
 	protected Program program;
 
-	private ProgramWatcher programWatcher;
+	private EventWatcher programWatcher;
 
 	protected Workpane workpane;
 
-	protected WorkpaneWatcher workpaneWatcher;
+	protected FxEventWatcher workpaneWatcher;
 
 	private long initialMemoryUse;
 
@@ -63,12 +66,26 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
-		program.register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		Fx.waitForWithInterrupt( TIMEOUT );
 
+		//		System.err.println( "Register workspace event watcher..." );
+		//		FxEventWatcher workspaceWatcher = new FxEventWatcher();
+		//		program.register( WorkspaceEvent.ANY, e -> {
+		//			System.err.println( "workspace event=" + e );
+		//		});
+		//		workspaceWatcher.waitForEvent( WorkspaceEvent.ANY, 500 );
+
+		assertNotNull( program );
+		assertNotNull( program.getWorkspaceManager() );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace() );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() );
+
+		// FIXME There have been problems with null values here on slow computers
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new WorkpaneWatcher() );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
 		initialMemoryUse = getMemoryUse();
 	}
@@ -111,16 +128,10 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
-		System.out.printf(
-			"Memory use: %s - %s = %s%n",
-			FileUtil.getHumanSizeBase2( finalMemoryUse ),
-			FileUtil.getHumanSizeBase2( initialMemoryUse ),
-			FileUtil.getHumanSizeBase2( increaseSize )
-		);
+		System.out.printf( "Memory use: %s - %s = %s%n", FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ) );
 
 		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
-			throw new AssertionFailedError( String.format(
-				"Memory growth too large %s -> %s : %s",
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				FileUtil.getHumanSizeBase2( increaseSize )
@@ -128,8 +139,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		}
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 		if( increasePercent > getAllowedMemoryGrowthPercent() ) {
-			throw new AssertionFailedError( String.format(
-				"Memory growth too large %s -> %s : %.2f%%",
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				increasePercent * 100
