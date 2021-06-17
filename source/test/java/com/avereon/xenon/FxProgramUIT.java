@@ -77,11 +77,11 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		//		});
 		//		workspaceWatcher.waitForEvent( WorkspaceEvent.ANY, 500 );
 
-		assertNotNull( program );
-		assertNotNull( program.getWorkspaceManager() );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace() );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() );
+		assertNotNull( program, "Program is null" );
+		assertNotNull( program.getWorkspaceManager(), "Workspace manager is null" );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace(), "Active workspace is null" );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
+		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
 
 		// FIXME There have been problems with null values here on slow computers
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();

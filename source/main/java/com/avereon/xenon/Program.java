@@ -441,6 +441,7 @@ public class Program extends Application implements ProgramProduct {
 		log.log( TRACE, "Restore the user interface..." );
 		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		if( workspaceManager.getActiveWorkpane() == null ) log.log( Log.WARN, "Active workarea not set" );
 		log.log( DEBUG, "User interface restored." );
 
 		// Finish the splash screen

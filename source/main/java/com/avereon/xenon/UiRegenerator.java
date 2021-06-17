@@ -13,6 +13,7 @@ import com.avereon.xenon.workpane.WorkpaneEdge;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 
@@ -20,6 +21,7 @@ import java.lang.System.Logger;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -78,7 +80,9 @@ class UiRegenerator {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
 
+	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
+		Fx.checkFxThread();
 		restoreLock.lock();
 		try {
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
@@ -96,11 +100,11 @@ class UiRegenerator {
 	}
 
 	@SuppressWarnings( "SameParameterValue" )
-	void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException {
+	void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException, TimeoutException {
 		restoreLock.lock();
 		try {
 			while( !restored ) {
-				restoredCondition.await( timeout, unit );
+				if( !restoredCondition.await( timeout, unit ) ) throw new TimeoutException( "Timeout waiting for UI restore");
 			}
 		} finally {
 			restoreLock.unlock();

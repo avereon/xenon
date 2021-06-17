@@ -132,8 +132,8 @@ public class Workspace implements WritableIdentity {
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
 		menubar = createMenuBar( program );
-		menubarToolStart = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		menubarToolEnd = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		menubarToolStart = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		menubarToolEnd = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -376,6 +376,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public Workarea getActiveWorkarea() {
+		if( activeWorkarea == null && workareas.size() == 1 ) setActiveWorkarea( workareas.get( 0 ) );
 		return activeWorkarea;
 	}
 
