@@ -9,13 +9,14 @@ import static org.hamcrest.Matchers.is;
 public abstract class BaseToolUIT extends FxProgramUIT {
 
 	protected void assertToolCount( Workpane pane, int count ) {
-		int actual = pane.getTools().size();
-		if( actual != count ) {
+		try {
+			assertThat( pane.getTools().size(), is( count ) );
+		} catch( AssertionError error ) {
 			for( Tool tool : pane.getTools() ) {
 				System.out.println( "Tool: " + tool );
 			}
+			throw error;
 		}
-		assertThat( actual , is( count ) );
 	}
 
 }
