@@ -4,6 +4,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -20,11 +21,13 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 
 		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramTaskType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertToolCount( pane, 0 );
 	}
 

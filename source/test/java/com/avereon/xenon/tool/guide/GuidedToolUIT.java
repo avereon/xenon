@@ -41,6 +41,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Fx.waitForWithInterrupt( TIMEOUT );
 
 		assertThat( workpane.getActiveTool(), instanceOf( MockGuidedTool.class ) );
 		assertToolCount( workpane, 2 );

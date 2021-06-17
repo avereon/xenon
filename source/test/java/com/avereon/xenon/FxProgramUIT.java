@@ -65,6 +65,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
+		Fx.waitForWithInterrupt( TIMEOUT );
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new WorkpaneWatcher() );

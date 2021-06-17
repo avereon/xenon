@@ -4,6 +4,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -21,11 +22,13 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramProductType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Fx.waitFor( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
 		assertToolCount( pane, 2 );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		Fx.waitFor( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}
 

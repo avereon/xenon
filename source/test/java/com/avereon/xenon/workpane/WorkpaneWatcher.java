@@ -1,10 +1,11 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.util.Log;
+import com.avereon.zerra.javafx.Fx;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import java.lang.System.Logger;
 
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -31,6 +32,7 @@ public class WorkpaneWatcher implements EventHandler<WorkpaneEvent> {
 
 	public void waitForEvent( EventType<? extends WorkpaneEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
+		Fx.waitForWithInterrupt( DEFAULT_WAIT_TIMEOUT );
 	}
 
 	@SuppressWarnings( "unused" )
