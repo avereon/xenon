@@ -75,6 +75,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final boolean SHOW_TIMING = false;
 
+	private static final int SPLASH_SCREEN_PAUSE_TIME_MS = 200;
+
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
 	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
@@ -451,15 +453,15 @@ public class Program extends Application implements ProgramProduct {
 		Fx.run( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
-		Thread.sleep( 500 );
+		if( splashScreen.isVisible() ) Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
 
 		Fx.run( () -> {
+			splashScreen.hide();
+			time( "splash hidden" );
 			if( !parameters.isSet( ProgramFlag.DAEMON ) ) {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
 			}
-			splashScreen.hide();
-			time( "splash hidden" );
 		} );
 
 		// Initiate asset loading
