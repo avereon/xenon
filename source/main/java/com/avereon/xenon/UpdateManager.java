@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.util.OperatingSystem;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
@@ -19,19 +18,22 @@ public class UpdateManager {
 
 	private StageUpdaterTask stageUpdaterTask;
 
-	UpdateManager( Program program ) throws IOException {
+	UpdateManager( Program program ) {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater-";
 
+		Path javaLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
 		if( Profile.DEV.equals( program.getProfile() ) ) {
 			String updaterTarget = "target/" + program.getCard().getArtifact() + "-updater";
 			this.updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
-			this.updaterLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
+			this.updaterLauncher = javaLauncher;
 		} else {
 			this.updaterFolder = program.getProductManager().getUpdatesFolder().resolve( "updater" );
-			System.err.println( "Program home= " + program.getHomeFolder() );
-			System.err.println( "Java launcher=" + Paths.get( OperatingSystem.getJavaLauncherPath() ) );
-			this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( Paths.get( OperatingSystem.getJavaLauncherPath() ) ) );
+			if( program.getHomeFolder().getRoot().equals( javaLauncher.getRoot() ) ) {
+				this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( javaLauncher ) );
+			} else {
+				this.updaterLauncher = javaLauncher;
+			}
 		}
 	}
 
