@@ -29,6 +29,8 @@ public class UpdateManager {
 			this.updaterLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
 		} else {
 			this.updaterFolder = program.getProductManager().getUpdatesFolder().resolve( "updater" );
+			System.err.println( "Program home= " + program.getHomeFolder() );
+			System.err.println( "Java launcher=" + Paths.get( OperatingSystem.getJavaLauncherPath() ) );
 			this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( Paths.get( OperatingSystem.getJavaLauncherPath() ) ) );
 		}
 	}
