@@ -70,14 +70,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		//		System.err.println( "Register workspace event watcher..." );
-		//		FxEventWatcher workspaceWatcher = new FxEventWatcher();
-		//		program.register( WorkspaceEvent.ANY, e -> {
-		//			System.err.println( "workspace event=" + e );
-		//		});
-		//		workspaceWatcher.waitForEvent( WorkspaceEvent.ANY, 500 );
-
-		// This waits for the active workarea to not be null
+		// Wait for the active workarea to not be null
 		long limit = System.currentTimeMillis() + TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
@@ -89,7 +82,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
 
-		// FIXME There have been problems with null values here on slow computers
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
@@ -100,7 +92,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	 * Override cleanup in FxPlatformTestCase and does not call super.cleanup().
 	 */
 	@AfterEach
-	public void cleanup() throws Exception {
+	public void teardown() throws Exception {
 		FxToolkit.cleanupApplication( program );
 		FxToolkit.cleanupStages();
 
@@ -108,8 +100,10 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		program.unregister( ProgramEvent.ANY, programWatcher );
 		Log.reset();
 
-		finalMemoryUse = getMemoryUse();
+		// Pause to let things wind down
+		ThreadUtil.pause( TIMEOUT );
 
+		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
 	}
 
