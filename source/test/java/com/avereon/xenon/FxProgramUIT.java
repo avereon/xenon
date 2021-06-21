@@ -71,7 +71,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		Fx.waitForWithExceptions( TIMEOUT );
 
 		// Wait for the active workarea to not be null
-		long limit = System.currentTimeMillis() + TIMEOUT;
+		long limit = System.currentTimeMillis() + 2*TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
@@ -101,7 +101,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		Log.reset();
 
 		// Pause to let things wind down
-		ThreadUtil.pause( TIMEOUT );
+		//ThreadUtil.pause( TIMEOUT );
 
 		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
