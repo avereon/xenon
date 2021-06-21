@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.is;
 class ProgramForceCloseUIT extends ProgramWorkspaceUIT {
 
 	@Test
-	void execute() {
+	void execute() throws Exception {
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 

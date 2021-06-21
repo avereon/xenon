@@ -2,10 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.event.EventWatcher;
 import com.avereon.product.ProductCard;
-import com.avereon.util.FileUtil;
-import com.avereon.util.OperatingSystem;
-import com.avereon.util.SizeUnitBase10;
-import com.avereon.util.ThreadUtil;
+import com.avereon.util.*;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zerra.event.FxEventWatcher;
@@ -21,6 +18,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -102,6 +100,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 		programWatcher.waitForEvent( ProgramEvent.STOPPED );
 		program.unregister( ProgramEvent.ANY, programWatcher );
+		Log.reset();
 
 		finalMemoryUse = getMemoryUse();
 
@@ -111,13 +110,13 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	@Override
 	public void start( Stage stage ) {}
 
-	protected void closeProgram() {
+	protected void closeProgram() throws Exception {
 		closeProgram( false );
 	}
 
-	protected void closeProgram( boolean force ) {
+	protected void closeProgram( boolean force ) throws Exception{
 		Fx.run( () -> program.requestExit( force ) );
-		WaitForAsyncUtils.waitForFxEvents();
+		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
 	protected double getAllowedMemoryGrowthSize() {
