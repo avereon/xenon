@@ -21,10 +21,11 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
-	protected static final int TIMEOUT = 2000;
+	protected static final int TIMEOUT = 5000;
 
 	protected Program program;
 
@@ -55,7 +56,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Program.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
+		if( Files.exists( programDataFolder ) ) assertTrue( FileUtil.delete( programDataFolder ), "Failed to delete program data folder" );
 		if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );
 
 		// For the parameters to be available using Java 9, the following needs to be added
@@ -76,10 +77,15 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		//		});
 		//		workspaceWatcher.waitForEvent( WorkspaceEvent.ANY, 500 );
 
+		// This waits for the active workarea to not be null
+		long limit = System.currentTimeMillis() + TIMEOUT;
+		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
+			ThreadUtil.pause( 100 );
+		}
+
 		assertNotNull( program, "Program is null" );
 		assertNotNull( program.getWorkspaceManager(), "Workspace manager is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace(), "Active workspace is null" );
-		ThreadUtil.pause( 100 );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
 
@@ -114,7 +120,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		closeProgram( false );
 	}
 
-	protected void closeProgram( boolean force ) throws Exception{
+	protected void closeProgram( boolean force ) throws Exception {
 		Fx.run( () -> program.requestExit( force ) );
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
