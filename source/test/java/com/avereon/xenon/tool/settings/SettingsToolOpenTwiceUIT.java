@@ -18,13 +18,13 @@ class SettingsToolOpenTwiceUIT extends SettingsToolUIT {
 		openTool();
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertToolCount( pane, 2 );
 
 		openTool();
 		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 2 );
 	}
 

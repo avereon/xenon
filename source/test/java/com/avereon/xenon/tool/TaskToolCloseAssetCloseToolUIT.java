@@ -21,13 +21,13 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 
 		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramTaskType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 0 );
 	}
 

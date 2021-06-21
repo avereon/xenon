@@ -28,12 +28,12 @@ public class GuideUIT extends FxProgramUIT {
 
 		GuideNode node = new GuideNode( program, "test", "Test" );
 		guide.addNode( node );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ), is( node.getTreeItem() ) );
 		assertThat( guide.getRoot().getChildren().size(), is( 1 ) );
 
 		guide.removeNode( node );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
 	}
 
@@ -46,40 +46,40 @@ public class GuideUIT extends FxProgramUIT {
 		GuideNode child = new GuideNode( program, "child", "Child" );
 		guide.addNode( parent );
 		guide.addNode( parent, child );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ), is( parent.getTreeItem() ) );
 		assertThat( guide.getRoot().getChildren().size(), is( 1 ) );
 		assertThat( parent.getTreeItem().getChildren().get( 0 ), is( child.getTreeItem() ) );
 		assertThat( parent.getTreeItem().getChildren().size(), is( 1 ) );
 
 		guide.removeNode( child );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( parent.getTreeItem().getChildren().size(), is( 0 ) );
 
 		guide.removeNode( parent );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
 	}
 
 	@Test
 	void testSetSelectedItems() throws Exception {
 		Fx.run( () -> guide.setSelectedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
 		Fx.run( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
 	void testSetExpandedItems() throws Exception {
 		Fx.run( () -> guide.setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
 		Fx.run( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 

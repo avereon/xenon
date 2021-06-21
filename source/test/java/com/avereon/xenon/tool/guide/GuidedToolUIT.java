@@ -41,7 +41,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 
 		assertThat( workpane.getActiveTool(), instanceOf( MockGuidedTool.class ) );
 		assertToolCount( workpane, 2 );
@@ -57,7 +57,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 
 		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
 	}
@@ -67,11 +67,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// NOTE When testing expanded nodes the node to expand cannot be a leaf
 		// Assert initial state
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 	}
 
@@ -81,7 +81,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
 	}
 
@@ -89,11 +89,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
 		Fx.run( () -> mockGuidedTool.getCurrentGuide().setSelectedIds( Set.of( "general" ) ) );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}
 

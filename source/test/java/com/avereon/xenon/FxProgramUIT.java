@@ -5,6 +5,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
+import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zerra.event.FxEventWatcher;
@@ -68,7 +69,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 
 		//		System.err.println( "Register workspace event watcher..." );
 		//		FxEventWatcher workspaceWatcher = new FxEventWatcher();
@@ -80,6 +81,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		assertNotNull( program, "Program is null" );
 		assertNotNull( program.getWorkspaceManager(), "Workspace manager is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace(), "Active workspace is null" );
+		ThreadUtil.pause( 100 );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
 

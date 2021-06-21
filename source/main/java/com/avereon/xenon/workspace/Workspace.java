@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -524,7 +525,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void screenshot( Path file ) {
-		Fx.waitFor( 5, 1000 );
+		Fx.waitFor( 5, TimeUnit.SECONDS );
 		Fx.run( () -> {
 			double renderScaleX = getStage().getRenderScaleX();
 			double renderScaleY = getStage().getRenderScaleY();
@@ -542,7 +543,7 @@ public class Workspace implements WritableIdentity {
 				exception.printStackTrace();
 			}
 		} );
-		Fx.waitFor( 5, 1000 );
+		Fx.waitFor( 5, TimeUnit.SECONDS );
 	}
 
 	public void close() {

@@ -166,7 +166,7 @@ abstract class Screenshots {
 				program.getWorkspaceManager().getActiveStage().setHeight( HEIGHT );
 				program.getWorkspaceManager().getActiveStage().centerOnScreen();
 			} );
-			Fx.waitForWithInterrupt( programWatcher.getTimeout() );
+			Fx.waitForWithExceptions( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
@@ -178,7 +178,7 @@ abstract class Screenshots {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		Fx.waitForWithInterrupt( workpaneWatcher.getTimeout() );
+		Fx.waitForWithExceptions( workpaneWatcher.getTimeout() );
 		reset();
 	}
 

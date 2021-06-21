@@ -19,7 +19,7 @@ class WelcomeToolOpenUIT extends WelcomeToolUIT {
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertToolCount( pane, 1 );

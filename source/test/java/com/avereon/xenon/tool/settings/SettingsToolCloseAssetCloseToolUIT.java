@@ -22,13 +22,13 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertToolCount( pane, 2 );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
-		Fx.waitForWithInterrupt( TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}
 
