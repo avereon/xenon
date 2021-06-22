@@ -82,11 +82,17 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
 
-      - name: Deploy Arifacts
+  publish:
+    needs: build
+    name: Deploy Artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Publish Arifacts
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots deploy
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
 
-      - name: Post Product Icon
+      - name: Publish Icons
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
           if [ $? -ne 0 ]; then exit 1; fi
@@ -94,7 +100,7 @@ jobs:
           scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-dark.png 2>&1
           scp -B target/main/images/${AVN_PRODUCT}-light.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-light.png 2>&1
 
-      - name: Post JavaDoc
+      - name: Publish JavaDoc
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
           if [ $? -ne 0 ]; then exit 1; fi
@@ -148,7 +154,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots1x package
 
-      - name: Post Screenshots
+      - name: Publish Screenshots
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/screenshots;"
           if [ $? -ne 0 ]; then exit 1; fi
@@ -199,14 +205,14 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
 
-      - name: Post Screenshots
+      - name: Publish Screenshots
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/screenshots;"
           if [ $? -ne 0 ]; then exit 1; fi
           scp -Br target/screenshots/* ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/screenshots/ 2>&1
 
   linux:
-    needs: build
+    needs: publish
     name: Linux Binaries
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -279,7 +285,7 @@ jobs:
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
   macos:
-    needs: build
+    needs: publish
     name: Mac OS Binaries
     runs-on: macos-latest
     timeout-minutes: 30
@@ -352,7 +358,7 @@ jobs:
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
   windows:
-    needs: build
+    needs: publish
     name: Windows Binaries
     runs-on: windows-latest
     timeout-minutes: 30
