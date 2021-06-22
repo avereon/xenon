@@ -29,7 +29,7 @@ env:
 
 jobs:
   build:
-    name: Build, Test, Jar and Javadoc
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
@@ -82,12 +82,6 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
 
-  publish:
-    needs: build
-    name: Deploy Artifacts
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
       - name: Publish Arifacts
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
@@ -212,7 +206,7 @@ jobs:
           scp -Br target/screenshots/* ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/screenshots/ 2>&1
 
   linux:
-    needs: publish
+    needs: build
     name: Linux Binaries
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -285,7 +279,7 @@ jobs:
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
   macos:
-    needs: publish
+    needs: build
     name: Mac OS Binaries
     runs-on: macos-latest
     timeout-minutes: 30
@@ -358,7 +352,7 @@ jobs:
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
   windows:
-    needs: publish
+    needs: build
     name: Windows Binaries
     runs-on: windows-latest
     timeout-minutes: 30
