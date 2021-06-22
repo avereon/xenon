@@ -66,7 +66,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
-		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
+		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		Fx.waitForWithExceptions( TIMEOUT );
 
