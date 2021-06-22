@@ -9,13 +9,13 @@ import com.avereon.zerra.event.FxEventWatcher;
 import com.avereon.zerra.javafx.Fx;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.opentest4j.AssertionFailedError;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
+	/**
+	 * The wait timeout for many operations. Common values are:
+	 * <pre>
+	 * 10000 - GitHub Actions, Mintbox Mini
+	 *  | Slower computers
+	 *  |
+	 *  | Faster computers
+	 * 2000 - AMD Threadripper, Intel i9</pre>
+	 */
 	protected static final int TIMEOUT = 10000;
 
 	protected Program program;
@@ -56,8 +65,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Program.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		if( Files.exists( programDataFolder ) ) assertTrue( FileUtil.delete( programDataFolder ), "Failed to delete program data folder" );
-		if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );
+		assertTrue( aggressiveDelete( programDataFolder ), "Failed to delete program data folder" );
 
 		// For the parameters to be available using Java 9, the following needs to be added
 		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
@@ -125,6 +133,16 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected double getAllowedMemoryGrowthPercent() {
 		return 0.50;
+	}
+
+	private boolean aggressiveDelete( Path path ) throws IOException {
+		long limit = System.currentTimeMillis() + TIMEOUT;
+		FileUtil.delete( path );
+		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
+			ThreadUtil.pause( 100 );
+			FileUtil.delete( path );
+		}
+		return !Files.exists( path );
 	}
 
 	private void assertSafeMemoryProfile() {
