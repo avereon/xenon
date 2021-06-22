@@ -48,12 +48,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private long finalMemoryUse;
 
-	private long getMemoryUse() {
-		WaitForAsyncUtils.waitForFxEvents();
-		System.gc();
-		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-	}
-
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
@@ -135,16 +129,10 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		return 0.50;
 	}
 
-	private boolean aggressiveDelete( Path path ) throws IOException {
-		long limit = System.currentTimeMillis() + TIMEOUT;
-		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
-			try {
-				FileUtil.delete( path );
-			} catch( IOException exception ) {
-				ThreadUtil.pause( 100 );
-			}
-		}
-		return FileUtil.delete( path );
+	private long getMemoryUse() {
+		WaitForAsyncUtils.waitForFxEvents();
+		System.gc();
+		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 
 	private void assertSafeMemoryProfile() {
@@ -166,6 +154,18 @@ public abstract class FxProgramUIT extends ApplicationTest {
 				increasePercent * 100
 			) );
 		}
+	}
+
+	private boolean aggressiveDelete( Path path ) throws IOException {
+		long limit = System.currentTimeMillis() + TIMEOUT;
+		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
+			try {
+				FileUtil.delete( path );
+			} catch( IOException exception ) {
+				ThreadUtil.pause( 100 );
+			}
+		}
+		return FileUtil.delete( path );
 	}
 
 }

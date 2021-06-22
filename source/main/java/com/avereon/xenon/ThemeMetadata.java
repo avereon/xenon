@@ -8,11 +8,13 @@ import java.nio.file.Paths;
 
 public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
-	private String id;
+	private final String id;
 
-	private String name;
+	private final String name;
 
-	private String stylesheet;
+	private final String stylesheet;
+
+	private String style;
 
 	public ThemeMetadata( String id, String name, String stylesheet ) {
 		this.id = id;
@@ -33,7 +35,8 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 	}
 
 	public String getStyle() throws IOException {
-		return FileUtil.load( Paths.get( URI.create( stylesheet ).getPath() ) );
+		if( style == null ) style = FileUtil.load( Paths.get( URI.create( stylesheet ).getPath() ) );
+		return style;
 	}
 
 	@Override
