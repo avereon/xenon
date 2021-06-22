@@ -137,12 +137,14 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
 		long limit = System.currentTimeMillis() + TIMEOUT;
-		FileUtil.delete( path );
 		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
-			ThreadUtil.pause( 100 );
-			FileUtil.delete( path );
+			try {
+				FileUtil.delete( path );
+			} catch( IOException exception ) {
+				ThreadUtil.pause( 100 );
+			}
 		}
-		return !Files.exists( path );
+		return FileUtil.delete( path );
 	}
 
 	private void assertSafeMemoryProfile() {
