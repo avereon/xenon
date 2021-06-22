@@ -71,7 +71,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		Fx.waitForWithExceptions( TIMEOUT );
 
 		// Wait for the active workarea to not be null
-		long limit = System.currentTimeMillis() + 2*TIMEOUT;
+		long limit = System.currentTimeMillis() + 5 * TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
