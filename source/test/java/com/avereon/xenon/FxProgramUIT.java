@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
-	protected static final int TIMEOUT = 5000;
+	protected static final int TIMEOUT = 10000;
 
 	protected Program program;
 
@@ -71,7 +71,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		Fx.waitForWithExceptions( TIMEOUT );
 
 		// Wait for the active workarea to not be null
-		long limit = System.currentTimeMillis() + 5 * TIMEOUT;
+		long limit = System.currentTimeMillis() + TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
