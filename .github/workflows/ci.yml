@@ -402,7 +402,8 @@ jobs:
 
       - name: Tests
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui verify
+#          mvn ${{env.MAVEN_PARMS}} -P testui verify
+          mvn ${{env.MAVEN_PARMS}} verify
 
       - name: Build Assemblies
         run: |
