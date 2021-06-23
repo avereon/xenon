@@ -52,7 +52,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
 	@BeforeEach
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		// Intentionally do not call super.setup()
 
 		// Remove the existing program data folder
@@ -94,7 +94,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	 * Override cleanup in FxPlatformTestCase and does not call super.cleanup().
 	 */
 	@AfterEach
-	public void teardown() throws Exception {
+	protected void teardown() throws Exception {
 		FxToolkit.cleanupApplication( program );
 		FxToolkit.cleanupStages();
 

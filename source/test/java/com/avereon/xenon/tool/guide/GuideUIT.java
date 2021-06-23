@@ -16,7 +16,7 @@ public class GuideUIT extends FxProgramUIT {
 	private Guide guide;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		super.setup();
 		this.guide = createGuide();
 	}

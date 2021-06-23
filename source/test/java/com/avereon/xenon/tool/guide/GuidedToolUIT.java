@@ -25,7 +25,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 	@BeforeEach
 	@Override
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		super.setup();
 
 		assertToolCount( workpane, 0 );
