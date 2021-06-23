@@ -84,7 +84,7 @@ jobs:
 
       - name: Publish Arifacts
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
+          mvn ${{env.MAVEN_PARMS}} deploy
 
       - name: Publish Icons
         run: |
