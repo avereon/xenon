@@ -422,20 +422,17 @@
 						<configuration>
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
-								<jar>
-									<name>miglayout-core*.jar</name>
-								</jar>
+<!--								<jar>-->
+<!--									<name>xenon-*-tests.jar</name>-->
+<!--									<module>org.avereon.xenon-tests</module>-->
+<!--									<modules>-->
+<!--										<module>com.avereon.xenon</module>-->
+<!--										<module>org.hamcrest</module>-->
+<!--										<module>org.junit.jupiter.api</module>-->
+<!--									</modules>-->
+<!--								</jar>-->
 								<jar>
 									<name>image4j*.jar</name>
-								</jar>
-								<jar>
-									<name>miglayout-javafx*.jar</name>
-									<modules>
-										<module>javafx.base</module>
-										<module>javafx.graphics</module>
-										<module>javafx.controls</module>
-										<module>miglayout.core</module>
-									</modules>
 								</jar>
 								<jar>
 									<name>reactfx*.jar</name>
