@@ -257,6 +257,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>default-jar</id>
 						<configuration>
 							<archive>
 								<manifest>
