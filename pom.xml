@@ -266,6 +266,7 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>test-jar</id>
 						<goals>
 							<goal>test-jar</goal>
 						</goals>
