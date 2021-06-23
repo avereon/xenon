@@ -28,25 +28,25 @@ public class GuidedToolUIT extends BaseToolUIT {
 	protected void setup() throws Exception {
 		super.setup();
 
-		assertToolCount( workpane, 0 );
-		assertThat( program.getAssetManager().getAssetTypes().size(), is( 12 ) );
+		assertToolCount( getWorkpane(), 0 );
+		assertThat( getProgram().getAssetManager().getAssetTypes().size(), is( 12 ) );
 
-		assertNotNull( program.getAssetManager().getAssetType( "program:guide" ) );
-		MockAssetType assetType = new MockAssetType( program );
-		program.getAssetManager().addAssetType( assetType );
+		assertNotNull( getProgram().getAssetManager().getAssetType( "program:guide" ) );
+		MockAssetType assetType = new MockAssetType( getProgram() );
+		getProgram().getAssetManager().addAssetType( assetType );
 
-		ToolRegistration registration = new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
-		program.getToolManager().registerTool( assetType, registration );
-		program.getAssetManager().openAsset( MockCodec.URI );
+		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
+		getProgram().getToolManager().registerTool( assetType, registration );
+		getProgram().getAssetManager().openAsset( MockCodec.URI );
 
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		assertThat( workpane.getActiveTool(), instanceOf( MockGuidedTool.class ) );
-		assertToolCount( workpane, 2 );
+		assertThat( getWorkpane().getActiveTool(), instanceOf( MockGuidedTool.class ) );
+		assertToolCount( getWorkpane(), 2 );
 
-		mockGuidedTool = (MockGuidedTool)workpane.getActiveTool();
+		mockGuidedTool = (MockGuidedTool)getWorkpane().getActiveTool();
 		mockGuidedTool.reset();
 	}
 

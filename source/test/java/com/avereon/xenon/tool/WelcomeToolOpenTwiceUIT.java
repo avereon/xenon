@@ -12,19 +12,19 @@ class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertToolCount( pane, 1 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertToolCount( pane, 1 );

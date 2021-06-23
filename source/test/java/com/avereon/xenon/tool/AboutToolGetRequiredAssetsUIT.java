@@ -16,7 +16,7 @@ class AboutToolGetRequiredAssetsUIT extends AboutToolUIT {
 	@Test
 	void execute() {
 		Asset asset = new Asset( ProgramAboutType.URI );
-		AboutTool tool = new AboutTool( program, asset );
+		AboutTool tool = new AboutTool( getProgram(), asset );
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets, containsInAnyOrder( ProgramGuideType.URI ) );
 	}

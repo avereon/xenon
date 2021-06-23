@@ -10,7 +10,7 @@ class ProgramForceCloseUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() throws Exception {
-		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 
 		closeProgram( true );

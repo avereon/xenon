@@ -16,18 +16,18 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramProductType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramProductType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitFor( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
 		assertToolCount( pane, 2 );
 
-		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitFor( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}

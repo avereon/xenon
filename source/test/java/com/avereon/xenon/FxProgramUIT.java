@@ -36,17 +36,18 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	 */
 	protected static final int TIMEOUT = 10000;
 
-	protected Program program;
+	private Program program;
 
 	private EventWatcher programWatcher;
 
-	protected Workpane workpane;
-
-	protected FxEventWatcher workpaneWatcher;
+	private FxEventWatcher workpaneWatcher;
 
 	private long initialMemoryUse;
 
 	private long finalMemoryUse;
+
+	@Override
+	public void start( Stage stage ) {}
 
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
@@ -84,7 +85,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
 		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
 
-		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
 		initialMemoryUse = getMemoryUse();
@@ -109,9 +110,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		assertSafeMemoryProfile();
 	}
 
-	@Override
-	public void start( Stage stage ) {}
-
 	protected void closeProgram() throws Exception {
 		closeProgram( false );
 	}
@@ -119,6 +117,22 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	protected void closeProgram( boolean force ) throws Exception {
 		Fx.run( () -> program.requestExit( force ) );
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
+	}
+
+	protected Program getProgram() {
+		return program;
+	}
+
+	protected EventWatcher getProgramEventWatcher() {
+		return programWatcher;
+	}
+
+	protected Workpane getWorkpane() {
+		return program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+	}
+
+	protected FxEventWatcher getWorkpaneEventWatcher() {
+		return workpaneWatcher;
 	}
 
 	protected double getAllowedMemoryGrowthSize() {

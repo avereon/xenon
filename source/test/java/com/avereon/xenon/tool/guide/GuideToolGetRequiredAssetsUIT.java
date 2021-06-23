@@ -15,7 +15,7 @@ class GuideToolGetRequiredAssetsUIT extends GuideToolUIT {
 	@Test
 	void execute() {
 		Asset asset = new Asset( ProgramGuideType.URI );
-		GuideTool tool = new GuideTool( program, asset );
+		GuideTool tool = new GuideTool( getProgram(), asset );
 
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets.size(), is( 0 ) );

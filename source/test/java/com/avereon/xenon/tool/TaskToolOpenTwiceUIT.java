@@ -11,17 +11,17 @@ class TaskToolOpenTwiceUIT extends TaskToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
 		openTaskMenu();
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 		openTaskMenu();
-		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 	}

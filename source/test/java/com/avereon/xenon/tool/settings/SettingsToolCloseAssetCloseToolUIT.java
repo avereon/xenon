@@ -16,18 +16,18 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertToolCount( pane, 2 );
 
-		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}

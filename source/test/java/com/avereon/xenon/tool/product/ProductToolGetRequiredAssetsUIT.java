@@ -16,7 +16,7 @@ class ProductToolGetRequiredAssetsUIT extends ProductToolUIT {
 	@Test
 	void execute() {
 		Asset asset = new Asset( ProgramProductType.URI );
-		ProductTool tool = new ProductTool( program, asset );
+		ProductTool tool = new ProductTool( getProgram(), asset );
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets, containsInAnyOrder( ProgramGuideType.URI ) );
 	}

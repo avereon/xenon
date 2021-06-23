@@ -16,17 +16,17 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramTaskType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramTaskType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 
-		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 0 );
 	}

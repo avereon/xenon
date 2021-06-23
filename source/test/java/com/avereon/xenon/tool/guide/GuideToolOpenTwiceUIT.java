@@ -12,18 +12,18 @@ class GuideToolOpenTwiceUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		program.getAssetManager().openAsset( ProgramGuideType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 
-		program.getAssetManager().openAsset( ProgramGuideType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
+		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertToolCount( pane, 1 );
 	}

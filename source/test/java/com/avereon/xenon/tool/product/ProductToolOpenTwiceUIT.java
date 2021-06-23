@@ -11,20 +11,20 @@ class ProductToolOpenTwiceUIT extends ProductToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-product" );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
 		assertToolCount( pane, 2 );
 
 		// Try to open the tool again and make sure there is still only one
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-product" );
-		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertToolCount( pane, 2 );
 	}
 

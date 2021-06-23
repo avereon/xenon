@@ -16,7 +16,7 @@ class SettingsToolGetRequiredAssetsUIT extends SettingsToolUIT {
 	@Test
 	void execute() {
 		Asset asset = new Asset( ProgramSettingsType.URI );
-		SettingsTool tool = new SettingsTool( program, asset );
+		SettingsTool tool = new SettingsTool( getProgram(), asset );
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets, containsInAnyOrder( ProgramGuideType.URI ) );
 	}

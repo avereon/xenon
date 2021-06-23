@@ -26,7 +26,7 @@ public class GuideUIT extends FxProgramUIT {
 		Guide guide = new Guide();
 		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
 
-		GuideNode node = new GuideNode( program, "test", "Test" );
+		GuideNode node = new GuideNode( getProgram(), "test", "Test" );
 		guide.addNode( node );
 		Fx.waitForWithExceptions( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ), is( node.getTreeItem() ) );
@@ -42,8 +42,8 @@ public class GuideUIT extends FxProgramUIT {
 		Guide guide = new Guide();
 		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
 
-		GuideNode parent = new GuideNode( program, "parent", "Parent" );
-		GuideNode child = new GuideNode( program, "child", "Child" );
+		GuideNode parent = new GuideNode( getProgram(), "parent", "Parent" );
+		GuideNode child = new GuideNode( getProgram(), "child", "Child" );
 		guide.addNode( parent );
 		guide.addNode( parent, child );
 		Fx.waitForWithExceptions( TIMEOUT );
@@ -86,26 +86,26 @@ public class GuideUIT extends FxProgramUIT {
 	private Guide createGuide() {
 		Guide guide = new Guide();
 
-		GuideNode general = new GuideNode( program, "general", "General" );
-		GuideNode workspace = new GuideNode( program, "workspace", "Workspace" );
-		GuideNode network = new GuideNode( program, "network", "Network" );
-		GuideNode tools = new GuideNode( program, "tools", "Tools" );
+		GuideNode general = new GuideNode( getProgram(), "general", "General" );
+		GuideNode workspace = new GuideNode( getProgram(), "workspace", "Workspace" );
+		GuideNode network = new GuideNode( getProgram(), "network", "Network" );
+		GuideNode tools = new GuideNode( getProgram(), "tools", "Tools" );
 
 		guide.addNode( general );
 		guide.addNode( workspace );
 		guide.addNode( network );
 		guide.addNode( tools );
 
-		guide.addNode( general, new GuideNode( program, "shutdown", "Shutdown" ) );
-		guide.addNode( general, new GuideNode( program, "security", "Security" ) );
-		guide.addNode( general, new GuideNode( program, "updates", "Updates" ) );
+		guide.addNode( general, new GuideNode( getProgram(), "shutdown", "Shutdown" ) );
+		guide.addNode( general, new GuideNode( getProgram(), "security", "Security" ) );
+		guide.addNode( general, new GuideNode( getProgram(), "updates", "Updates" ) );
 
-		guide.addNode( workspace, new GuideNode( program, "theme", "Theme" ) );
-		guide.addNode( workspace, new GuideNode( program, "background", "Background" ) );
-		guide.addNode( workspace, new GuideNode( program, "task-monitor", "Task Monitor" ) );
-		guide.addNode( workspace, new GuideNode( program, "memory-monitor", "Memory Monitor" ) );
+		guide.addNode( workspace, new GuideNode( getProgram(), "theme", "Theme" ) );
+		guide.addNode( workspace, new GuideNode( getProgram(), "background", "Background" ) );
+		guide.addNode( workspace, new GuideNode( getProgram(), "task-monitor", "Task Monitor" ) );
+		guide.addNode( workspace, new GuideNode( getProgram(), "memory-monitor", "Memory Monitor" ) );
 
-		guide.addNode( network, new GuideNode( program, "proxy", "Proxy" ) );
+		guide.addNode( network, new GuideNode( getProgram(), "proxy", "Proxy" ) );
 
 		return guide;
 	}

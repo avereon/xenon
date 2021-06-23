@@ -11,7 +11,7 @@ class ProgramWorkspaceDefaultSceneSizeUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( UiFactory.DEFAULT_WIDTH ) );
 		assertThat( stage.getScene().getHeight(), is( UiFactory.DEFAULT_HEIGHT ) );

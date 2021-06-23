@@ -10,10 +10,10 @@ class ProgramWorkspaceTitleUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveStage();
-		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
+		String workareaName = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( stage.isShowing(), is( true ) );
-		assertThat( stage.getTitle(), is( workareaName + " - " + program.getCard().getName() ) );
+		assertThat( stage.getTitle(), is( workareaName + " - " + getProgram().getCard().getName() ) );
 	}
 
 }

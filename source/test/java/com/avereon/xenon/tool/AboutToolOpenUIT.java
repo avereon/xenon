@@ -10,15 +10,15 @@ class AboutToolOpenUIT extends AboutToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		assertToolCount( workpane, 0 );
+		assertToolCount( getWorkpane(), 0 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-about" );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
-		assertThat( workpane.getActiveTool(), instanceOf( AboutTool.class ) );
-		assertToolCount( workpane, 2 );
+		assertThat( getWorkpane().getActiveTool(), instanceOf( AboutTool.class ) );
+		assertToolCount( getWorkpane(), 2 );
 	}
 
 }

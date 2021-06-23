@@ -12,11 +12,11 @@ class GuideToolOpenUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		program.getAssetManager().openAsset( ProgramGuideType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertToolCount( pane, 1 );
 	}
