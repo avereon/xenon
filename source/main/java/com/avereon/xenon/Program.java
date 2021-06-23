@@ -190,7 +190,7 @@ public class Program extends Application implements ProgramProduct {
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Init the product card
-		card = ProgramConfig.loadProductCard();
+		card = ProgramConfig.loadProductInfo();
 		time( "card" );
 
 		// Initialize the program parameters
@@ -295,8 +295,12 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() );
-		if( !parameters.isSet( ProgramFlag.NOSPLASH ) ) splashScreen.show( stage );
-		time( "splash-displayed" );
+		boolean daemon = parameters.isSet( ProgramFlag.DAEMON );
+		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
+		if( !daemon && !nosplash ) {
+			splashScreen.show( stage );
+			time( "splash-displayed" );
+		}
 
 		// Submit but do not wait for the startup task...allow the FX thread to be free
 		getTaskManager().submit( new StartupTask() );
@@ -307,12 +311,12 @@ public class Program extends Application implements ProgramProduct {
 		init();
 		iconLibrary = new IconLibrary( this );
 		actionLibrary = new ActionLibrary( this );
-		ProductCard.card( this );
-		assetManager = new AssetManager( Program.this );
+		card = ProductCard.card( this );
+		assetManager = new AssetManager( Program.this ).start();
 		assetManager.getEventBus().parent( getFxEventHub() );
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
-		toolManager = new ToolManager( this );
+		toolManager = new ToolManager( this ).start();
 		themeManager = new ThemeManager( Program.this ).start();
 		workspaceManager = new WorkspaceManager( Program.this ).start();
 		noticeManager = new NoticeManager( Program.this ).start();
@@ -387,7 +391,7 @@ public class Program extends Application implements ProgramProduct {
 		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
-		ProductCard.card( this );
+		card = ProductCard.card( this );
 
 		Fx.run( () -> splashScreen.update() );
 
@@ -455,10 +459,11 @@ public class Program extends Application implements ProgramProduct {
 		// Give the slash screen time to render and the user to see it
 		if( splashScreen.isVisible() ) Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
 
+		boolean daemon = parameters.isSet( ProgramFlag.DAEMON );
 		Fx.run( () -> {
 			splashScreen.hide();
 			time( "splash hidden" );
-			if( !parameters.isSet( ProgramFlag.DAEMON ) ) {
+			if( !daemon ) {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
 			}

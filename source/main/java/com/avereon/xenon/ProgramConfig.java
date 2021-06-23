@@ -6,13 +6,13 @@ class ProgramConfig {
 
 	private static ProductCard card;
 
-	static ProductCard loadProductCard() {
+	static ProductCard loadProductInfo() {
 		if( card == null ) card = ProductCard.info( Program.class );
 		return card;
 	}
 
 	static void configureCustomLauncherName() {
-		ProductCard card = loadProductCard();
+		ProductCard card = loadProductInfo();
 		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
 	}
 
