@@ -255,13 +255,24 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.avereon.xenon.Launcher</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<executions>
+					<execution>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>com.avereon.xenon.Launcher</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
