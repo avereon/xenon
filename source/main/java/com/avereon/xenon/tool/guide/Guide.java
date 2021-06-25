@@ -192,12 +192,12 @@ public class Guide {
 	protected void moveNode( GuideNode item, GuideNode target, Guide.Drop drop ) {}
 
 	/* Only intended to be used by the GuideTool */
-	final TreeItem<GuideNode> getRoot() {
+	public final TreeItem<GuideNode> getRoot() {
 		return root;
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final Set<String> getExpandedIds() {
+	public final Set<String> getExpandedIds() {
 		Set<String> idSet = new HashSet<>();
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
 			if( item == root ) continue;
@@ -207,7 +207,7 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedIds( Set<String> ids ) {
+	public final void setExpandedIds( Set<String> ids ) {
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
 			if( item == root ) continue;
 			item.setExpanded( ids.contains( item.getValue().getId() ) );
@@ -225,7 +225,7 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final List<String> getSelectedIds() {
+	public final List<String> getSelectedIds() {
 		Set<TreeItem<GuideNode>> selectedItems = Collections.unmodifiableSet( this.selectedItems.get() );
 
 		List<String> ids = new ArrayList<>( selectedItems.size() );
@@ -237,7 +237,7 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setSelectedIds( Set<String> ids ) {
+	public final void setSelectedIds( Set<String> ids ) {
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
 		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );

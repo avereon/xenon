@@ -900,7 +900,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param asset The asset for which to resolve the asset type
 	 * @return The auto detected asset type
 	 */
-	AssetType autoDetectAssetType( Asset asset ) {
+	public AssetType autoDetectAssetType( Asset asset ) {
 		AssetType type = null;
 
 		// Look for asset types assigned to specific codecs
@@ -931,7 +931,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param asset The asset for which to find codecs
 	 * @return The set of codecs that match the asset
 	 */
-	Set<Codec> autoDetectCodecs( Asset asset ) {
+	public Set<Codec> autoDetectCodecs( Asset asset ) {
 		String uri = UriUtil.removeQueryAndFragment( asset.getUri() ).toString();
 		// FIXME Only query media type if there are supported codecs to compare with
 		String mediaType = asset.getScheme().getMediaType( asset );

@@ -38,11 +38,11 @@ public class Workpane extends Control implements WritableIdentity {
 		PORTRAIT
 	}
 
-	static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
+	public static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
 
-	static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
+	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
-	static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
+	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
@@ -716,7 +716,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @return The actual distance moved
 	 */
 	@SuppressWarnings( "UnusedReturnValue" )
-	double moveEdge( WorkpaneEdge edge, double offset ) {
+	public double moveEdge( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 ) return 0;
 
 		double result = 0;
@@ -1035,11 +1035,11 @@ public class Workpane extends Control implements WritableIdentity {
 		return weight == 0 ? null : directions.get( 0 ).getDirection();
 	}
 
-	Tool addTool( Tool tool ) {
+	public Tool addTool( Tool tool ) {
 		return addTool( tool, true );
 	}
 
-	Tool addTool( Tool tool, boolean activate ) {
+	public Tool addTool( Tool tool, boolean activate ) {
 		return addTool( tool, (WorkpaneView)null, activate );
 	}
 
@@ -1053,7 +1053,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return addTool( tool, determineViewFromPlacement( placement ), activate );
 	}
 
-	Tool addTool( Tool tool, WorkpaneView view ) {
+	public Tool addTool( Tool tool, WorkpaneView view ) {
 		return addTool( tool, view, true );
 	}
 
@@ -1087,7 +1087,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return tool;
 	}
 
-	Tool openTool( Tool tool, WorkpaneView view ) {
+	public Tool openTool( Tool tool, WorkpaneView view ) {
 		return openTool( tool, view, true );
 	}
 
@@ -1676,7 +1676,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return isDockSpace( Side.RIGHT, source ) ? getRightDockView() : newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
 
-	boolean isDockSpace( Side side, WorkpaneView source ) {
+	public boolean isDockSpace( Side side, WorkpaneView source ) {
 		if( source == null ) return false;
 
 		WorkpaneEdge leftTurn = source.getEdge( getSideAtLeft( side ) );

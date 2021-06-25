@@ -51,7 +51,7 @@ public class ProductManagerLogic {
 		PRODUCT_CONNECTION_ERROR.setArtifact( "product-connection-error" );
 	}
 
-	ProductManagerLogic( Program program ) {
+	public ProductManagerLogic( Program program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
 	}
@@ -252,11 +252,11 @@ public class ProductManagerLogic {
 		return products;
 	}
 
-	Set<ProductCard> determineAvailableProducts( Map<RepoState, Set<ProductCard>> products ) {
+	public Set<ProductCard> determineAvailableProducts( Map<RepoState, Set<ProductCard>> products ) {
 		return determineUpdatableProducts( products, Map.of() );
 	}
 
-	Set<ProductCard> determineUpdatableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
+	public Set<ProductCard> determineUpdatableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
 		if( products == null ) throw new NullPointerException( "Product map cannot be null" );
 
 		boolean determineAvailable = installedProducts.size() == 0;

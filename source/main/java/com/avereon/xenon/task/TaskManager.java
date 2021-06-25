@@ -197,27 +197,27 @@ public class TaskManager implements Controllable<TaskManager> {
 		log.log( Log.ERROR,  "Task failed", throwable );
 	}
 
-	int getP1ThreadCount() {
+	public int getP1ThreadCount() {
 		return p1ThreadCount;
 	}
 
-	void setP1ThreadCount( int p1ThreadCount ) {
+	public void setP1ThreadCount( int p1ThreadCount ) {
 		this.p1ThreadCount = p1ThreadCount;
 	}
 
-	int getP2ThreadCount() {
+	public int getP2ThreadCount() {
 		return p2ThreadCount;
 	}
 
-	void setP2ThreadCount( int p2ThreadCount ) {
+	public void setP2ThreadCount( int p2ThreadCount ) {
 		this.p2ThreadCount = p2ThreadCount;
 	}
 
-	int getP3ThreadCount() {
+	public int getP3ThreadCount() {
 		return p3ThreadCount;
 	}
 
-	void setP3ThreadCount( int p3ThreadCount ) {
+	public void setP3ThreadCount( int p3ThreadCount ) {
 		this.p3ThreadCount = p3ThreadCount;
 	}
 

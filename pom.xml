@@ -219,18 +219,18 @@
 						-Xmx128m
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.ui.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.guide=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.settings=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.ui.util=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.undo=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.workpane=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.workspace=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -556,18 +556,19 @@
 										-Xmx128m
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.guide=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.settings=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.ui.util=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.undo=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.workpane=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.workspace=ALL-UNNAMED
 									</argLine>
 									<systemPropertyVariables>
 										<!-- Set testfx.setup.timeout to a reasonable time -->

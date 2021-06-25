@@ -22,11 +22,11 @@ public class GuideNode extends Node {
 
 	private final Program program;
 
-	GuideNode( Program program ) {
+	public GuideNode( Program program ) {
 		this( program, null, null, null );
 	}
 
-	GuideNode( Program program, String id, String name ) {
+	public GuideNode( Program program, String id, String name ) {
 		this( program, id, name, null );
 	}
 
@@ -107,7 +107,7 @@ public class GuideNode extends Node {
 		return getName();
 	}
 
-	TreeItem<GuideNode> getTreeItem() {
+	public TreeItem<GuideNode> getTreeItem() {
 		TreeItem<GuideNode> value = getValue( TREE_ITEM );
 		if( value == null ) value = setValue( TREE_ITEM, new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 		return value;

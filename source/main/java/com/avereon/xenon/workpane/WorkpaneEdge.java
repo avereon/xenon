@@ -88,7 +88,7 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 		return new EdgeSkin( this );
 	}
 
-	final boolean isWall() {
+	public final boolean isWall() {
 		return wall != null;
 	}
 
@@ -274,7 +274,7 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 		}
 	}
 
-	Set<WorkpaneView> getViews( Side direction ) {
+	public Set<WorkpaneView> getViews( Side direction ) {
 		switch( direction ) {
 			case TOP: {
 				return topViews;

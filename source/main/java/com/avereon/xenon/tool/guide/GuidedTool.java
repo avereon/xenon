@@ -93,7 +93,7 @@ public abstract class GuidedTool extends ProgramTool {
 	 *
 	 * @return The current guide
 	 */
-	Guide getCurrentGuide() {
+	public Guide getCurrentGuide() {
 		return guideContext.getCurrentGuide();
 	}
 

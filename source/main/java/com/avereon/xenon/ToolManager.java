@@ -223,7 +223,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return data == null ? null : data.getProduct();
 	}
 
-	String getToolClassName( String className ) {
+	public String getToolClassName( String className ) {
 		String alias = null;
 		if( className != null ) alias = aliases.get( className );
 		return alias == null ? className : alias;
