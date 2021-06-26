@@ -31,13 +31,13 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	/**
 	 * The wait timeout for many operations. Common values are:
 	 * <pre>
-	 * 10000 - GitHub Actions, Mintbox Mini
+	 * 30000 - GitHub Actions, Mintbox Mini
 	 *  | Slower computers
 	 *  |
 	 *  | Faster computers
-	 * 2000 - AMD Threadripper, Intel i9</pre>
+	 * 5000 - AMD Threadripper, Intel i9</pre>
 	 */
-	protected static final int TIMEOUT = 15000;
+	protected static final int TIMEOUT = 30000;
 
 	private Program program;
 
