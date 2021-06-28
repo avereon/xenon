@@ -73,7 +73,12 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
+		Fx.waitForWithExceptions( TIMEOUT );
+		// NOTE Thread.yield() is helpful but not consistent
+		Thread.yield();
 		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
+		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
 
 		// Wait for the active workarea to not be null
