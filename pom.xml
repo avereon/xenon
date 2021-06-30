@@ -432,6 +432,9 @@
 <!--									</modules>-->
 <!--								</jar>-->
 								<jar>
+									<name>flogger*.jar</name>
+								</jar>
+								<jar>
 									<name>image4j*.jar</name>
 								</jar>
 								<jar>
