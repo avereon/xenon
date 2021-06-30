@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;

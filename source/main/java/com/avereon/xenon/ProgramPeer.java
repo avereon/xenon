@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 

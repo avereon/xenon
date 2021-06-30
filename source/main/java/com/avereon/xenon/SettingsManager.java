@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.StoredSettings;
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.tool.guide.Guide;

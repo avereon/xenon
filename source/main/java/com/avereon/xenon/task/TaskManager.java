@@ -1,6 +1,6 @@
 package com.avereon.xenon.task;
 
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.zerra.event.FxEventHub;

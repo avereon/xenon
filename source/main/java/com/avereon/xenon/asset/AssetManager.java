@@ -3,6 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
+import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;

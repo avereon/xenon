@@ -1,7 +1,7 @@
 package com.avereon.xenon.notice;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
