@@ -1,16 +1,16 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.Log;
 import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.*;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Flogger
 public class Guide {
 
 	public enum Drop {
@@ -21,8 +21,6 @@ public class Guide {
 	}
 
 	public static final Guide EMPTY = new Guide();
-
-	private static final Logger log = Log.get();
 
 	private static final Comparator<TreeItem<GuideNode>> guideNodeComparator = new GuideNodeTreeItemComparator();
 

@@ -1,21 +1,19 @@
 package com.avereon.xenon.product;
 
 import com.avereon.event.Event;
-import com.avereon.event.EventHub;
 import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
-import com.avereon.util.Log;
 import com.avereon.xenon.task.TaskEvent;
-import java.lang.System.Logger;
+import lombok.extern.flogger.Flogger;
 
+@Flogger
 public class DownloadRequest implements EventHandler<TaskEvent> {
 
-	private static final Logger log = Log.get();
+	private final ProductCard card;
 
-	private ProductCard card;
-
-	private EventHub bus;
+	private final EventHub bus;
 
 	public DownloadRequest( ProductCard card ) {
 		this.card = card;

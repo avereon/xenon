@@ -2,7 +2,6 @@ package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
@@ -29,6 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import lombok.extern.flogger.Flogger;
 
 import java.awt.event.KeyEvent;
 import java.net.URI;
@@ -40,14 +40,13 @@ import java.util.*;
 //import org.apache.commons.vfs2.FileSystemManager;
 //import org.apache.commons.vfs2.VFS;
 
+@Flogger
 public class AssetTool extends GuidedTool {
 
 	private enum Mode {
 		OPEN,
 		SAVE
 	}
-
-	private static final System.Logger log = Log.get();
 
 	private Mode mode = Mode.OPEN;
 
@@ -175,9 +174,9 @@ public class AssetTool extends GuidedTool {
 
 		// Select the current asset
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
-				log.log( Log.INFO, "Current folder string=" + currentFolderString );
+		log.atInfo().log( "Current folder string=%s", currentFolderString );
 		URI uri = URI.create( currentFolderString );
-//		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		//		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
 		selectAsset( uri );
 	}
 
@@ -264,7 +263,7 @@ public class AssetTool extends GuidedTool {
 			activateUriField();
 		} catch( AssetException exception ) {
 			notifyUser( "asset-error", exception.getMessage() );
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		} finally {
 			updateActionState();
 		}
@@ -281,7 +280,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void loadFolder( Asset asset ) {
-		if( "file".equals( asset.getUri().getScheme() ) ){
+		if( "file".equals( asset.getUri().getScheme() ) ) {
 			getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
 		}
 		currentAsset = asset;
@@ -299,7 +298,7 @@ public class AssetTool extends GuidedTool {
 				} );
 			} catch( AssetException exception ) {
 				notifyUser( "asset-error", exception.getMessage() );
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		} ) );
 	}
@@ -341,7 +340,7 @@ public class AssetTool extends GuidedTool {
 				guide.addNode( createGuideNode( UriUtil.parseName( path.toUri() ), "asset-root", path.toString() ) );
 			}
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 
 		return guide;
@@ -396,7 +395,7 @@ public class AssetTool extends GuidedTool {
 				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( Rb.text( "asset", "asset-open-folder-size", size ) );
 				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
 			} catch( AssetException exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 				return new ReadOnlyObjectWrapper<>( "" );
 			}
 		}

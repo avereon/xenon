@@ -5,22 +5,22 @@ import com.avereon.data.NodeEvent;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zerra.event.FxEventHub;
+import lombok.extern.flogger.Flogger;
 import org.fxmisc.undo.UndoManager;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
+@Flogger
 public class Asset extends Node {
 
 	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
@@ -59,8 +59,6 @@ public class Asset extends Node {
 	//	private static final String EDITABLE = "editable";
 
 	//	private static final String UNDO_MANAGER = "undo-manager";
-
-	private static final Logger log = Log.get();
 
 	private final FxEventHub eventHub;
 
@@ -353,7 +351,7 @@ public class Asset extends Node {
 
 		Scheme scheme = getScheme();
 		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
-		//log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists" );
+		//log.atWarning().log( "NO SCHEME - Can't determine if the asset exists" );
 		return scheme == null || scheme.exists( this );
 	}
 

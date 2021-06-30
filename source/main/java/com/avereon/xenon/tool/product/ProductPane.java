@@ -3,7 +3,6 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -23,24 +22,23 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import lombok.extern.flogger.Flogger;
 import org.controlsfx.control.ToggleSwitch;
 
-import java.lang.System.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
+@Flogger
 class ProductPane extends GridPane {
 
-	private static final Logger log = Log.get();
+	private final ProductTool tool;
 
-	private ProductTool tool;
+	private final Program program;
 
-	private Program program;
+	private final ProductManager manager;
 
-	private ProductManager manager;
-
-	private ProductCard source;
+	private final ProductCard source;
 
 	private Label iconLabel;
 
@@ -291,7 +289,7 @@ class ProductPane extends GridPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN, "Error uninstalling product", exception );
+				log.atWarning().withCause(exception).log( "Error uninstalling product", exception );
 			}
 			Fx.run( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );

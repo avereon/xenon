@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.RepoCard;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -16,17 +15,19 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import lombok.extern.flogger.Flogger;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.util.Objects;
 
+@Flogger
 class RepoPane extends GridPane {
 
-	private ProductTool productTool;
+	private final ProductTool productTool;
 
-	private RepoState source;
+	private final RepoState source;
 
-	private RepoPage page;
+	private final RepoPage page;
 
 	private Label iconLabel;
 
@@ -194,7 +195,7 @@ class RepoPane extends GridPane {
 				productTool.getProgram().getProductManager().removeRepo( source );
 				page.updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN, "Error removing repository", exception );
+				log.atWarning().withCause( exception ).log( "Error removing repository" );
 			}
 		} ) );
 	}

@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
@@ -22,15 +21,14 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.util.Callback;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.*;
 
+@Flogger
 public class GuideTool extends ProgramTool {
 
 	public static final Guide NO_GUIDE = new Guide();
-
-	private static final Logger log = Log.get();
 
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
 
@@ -369,7 +367,7 @@ public class GuideTool extends ProgramTool {
 		public void handle( ToolEvent event ) {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
-			log.log( Log.DEBUG, "hide guide: " + event.getTool().getClass().getName() );
+			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
 			setGuide( null );
 		}
 	}

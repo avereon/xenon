@@ -21,9 +21,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lombok.extern.flogger.Flogger;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+@Flogger
 public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
@@ -39,8 +40,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	public static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
 
 	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
-
-	private static final Logger log = Log.get();
 
 	private final Program program;
 
@@ -250,7 +249,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public AssetType getAssetType( String key ) {
 		AssetType type = assetTypes.get( key );
-		if( type == null ) log.log( Log.WARN, "Asset type not found: " + key );
+		if( type == null ) log.atWarning().log( "Asset type not found: %s", key );
 		return type;
 	}
 
@@ -527,7 +526,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
 				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
 			} catch( AssetException exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		}
 
@@ -539,7 +538,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				resolveScheme( asset, saveAsAsset.getUri().getScheme() );
 			}
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 
 		saveAssets( asset );
@@ -1027,7 +1026,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			Codec codec = asset.getCodec();
 			result = scheme.canSave( asset ) && (codec == null || codec.canSave());
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR, "Error checking if asset can be saved", exception );
+			log.atSevere().withCause( exception ).log( "Error checking if asset can be saved" );
 		}
 
 		return result;
@@ -1052,9 +1051,9 @@ public class AssetManager implements Controllable<AssetManager> {
 			resolveScheme( asset );
 			identifiedAssets.put( uri, asset );
 			asset.setIcon( asset.isFolder() ? "folder" : "file" );
-			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.atFiner().log( "Asset create: %s[%s] uri=%s", asset, System.identityHashCode( asset ), uri );
 		} else {
-			log.log( Log.TRACE, "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.atFiner().log( "Asset exists: %s[%s] uri=%s", asset, System.identityHashCode( asset ), uri );
 		}
 
 		return asset;
@@ -1074,15 +1073,15 @@ public class AssetManager implements Controllable<AssetManager> {
 			codec = asset.getType().getDefaultCodec();
 			asset.setCodec( codec );
 		}
-		log.log( Log.TRACE, "Asset codec: " + codec );
+		log.atFiner().log( "Asset codec: %s", codec );
 
 		// Create the asset settings
 		asset.setSettings( getAssetSettings( asset ) );
-		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
+		log.atFiner().log( "Asset settings: %s", asset.getSettings().getPath() );
 
 		// Initialize the asset
 		if( !type.callAssetOpen( program, asset ) ) return false;
-		log.log( Log.TRACE, "Asset initialized with default values." );
+		log.atFiner().log( "Asset initialized with default values." );
 
 		// Register the general asset listener
 		asset.register( AssetEvent.ANY, generalAssetWatcher );
@@ -1094,7 +1093,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets.add( asset );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
-		log.log( Log.TRACE, "Asset opened: " + asset );
+		log.atFiner().log( "Asset opened: %s", asset );
 
 		if( asset.isNew() ) doLoadAsset( asset );
 
@@ -1113,7 +1112,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
 
-		log.log( Log.TRACE, "Asset loaded: " + asset );
+		log.atFiner().log( "Asset loaded: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1132,7 +1131,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
-		log.log( Log.TRACE, "Asset saved: " + asset );
+		log.atFiner().log( "Asset saved: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1160,7 +1159,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		//		if( settings != null ) settings.delete();
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
-		log.log( Log.TRACE, "Asset closed: " + asset );
+		log.atFiner().log( "Asset closed: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1188,7 +1187,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Notify program of current asset change
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
-			log.log( Log.TRACE, "Asset select: " + asset );
+			log.atFiner().log( "Asset select: %s", asset );
 		}
 
 		updateActionState();
@@ -1237,7 +1236,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				// If the asset is new get user input from the asset type.
 				if( asset.isNew() ) {
 					if( !asset.getType().callAssetNew( program, asset ) ) return null;
-					log.log( Log.TRACE, "Asset initialized with user values." );
+					log.atFiner().log( "Asset initialized with user values." );
 				}
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
@@ -1344,7 +1343,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				autosave.trigger();
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		}
 
@@ -1366,7 +1365,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				closeAssets( getCurrentAsset() );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		}
 
@@ -1388,7 +1387,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				closeAssets( openAssets );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		}
 
@@ -1429,7 +1428,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					String taskName = getClass().getSimpleName();
 					String message = Rb.text( "program", "task-error-message", errorName, taskName );
 					if( TestUtil.isTest() ) throwable.printStackTrace( System.err );
-					log.log( Log.WARN, message, throwable );
+					log.atWarning().withCause( throwable ).log( message );
 				}
 			}
 

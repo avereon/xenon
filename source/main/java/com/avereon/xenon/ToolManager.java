@@ -18,7 +18,6 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import lombok.extern.flogger.Flogger;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.List;
@@ -27,8 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.System.Logger.Level.*;
 
 @Flogger
 public class ToolManager implements Controllable<ToolManager> {
@@ -205,14 +202,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
-			log.log( WARNING, "No tools registered for asset type {0}", assetType.getKey() );
+			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
-			log.log( DEBUG, "One tool registered for asset type {0}", assetType.getKey() );
+			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		} else {
 			// There is more than one tool registered for the asset type
-			log.log( WARNING, "Multiple tools registered for asset type {0}", assetType.getKey() );
+			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
 		return toolClass;
@@ -273,7 +270,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
 			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
 			addToolListenerForSettings( tool );
-			log.log( DEBUG, "Tool instance created: " + tool.getClass().getName() );
+			log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
 			return tool;
 		} );
 

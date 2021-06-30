@@ -2,12 +2,11 @@ package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.zerra.javafx.Fx;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -54,9 +53,8 @@ import java.util.stream.Collectors;
  *
  * @author ecco
  */
+@Flogger
 public abstract class AssetType implements Comparable<AssetType> {
-
-	private static final Logger log = Log.get();
 
 	private final String key = getClass().getName();
 

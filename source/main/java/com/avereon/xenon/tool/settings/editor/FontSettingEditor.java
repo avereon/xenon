@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -13,13 +12,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.List;
 
+@Flogger
 public class FontSettingEditor extends SettingEditor {
-
-	private static final Logger log = Log.get();
 
 	private Label label;
 
@@ -65,7 +63,7 @@ public class FontSettingEditor extends SettingEditor {
 
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
-		log.log( Log.DEBUG,  "Setting font updated: " + font );
+		log.atFine().log(  "Setting font updated: %s", font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
 //		button.setOnAction( ( event ) -> {

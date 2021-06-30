@@ -1,12 +1,13 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
+import lombok.extern.flogger.Flogger;
 
+@Flogger
 class InstalledPage extends ProductPage {
 
-	private ProductTool productTool;
+	private final ProductTool productTool;
 
 	InstalledPage( Program program, ProductTool productTool ) {
 		super( program, productTool, ProductTool.INSTALLED );
@@ -20,7 +21,7 @@ class InstalledPage extends ProductPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.log( Log.TRACE,  "Update installed products" );
+		log.atFiner().log( "Update installed products" );
 		productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts( productTool, force ) );
 	}
 

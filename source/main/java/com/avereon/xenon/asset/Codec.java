@@ -1,18 +1,18 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import lombok.extern.flogger.Flogger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@Flogger
 public abstract class Codec {
 
 	public enum Pattern {
@@ -49,8 +49,6 @@ public abstract class Codec {
 
 		abstract boolean accept( String pattern, String value );
 	}
-
-	private static final Logger log = Log.get();
 
 	private AssetType assetType;
 

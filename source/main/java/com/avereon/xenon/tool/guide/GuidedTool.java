@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -10,16 +9,15 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Flogger
 public abstract class GuidedTool extends ProgramTool {
-
-	private static final Logger log = Log.get();
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 

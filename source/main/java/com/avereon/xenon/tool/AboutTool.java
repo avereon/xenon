@@ -28,16 +28,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
+import lombok.extern.flogger.Flogger;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Flogger
 public class AboutTool extends GuidedTool {
-
-	private static final Logger log = Log.get();
 
 	public static final String SUMMARY = "summary";
 
@@ -154,39 +153,39 @@ public class AboutTool extends GuidedTool {
 
 	private class SummaryPane extends HBox {
 
-		private Label productName;
+		private final Label productName;
 
-		private Label productVersion;
+		private final Label productVersion;
 
-		private Label productProvider;
+		private final Label productProvider;
 
-		private Label javaLabel;
+		private final Label javaLabel;
 
 		private Label javaName;
 
-		private Label javaVmName;
+		private final Label javaVmName;
 
-		private Label javaVersion;
+		private final Label javaVersion;
 
-		private Label javaProvider;
+		private final Label javaProvider;
 
-		private Label osLabel;
+		private final Label osLabel;
 
-		private Label osName;
+		private final Label osName;
 
-		private Label osVersion;
+		private final Label osVersion;
 
-		private Label osProvider;
+		private final Label osProvider;
 
 		private Label informationLabel;
 
-		private String lastUpdateCheckPrompt;
+		private final String lastUpdateCheckPrompt;
 
-		private Label lastUpdateTimestamp;
+		private final Label lastUpdateTimestamp;
 
-		private String nextUpdateCheckPrompt;
+		private final String nextUpdateCheckPrompt;
 
-		private Label nextUpdateTimestamp;
+		private final Label nextUpdateTimestamp;
 
 		public SummaryPane() {
 			super( UiFactory.PAD );

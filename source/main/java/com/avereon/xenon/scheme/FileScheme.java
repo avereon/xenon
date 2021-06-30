@@ -1,24 +1,22 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.*;
+import lombok.extern.flogger.Flogger;
 
 import java.io.*;
-import java.lang.System.Logger;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Flogger
 public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
-
-	private static final Logger log = Log.get();
 
 	private List<Asset> roots;
 
@@ -189,7 +187,7 @@ public class FileScheme extends BaseScheme {
 			File file = getFile( asset );
 			return Files.probeContentType( file.toPath() );
 		} catch( IOException | AssetException exception ) {
-			log.log( Log.WARN, "Error determining media type for asset", exception );
+			log.atWarning().withCause( exception ).log( "Error determining media type for asset" );
 			return StandardMediaTypes.APPLICATION_OCTET_STREAM;
 		}
 	}
@@ -199,7 +197,7 @@ public class FileScheme extends BaseScheme {
 		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
 			return readFirstLine( input, asset.getEncoding() );
 		} catch( IOException | AssetException exception ) {
-			log.log( Log.WARN, "Error determining first line for asset", exception );
+			log.atWarning().withCause( exception ).log( "Error determining first line for asset" );
 			return TextUtil.EMPTY;
 		}
 	}

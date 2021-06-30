@@ -5,7 +5,7 @@ import com.avereon.data.NodeEvent;
 import com.avereon.transaction.Txn;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.transaction.TxnException;
-import com.avereon.util.Log;
+import lombok.extern.flogger.Flogger;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.undo.UndoManagerFactory;
 import org.reactfx.EventSource;
@@ -15,11 +15,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+@Flogger
 public class DataNodeUndo {
 
 	private static final String UNDO_CHANGES = DataNodeUndo.class.getName() + ":undo-changes";
-
-	private static final System.Logger log = Log.get();
 
 	public static UndoManager<List<NodeChange>> manager( Node node ) {
 		return UndoManagerFactory.unlimitedHistoryMultiChangeUM( events( node ), DataNodeUndo::invert, DataNodeUndo::apply );
@@ -65,7 +64,7 @@ public class DataNodeUndo {
 			//changes.forEach( c -> System.out.println( "apply change=" + c ));
 			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue() ) );
 		} catch( TxnException exception ) {
-			log.log( Log.WARN, "Unable to apply node changes", exception );
+			log.atWarning().withCause( exception ).log( "Unable to apply node changes" );
 		}
 	}
 
