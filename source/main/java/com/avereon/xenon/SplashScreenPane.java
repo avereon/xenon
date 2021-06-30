@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.zenna.icon.XRingLargeIcon;
-import com.avereon.util.Log;
 import com.avereon.zerra.image.RenderedImage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -11,12 +10,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
-
+@Flogger
 public class SplashScreenPane extends Pane {
-
-	private static final Logger log = Log.get();
 
 	private static final double WIDTH = 480;
 

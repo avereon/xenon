@@ -1,12 +1,11 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Log;
 import com.avereon.zerra.javafx.Fx;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
-
+@Flogger
 public abstract class Action implements EventHandler<ActionEvent> {
 
 	public static final String NAME_SUFFIX = ".name";
@@ -24,8 +23,6 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	public static final String DESCRIPTION_SUFFIX = ".description";
 
 	private static final ActionProxy NONE = new ActionProxy();
-
-	private static final Logger log = Log.get();
 
 	private final Program program;
 

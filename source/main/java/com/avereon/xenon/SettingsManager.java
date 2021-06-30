@@ -5,7 +5,6 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.StoredSettings;
 import com.avereon.skill.Controllable;
-import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -16,15 +15,14 @@ import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
+import lombok.extern.flogger.Flogger;
 
 import java.io.IOException;
-import java.lang.System.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Flogger
 public class SettingsManager implements Controllable<SettingsManager> {
-
-	private static final Logger log = Log.get();
 
 	private static final String ROOT = "settings";
 
@@ -98,14 +96,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			pages = SettingsPageParser.parse( product, path );
 			addSettingsPages( pages, settings );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR, "Error loading settings page: " + path, exception );
+			log.atSevere().withCause( exception ).log( "Error loading settings page: %s", path );
 		}
 		return pages;
 	}
 
 	public void addSettingsPages( Map<String, SettingsPage> pages, Settings settings ) {
 		synchronized( rootSettingsPages ) {
-			log.log( Log.DEBUG, "Adding settings pages..." );
+			log.atFine().log( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -119,7 +117,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.log( Log.DEBUG, "Removing settings pages..." );
+			log.atFine().log( "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );

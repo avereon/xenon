@@ -2,13 +2,13 @@ package com.avereon.xenon;
 
 import com.avereon.product.Rb;
 import com.avereon.util.*;
-import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.weave.UpdateCommandBuilder;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.UpdateTask;
+import com.avereon.xenon.product.ProductUpdate;
+import lombok.extern.flogger.Flogger;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Mark Soderquist
  */
+@Flogger
 public class RestartHook extends Thread {
 
 	public enum Mode {
@@ -29,8 +30,6 @@ public class RestartHook extends Thread {
 		MOCK_UPDATE,
 		UPDATE
 	}
-
-	private static final Logger log = Log.get();
 
 	private static final String DELETE_SUFFIX = "delete";
 
@@ -59,7 +58,7 @@ public class RestartHook extends Thread {
 				// Ensure the updater is staged...even if we have to wait
 				program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, "Error staging updater", exception );
+				log.atSevere().withCause( exception ).log( "Error staging updater" );
 			}
 		}
 
@@ -113,14 +112,14 @@ public class RestartHook extends Thread {
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 		}
 
-		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+		log.atFine().log( "%s command: %s", mode, TextUtil.toString( builder.command(), " " ) );
 
 		try {
-			log.log( Log.TRACE, "Storing update commands..." );
+			log.atFiner().log( "Storing update commands..." );
 			Files.writeString( updateCommandFile, createUpdateCommands() );
-			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
+			log.atFine().log( "Update commands stored file=%s", updateCommandFile );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error storing update commands", throwable );
+			log.atSevere().withCause( throwable ).log( "Error storing update commands" );
 		}
 
 		return this;

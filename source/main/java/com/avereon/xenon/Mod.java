@@ -3,13 +3,12 @@ package com.avereon.xenon;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.image.VectorImage;
+import lombok.extern.flogger.Flogger;
 
 import java.io.IOException;
-import java.lang.System.Logger;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -25,13 +24,13 @@ import java.util.Map;
  * The Mod also implements ProgramProduct which provides access to the program,
  * the Mod class loader and the Mod resource bundles.
  */
+@SuppressWarnings( "UnusedReturnValue" )
+@Flogger
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
-
-	private static final Logger log = Log.get();
 
 	private Program program;
 

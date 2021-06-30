@@ -2,17 +2,15 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Flogger
 public class ActionLibrary {
-
-	private static final Logger log = Log.get();
 
 	private final Map<String, ActionProxy> actionsById;
 
@@ -110,7 +108,7 @@ public class ActionLibrary {
 
 	public ActionProxy getAction( String id ) {
 		ActionProxy proxy = actionsById.get( id );
-		if( proxy == null ) log.log( Log.WARN, "Action proxy not found: " + id );
+		if( proxy == null ) log.atWarning().log( "Action proxy not found: %s", id );
 		return proxy;
 	}
 

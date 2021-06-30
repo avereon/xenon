@@ -1,6 +1,12 @@
 import com.avereon.xenon.Mod;
 
 module com.avereon.xenon {
+
+	// Compile-time only
+	requires static lombok;
+
+	// Both compile-time and run-time
+	requires flogger;
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
@@ -47,4 +53,5 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.undo;
 
 	uses Mod;
+
 }

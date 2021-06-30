@@ -6,6 +6,7 @@ import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.zerra.color.Colors;
 import javafx.scene.paint.Color;
+import lombok.extern.flogger.Flogger;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,9 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Flogger
 public class ThemeManager implements Controllable<ThemeManager> {
-
-	private static final System.Logger log = Log.get();
 
 	private final Program program;
 
@@ -47,7 +47,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		try {
 			Files.createDirectories( profileThemeFolder );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 		createProvidedThemes();
 		reloadProfileThemes();
@@ -71,7 +71,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	private void registerTheme( String id, String name, String stylesheet ) {
 		Path path = profileThemeFolder.resolve( stylesheet );
 		themes.put( id, new ThemeMetadata( id, name, path.toUri().toString() ) );
-		log.log( Log.TRACE, "Theme registered: " + name );
+		log.atFiner().log( "Theme registered: %s", name );
 	}
 
 	private void reloadProfileThemes() {
@@ -107,7 +107,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		createTheme( "Xenon Evening Sky", "#1A2C3A", "#EEDC9D", "#C9CE6B" );
 
 		for( Color color : MaterialColor.getColors() ) {
-			createTheme( "Xenon Dark Material " + MaterialColor.getName( color ), Color.TRANSPARENT,color, false );
+			createTheme( "Xenon Dark Material " + MaterialColor.getName( color ), Color.TRANSPARENT, color, false );
 		}
 
 		for( Color color : MaterialColor.getColors() ) {
@@ -115,7 +115,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		}
 
 		for( Color color : MaterialColor.getColors() ) {
-			createTheme( "Xenon Light Material " + MaterialColor.getName( color ), Color.TRANSPARENT,color, true );
+			createTheme( "Xenon Light Material " + MaterialColor.getName( color ), Color.TRANSPARENT, color, true );
 		}
 
 		for( Color color : MaterialColor.getColors() ) {
@@ -182,7 +182,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		try( FileWriter writer = new FileWriter( path.toFile() ) ) {
 			new ThemeWriter( base, accent, focus ).write( id, name, writer );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 	}
 

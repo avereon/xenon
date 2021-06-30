@@ -2,9 +2,8 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
-import com.avereon.util.Log;
 import com.avereon.util.Parameters;
-import java.lang.System.Logger;
+import lombok.extern.flogger.Flogger;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,17 +13,16 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
+@Flogger
 public class ProgramServer implements Controllable<ProgramServer> {
 
-	private static final Logger log = Log.get();
+	private final Program program;
 
-	private Program program;
+	private final int requestedPort;
 
 	private ServerSocket server;
 
 	private SocketHandler handler;
-
-	private int requestedPort;
 
 	ProgramServer( Program program, int requestedPort ) {
 		this.program = program;
@@ -51,7 +49,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
-			log.log( Log.DEBUG,  "Program server started on port " + localPort );
+			log.atFine().log( "Program server started on port %s", localPort );
 
 			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
 			serverThread.setDaemon( true );
@@ -59,7 +57,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		} catch( BindException exception ) {
 			return this;
 		} catch( IOException exception ) {
-			log.log( Log.ERROR,  "Error starting program server", exception );
+			log.atSevere().withCause( exception ).log( "Error starting program server" );
 		}
 
 		return this;
@@ -88,7 +86,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 					Socket client = server.accept();
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
 					com.avereon.util.Parameters parameters = Parameters.parse( commands );
-					log.log( Log.WARN,  "Parameters from peer: " + parameters );
+					log.atWarning().log( "Parameters from peer: %s", parameters );
 
 					// Process the parameters and send messages to the peer
 					Handler peerLogHandler = new LogHandler( client );
@@ -97,11 +95,11 @@ public class ProgramServer implements Controllable<ProgramServer> {
 					program.processAssets( parameters );
 					//LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
 				} catch( ClassNotFoundException exception ) {
-					log.log( Log.ERROR,  "Error reading commands from client", exception );
+					log.atSevere().withCause( exception ).log( "Error reading commands from client" );
 				} catch( IOException exception ) {
 					String message = exception.getMessage();
 					message = message == null ? "null" : message.toLowerCase();
-					if( !"socket closed".equals( message ) ) log.log( Log.ERROR,  "Error waiting for connection", exception );
+					if( !"socket closed".equals( message ) ) log.atSevere().withCause( exception ).log( "Error waiting for connection" );
 				}
 			}
 		}
@@ -111,20 +109,20 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			try {
 				server.close();
 			} catch( IOException exception ) {
-				log.log( Log.ERROR,  "Error closing server socket", exception );
+				log.atSevere().withCause( exception ).log( "Error closing server socket" );
 			} finally {
 				server = null;
 			}
-			log.log( Log.DEBUG,  "Program server stopped listening" );
+			log.atFine().log( "Program server stopped listening" );
 		}
 
 	}
 
 	private static class LogHandler extends Handler {
 
-		private Socket client;
+		private final Socket client;
 
-		private ObjectOutputStream objectOutput;
+		private final ObjectOutputStream objectOutput;
 
 		LogHandler( Socket client ) throws IOException {
 			this.client = client;

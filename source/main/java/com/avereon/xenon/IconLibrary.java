@@ -1,24 +1,25 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.zenna.icon.*;
-import com.avereon.zerra.image.*;
 import com.avereon.xenon.task.Task;
+import com.avereon.zenna.icon.*;
+import com.avereon.zerra.image.BrokenIcon;
+import com.avereon.zerra.image.ImageIcon;
+import com.avereon.zerra.image.Images;
+import com.avereon.zerra.image.VectorImage;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import lombok.extern.flogger.Flogger;
 
-import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Flogger
 public class IconLibrary {
-
-	private static final Logger log = Log.get();
 
 	private static final int DEFAULT_SIZE = 16;
 

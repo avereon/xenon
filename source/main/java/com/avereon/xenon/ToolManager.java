@@ -16,6 +16,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
+import lombok.extern.flogger.Flogger;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -29,9 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.*;
 
+@Flogger
 public class ToolManager implements Controllable<ToolManager> {
-
-	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
 	private final Program program;
 
@@ -59,7 +59,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.log( DEBUG, "Tool registered: assetType={0} -> tool={1}", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
 
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
@@ -68,7 +68,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
-		log.log( DEBUG, "Tool unregistered: assetType={0} -> tool={0}", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool unregistered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		try {
 			tool = getToolInstance( request );
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
+			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
 			return null;
 		}
 
@@ -150,7 +150,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			return true;
 		} catch( InterruptedException ignored ) {
 		} catch( ExecutionException exception ) {
-			log.log( ERROR, "Error opening tool dependencies: " + request.getToolClass().getName(), exception );
+			log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", request.getToolClass().getName() );
 		}
 		return false;
 	}
@@ -178,7 +178,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Check for unregistered tool type
 		if( toolRegistration == null ) {
-			log.log( ERROR, "Tool class not registered: " + toolClassName );
+			log.atSevere().log( "Tool class not registered: %s", toolClassName );
 			return null;
 		}
 
@@ -189,7 +189,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			scheduleWaitForReady( request, tool );
 			return tool;
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
+			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
 			return null;
 		}
 	}
