@@ -423,17 +423,20 @@
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
 <!--								<jar>-->
-<!--									<name>xenon-*-tests.jar</name>-->
-<!--									<module>org.avereon.xenon-tests</module>-->
+<!--									<name>checker-compat-qual*.jar</name>-->
+<!--								</jar>-->
+<!--								<jar>-->
+<!--									<name>flogger-${flogger.version}.jar</name>-->
 <!--									<modules>-->
-<!--										<module>com.avereon.xenon</module>-->
-<!--										<module>org.hamcrest</module>-->
-<!--										<module>org.junit.jupiter.api</module>-->
+<!--										<module>checker.compat.qual</module>-->
 <!--									</modules>-->
 <!--								</jar>-->
-								<jar>
-									<name>flogger*.jar</name>
-								</jar>
+<!--								<jar>-->
+<!--									<name>flogger-system-backend-${flogger.version}.jar</name>-->
+<!--									<modules>-->
+<!--										<module>flogger</module>-->
+<!--									</modules>-->
+<!--								</jar>-->
 								<jar>
 									<name>image4j*.jar</name>
 								</jar>
