@@ -257,7 +257,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies
+      - name: Build Packs
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
@@ -330,7 +330,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies
+      - name: Build Packs
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
@@ -405,7 +405,7 @@ jobs:
           mvn ${{env.MAVEN_PARMS}} verify
       #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
-      - name: Build Assemblies
+      - name: Build Packs
         run: |
           mvn ${{env.MAVEN_PARMS}} -P packs verify
 
