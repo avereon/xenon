@@ -116,13 +116,13 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = Rb.textOr( product, BundleKey.ACTION, id + Action.ICON_SUFFIX, "" );
-		String name = Rb.textOr( product, BundleKey.ACTION, id + Action.NAME_SUFFIX, id );
-		String type = Rb.textOr( product, BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
-		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
-		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
-		String command = Rb.textOr( product, BundleKey.ACTION, id + Action.COMMAND_SUFFIX, null );
-		String description = Rb.textOr( product, BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
+		String icon = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.ICON_SUFFIX, "" );
+		String name = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.NAME_SUFFIX, id );
+		String type = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.TYPE_SUFFIX, null );
+		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.MNEMONIC_SUFFIX, null );
+		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.SHORTCUT_SUFFIX, null );
+		String command = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.COMMAND_SUFFIX, null );
+		String description = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.DESCRIPTION_SUFFIX, null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );

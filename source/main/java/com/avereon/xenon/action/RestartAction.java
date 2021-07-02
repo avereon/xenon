@@ -1,12 +1,12 @@
 package com.avereon.xenon.action;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.RestartHook;
 import javafx.event.ActionEvent;
 
-public class RestartAction extends Action {
+public class RestartAction extends ProgramAction {
 
 	private static final System.Logger log = Log.get();
 

@@ -1255,7 +1255,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class NewActionHandler extends Action {
+	private class NewActionHandler extends ProgramAction {
 
 		private NewActionHandler( Program program ) {
 			super( program );
@@ -1279,7 +1279,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class OpenActionHandler extends Action {
+	private class OpenActionHandler extends ProgramAction {
 
 		private boolean isHandling;
 
@@ -1306,7 +1306,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class SaveActionHandler extends Action {
+	private class SaveActionHandler extends ProgramAction {
 
 		private final boolean copy;
 
@@ -1327,7 +1327,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class SaveAllActionHandler extends Action {
+	private class SaveAllActionHandler extends ProgramAction {
 
 		private SaveAllActionHandler( Program program ) {
 			super( program );
@@ -1349,7 +1349,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class CloseActionHandler extends Action {
+	private class CloseActionHandler extends ProgramAction {
 
 		private CloseActionHandler( Program program ) {
 			super( program );
@@ -1371,7 +1371,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class CloseAllActionHandler extends Action {
+	private class CloseAllActionHandler extends ProgramAction {
 
 		private CloseAllActionHandler( Program program ) {
 			super( program );

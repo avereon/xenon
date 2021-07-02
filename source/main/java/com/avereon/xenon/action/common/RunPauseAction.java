@@ -2,11 +2,11 @@ package com.avereon.xenon.action.common;
 
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import javafx.event.ActionEvent;
 
-public class RunPauseAction extends Action {
+public class RunPauseAction extends ProgramAction {
 
 	private static final System.Logger log = Log.get();
 

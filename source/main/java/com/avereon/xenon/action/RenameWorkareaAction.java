@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import java.lang.System.Logger;
 import java.util.Optional;
 
-public class RenameWorkareaAction extends Action {
+public class RenameWorkareaAction extends ProgramAction {
 
 	private static final Logger log = Log.get();
 

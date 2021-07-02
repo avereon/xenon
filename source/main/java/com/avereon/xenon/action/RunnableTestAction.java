@@ -1,11 +1,11 @@
 package com.avereon.xenon.action;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import javafx.event.ActionEvent;
 
-public class RunnableTestAction extends Action {
+public class RunnableTestAction extends ProgramAction {
 
 	private static final System.Logger log = Log.get();
 

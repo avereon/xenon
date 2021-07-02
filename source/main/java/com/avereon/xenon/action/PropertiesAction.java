@@ -1,11 +1,11 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.PropertiesType;
 import javafx.event.ActionEvent;
 
-public class PropertiesAction extends Action {
+public class PropertiesAction extends ProgramAction {
 
 	public PropertiesAction( Program program ) {
 		super( program );

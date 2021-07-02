@@ -223,12 +223,12 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
 	}
 
-	protected ProgramTool pushAction( String key, Action action ) {
+	protected ProgramTool pushAction( String key, ProgramAction action ) {
 		getProgram().getActionLibrary().getAction( key ).pushAction( action );
 		return this;
 	}
 
-	protected ProgramTool pullAction( String key, Action action ) {
+	protected ProgramTool pullAction( String key, ProgramAction action ) {
 		getProgram().getActionLibrary().getAction( key ).pullAction( action );
 		return this;
 	}

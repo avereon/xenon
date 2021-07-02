@@ -6,7 +6,7 @@ import javafx.event.EventHandler;
 import lombok.extern.flogger.Flogger;
 
 @Flogger
-public abstract class Action implements EventHandler<ActionEvent> {
+public abstract class ProgramAction implements EventHandler<ActionEvent> {
 
 	public static final String NAME_SUFFIX = ".name";
 
@@ -28,7 +28,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	private ActionProxy proxy = NONE;
 
-	protected Action( Program program ) {
+	protected ProgramAction( Program program ) {
 		if( program == null ) throw new NullPointerException( "Program cannot be null" );
 		this.program = program;
 	}
@@ -49,7 +49,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	public Action updateEnabled() {
+	public ProgramAction updateEnabled() {
 		if( proxy != null ) proxy.setEnabled( isEnabled() );
 		return this;
 	}

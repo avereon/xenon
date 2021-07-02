@@ -3,7 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
@@ -66,11 +66,11 @@ public class AssetTool extends GuidedTool {
 
 	private final TableColumn<Asset, Node> assetLabel;
 
-	private final Action priorAction;
+	private final ProgramAction priorAction;
 
-	private final Action nextAction;
+	private final ProgramAction nextAction;
 
-	private final Action parentAction;
+	private final ProgramAction parentAction;
 
 	//private final UndoScope undoScope;
 
@@ -414,7 +414,7 @@ public class AssetTool extends GuidedTool {
 		}
 	}
 
-	private final class PriorAction extends Action {
+	private final class PriorAction extends ProgramAction {
 
 		protected PriorAction( Program program ) {
 			super( program );
@@ -433,7 +433,7 @@ public class AssetTool extends GuidedTool {
 
 	}
 
-	private final class NextAction extends Action {
+	private final class NextAction extends ProgramAction {
 
 		protected NextAction( Program program ) {
 			super( program );
@@ -452,7 +452,7 @@ public class AssetTool extends GuidedTool {
 
 	}
 
-	private final class ParentAction extends Action {
+	private final class ParentAction extends ProgramAction {
 
 		protected ParentAction( Program program ) {
 			super( program );
