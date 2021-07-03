@@ -6,11 +6,12 @@ module com.avereon.xenon {
 	requires static lombok;
 
 	// Both compile-time and run-time
-	requires flogger;
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
+	requires flogger;
+	requires flogger.system.backend;
 	requires java.net.http;
 	requires java.logging;
 	requires java.management;
