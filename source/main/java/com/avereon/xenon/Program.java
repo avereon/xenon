@@ -38,6 +38,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.CustomLog;
 import lombok.extern.flogger.Flogger;
 
 import java.io.BufferedReader;
@@ -58,7 +59,7 @@ import java.util.logging.Logger;
 
 import static java.lang.System.Logger.Level.*;
 
-@Flogger
+@CustomLog
 public class Program extends Application implements ProgramProduct {
 
 	public static final String STYLESHEET = "xenon.css";
