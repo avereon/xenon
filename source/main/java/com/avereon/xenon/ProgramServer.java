@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.Parameters;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,7 +13,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
-@Flogger
+@CustomLog
 public class ProgramServer implements Controllable<ProgramServer> {
 
 	private final Program program;

@@ -21,11 +21,11 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.util.Callback;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.*;
 
-@Flogger
+@CustomLog
 public class GuideTool extends ProgramTool {
 
 	public static final Guide NO_GUIDE = new Guide();

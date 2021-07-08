@@ -21,7 +21,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.File;
 import java.net.URI;
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-@Flogger
+@CustomLog
 public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";

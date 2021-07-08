@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.zerra.javafx.Fx;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.Collections;
 import java.util.Set;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  *
  * @author ecco
  */
-@Flogger
+@CustomLog
 public abstract class AssetType implements Comparable<AssetType> {
 
 	private final String key = getClass().getName();

@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.util.TextUtil;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-@Flogger
+@CustomLog
 public abstract class Codec {
 
 	public enum Pattern {

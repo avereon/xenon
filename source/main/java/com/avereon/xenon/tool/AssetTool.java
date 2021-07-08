@@ -3,8 +3,8 @@ package com.avereon.xenon.tool;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.*;
@@ -28,7 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.awt.event.KeyEvent;
 import java.net.URI;
@@ -40,7 +40,7 @@ import java.util.*;
 //import org.apache.commons.vfs2.FileSystemManager;
 //import org.apache.commons.vfs2.VFS;
 
-@Flogger
+@CustomLog
 public class AssetTool extends GuidedTool {
 
 	private enum Mode {

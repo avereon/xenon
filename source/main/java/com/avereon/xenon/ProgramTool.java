@@ -14,7 +14,7 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.net.URI;
 import java.util.Collections;
@@ -95,7 +95,7 @@ import java.util.concurrent.TimeUnit;
  *   <li>Constructor</li>
  * </ul>
  */
-@Flogger
+@CustomLog
 public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	public static final int ASSET_READY_TIMEOUT = 10;

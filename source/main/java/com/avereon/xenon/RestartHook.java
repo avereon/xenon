@@ -6,7 +6,7 @@ import com.avereon.weave.UpdateCommandBuilder;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.UpdateTask;
 import com.avereon.xenon.product.ProductUpdate;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Mark Soderquist
  */
-@Flogger
+@CustomLog
 public class RestartHook extends Thread {
 
 	public enum Mode {

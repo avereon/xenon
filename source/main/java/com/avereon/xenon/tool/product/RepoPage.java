@@ -6,12 +6,12 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Flogger
+@CustomLog
 class RepoPage extends ProductToolPage {
 
 	private final Program program;

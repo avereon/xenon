@@ -14,7 +14,7 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-@Flogger
+@CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private final Program program;

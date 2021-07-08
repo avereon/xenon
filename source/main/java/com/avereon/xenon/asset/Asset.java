@@ -11,7 +11,7 @@ import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zerra.event.FxEventHub;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.fxmisc.undo.UndoManager;
 
 import java.io.File;
@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
-@Flogger
+@CustomLog
 public class Asset extends Node {
 
 	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );

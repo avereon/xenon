@@ -6,9 +6,9 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.task.TaskEvent;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 public class DownloadRequest implements EventHandler<TaskEvent> {
 
 	private final ProductCard card;

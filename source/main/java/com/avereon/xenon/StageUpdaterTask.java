@@ -1,9 +1,8 @@
 package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.xenon.task.Task;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +14,7 @@ import java.nio.file.Path;
  * locking runtime file resources. The task result is the path to the temporary
  * location.
  */
-@Flogger
+@CustomLog
 public class StageUpdaterTask extends Task<Void> {
 
 	private final Program program;

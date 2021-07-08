@@ -16,7 +16,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@Flogger
+@CustomLog
 public class ToolManager implements Controllable<ToolManager> {
 
 	private final Program program;

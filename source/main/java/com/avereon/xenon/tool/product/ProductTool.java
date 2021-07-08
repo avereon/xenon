@@ -12,11 +12,11 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.layout.BorderPane;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.*;
 
-@Flogger
+@CustomLog
 public class ProductTool extends GuidedTool {
 
 	public static final String INSTALLED = "installed";

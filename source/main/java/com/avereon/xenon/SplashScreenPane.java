@@ -10,9 +10,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 public class SplashScreenPane extends Pane {
 
 	private static final double WIDTH = 480;

@@ -22,14 +22,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-@Flogger
+@CustomLog
 class ProductPane extends GridPane {
 
 	private final ProductTool tool;

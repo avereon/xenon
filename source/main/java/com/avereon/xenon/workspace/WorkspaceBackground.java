@@ -10,14 +10,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Flogger
+@CustomLog
 public class WorkspaceBackground extends StackPane {
 
 	private final Pane backPane;

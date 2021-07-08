@@ -3,9 +3,9 @@ package com.avereon.xenon;
 import com.avereon.zerra.javafx.Fx;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 public abstract class ProgramAction implements EventHandler<ActionEvent> {
 
 	public static final String NAME_SUFFIX = ".name";

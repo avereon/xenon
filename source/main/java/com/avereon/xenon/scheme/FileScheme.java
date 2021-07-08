@@ -4,7 +4,7 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.*;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Flogger
+@CustomLog
 public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";

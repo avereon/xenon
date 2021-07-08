@@ -6,7 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.image.VectorImage;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,7 +25,7 @@ import java.util.Map;
  * the Mod class loader and the Mod resource bundles.
  */
 @SuppressWarnings( "UnusedReturnValue" )
-@Flogger
+@CustomLog
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";

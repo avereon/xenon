@@ -1,12 +1,11 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 public class ProgramTaskManager extends TaskManager {
 
 	private final Program program;

@@ -2,11 +2,10 @@ package com.avereon.xenon;
 
 import com.avereon.skill.Controllable;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.zerra.color.Colors;
 import javafx.scene.paint.Color;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Flogger
+@CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
 	private final Program program;

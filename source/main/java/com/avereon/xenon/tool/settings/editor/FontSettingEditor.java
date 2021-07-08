@@ -12,11 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.List;
 
-@Flogger
+@CustomLog
 public class FontSettingEditor extends SettingEditor {
 
 	private Label label;

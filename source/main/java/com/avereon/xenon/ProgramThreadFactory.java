@@ -1,11 +1,11 @@
 package com.avereon.xenon;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Flogger
+@CustomLog
 public class ProgramThreadFactory implements ThreadFactory {
 
 	private static final AtomicInteger count = new AtomicInteger();

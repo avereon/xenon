@@ -15,13 +15,13 @@ import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Flogger
+@CustomLog
 public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final String ROOT = "settings";

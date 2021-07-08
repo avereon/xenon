@@ -11,14 +11,14 @@ import com.avereon.zerra.image.VectorImage;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Flogger
+@CustomLog
 public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;

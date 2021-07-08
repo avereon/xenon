@@ -28,14 +28,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.File;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Flogger
+@CustomLog
 public class AboutTool extends GuidedTool {
 
 	public static final String SUMMARY = "summary";

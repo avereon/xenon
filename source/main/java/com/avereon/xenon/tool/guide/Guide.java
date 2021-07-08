@@ -5,12 +5,12 @@ import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.*;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Flogger
+@CustomLog
 public class Guide {
 
 	public enum Drop {

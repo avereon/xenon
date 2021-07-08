@@ -4,12 +4,12 @@ import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Flogger
+@CustomLog
 public class ActionLibrary {
 
 	private final Map<String, ActionProxy> actionsById;

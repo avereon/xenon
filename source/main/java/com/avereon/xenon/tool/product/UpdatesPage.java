@@ -2,9 +2,9 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 class UpdatesPage extends ProductPage {
 
 	private final ProductTool productTool;

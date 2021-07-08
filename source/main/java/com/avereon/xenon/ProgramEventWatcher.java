@@ -4,13 +4,13 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventType;
 import com.avereon.xenon.task.TaskEvent;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-@Flogger
+@CustomLog
 public class ProgramEventWatcher implements EventHandler<Event> {
 
 	private static final Map<EventType<?>, Level> LEVELS;

@@ -5,7 +5,7 @@ import com.avereon.data.NodeEvent;
 import com.avereon.transaction.Txn;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.transaction.TxnException;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.undo.UndoManagerFactory;
 import org.reactfx.EventSource;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-@Flogger
+@CustomLog
 public class DataNodeUndo {
 
 	private static final String UNDO_CHANGES = DataNodeUndo.class.getName() + ":undo-changes";

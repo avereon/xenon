@@ -2,14 +2,14 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-@Flogger
+@CustomLog
 public class HttpScheme extends BaseScheme {
 
 	public static final String ID = "http";

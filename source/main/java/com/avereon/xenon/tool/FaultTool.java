@@ -8,12 +8,12 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import javafx.scene.control.TextArea;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-@Flogger
+@CustomLog
 public class FaultTool extends ProgramTool {
 
 	private final TextArea text;

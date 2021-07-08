@@ -15,12 +15,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.util.Objects;
 
-@Flogger
+@CustomLog
 class RepoPane extends GridPane {
 
 	private final ProductTool productTool;

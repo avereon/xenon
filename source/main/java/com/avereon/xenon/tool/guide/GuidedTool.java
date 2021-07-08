@@ -9,14 +9,14 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Flogger
+@CustomLog
 public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";

@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@Flogger
+@CustomLog
 public class DownloadTask extends Task<Download> {
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;

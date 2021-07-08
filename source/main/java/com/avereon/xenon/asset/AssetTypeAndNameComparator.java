@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 
-@Flogger
+@CustomLog
 public class AssetTypeAndNameComparator extends AssetNameComparator {
 
 
