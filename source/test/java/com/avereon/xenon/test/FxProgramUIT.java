@@ -1,6 +1,7 @@
 package com.avereon.xenon.test;
 
 import com.avereon.event.EventWatcher;
+import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
 import com.avereon.xenon.Profile;

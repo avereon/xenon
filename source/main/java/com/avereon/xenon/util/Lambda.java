@@ -1,15 +1,13 @@
 package com.avereon.xenon.util;
 
-import com.avereon.util.Log;
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
 import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@CustomLog
 public class Lambda {
-
-	private static final Logger log = Log.get();
 
 	public static TimerTask timerTask( Runnable runnable ) {
 		return new TimerTask() {
@@ -28,7 +26,7 @@ public class Lambda {
 			try {
 				consumer.accept( parameter );
 			} catch( Throwable throwable ) {
-				log.log( Log.ERROR,  "Exception occurred in lambda", throwable );
+				log.atError().withCause(throwable).log( "Exception occurred in lambda" );
 			}
 		};
 
@@ -40,7 +38,7 @@ public class Lambda {
 			try {
 				return function.apply( parameter );
 			} catch( Throwable throwable ) {
-				log.log( Log.ERROR,  "Exception occurred in lambda", throwable );
+				log.atError().withCause( throwable ).log( "Exception occurred in lambda" );
 			}
 			return null;
 		};

@@ -5,7 +5,6 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -34,6 +33,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import lombok.CustomLog;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -47,11 +47,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
+@CustomLog
 public class Workspace implements WritableIdentity {
 
 	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
-
-	private static final System.Logger log = Log.get();
 
 	public static final String EDIT_ACTION = "edit";
 

@@ -1,7 +1,6 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
@@ -12,15 +11,15 @@ import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
+import lombok.CustomLog;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class Workarea implements WritableIdentity {
-
-	private static final System.Logger log = Log.get();
 
 	private final StringProperty name;
 

@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEdge;
 import com.avereon.xenon.workpane.WorkpaneView;
@@ -10,7 +9,9 @@ import com.avereon.xenon.workspace.Workarea;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
+import lombok.CustomLog;
 
+@CustomLog
 public class UiFactory {
 
 	public static final double DEFAULT_WIDTH = 960;
@@ -34,8 +35,6 @@ public class UiFactory {
 	private static final String DOCK_RIGHT_SIZE = "dock-right-size";
 
 	private static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
-
-	private static final System.Logger log = Log.get();
 
 	private final Program program;
 

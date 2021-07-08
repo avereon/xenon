@@ -1,16 +1,15 @@
 package com.avereon.xenon.action.common;
 
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.util.Log;
-import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramAction;
 import javafx.event.ActionEvent;
+import lombok.CustomLog;
 
+@CustomLog
 public class RunPauseAction extends ProgramAction {
 
-	private static final System.Logger log = Log.get();
-
-	private RunPauseResettable target;
+	private final RunPauseResettable target;
 
 	public RunPauseAction( Program program, RunPauseResettable target ) {
 		super( program );
@@ -24,16 +23,9 @@ public class RunPauseAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		log.log( Log.WARN, "state=" + getState() );
 		switch( getState() ) {
-			case "run" : {
-				target.run();
-				break;
-			}
-			case "pause" : {
-				target.pause();
-				break;
-			}
+			case "run" -> target.run();
+			case "pause" -> target.pause();
 		}
 	}
 

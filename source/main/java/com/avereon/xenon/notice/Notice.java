@@ -4,13 +4,12 @@ import com.avereon.data.IdNode;
 import com.avereon.transaction.Txn;
 import com.avereon.transaction.TxnException;
 import com.avereon.util.HashUtil;
-import com.avereon.util.Log;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
-
+@CustomLog
 public class Notice extends IdNode {
 
 	public enum Balloon {
@@ -34,8 +33,6 @@ public class Notice extends IdNode {
 		}
 
 	}
-
-	private static final Logger log = Log.get();
 
 	private static final String TIMESTAMP = "timestamp";
 

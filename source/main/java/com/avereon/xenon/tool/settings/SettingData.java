@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class SettingData extends SettingDependant {
 
 	public static final String ID = "id";
@@ -26,8 +27,6 @@ public class SettingData extends SettingDependant {
 	private static final String OPTIONS = "options";
 
 	private static final String OPTION_PROVIDER = "option-provider";
-
-	private static final System.Logger log = Log.get();
 
 	private final SettingGroup group;
 
@@ -58,14 +57,6 @@ public class SettingData extends SettingDependant {
 	public void setKey( String key ) {
 		setValue( KEY, key );
 	}
-
-//	public String getRbKey() {
-//		return getValue( RBKEY );
-//	}
-//
-//	public void setRbKey( String key ) {
-//		setValue( RBKEY, key );
-//	}
 
 	public String getSettingValue() {
 		return getValue( VALUE );

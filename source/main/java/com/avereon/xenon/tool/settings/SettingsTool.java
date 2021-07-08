@@ -1,24 +1,22 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.scene.control.ScrollPane;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
-
-	private static final Logger log = Log.get();
 
 	private final Map<String, SettingsPanel> panelCache;
 

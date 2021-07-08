@@ -2,15 +2,14 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@CustomLog
 public abstract class SettingDependant extends Node {
-
-	private static final System.Logger log = Log.get();
 
 	public static final String DISABLE = "disable";
 

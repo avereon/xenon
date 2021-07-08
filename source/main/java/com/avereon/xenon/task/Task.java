@@ -4,9 +4,8 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -21,9 +20,8 @@ import java.util.concurrent.FutureTask;
  * @author Mark Soderquist
  */
 
+@CustomLog
 public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
-
-	private static final Logger log = Log.get();
 
 	public enum State {
 		READY,

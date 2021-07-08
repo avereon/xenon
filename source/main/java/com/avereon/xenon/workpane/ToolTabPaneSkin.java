@@ -1,6 +1,5 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.Log;
 import com.avereon.zerra.javafx.FxUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
@@ -13,15 +12,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
-
-	private static final Logger log = Log.get();
 
 	private final Pane header;
 

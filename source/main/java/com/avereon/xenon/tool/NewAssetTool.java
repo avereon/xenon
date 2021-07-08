@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -17,14 +16,14 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class NewAssetTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final AssetTypeView view;
 

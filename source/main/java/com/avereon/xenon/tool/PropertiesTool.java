@@ -2,7 +2,6 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -14,13 +13,13 @@ import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
+import lombok.CustomLog;
 
 /**
  * This tool listens for "show properties" and "hide properties" events that allow the user to edit the properties of an object using the settings API.
  */
+@CustomLog
 public class PropertiesTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final ScrollPane scroller;
 

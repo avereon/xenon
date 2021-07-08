@@ -1,21 +1,19 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
-import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.Optional;
 
+@CustomLog
 public class RenameWorkareaAction extends ProgramAction {
-
-	private static final Logger log = Log.get();
 
 	private Workarea workarea;
 
@@ -48,7 +46,7 @@ public class RenameWorkareaAction extends ProgramAction {
 		try {
 			workarea.setName( name );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error creating new workarea: " + name, exception );
+			log.atError( exception ).log( "Error creating new workarea: %s", name );
 		}
 	}
 

@@ -1,13 +1,13 @@
 package com.avereon.xenon.product;
 
+import com.avereon.log.LazyEval;
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
-import com.avereon.util.Log;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.Program;
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -19,11 +19,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class V2RepoClient implements RepoClient {
 
-	private static final Logger log = Log.get();
-
-	private Program program;
+	private final Program program;
 
 	public V2RepoClient( Program program ) {
 		this.program = program;
@@ -66,10 +65,10 @@ public class V2RepoClient implements RepoClient {
 				try( InputStream input = download.getInputStream() ) {
 					catalogCards.add( CatalogCard.fromJson( matchingRepoCards.get( future ), input ) );
 				} catch( Exception exception ) {
-					log.log( Log.WARN,  "Error downloading catalog card: " + download.getSource(), exception );
+					log.atWarn( exception ).log( "Error downloading catalog card: %s", LazyEval.of( download::getSource ) );
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN,  "Error downloading catalog card", exception );
+				log.atWarn( exception).log( "Error downloading catalog card" );
 			}
 		}
 
@@ -95,10 +94,10 @@ public class V2RepoClient implements RepoClient {
 				try( InputStream input = download.getInputStream() ) {
 					productCards.add( new ProductCard().fromJson( input, download.getSource() ) );
 				} catch( Exception exception ) {
-					log.log( Log.WARN,  "Error downloading product card: " + download.getSource(), exception );
+					log.atWarn( exception ).log( "Error downloading product card: %s", LazyEval.of( download::getSource ) );
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN,  "Error downloading product card", exception );
+				log.atWarn( exception).log( "Error downloading product card" );
 			}
 		}
 

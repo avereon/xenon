@@ -4,6 +4,7 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
+import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.product.Release;

@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -15,13 +14,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import lombok.CustomLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class PaintSettingEditor extends SettingEditor {
-
-	private static final System.Logger log = Log.get();
 
 	private final Label label;
 
