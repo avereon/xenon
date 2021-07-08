@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.log.LazyEval;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
 import lombok.CustomLog;
@@ -13,8 +14,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
-
-import static com.google.common.flogger.LazyArgs.lazy;
 
 @CustomLog
 public class ProgramPeer implements Controllable<ProgramPeer> {
@@ -69,7 +68,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 		try {
 			List<String> commandList = program.getProgramParameters().getOriginalCommands();
 			String[] commands = commandList.toArray( new String[ 0 ] );
-			log.atInfo().log( "%s", lazy( () -> TextUtil.toString( commands, " " ) ) );
+			log.atInfo().log( "%s", LazyEval.of( () -> TextUtil.toString( commands, " " ) ) );
 			ObjectOutputStream commandStream = new ObjectOutputStream( socket.getOutputStream() );
 			commandStream.writeObject( commands );
 			commandStream.flush();

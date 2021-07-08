@@ -39,7 +39,6 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
-import lombok.extern.flogger.Flogger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,8 +55,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import static java.lang.System.Logger.Level.*;
 
 @CustomLog
 public class Program extends Application implements ProgramProduct {

@@ -422,32 +422,6 @@
 						<configuration>
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
-
-								<jar>
-									<name>flogger-${flogger.version}.jar</name>
-									<ignoreMissing>true</ignoreMissing>
-									<mergeJars>
-										<mergeJar>checker-compat-qual*.jar</mergeJar>
-										<mergeJar>flogger-system-backend-${flogger.version}.jar</mergeJar>
-									</mergeJars>
-								</jar>
-
-								<!--								<jar>-->
-								<!--									<name>checker-compat-qual*.jar</name>-->
-								<!--								</jar>-->
-								<!--								<jar>-->
-								<!--									<name>flogger-system-backend-${flogger.version}.jar</name>-->
-								<!--									<ignoreMissing>true</ignoreMissing>-->
-								<!--								</jar>-->
-								<!--								<jar>-->
-								<!--									<name>flogger-${flogger.version}.jar</name>-->
-								<!--									<modules>-->
-								<!--										<module>checker.compat.qual</module>-->
-								<!--										<module>flogger.system.backend</module>-->
-								<!--									</modules>-->
-								<!--									<ignoreMissing>true</ignoreMissing>-->
-								<!--								</jar>-->
-
 								<jar>
 									<name>image4j*.jar</name>
 								</jar>
