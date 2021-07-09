@@ -34,10 +34,10 @@ public class PaintSettingEditor extends SettingEditor {
 		paintPicker = new PaintPicker();
 		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
 		paintPicker.getOptions().addAll( setting.getOptions().stream().map( o -> switch( o.getKey() ) {
-			case "none" -> PaintPickerPane.PaintMode.NONE;
 			case "solid" -> PaintPickerPane.PaintMode.SOLID;
 			case "linear" -> PaintPickerPane.PaintMode.LINEAR;
 			case "radial" -> PaintPickerPane.PaintMode.RADIAL;
+			case "none" -> PaintPickerPane.PaintMode.NONE;
 			default -> new PaintPickerPane.PaintMode( o.getKey(), o.getName() );
 		} ).collect( Collectors.toList() ) );
 	}

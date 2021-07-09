@@ -46,7 +46,7 @@ public class PaintPickerPane extends VBox {
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
-		mode.getItems().addAll( PaintMode.NONE, PaintMode.SOLID );
+		mode.getItems().addAll( PaintMode.SOLID, PaintMode.NONE );
 
 		// The paint stop editor
 		//RangeSlider paintStopEditor = new RangeSlider();
@@ -159,41 +159,29 @@ public class PaintPickerPane extends VBox {
 
 		public static final PaintMode NONE;
 
+		public static final PaintMode LAYER;
+
 		public static final PaintMode SOLID;
 
 		public static final PaintMode LINEAR;
 
 		public static final PaintMode RADIAL;
 
-		public static final PaintMode OTHER;
-
 		private final String key;
 
 		private final String label;
 
-		private String value;
-
 		static {
 			NONE = new PaintMode( "none", Rb.text( BundleKey.LABEL, "none" ) );
+			LAYER = new PaintMode( "layer", Rb.text( BundleKey.LABEL, "layer" ) );
 			SOLID = new PaintMode( "solid", Rb.text( BundleKey.LABEL, "solid" ) );
 			LINEAR = new PaintMode( "linear", Rb.text( BundleKey.LABEL, "linear" ) );
 			RADIAL = new PaintMode( "radial", Rb.text( BundleKey.LABEL, "radial" ) );
-			OTHER = new PaintMode( "other", Rb.text( BundleKey.LABEL, "other" ) );
 		}
 
 		public PaintMode( String key, String label ) {
-			this( key, label, null );
-		}
-
-		public PaintMode( String key, String label, String value ) {
 			this.key = key;
 			this.label = label;
-			//this.value = value;
-
-			//		String none = product.rb().textOr( BundleKey.LABEL, "none", "None" );
-			//		String solid = product.rb().textOr( BundleKey.LABEL, "solid", "Solid Color" );
-			//		String linear = product.rb().textOr( BundleKey.LABEL, "linear-gradient", "Linear Gradient" );
-			//		String radial = product.rb().textOr( BundleKey.LABEL, "radial-gradient", "Radial Gradient" );
 		}
 
 		public String getKey() {
@@ -207,22 +195,15 @@ public class PaintPickerPane extends VBox {
 		public static PaintMode getPaintMode( String paint ) {
 			if( TextUtil.isEmpty( paint ) ) return PaintMode.NONE;
 
+			if( PaintMode.LAYER.getKey().equals( paint ) ) return PaintMode.LAYER;
+
 			return switch( paint.charAt( 0 ) ) {
 				case '#' -> PaintMode.SOLID;
 				case '[' -> PaintMode.LINEAR;
 				case '(' -> PaintMode.RADIAL;
-				default -> PaintMode.OTHER;
-				//default -> throw new IllegalStateException( "Unexpected value: " + paint );
+				default -> throw new IllegalStateException( "Unexpected paint mode: " + paint );
 			};
 		}
-
-		//	public String getValue() {
-		//		return value;
-		//	}
-		//
-		//	public void setValue( String value ) {
-		//		this.value = value;
-		//	}
 
 		@Override
 		public String toString() {
