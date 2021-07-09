@@ -97,9 +97,9 @@ public class PaintPickerPane extends VBox {
 	}
 
 	public void setPaint( String paint ) {
-		doSetPaint( paint );
-		updateMode( paint );
+		// Do not call doSetPaint() here, changing the paintField will do that if needed
 		paintField.setText( paint );
+		updateMode( paint );
 	}
 
 	private void doSetPaint( String paint ) {
