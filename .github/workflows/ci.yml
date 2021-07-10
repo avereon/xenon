@@ -1,4 +1,4 @@
-name: Avereon Xenon Continuous
+name: CI
 
 on:
   push:
