@@ -32,6 +32,7 @@ import lombok.CustomLog;
 
 import java.awt.event.KeyEvent;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
@@ -172,12 +173,24 @@ public class AssetTool extends GuidedTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
-		// Select the current asset
+		// Determine the current folder
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
-		log.atInfo().log( "Current folder string=%s", currentFolderString );
-		URI uri = URI.create( currentFolderString );
-		//		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
-		selectAsset( uri );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
+		log.atConfig().log( "Current folder=%s", currentFolder );
+		log.atConfig().log( "uri=" + request.getUri() );
+
+		// Select the current asset
+		URI uri;
+		try {
+			uri = resolveAsset( request.getQuery() );
+			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
+			if( uri == null ) uri = currentFolder.toUri();
+			selectAsset( uri );
+		} catch( URISyntaxException exception ) {
+			log.atWarn( exception ).log();
+		}
+
 	}
 
 	@Override
@@ -211,6 +224,11 @@ public class AssetTool extends GuidedTool {
 		} catch( IllegalArgumentException exception ) {
 			return Mode.OPEN;
 		}
+	}
+
+	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
+		String asset = parameters.get( "asset" );
+		return asset == null ? null : new URI( asset );
 	}
 
 	private void selectAsset( Asset asset ) {

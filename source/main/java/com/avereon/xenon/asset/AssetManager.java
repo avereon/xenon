@@ -8,6 +8,7 @@ import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
+import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -192,6 +193,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The scheme registered to the name
 	 */
 	public Scheme getScheme( String name ) {
+		if( name == null ) name = FileScheme.ID;
 		return schemes.get( name );
 	}
 
@@ -491,43 +493,48 @@ public class AssetManager implements Controllable<AssetManager> {
 			Codec codec = asset.getCodec();
 			if( codec == null ) codec = asset.getType().getDefaultCodec();
 
+			String filename = !asset.isNew() ? asset.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
+
 			// NOTE This logic is very file oriented. It may need to move to the file scheme.
+			// FIXME Use of the file chooser can be replaced with the AssetTool
 			FileChooser chooser = new FileChooser();
 			Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
 			chooser.getExtensionFilters().addAll( codecFilters.values() );
 			chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
-			chooser.setInitialDirectory( getFileChooserFolder() );
-			chooser.setInitialFileName( "asset" + (codec == null ? "" : "." + codec.getDefaultExtension()) );
+			chooser.setInitialDirectory( getCurrentFolder() );
+			chooser.setInitialFileName( filename );
 
-			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
-			if( file == null ) return false;
+			openAsset( URI.create( ProgramAssetChooserType.SAVE_URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) ) );
 
-			File parent = file.isDirectory() ? file : file.getParentFile();
-			getSettings().set( CURRENT_FOLDER_SETTING_KEY, parent.toString() );
-
-			// If the user specified a codec use it to set the codec and asset type
-			AssetType type = asset.getType();
-			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
-			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
-			if( selectedCodec != null ) type = selectedCodec.getAssetType();
-
-			// If the file extension is not already supported use the default extension from the codec
-			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
-				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
-			}
-
-			// Resolve the URI
-			URI uri = UriUtil.resolve( file.toString() );
-
-			// Create the target asset
-			try {
-				saveAsAsset = createAsset( type, uri );
-				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
-				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
-				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
-			} catch( AssetException exception ) {
-				log.atSevere().withCause( exception ).log();
-			}
+//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
+//			if( file == null ) return false;
+//
+//			File folder = file.isDirectory() ? file : file.getParentFile();
+//			getSettings().set( CURRENT_FOLDER_SETTING_KEY, folder.toString() );
+//
+//			// If the user specified a codec use it to set the codec and asset type
+//			AssetType type = asset.getType();
+//			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
+//			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
+//			if( selectedCodec != null ) type = selectedCodec.getAssetType();
+//
+//			// If the file extension is not already supported use the default extension from the codec
+//			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
+//				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
+//			}
+//
+//			// Resolve the URI
+//			URI uri = UriUtil.resolve( file.toString() );
+//
+//			// Create the target asset
+//			try {
+//				saveAsAsset = createAsset( type, uri );
+//				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
+//				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
+//				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
+//			} catch( AssetException exception ) {
+//				log.atSevere().withCause( exception ).log();
+//			}
 		}
 
 		try {
@@ -1202,7 +1209,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
 	}
 
-	private File getFileChooserFolder() {
+	private File getCurrentFolder() {
 		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
 		if( !folder.exists() || !folder.isDirectory() ) folder = new File( System.getProperty( "user.dir" ) );
 		return folder;
@@ -1308,21 +1315,24 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveActionHandler extends ProgramAction {
 
+		private final boolean saveAs;
+
 		private final boolean copy;
 
 		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
 			super( program );
+			this.saveAs = saveAs;
 			this.copy = copy;
 		}
 
 		@Override
 		public boolean isEnabled() {
-			return canSaveAsset( getCurrentAsset() );
+			return saveAs || canSaveAsset( getCurrentAsset() );
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			saveAsset( getCurrentAsset() );
+			saveAsset( getCurrentAsset(), null, saveAs, copy );
 		}
 
 	}
