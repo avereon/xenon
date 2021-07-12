@@ -10,6 +10,10 @@ import com.avereon.xenon.asset.PlaceholderCodec;
  */
 public class VectorImageType extends AssetType {
 
+	private static final String assetTypeKey = "image:vector";
+
+	private static final String svgMediaTypePattern = "image/svg+xml";
+
 	public VectorImageType( ProgramProduct product ) {
 		super( product, "image" );
 
@@ -21,7 +25,7 @@ public class VectorImageType extends AssetType {
 
 	@Override
 	public String getKey() {
-		return "image:vector";
+		return assetTypeKey;
 	}
 
 }

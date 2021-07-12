@@ -8,7 +8,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 @Deprecated
 public class ProgramThemesType extends AssetType {
 
-	private static final String uriPattern = "program:themes";
+	private static final String uriPattern = "program:/themes";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

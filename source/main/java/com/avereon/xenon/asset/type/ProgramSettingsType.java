@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.*;
 
 public class ProgramSettingsType extends AssetType {
 
-	private static final String uriPattern = "program:settings";
+	private static final String uriPattern = "program:/settings";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

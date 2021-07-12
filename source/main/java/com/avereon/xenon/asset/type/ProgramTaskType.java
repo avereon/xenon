@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramTaskType extends AssetType {
 
-	private static final String uriPattern = "program:task";
+	private static final String uriPattern = "program:/task";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

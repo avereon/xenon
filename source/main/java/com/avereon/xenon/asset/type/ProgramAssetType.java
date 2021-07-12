@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramAssetType extends AssetType {
 
-	public static final String URI = "program:asset";
+	public static final String URI = "program:/asset";
 
 	public static final String OPEN_FRAGMENT = "#open";
 

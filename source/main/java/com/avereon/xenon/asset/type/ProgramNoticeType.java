@@ -18,7 +18,7 @@ public class ProgramNoticeType extends AssetType {
 
 	private static final String mediaTypePattern = "application/vnd.avereon.xenon.program.notice";
 
-	private static final String uriPattern = "program:notice";
+	private static final String uriPattern = "program:/notice";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

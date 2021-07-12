@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class PropertiesType extends AssetType {
 
-	private static final String uriPattern = "program:properties";
+	private static final String uriPattern = "program:/properties";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
