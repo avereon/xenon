@@ -183,9 +183,12 @@ public class AssetTool extends GuidedTool {
 		// Select the current asset
 		URI uri;
 		try {
-			uri = resolveAsset( request.getQuery() );
+			uri = resolveAsset( request.getQueryParameters() );
+			log.atConfig().log( "asset=" + uri );
 			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
+			log.atConfig().log( "asset=" + uri );
 			if( uri == null ) uri = currentFolder.toUri();
+			log.atConfig().log( "asset=" + uri );
 			selectAsset( uri );
 		} catch( URISyntaxException exception ) {
 			log.atWarn( exception ).log();

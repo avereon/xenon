@@ -84,8 +84,8 @@ public class OpenAssetRequest {
 		return this;
 	}
 
-	public Map<String,String> getQuery() {
-		return uri == null ? null : UriUtil.parseQuery( uri );
+	public Map<String,String> getQueryParameters() {
+		return uri == null ? null : UriUtil.parseQuery( uri.getQuery() );
 	}
 
 	public String getFragment() {

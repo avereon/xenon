@@ -6,7 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.type.ProgramAssetChooserType;
+import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
@@ -504,7 +504,10 @@ public class AssetManager implements Controllable<AssetManager> {
 			chooser.setInitialDirectory( getCurrentFolder() );
 			chooser.setInitialFileName( filename );
 
-			openAsset( URI.create( ProgramAssetChooserType.SAVE_URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) ) );
+			// FIXME Opaque URIs don't like query parameters
+			String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+			log.atConfig().log( "uri=%s", uriString );
+			openAsset( URI.create( uriString ) );
 
 //			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
 //			if( file == null ) return false;
@@ -1052,6 +1055,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		uri = UriUtil.removeQueryAndFragment( uri );
 		uri = uri.normalize();
 
+		log.atConfig().log( "create asset=%s", uri );
+
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
 			asset = new Asset( type, uri );
@@ -1305,7 +1310,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
-			openAsset( ProgramAssetChooserType.OPEN_URI );
+			openAsset( ProgramAssetType.OPEN_URI );
 
 			isHandling = false;
 			updateActionState();
