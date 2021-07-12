@@ -508,10 +508,10 @@ public class AssetManager implements Controllable<AssetManager> {
 			chooser.setInitialFileName( filename );
 
 			// FIXME Opaque URIs don't like query parameters
-			String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+			String uriString = ProgramAssetType.URI + "?uri=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
 			//String uriString = ProgramAssetType.SAVE_URI;
 			log.atConfig().log( "uri=%s", uriString );
-			openAsset( ProgramAssetType.SAVE_URI );
+			openAsset( URI.create(uriString) );
 
 			//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
 			//			if( file == null ) return false;

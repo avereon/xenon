@@ -230,7 +230,8 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
-		String asset = parameters.get( "asset" );
+		if( parameters == null ) return null;
+		String asset = parameters.get( "uri" );
 		return asset == null ? null : new URI( asset );
 	}
 
@@ -262,6 +263,7 @@ public class AssetTool extends GuidedTool {
 
 		try {
 			Asset asset = getProgram().getAssetManager().createAsset( text );
+			Asset parent = getProgram().getAssetManager().getParent( asset );
 
 			if( asset.isFolder() ) {
 				loadFolder( asset );
@@ -275,9 +277,10 @@ public class AssetTool extends GuidedTool {
 						return;
 					}
 				} else if( mode == Mode.SAVE ) {
+					loadFolder( parent );
 					// TODO The save action
 					//getProgram().getAssetManager().saveAsAsset( incomingAsset, asset.getUri() );
-					close();
+					//close();
 					return;
 				}
 			}
