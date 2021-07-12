@@ -4,10 +4,13 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
-import com.avereon.util.*;
+import com.avereon.util.DelayedAction;
+import com.avereon.util.IdGenerator;
+import com.avereon.util.TestUtil;
+import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
+import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
@@ -505,9 +508,9 @@ public class AssetManager implements Controllable<AssetManager> {
 			chooser.setInitialFileName( filename );
 
 			// FIXME Opaque URIs don't like query parameters
-			//String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+			String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
 			//String uriString = ProgramAssetType.SAVE_URI;
-			//log.atConfig().log( "uri=%s", uriString );
+			log.atConfig().log( "uri=%s", uriString );
 			openAsset( ProgramAssetType.SAVE_URI );
 
 			//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
@@ -1056,9 +1059,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		uri = UriUtil.removeQueryAndFragment( uri );
-		uri = uri.normalize();
-
-		log.atConfig().log( "create asset=%s", uri );
+		uri = tweakUris( uri.normalize() );
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
@@ -1072,6 +1073,15 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		return asset;
+	}
+
+	private URI tweakUris( URI uri ) {
+		String uriString = uri.toString();
+
+		// Fix program URIs
+		if( uriString.startsWith( "program:" ) && !uriString.startsWith( "program:/" ) ) uri = URI.create( uriString.replace( "program:", "program:/" ) );
+
+		return uri;
 	}
 
 	private boolean doOpenAsset( Asset asset ) throws AssetException {
