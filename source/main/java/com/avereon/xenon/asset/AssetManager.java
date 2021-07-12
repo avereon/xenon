@@ -505,39 +505,40 @@ public class AssetManager implements Controllable<AssetManager> {
 			chooser.setInitialFileName( filename );
 
 			// FIXME Opaque URIs don't like query parameters
-			String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
-			log.atConfig().log( "uri=%s", uriString );
-			openAsset( URI.create( uriString ) );
+			//String uriString = ProgramAssetType.URI + "?asset=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+			//String uriString = ProgramAssetType.SAVE_URI;
+			//log.atConfig().log( "uri=%s", uriString );
+			openAsset( ProgramAssetType.SAVE_URI );
 
-//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
-//			if( file == null ) return false;
-//
-//			File folder = file.isDirectory() ? file : file.getParentFile();
-//			getSettings().set( CURRENT_FOLDER_SETTING_KEY, folder.toString() );
-//
-//			// If the user specified a codec use it to set the codec and asset type
-//			AssetType type = asset.getType();
-//			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
-//			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
-//			if( selectedCodec != null ) type = selectedCodec.getAssetType();
-//
-//			// If the file extension is not already supported use the default extension from the codec
-//			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
-//				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
-//			}
-//
-//			// Resolve the URI
-//			URI uri = UriUtil.resolve( file.toString() );
-//
-//			// Create the target asset
-//			try {
-//				saveAsAsset = createAsset( type, uri );
-//				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
-//				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
-//				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
-//			} catch( AssetException exception ) {
-//				log.atSevere().withCause( exception ).log();
-//			}
+			//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
+			//			if( file == null ) return false;
+			//
+			//			File folder = file.isDirectory() ? file : file.getParentFile();
+			//			getSettings().set( CURRENT_FOLDER_SETTING_KEY, folder.toString() );
+			//
+			//			// If the user specified a codec use it to set the codec and asset type
+			//			AssetType type = asset.getType();
+			//			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
+			//			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
+			//			if( selectedCodec != null ) type = selectedCodec.getAssetType();
+			//
+			//			// If the file extension is not already supported use the default extension from the codec
+			//			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
+			//				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
+			//			}
+			//
+			//			// Resolve the URI
+			//			URI uri = UriUtil.resolve( file.toString() );
+			//
+			//			// Create the target asset
+			//			try {
+			//				saveAsAsset = createAsset( type, uri );
+			//				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
+			//				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
+			//				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
+			//			} catch( AssetException exception ) {
+			//				log.atSevere().withCause( exception ).log();
+			//			}
 		}
 
 		try {
@@ -1024,8 +1025,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return True if the asset can be saved, false otherwise.
 	 */
 	private boolean canSaveAsset( Asset asset ) {
-		if( asset == null || !asset.isModified() ) return false;
+		if( asset == null ) return false;
+
 		if( asset.isNew() ) return true;
+		if( !asset.isModified() ) return false;
 
 		// Check supported schemes.
 		Scheme scheme = getScheme( asset.getUri().getScheme() );
