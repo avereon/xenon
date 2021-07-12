@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Xenon with Aveon" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="15" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
-    <module name="xenon" />
+    <module name="aveon" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug" />
     <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es" />
     <method v="2">
