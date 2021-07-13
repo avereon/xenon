@@ -493,25 +493,28 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private boolean saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
 		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
-			Codec codec = asset.getCodec();
-			if( codec == null ) codec = asset.getType().getDefaultCodec();
+			try {
+				Codec codec = asset.getCodec();
+				if( codec == null ) codec = asset.getType().getDefaultCodec();
 
-			String filename = !asset.isNew() ? asset.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
+				File folder = !asset.isNew() ? new File( getParent( asset ).getUri() ) : getCurrentFolder();
+				String filename = !asset.isNew() ? asset.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
 
-			// NOTE This logic is very file oriented. It may need to move to the file scheme.
-			// FIXME Use of the file chooser can be replaced with the AssetTool
-			FileChooser chooser = new FileChooser();
-			Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
-			chooser.getExtensionFilters().addAll( codecFilters.values() );
-			chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
-			chooser.setInitialDirectory( getCurrentFolder() );
-			chooser.setInitialFileName( filename );
+				// NOTE This logic is very file oriented. It may need to move to the file scheme.
+//				// FIXME Use of the file chooser can be replaced with the AssetTool
+//				FileChooser chooser = new FileChooser();
+//				Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
+//				chooser.getExtensionFilters().addAll( codecFilters.values() );
+//				chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
+//				chooser.setInitialDirectory( folder );
+//				chooser.setInitialFileName( filename );
 
-			// FIXME Opaque URIs don't like query parameters
-			String uriString = ProgramAssetType.URI + "?uri=" + getCurrentFolder().toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
-			//String uriString = ProgramAssetType.SAVE_URI;
-			log.atConfig().log( "uri=%s", uriString );
-			openAsset( URI.create(uriString) );
+				String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+				log.atTrace().log( "uri=%s", uriString );
+				openAsset( URI.create( uriString ) );
+			} catch( AssetException exception ) {
+				log.atSevere().withCause( exception ).log();
+			}
 
 			//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
 			//			if( file == null ) return false;
