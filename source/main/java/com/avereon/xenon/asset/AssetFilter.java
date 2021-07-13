@@ -2,6 +2,8 @@ package com.avereon.xenon.asset;
 
 import com.avereon.data.DataFilter;
 
+import java.util.function.Predicate;
+
 /**
  * <p>
  * The {@link AssetFilter} is an interface for filtering
@@ -12,7 +14,7 @@ import com.avereon.data.DataFilter;
  * typical use is with the <code>AssetTool</code> to filter the assets
  * shown.
  */
-public interface AssetFilter extends DataFilter<Asset> {
+public interface AssetFilter extends DataFilter<Asset>, Predicate<Asset>, Comparable<AssetFilter> {
 
 	/**
 	 * <p>
@@ -26,7 +28,7 @@ public interface AssetFilter extends DataFilter<Asset> {
 	 *
 	 * @return A short description for the filter.
 	 */
-	public String getDescription();
+	String getDescription();
 
 	/**
 	 * Test the specified asset.
@@ -35,6 +37,15 @@ public interface AssetFilter extends DataFilter<Asset> {
 	 * @return True if the asset should be included, false otherwise.
 	 */
 	@Override
-	public boolean accept( Asset asset );
+	boolean accept( Asset asset );
 
+	@Override
+	default boolean test( Asset asset ) {
+		return accept( asset );
+	}
+
+	@Override
+	default int compareTo( AssetFilter that ) {
+		return this.getDescription().compareTo( that.getDescription() );
+	}
 }

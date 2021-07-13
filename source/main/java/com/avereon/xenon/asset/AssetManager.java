@@ -11,11 +11,13 @@ import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetType;
+import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
+import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zerra.event.FxEventHub;
@@ -110,6 +112,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		saveAllActionHandler = new SaveAllActionHandler( program );
 		closeActionHandler = new CloseActionHandler( program );
 		closeAllActionHandler = new CloseAllActionHandler( program );
+	}
+
+	public final Program getProgram() {
+		return program;
 	}
 
 	@Override
@@ -499,19 +505,21 @@ public class AssetManager implements Controllable<AssetManager> {
 
 				File folder = !asset.isNew() ? new File( getParent( asset ).getUri() ) : getCurrentFolder();
 				String filename = !asset.isNew() ? asset.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-
-				// NOTE This logic is very file oriented. It may need to move to the file scheme.
-//				// FIXME Use of the file chooser can be replaced with the AssetTool
-//				FileChooser chooser = new FileChooser();
-//				Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
-//				chooser.getExtensionFilters().addAll( codecFilters.values() );
-//				chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
-//				chooser.setInitialDirectory( folder );
-//				chooser.setInitialFileName( filename );
-
 				String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
-				log.atTrace().log( "uri=%s", uriString );
-				openAsset( URI.create( uriString ) );
+				log.atTrace().log( "save asset uri=%s", uriString );
+
+				final Asset finalAsset = asset;
+				final Codec finalCodec = codec;
+				program.getTaskManager().submit( Task.of( () -> {
+					try {
+						Map<Codec, AssetFilter> filters = generateAssetFilters( finalAsset.getType() );
+						AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
+						tool.getFilters().addAll( 0, filters.values() );
+						tool.setSelectedFilter( filters.get( finalCodec ) );
+					} catch( Exception exception ) {
+						log.atWarn().withCause( exception ).log();
+					}
+				} ) );
 			} catch( AssetException exception ) {
 				log.atSevere().withCause( exception ).log();
 			}
@@ -563,10 +571,20 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
+	private void doAfterAssetTool( Future<ProgramTool> future ) {
+
+	}
+
 	private Map<Codec, FileChooser.ExtensionFilter> generateCodecFilters( AssetType type ) {
 		Map<Codec, FileChooser.ExtensionFilter> codecFilters = new HashMap<>();
 		type.getCodecs().forEach( c -> codecFilters.put( c, generateExtensionFilter( c ) ) );
 		return codecFilters;
+	}
+
+	private Map<Codec, AssetFilter> generateAssetFilters( AssetType type ) {
+		Map<Codec, AssetFilter> filters = new HashMap<>();
+		type.getCodecs().forEach( c -> filters.put( c, new CodecAssetFilter( c ) ) );
+		return filters;
 	}
 
 	private FileChooser.ExtensionFilter generateExtensionFilter( Codec codec ) {
@@ -1093,7 +1111,15 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Determine the asset type
 		AssetType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
-		if( type == null ) throw new AssetException( asset, "Asset type could not be determined" );
+
+		if( type == null ) {
+			log.atDebug().log( "Asset type not found for: " + asset.getFileName() );
+			String title = Rb.text( BundleKey.LABEL, "asset" );
+			String message = Rb.text( BundleKey.ASSET, "asset-type-not-supported", asset.getFileName() );
+			Notice notice = new Notice( title, message ).setType( Notice.Type.WARN );
+			getProgram().getNoticeManager().addNotice( notice );
+			return false;
+		}
 
 		// Determine the codec
 		Codec codec = asset.getCodec();

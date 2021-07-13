@@ -65,100 +65,101 @@ class CodecTest extends BaseTestCase {
 
 	@Test
 	void testIsSupportedUri() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.URI, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.URI, "" ), is( false ) );
 
-		// Extension was already added
+		// Pattern was already added
 		codec.addSupported( Codec.Pattern.URI, "mock:special" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.URI, "mock:special" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.URI, "mock:unsupported" ), is( false ) );
 	}
 
 	@Test
 	void testIsSupportedScheme() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.SCHEME, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.SCHEME, "" ), is( false ) );
 
-		// Extension was already added
+		// Pattern was already added
 		codec.addSupported( Codec.Pattern.SCHEME, "mock" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.SCHEME, "mock:special" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.SCHEME, "special:mock" ), is( false ) );
 	}
 
 	@Test
 	void testIsSupportedExtension() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, "" ), is( false ) );
 
-		// Extension was already added
+		// Add pattern
 		codec.addSupported( Codec.Pattern.EXTENSION, "special" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, "test." + MockCodec.EXTENSION ), is( true ) );
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, "mock.special" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, "test.x" + MockCodec.EXTENSION ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.EXTENSION, "mock.unsupported" ), is( false ) );
 	}
 
 	@Test
 	void testIsSupportedFileName() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, "" ), is( false ) );
 
-		// Extension was already added
+		// Pattern was already added
 		codec.addSupported( Codec.Pattern.FILENAME, "mock.special" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, "test." + MockCodec.EXTENSION ), is( true ) );
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, "mock.special" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, "test.x" + MockCodec.EXTENSION ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.FILENAME, "mock.unsupported" ), is( false ) );
 	}
 
 	@Test
 	void testIsSupportedFirstLine() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.FIRSTLINE, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.FIRSTLINE, "" ), is( false ) );
 
+		// Pattern was already added
 		codec.addSupported( Codec.Pattern.FIRSTLINE, "#!/bin/mock" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.FIRSTLINE, "#!/bin/mock" ), is( true ) );
 		assertThat( codec.isSupported( Codec.Pattern.FIRSTLINE, "#!/bin/mock // With a comment" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.FIRSTLINE, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" ), is( false ) );
 	}
 
 	@Test
 	void testIsSupportedMediaType() {
-		// Edge tests.
+		// Edge tests
 		assertThat( codec.isSupported( Codec.Pattern.MEDIATYPE, null ), is( false ) );
 		assertThat( codec.isSupported( Codec.Pattern.MEDIATYPE, "" ), is( false ) );
 
 		codec.addSupported( Codec.Pattern.MEDIATYPE, "text/mock" );
 
-		// Positive test.
+		// Positive test
 		assertThat( codec.isSupported( Codec.Pattern.MEDIATYPE, "text/mock" ), is( true ) );
 
-		// Negative test.
+		// Negative test
 		assertThat( codec.isSupported( Codec.Pattern.MEDIATYPE, "text/notsupported" ), is( false ) );
 	}
 
