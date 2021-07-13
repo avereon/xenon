@@ -220,18 +220,7 @@ public class AssetTool extends GuidedTool {
 			log.atWarn( exception ).log();
 		}
 
-		if( mode == Mode.OPEN ) {
-			List<AssetFilter> filters = getProgram()
-				.getAssetManager()
-				.getAssetTypes()
-				.stream()
-				.filter( AssetType::isUserType )
-				.flatMap( t -> t.getCodecs().stream() )
-				.map( CodecAssetFilter::new )
-				.sorted()
-				.collect( Collectors.toList() );
-			getFilters().addAll(0, filters );
-		}
+		if( mode == Mode.OPEN ) addSupportedFilters();
 	}
 
 	@Override
@@ -271,6 +260,19 @@ public class AssetTool extends GuidedTool {
 		if( parameters == null ) return null;
 		String asset = parameters.get( "uri" );
 		return asset == null ? null : new URI( asset );
+	}
+
+	private void addSupportedFilters() {
+		List<AssetFilter> filters = getProgram()
+			.getAssetManager()
+			.getAssetTypes()
+			.stream()
+			.filter( AssetType::isUserType )
+			.flatMap( t -> t.getCodecs().stream() )
+			.map( CodecAssetFilter::new )
+			.sorted()
+			.collect( Collectors.toList() );
+		getFilters().addAll(0, filters );
 	}
 
 	@SuppressWarnings( "unchecked" )

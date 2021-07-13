@@ -14,9 +14,12 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 
 	private Map<EventType<? extends AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
 
+	private AssetEvent lastEvent;
+
 	@Override
 	public synchronized void handle( AssetEvent event ) {
 		events.put( event.getEventType(), event );
+		lastEvent = event;
 		notifyAll();
 	}
 
@@ -47,6 +50,10 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 		duration = System.currentTimeMillis() - start;
 
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type.getName() );
+	}
+
+	public AssetEvent getLastEvent() {
+		return lastEvent;
 	}
 
 }

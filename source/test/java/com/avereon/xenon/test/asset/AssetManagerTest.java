@@ -1,8 +1,8 @@
 package com.avereon.xenon.test.asset;
 
-import com.avereon.xenon.test.ProgramTestCase;
 import com.avereon.xenon.asset.*;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.xenon.test.ProgramTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +13,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class AssetManagerTest extends ProgramTestCase {
 
@@ -113,6 +114,25 @@ public class AssetManagerTest extends ProgramTestCase {
 		manager.loadAssetsAndWait( asset );
 		assertThat( asset.isOpen(), is( true ) );
 		assertThat( asset.isLoaded(), is( true ) );
+	}
+
+	@Test
+	void testReloadAssets() throws Exception {
+		String uri = "mock:///home/user/temp/test.txt";
+		Asset asset = manager.createAsset( uri );
+		AssetWatcher watcher = new AssetWatcher();
+		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		assertThat( asset.isLoaded(), is( false ) );
+
+		manager.loadAssetsAndWait( asset );
+		assertThat( asset.isOpen(), is( true ) );
+		assertThat( asset.isLoaded(), is( true ) );
+		assertThat( watcher.getLastEvent().getEventType(), is( AssetEvent.LOADED ) );
+		AssetEvent event = watcher.getLastEvent();
+
+		manager.reloadAssetsAndWait( asset );
+		assertThat( watcher.getLastEvent().getEventType(), is( AssetEvent.LOADED ) );
+		assertNotEquals( event, watcher.getLastEvent() );
 	}
 
 	@Test

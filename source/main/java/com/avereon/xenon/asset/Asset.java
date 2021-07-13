@@ -302,7 +302,6 @@ public class Asset extends Node {
 	public synchronized final void load( AssetManager manager ) throws AssetException {
 		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be loaded" );
 
-		loaded = false;
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
 		setModified( false );

@@ -69,11 +69,13 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final OpenActionHandler openActionHandler;
 
+	private final ReloadActionHandler reloadActionHandler;
+
 	private final SaveActionHandler saveActionHandler;
 
-	private final SaveActionHandler saveAsActionHandler;
+	private final SaveActionHandler renameActionHandler;
 
-	private final SaveActionHandler saveCopyAsActionHandler;
+	private final SaveActionHandler saveAsActionHandler;
 
 	private final SaveAllActionHandler saveAllActionHandler;
 
@@ -106,9 +108,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
+		reloadActionHandler = new ReloadActionHandler( program );
 		saveActionHandler = new SaveActionHandler( program, false, false );
-		saveAsActionHandler = new SaveActionHandler( program, true, false );
-		saveCopyAsActionHandler = new SaveActionHandler( program, true, true );
+		saveAsActionHandler = new SaveActionHandler( program, true, true );
+		renameActionHandler = new SaveActionHandler( program, true, false );
 		saveAllActionHandler = new SaveAllActionHandler( program );
 		closeActionHandler = new CloseActionHandler( program );
 		closeAllActionHandler = new CloseAllActionHandler( program );
@@ -128,8 +131,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getActionLibrary().getAction( "new" ).pushAction( newActionHandler );
 		program.getActionLibrary().getAction( "open" ).pushAction( openActionHandler );
 		program.getActionLibrary().getAction( "save" ).pushAction( saveActionHandler );
-		program.getActionLibrary().getAction( "save-as" ).pushAction( saveAsActionHandler );
-		program.getActionLibrary().getAction( "copy-as" ).pushAction( saveCopyAsActionHandler );
+		program.getActionLibrary().getAction( "save-as" ).pushAction( renameActionHandler );
+		program.getActionLibrary().getAction( "copy-as" ).pushAction( saveAsActionHandler );
 		program.getActionLibrary().getAction( "save-all" ).pushAction( saveAllActionHandler );
 		program.getActionLibrary().getAction( "close" ).pushAction( closeActionHandler );
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
@@ -427,6 +430,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		request.setOpenTool( true );
 		request.setSetActive( true );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
+	}
+
+	public boolean reloadAsset( Asset asset ) {
+		if( !asset.isLoaded() ) return false;
+
+		reloadAssets( asset );
+
+		return true;
 	}
 
 	/**
@@ -809,6 +820,54 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
+	 * Request that the specified assets be reloaded. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param asset The asset to reload
+	 */
+	public void reloadAssets( Asset asset ) {
+		reloadAssets( Collections.singletonList( asset ) );
+	}
+
+	/**
+	 * Request that the specified assets be reloaded. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param assets The assets to reload
+	 */
+	public void reloadAssets( Collection<Asset> assets ) {
+		program.getTaskManager().submit( new ReloadAssetTask( assets ) );
+	}
+
+	/**
+	 * Request that the specified assets be reloaded and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 *
+	 * @param asset The asset to reload
+	 * @throws ExecutionException If there was an exception reloading the asset
+	 * @throws InterruptedException If the process of reloading the asset was interrupted
+	 * @implNote Do not call from a UI thread
+	 */
+	public void reloadAssetsAndWait( Asset asset ) throws ExecutionException, InterruptedException {
+		reloadAssetsAndWait( Collections.singletonList( asset ) );
+	}
+
+	/**
+	 * Request that the specified assets be reloaded and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 *
+	 * @param assets The assets to reload
+	 * @throws ExecutionException If there was an exception reloading the assets
+	 * @throws InterruptedException If the process of reloading the assets was interrupted
+	 * @implNote Do not call from a UI thread
+	 */
+	public void reloadAssetsAndWait( Collection<Asset> assets ) throws ExecutionException, InterruptedException {
+		program.getTaskManager().submit( new ReloadAssetTask( assets ) ).get();
+	}
+
+	/**
 	 * Request that all modified assets be saved. This method submits a task to
 	 * the task manager and returns immediately.
 	 */
@@ -1003,7 +1062,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		newActionHandler.updateEnabled();
 		openActionHandler.updateEnabled();
 		saveActionHandler.updateEnabled();
-		saveAsActionHandler.updateEnabled();
+		renameActionHandler.updateEnabled();
 		saveAllActionHandler.updateEnabled();
 		closeActionHandler.updateEnabled();
 		closeAllActionHandler.updateEnabled();
@@ -1167,6 +1226,16 @@ public class AssetManager implements Controllable<AssetManager> {
 		asset.load( this );
 
 		log.atFiner().log( "Asset loaded: %s", asset );
+
+		updateActionState();
+		return true;
+	}
+
+	private boolean doReloadAsset( Asset asset ) throws AssetException {
+		if( asset == null || !asset.isLoaded() ) return false;
+
+		asset.load( this );
+		log.atFiner().log( "Asset reloaded: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1360,6 +1429,24 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
+	private class ReloadActionHandler extends ProgramAction {
+
+		protected ReloadActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return getCurrentAsset().isLoaded();
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			reloadAsset( getCurrentAsset() );
+		}
+
+	}
+
 	private class SaveActionHandler extends ProgramAction {
 
 		private final boolean saveAs;
@@ -1524,6 +1611,19 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public boolean doOperation( Asset asset ) throws AssetException {
 			return doLoadAsset( asset );
+		}
+
+	}
+
+	private class ReloadAssetTask extends AssetTask {
+
+		private ReloadAssetTask( Collection<Asset> assets ) {
+			super( assets );
+		}
+
+		@Override
+		public boolean doOperation( Asset asset ) throws AssetException {
+			return doReloadAsset( asset );
 		}
 
 	}
