@@ -22,9 +22,9 @@ public class ActionLibrary {
 		register( product, "file" );
 		register( product, "new" );
 		register( product, "open" );
+		register( product, "reload" );
 		register( product, "save" );
 		register( product, "save-as" );
-		register( product, "copy-as" );
 		register( product, "save-all" );
 		register( product, "close" );
 		register( product, "close-all" );

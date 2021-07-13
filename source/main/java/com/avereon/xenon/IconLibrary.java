@@ -96,6 +96,7 @@ public class IconLibrary {
 
 		register( "add", new PlusIcon() );
 		register( "refresh", new RefreshIcon() );
+		register( "reload", new RefreshIcon() );
 		register( "download", new DownloadIcon() );
 		register( "market", new MarketIcon() );
 		register( "module", new ModuleIcon() );
