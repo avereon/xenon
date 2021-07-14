@@ -1,12 +1,13 @@
 package com.avereon.xenon.test.tool.guide;
 
-import com.avereon.xenon.test.BaseToolUIT;
-import com.avereon.xenon.test.asset.MockAssetType;
-import com.avereon.xenon.test.asset.MockCodec;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.type.ProgramGuideType;
+import com.avereon.xenon.test.BaseToolUIT;
+import com.avereon.xenon.test.asset.MockAssetType;
+import com.avereon.xenon.test.asset.MockCodec;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -21,7 +22,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GuidedToolUIT extends BaseToolUIT {
@@ -36,9 +38,9 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertToolCount( getWorkpane(), 0 );
 		MatcherAssert.assertThat( getProgram().getAssetManager().getAssetTypes().size(), is( 12 ) );
 
-		assertNotNull( getProgram().getAssetManager().getAssetType( "program:guide" ) );
 		MockAssetType assetType = new MockAssetType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
+		assertNotNull( getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() ) );
 
 		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
 		getProgram().getToolManager().registerTool( assetType, registration );
