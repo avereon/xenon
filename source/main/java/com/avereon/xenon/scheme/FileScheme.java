@@ -106,6 +106,8 @@ public class FileScheme extends BaseScheme {
 		// Set the target model to the same as the source
 		target.setModel( source.getModel() );
 
+		log.atConfig().log( "Saving %s to %s", source, target );
+
 		// Save the asset
 		try {
 			target.getScheme().save( target, target.getCodec() );
@@ -204,7 +206,8 @@ public class FileScheme extends BaseScheme {
 		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
 			return readFirstLine( input, asset.getEncoding() );
 		} catch( IOException | AssetException exception ) {
-			log.atWarning().withCause( exception ).log( "Error determining first line for asset" );
+			log.atWarning().log( "Error determining first line for asset" );
+			log.atTrace().withCause( exception ).log();
 			return TextUtil.EMPTY;
 		}
 	}

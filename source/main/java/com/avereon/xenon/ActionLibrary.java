@@ -26,6 +26,7 @@ public class ActionLibrary {
 		register( product, "save" );
 		register( product, "save-as" );
 		register( product, "save-all" );
+		register( product, "rename" );
 		register( product, "close" );
 		register( product, "close-all" );
 		register( product, "exit" );

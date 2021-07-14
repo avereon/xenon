@@ -6,6 +6,7 @@ import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
@@ -259,7 +261,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		} ).run( getProgram() );
 	}
 
-	private void waitForTool() throws InterruptedException {
+	private void waitForTool() throws TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
 		javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
 
@@ -267,21 +269,23 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 			addEventFilter( ToolEvent.ADDED, h );
 			if( getToolView() == null ) {
 				boolean timeout = !latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-				if( timeout ) log.atWarning().log( "Timeout waiting for tool to be allocated: %s", this );
+				//if( timeout ) log.atWarning().log( "Timeout waiting for tool to be allocated: %s", this );
+				if( timeout ) throw new TimeoutException( "Timeout waiting for tool to be created: " + this );
 			}
 		} finally {
 			removeEventFilter( ToolEvent.ADDED, h );
 		}
 	}
 
-	private void waitForAsset( Asset asset ) throws InterruptedException {
+	private void waitForAsset( Asset asset ) throws AssetException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
 		EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
 		asset.register( AssetEvent.LOADED, assetLoadedHandler );
 		try {
-			if( !asset.isLoaded() ) {
-				latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-				if( latch.getCount() > 0 ) log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
+			if( asset.exists() && !asset.isLoaded() ) {
+				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
+				//if( timeout ) log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
+				if( timeout ) throw new TimeoutException( "Timeout waiting for asset to load: " + this );
 			}
 		} finally {
 			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );

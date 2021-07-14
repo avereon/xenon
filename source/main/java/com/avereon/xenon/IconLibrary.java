@@ -42,6 +42,8 @@ public class IconLibrary {
 		register( "asset-new", new DocumentIcon() );
 		register( "asset-open", new FolderIcon() );
 		register( "asset-save", new SaveIcon() );
+		register( "asset-save-all", new SaveIcon() );
+		register( "asset-rename", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
 		register( "properties", new HamburgerIcon() );
 

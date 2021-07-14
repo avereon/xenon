@@ -203,7 +203,7 @@ public class Workspace implements WritableIdentity {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new,open,reload,save,save-as,save-all|close|exit]";
+		String file = "file[new,open,reload,save,save-as,save-all,rename|close|exit]";
 		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show]";
 		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";

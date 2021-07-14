@@ -107,8 +107,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		reloadActionHandler = new ReloadActionHandler( program );
 		saveActionHandler = new SaveActionHandler( program, false );
 		saveAsActionHandler = new SaveActionHandler( program, true );
-		renameActionHandler = new RenameActionHandler( program );
 		saveAllActionHandler = new SaveAllActionHandler( program );
+		renameActionHandler = new RenameActionHandler( program );
 		closeActionHandler = new CloseActionHandler( program );
 		closeAllActionHandler = new CloseAllActionHandler( program );
 	}
@@ -128,8 +128,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getActionLibrary().getAction( "open" ).pushAction( openActionHandler );
 		program.getActionLibrary().getAction( "reload" ).pushAction( reloadActionHandler );
 		program.getActionLibrary().getAction( "save" ).pushAction( saveActionHandler );
-		program.getActionLibrary().getAction( "save-as" ).pushAction( renameActionHandler );
+		program.getActionLibrary().getAction( "save-as" ).pushAction( saveAsActionHandler );
 		program.getActionLibrary().getAction( "save-all" ).pushAction( saveAllActionHandler );
+		program.getActionLibrary().getAction( "rename" ).pushAction( renameActionHandler );
 		program.getActionLibrary().getAction( "close" ).pushAction( closeActionHandler );
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
 		updateActionState();
@@ -923,8 +924,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		reloadActionHandler.updateEnabled();
 		saveActionHandler.updateEnabled();
 		saveAsActionHandler.updateEnabled();
-		renameActionHandler.updateEnabled();
 		saveAllActionHandler.updateEnabled();
+		renameActionHandler.updateEnabled();
 		closeActionHandler.updateEnabled();
 		closeAllActionHandler.updateEnabled();
 	}
@@ -1224,8 +1225,8 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 
 			// Update the target asset
-			target.setSettings( getAssetSettings( target ) );
-			target.getSettings().copyFrom( getAssetSettings( source ) );
+			//			target.setSettings( getAssetSettings( target ) );
+			//			target.getSettings().copyFrom( getAssetSettings( source ) );
 			if( selectedCodec != null ) target.setCodec( selectedCodec );
 
 			if( source.isNew() || saveAs ) {
@@ -1243,21 +1244,22 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		copySettings( source, target, false );
 
-		// Use the scheme to rename the source to the target
-		source.getScheme().saveAs( source, target );
+		// Use the scheme to save the source to the target
+		target.getScheme().saveAs( source, target );
 
+		if( source.isNew() ) closeAssets( source );
 		openAsset( target.getUri() );
 	}
 
 	private void doRenameAsset( Asset source, Asset target ) throws AssetException {
 		if( source == null || target == null ) return;
 
-		copySettings( source, target, true);
+		copySettings( source, target, true );
 
 		// Use the scheme to rename the source to the target
-		source.getScheme().rename( source, target );
+		target.getScheme().rename( source, target );
 
-		close( source );
+		closeAssets( source );
 		openAsset( target.getUri() );
 	}
 

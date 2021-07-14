@@ -315,11 +315,8 @@ public class AssetTool extends GuidedTool {
 
 	private void doGoAction( ActionEvent e ) {
 		try {
-			if( mode == Mode.OPEN ) {
-				selectAsset( uriField.getText() );
-			} else if( mode == Mode.SAVE ) {
-				requestSaveAsset();
-			}
+			selectAsset( uriField.getText() );
+			if( mode == Mode.SAVE ) requestSaveAsset();
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
 		}

@@ -287,8 +287,8 @@ public class Asset extends Node {
 
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.open( this );
-
 		open = true;
+
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
 	}
 
