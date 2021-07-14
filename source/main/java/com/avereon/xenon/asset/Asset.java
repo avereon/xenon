@@ -14,7 +14,6 @@ import com.avereon.zerra.event.FxEventHub;
 import lombok.CustomLog;
 import org.fxmisc.undo.UndoManager;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -53,8 +52,6 @@ public class Asset extends Node {
 	private static final String EXTERNALLY_MODIFIED = "externally-modified";
 
 	private static final String LAST_SAVED_KEY = "last-saved";
-
-	private static final String FILE = "file";
 
 	//	private static final String EDITABLE = "editable";
 
@@ -239,13 +236,13 @@ public class Asset extends Node {
 		setValue( LAST_SAVED_KEY, timestamp );
 	}
 
-	public File getFile() {
-		return getValue( FILE );
-	}
-
-	public void setFile( File file ) {
-		setValue( FILE, file );
-	}
+//	public File getFile() {
+//		return getValue( FILE );
+//	}
+//
+//	public void setFile( File file ) {
+//		setValue( FILE, file );
+//	}
 
 	public <M> M getModel() {
 		return getValue( MODEL );

@@ -18,6 +18,8 @@ public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
 
+	private static final String FILE = "file";
+
 	private List<Asset> roots;
 
 	//private FileAssetWatcher assetWatcher;
@@ -98,24 +100,29 @@ public class FileScheme extends BaseScheme {
 	}
 
 	@Override
-	public void saveAs( Asset asset, Asset target ) throws AssetException {
-		// Change the URI.
-		asset.setUri( target.getUri() );
+	public void saveAs( Asset source, Asset target ) throws AssetException {
+		// NOTE This method should not modify the source asset
 
-		// Save the asset.
-		asset.getScheme().save( asset, asset.getCodec() );
+		// Set the target model to the same as the source
+		target.setModel( source.getModel() );
+
+		// Save the asset
+		try {
+			target.getScheme().save( target, target.getCodec() );
+		} catch( Throwable throwable ) {
+			throw new AssetException( source, throwable );
+		}
 	}
 
 	@Override
-	public boolean rename( Asset asset, Asset target ) throws AssetException {
-		// Change the URI.
-		asset.setUri( target.getUri() );
+	public boolean rename( Asset source, Asset target ) throws AssetException {
+		// NOTE This method should not modify the source asset
 
-		// Rename the file.
+		// Rename the file
 		try {
-			return getFile( asset ).renameTo( getFile( target ) );
-		} catch( Exception exception ) {
-			throw new AssetException( asset, exception );
+			return getFile( source ).renameTo( getFile( target ) );
+		} catch( Throwable throwable ) {
+			throw new AssetException( source, throwable );
 		}
 	}
 
@@ -149,7 +156,7 @@ public class FileScheme extends BaseScheme {
 			//			}
 		}
 
-		return new ArrayList<Asset>( roots );
+		return new ArrayList<>( roots );
 	}
 
 	@Override
@@ -214,11 +221,11 @@ public class FileScheme extends BaseScheme {
 	 * Get the file.
 	 */
 	private File getFile( Asset asset ) throws AssetException {
-		File file = asset.getFile();
+		File file = asset.getValue( FILE );
 
 		if( file == null ) {
 			try {
-				asset.setFile( file = new File( asset.getUri() ).getCanonicalFile() );
+				asset.setValue( FILE, file = new File( asset.getUri() ).getCanonicalFile() );
 			} catch( IOException exception ) {
 				throw new AssetException( asset, exception );
 			}

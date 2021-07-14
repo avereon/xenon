@@ -5,6 +5,7 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -36,6 +37,7 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -81,6 +83,8 @@ public class AssetTool extends GuidedTool {
 	private final LinkedList<String> history;
 
 	private int currentIndex;
+
+	private Consumer<Asset> saveActionConsumer;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -169,6 +173,14 @@ public class AssetTool extends GuidedTool {
 		closeUserNotice();
 	}
 
+	public Asset getCurrentFolder() {
+		return currentFolder;
+	}
+
+	public String getCurrentFilename() {
+		return currentFilename;
+	}
+
 	public ObservableList<AssetFilter> getFilters() {
 		return filters.getItems();
 	}
@@ -183,6 +195,10 @@ public class AssetTool extends GuidedTool {
 
 	public ObservableValue<AssetFilter> selectedFilter() {
 		return filters.getSelectionModel().selectedItemProperty();
+	}
+
+	public void setSaveActionConsumer( Consumer<Asset> consumer ) {
+		this.saveActionConsumer = consumer;
 	}
 
 	@Override
@@ -272,7 +288,7 @@ public class AssetTool extends GuidedTool {
 			.map( CodecAssetFilter::new )
 			.sorted()
 			.collect( Collectors.toList() );
-		getFilters().addAll(0, filters );
+		getFilters().addAll( 0, filters );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -321,22 +337,20 @@ public class AssetTool extends GuidedTool {
 		selectAsset( text, true );
 	}
 
-	private void selectAsset( String text, boolean updateHistory ) {
+	private void selectAsset( final String text, boolean updateHistory ) {
 		Objects.requireNonNull( text );
 
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
-
 			history.add( text );
 			currentIndex++;
 		}
 
 		try {
-			uriField.setText( text );
-
 			Asset asset = getProgram().getAssetManager().createAsset( text );
+			uriField.setText( text );
 
 			if( mode == Mode.OPEN ) {
 				if( asset.isFolder() ) {
@@ -351,11 +365,13 @@ public class AssetTool extends GuidedTool {
 					}
 				}
 			} else if( mode == Mode.SAVE ) {
-				// NOTE Asset should not be a asset
-				currentFilename = asset.getFileName();
-				Asset folder = getProgram().getAssetManager().getParent( asset );
-				loadFolder( folder );
-				return;
+				if( asset.isFolder() ) {
+					loadFolder( asset );
+					uriField.setText( asset.getUri().resolve( currentFilename ).toString() );
+				} else {
+					currentFilename = asset.getFileName();
+					loadFolder( getProgram().getAssetManager().getParent( asset ) );
+				}
 			}
 
 			activateUriField();
@@ -367,10 +383,8 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void requestSaveAsset() throws AssetException {
-		// FIXME There is no context for the source
-		Asset source = null; // Might be hard to get
-		Asset target = getProgram().getAssetManager().createAsset( uriField.getText() );
-		//				getProgram().getAssetManager().saveAsAsset( source, target );
+		if( saveActionConsumer != null ) saveActionConsumer.accept( getProgram().getAssetManager().resolve( getCurrentFolder(), currentFilename ) );
+		close();
 	}
 
 	private void updateActionState() {
@@ -379,12 +393,8 @@ public class AssetTool extends GuidedTool {
 		parentAction.updateEnabled();
 	}
 
-	private Asset getCurrentFolder() {
-		return currentFolder;
-	}
-
 	private void loadFolder( Asset asset ) {
-		if( "file".equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri().toString() );
 		currentFolder = asset;
 		updateActionState();
 		closeUserNotice();

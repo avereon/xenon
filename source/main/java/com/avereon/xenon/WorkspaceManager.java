@@ -185,12 +185,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {
-		return workspaces
-			.stream()
-			.flatMap( w -> w.getWorkareas().stream() )
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
-			.filter( t -> t.getAsset() == asset )
-			.collect( Collectors.toSet() );
+		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getWorkpane().getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets() {
@@ -204,13 +199,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Asset> getModifiedAssets( Workspace workspace ) {
-		return workspace
-			.getWorkareas()
-			.stream()
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
-			.map( Tool::getAsset )
-			.filter( Asset::isNewOrModified )
-			.collect( Collectors.toSet() );
+		return workspace.getWorkareas().stream().flatMap( a -> a.getWorkpane().getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -239,11 +228,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
-			if( result.get() == ButtonType.YES ) {
-				for( Asset asset : assets ) {
-					if( !getProgram().getAssetManager().saveAsset( asset ) ) return false;
-				}
-			}
+			if( result.get() == ButtonType.YES ) getProgram().getAssetManager().saveAssets( assets );
 			return result.get() == ButtonType.YES || result.get() == ButtonType.NO;
 		}
 

@@ -4,10 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
-import com.avereon.util.DelayedAction;
-import com.avereon.util.IdGenerator;
-import com.avereon.util.TestUtil;
-import com.avereon.util.UriUtil;
+import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetType;
@@ -25,7 +22,6 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.CustomLog;
 
@@ -73,11 +69,11 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final SaveActionHandler saveActionHandler;
 
-	private final SaveActionHandler renameActionHandler;
-
 	private final SaveActionHandler saveAsActionHandler;
 
 	private final SaveAllActionHandler saveAllActionHandler;
+
+	private final RenameActionHandler renameActionHandler;
 
 	private final CloseActionHandler closeActionHandler;
 
@@ -109,9 +105,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
 		reloadActionHandler = new ReloadActionHandler( program );
-		saveActionHandler = new SaveActionHandler( program, false, false );
-		saveAsActionHandler = new SaveActionHandler( program, true, true );
-		renameActionHandler = new SaveActionHandler( program, true, false );
+		saveActionHandler = new SaveActionHandler( program, false );
+		saveAsActionHandler = new SaveActionHandler( program, true );
+		renameActionHandler = new RenameActionHandler( program );
 		saveAllActionHandler = new SaveAllActionHandler( program );
 		closeActionHandler = new CloseActionHandler( program );
 		closeAllActionHandler = new CloseAllActionHandler( program );
@@ -432,182 +428,40 @@ public class AssetManager implements Controllable<AssetManager> {
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
-	public boolean reloadAsset( Asset asset ) {
-		if( !asset.isLoaded() ) return false;
-
+	public void reloadAsset( Asset asset ) {
+		if( !asset.isLoaded() ) return;
 		reloadAssets( asset );
-
-		return true;
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public boolean saveAsset( Asset asset ) {
-		return saveAsset( asset, null, false, false );
+	public void saveAsset( Asset asset ) {
+		doSaveOrRenameAsset( asset, null, false, false );
 	}
 
 	/**
-	 * Request that the source asset be saved as the target asset. This method submits a task to the task manager and returns immediately.
+	 * Request that the source asset be saved as the target asset. This method
+	 * submits a task to the task manager and returns immediately.
 	 *
 	 * @param source The source asset
 	 * @param target The target asset
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public boolean saveAsAsset( Asset source, Asset target ) {
-		return saveAsset( source, target, true, false );
+	public void saveAsAsset( Asset source, Asset target ) {
+		doSaveOrRenameAsset( source, target, true, false );
 	}
 
-	//	/**
-	//	 * Request that the source asset be saved as the target asset and wait
-	//	 * until the task is complete. This method submits a task to the task manager
-	//	 * and waits for the task to be completed.
-	//	 *
-	//	 * @param source The source asset
-	//	 * @param target The target asset
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 * @implNote This method makes calls to the FX platform.
-	//	 */
-	//	public void saveAsAssetAndWait( Asset source, Asset target ) throws ExecutionException, InterruptedException {
-	//		save( source, target, true, false );
-	//	}
-
 	/**
-	 * Request that the source asset be saved as a copy to the target asset. This method submits a task to the task manager and returns immediately.
+	 * Request that the source asset be renamed as the target asset. This method
+	 * submits a task to the task manager and returns immediately.
 	 *
 	 * @param source The source asset
 	 * @param target The target asset
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public boolean copyAsAsset( Asset source, Asset target ) {
-		return saveAsset( source, target, false, true );
-	}
-
-	//	/**
-	//	 * Request that the source asset be saved as a copy to the target asset
-	//	 * and wait until the task is complete. This method submits a task to the task
-	//	 * manager and waits for the task to be completed.
-	//	 *
-	//	 * @param source The source asset
-	//	 * @param target The target asset
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 * @implNote This method makes calls to the FX platform.
-	//	 */
-	//	public void saveCopyAsAssetAndWait( Asset source, Asset target ) throws ExecutionException, InterruptedException {
-	//		save( source, target, false, true );
-	//	}
-
-	/**
-	 * Save the asset, prompting the user if necessary.
-	 *
-	 * @param asset The asset to be saved
-	 * @param saveAsAsset The asset to save as
-	 * @param saveAs The save as flag
-	 * @param copy The copy as flag
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	private boolean saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
-		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
-			try {
-				Codec codec = asset.getCodec();
-				if( codec == null ) codec = asset.getType().getDefaultCodec();
-
-				File folder = !asset.isNew() ? new File( getParent( asset ).getUri() ) : getCurrentFolder();
-				String filename = !asset.isNew() ? asset.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-				String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
-				log.atTrace().log( "save asset uri=%s", uriString );
-
-				final Asset finalAsset = asset;
-				final Codec finalCodec = codec;
-				program.getTaskManager().submit( Task.of( () -> {
-					try {
-						Map<Codec, AssetFilter> filters = generateAssetFilters( finalAsset.getType() );
-						AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
-						tool.getFilters().addAll( 0, filters.values() );
-						tool.setSelectedFilter( filters.get( finalCodec ) );
-					} catch( Exception exception ) {
-						log.atWarn().withCause( exception ).log();
-					}
-				} ) );
-			} catch( AssetException exception ) {
-				log.atSevere().withCause( exception ).log();
-			}
-
-			//			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
-			//			if( file == null ) return false;
-			//
-			//			File folder = file.isDirectory() ? file : file.getParentFile();
-			//			getSettings().set( CURRENT_FOLDER_SETTING_KEY, folder.toString() );
-			//
-			//			// If the user specified a codec use it to set the codec and asset type
-			//			AssetType type = asset.getType();
-			//			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
-			//			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
-			//			if( selectedCodec != null ) type = selectedCodec.getAssetType();
-			//
-			//			// If the file extension is not already supported use the default extension from the codec
-			//			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
-			//				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
-			//			}
-			//
-			//			// Resolve the URI
-			//			URI uri = UriUtil.resolve( file.toString() );
-			//
-			//			// Create the target asset
-			//			try {
-			//				saveAsAsset = createAsset( type, uri );
-			//				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
-			//				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
-			//				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
-			//			} catch( AssetException exception ) {
-			//				log.atSevere().withCause( exception ).log();
-			//			}
-		}
-
-		try {
-			if( saveAsAsset != null ) {
-				if( copy ) asset = saveAsAsset.copyFrom( asset );
-				asset.setUri( saveAsAsset.getUri() );
-				asset.setCodec( saveAsAsset.getCodec() );
-				resolveScheme( asset, saveAsAsset.getUri().getScheme() );
-			}
-		} catch( AssetException exception ) {
-			log.atSevere().withCause( exception ).log();
-		}
-
-		saveAssets( asset );
-
-		return true;
-	}
-
-	private void doAfterAssetTool( Future<ProgramTool> future ) {
-
-	}
-
-	private Map<Codec, FileChooser.ExtensionFilter> generateCodecFilters( AssetType type ) {
-		Map<Codec, FileChooser.ExtensionFilter> codecFilters = new HashMap<>();
-		type.getCodecs().forEach( c -> codecFilters.put( c, generateExtensionFilter( c ) ) );
-		return codecFilters;
-	}
-
-	private Map<Codec, AssetFilter> generateAssetFilters( AssetType type ) {
-		Map<Codec, AssetFilter> filters = new HashMap<>();
-		type.getCodecs().forEach( c -> filters.put( c, new CodecAssetFilter( c ) ) );
-		return filters;
-	}
-
-	private FileChooser.ExtensionFilter generateExtensionFilter( Codec codec ) {
-		List<String> extensions = new ArrayList<>();
-		StringBuilder desc = new StringBuilder();
-		for( String ext : codec.getSupported( Codec.Pattern.EXTENSION ) ) {
-			extensions.add( "*." + ext );
-			desc.append( "," ).append( ext );
-		}
-		String name = codec.getName() + " (" + desc.toString().substring( 1 ) + ")";
-
-		return new FileChooser.ExtensionFilter( name, extensions );
+	public void renameAsset( Asset source, Asset target ) {
+		doSaveOrRenameAsset( source, target, false, true );
 	}
 
 	/**
@@ -626,7 +480,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( result.isPresent() && result.get() == ButtonType.YES ) saveAsset( asset, null, false, false );
+			if( result.isPresent() && result.get() == ButtonType.YES ) saveAsset( asset );
 			if( result.isEmpty() || result.get() == ButtonType.CANCEL ) return;
 		}
 
@@ -981,6 +835,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		return parent;
 	}
 
+	public Asset resolve( Asset asset, String name ) throws AssetException {
+		if( !asset.isFolder() ) return asset;
+		return createAsset( asset.getUri().resolve( name ) );
+	}
+
 	private Settings getSettings() {
 		return program.getSettingsManager().getSettings( ManagerSettings.ASSET );
 	}
@@ -1083,11 +942,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Determine if the asset can be saved. The asset can be saved if the URI is
-	 * null or if the URI scheme and codec can both save assets.
+	 * Determine if the asset can be reloaded. The asset can be reloaded if the
+	 * asset is not new and is already loaded.
 	 *
 	 * @param asset The asset to check
-	 * @return True if the asset can be saved, false otherwise.
+	 * @return True if the asset can be reloaded, false otherwise.
 	 */
 	private boolean canReloadAsset( Asset asset ) {
 		if( asset == null || asset.isNew() ) return false;
@@ -1143,6 +1002,18 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
+	 * Determine if the asset can be renamed. The asset can be renamed if the
+	 * asset is not new and is open.
+	 *
+	 * @param asset The asset to check
+	 * @return True if the asset can be renamed, false otherwise.
+	 */
+	private boolean canRenameAsset( Asset asset ) {
+		if( asset == null || asset.isNew() ) return false;
+		return asset.isOpen();
+	}
+
+	/**
 	 * Create an asset from an asset type and/or a URI. The asset is considered to be a new asset if the URI is null. Otherwise, the asset is
 	 * considered an old asset. See {@link Asset#isNew()}
 	 *
@@ -1153,7 +1024,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		uri = UriUtil.removeQueryAndFragment( uri );
-		uri = tweakUris( uri.normalize() );
+		uri = fixUris( uri.normalize() );
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
@@ -1167,15 +1038,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		return asset;
-	}
-
-	private URI tweakUris( URI uri ) {
-		String uriString = uri.toString();
-
-		// Fix program URIs
-		if( uriString.startsWith( "program:" ) && !uriString.startsWith( "program:/" ) ) uri = URI.create( uriString.replace( "program:", "program:/" ) );
-
-		return uri;
 	}
 
 	private boolean doOpenAsset( Asset asset ) throws AssetException {
@@ -1236,7 +1098,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		//if( !asset.exists() ) return false;
 
 		// Load the asset
-		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
 
 		log.atFiner().log( "Asset loaded: %s", asset );
@@ -1300,6 +1161,126 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		updateActionState();
 		return true;
+	}
+
+	/**
+	 * Save the asset, prompting the user if necessary.
+	 *
+	 * @param source The asset to be saved
+	 * @param target The asset to save as
+	 * @param saveAs The save as flag
+	 * @param rename The rename flag
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	private void doSaveOrRenameAsset( Asset source, Asset target, boolean saveAs, boolean rename ) {
+		try {
+			boolean needsTargetAsset = source.isNew() || ((saveAs || rename) && target == null);
+			if( needsTargetAsset ) {
+				askForTargetAsset( source, saveAs, rename );
+			} else {
+				saveAssets( source );
+			}
+		} catch( AssetException exception ) {
+			log.atSevere().withCause( exception ).log();
+		}
+	}
+
+	private void askForTargetAsset( Asset source, boolean saveAs, boolean rename ) throws AssetException {
+		Codec codec = source.getCodec();
+		if( codec == null ) codec = source.getType().getDefaultCodec();
+
+		File folder = !source.isNew() ? new File( getParent( source ).getUri() ) : getCurrentFolder();
+		String filename = !source.isNew() ? source.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
+		String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+		log.atTrace().log( "save asset uri=%s", uriString );
+
+		final Asset finalAsset = source;
+		final Codec finalCodec = codec;
+		program.getTaskManager().submit( Task.of( () -> {
+			try {
+				Map<Codec, AssetFilter> filters = generateAssetFilters( finalAsset.getType() );
+				AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
+				tool.getFilters().addAll( 0, filters.values() );
+				tool.setSelectedFilter( filters.get( finalCodec ) );
+				tool.setSaveActionConsumer( a -> doAfterAssetTool( tool, filters, source, a, saveAs, rename ) );
+			} catch( Exception exception ) {
+				log.atWarn().withCause( exception ).log();
+			}
+		} ) );
+	}
+
+	private void doAfterAssetTool( AssetTool tool, Map<Codec, AssetFilter> filters, Asset source, Asset target, boolean saveAs, boolean rename ) {
+		try {
+			Asset folder = target.isFolder() ? target : getParent( target );
+			getSettings().set( CURRENT_FOLDER_SETTING_KEY, String.valueOf( folder.getUri() ) );
+
+			// If the user specified a codec use it to set the codec and asset type
+			Map<AssetFilter, Codec> filterCodecs = MapUtil.mirror( filters );
+			Codec selectedCodec = filterCodecs.get( tool.getSelectedFilter() );
+
+			// If the extension is not already supported use the default extension from the codec
+			if( !target.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, target.getFileName() ) ) {
+				target = resolve( folder, target.getFileName() + "." + selectedCodec.getDefaultExtension() );
+			}
+
+			// Update the target asset
+			target.setSettings( getAssetSettings( target ) );
+			target.getSettings().copyFrom( getAssetSettings( source ) );
+			if( selectedCodec != null ) target.setCodec( selectedCodec );
+
+			if( source.isNew() || saveAs ) {
+				doSaveAsAsset( source, target );
+			} else if( rename ) {
+				doRenameAsset( source, target );
+			}
+		} catch( AssetException exception ) {
+			log.atError( exception ).log();
+		}
+	}
+
+	private void doSaveAsAsset( Asset source, Asset target ) throws AssetException {
+		if( source == null || target == null ) return;
+
+		copySettings( source, target, false );
+
+		// Use the scheme to rename the source to the target
+		source.getScheme().saveAs( source, target );
+
+		openAsset( target.getUri() );
+	}
+
+	private void doRenameAsset( Asset source, Asset target ) throws AssetException {
+		if( source == null || target == null ) return;
+
+		copySettings( source, target, true);
+
+		// Use the scheme to rename the source to the target
+		source.getScheme().rename( source, target );
+
+		close( source );
+		openAsset( target.getUri() );
+	}
+
+	private void copySettings( Asset source, Asset target, boolean delete ) {
+		Settings sourceSettings = getAssetSettings( source );
+		Settings targetSettings = getAssetSettings( target );
+		targetSettings.copyFrom( sourceSettings );
+		if( delete ) sourceSettings.delete();
+	}
+
+	private Map<Codec, AssetFilter> generateAssetFilters( AssetType type ) {
+		Map<Codec, AssetFilter> filters = new HashMap<>();
+		type.getCodecs().forEach( c -> filters.put( c, new CodecAssetFilter( c ) ) );
+		return filters;
+	}
+
+	private URI fixUris( URI uri ) {
+		String uriString = uri.toString();
+
+		// Fix program URIs
+		if( uriString.startsWith( "program:" ) && !uriString.startsWith( "program:/" ) ) uri = URI.create( uriString.replace( "program:", "program:/" ) );
+
+		return uri;
 	}
 
 	private boolean doSetCurrentAsset( Asset asset ) {
@@ -1465,12 +1446,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private final boolean saveAs;
 
-		private final boolean copy;
-
-		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
+		private SaveActionHandler( Program program, boolean saveAs ) {
 			super( program );
 			this.saveAs = saveAs;
-			this.copy = copy;
 		}
 
 		@Override
@@ -1480,7 +1458,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			saveAsset( getCurrentAsset(), null, saveAs, copy );
+			saveAsAsset( getCurrentAsset(), null );
 		}
 
 	}
@@ -1503,6 +1481,24 @@ public class AssetManager implements Controllable<AssetManager> {
 			} catch( Exception exception ) {
 				log.atSevere().withCause( exception ).log();
 			}
+		}
+
+	}
+
+	private class RenameActionHandler extends ProgramAction {
+
+		private RenameActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return canRenameAsset( getCurrentAsset() );
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			renameAsset( getCurrentAsset(), null );
 		}
 
 	}
