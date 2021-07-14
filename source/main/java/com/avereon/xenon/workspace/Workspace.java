@@ -563,9 +563,11 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private void updateBackgroundFromSettings( Settings settings ) {
-		settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
-		background.updateFromSettings( settings );
-		settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		Fx.run( () -> {
+			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
+			background.updateFromSettings( settings );
+			settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		} );
 	}
 
 	private void updateMemoryMonitorFromSettings( Settings settings ) {
