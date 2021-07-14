@@ -203,11 +203,11 @@ public class Workspace implements WritableIdentity {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new,open,reload,save,save-as,save-all,rename|close|exit]";
-		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
-		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show]";
-		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";
-		String development = "development[test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String file = "file[new|open,reload|save,save-as,save-all,rename|properties|close,exit]";
+		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
+		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
+		String help = "help[help-content,welcome|update|about]";
+		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 
 		// Construct the menubar descriptor
 		StringBuilder descriptor = new StringBuilder();
@@ -563,9 +563,11 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private void updateBackgroundFromSettings( Settings settings ) {
-		settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
-		background.updateFromSettings( settings );
-		settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		Fx.run( () -> {
+			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
+			background.updateFromSettings( settings );
+			settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		} );
 	}
 
 	private void updateMemoryMonitorFromSettings( Settings settings ) {

@@ -8,6 +8,7 @@ import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zerra.event.FxEventHub;
@@ -411,6 +412,11 @@ public class Asset extends Node {
 	 */
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
+	}
+
+	public SettingsPage getSettingsPage() {
+		// TODO Return the default settings page for the asset
+		return null;
 	}
 
 	@Override

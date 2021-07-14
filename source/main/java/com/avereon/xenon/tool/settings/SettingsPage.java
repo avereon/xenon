@@ -34,7 +34,7 @@ public class SettingsPage extends Node {
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsPage( SettingsPage page ) {
+	SettingsPage( SettingsPage page ) {
 		this.page = page;
 
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );

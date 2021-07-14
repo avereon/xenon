@@ -16,7 +16,8 @@ import javafx.scene.control.ScrollPane;
 import lombok.CustomLog;
 
 /**
- * This tool listens for "show properties" and "hide properties" events that allow the user to edit the properties of an object using the settings API.
+ * This tool listens for "show properties" and "hide properties" events that
+ * allow the user to edit the properties of an object using the settings API.
  */
 @CustomLog
 public class PropertiesTool extends ProgramTool {
@@ -40,7 +41,7 @@ public class PropertiesTool extends ProgramTool {
 
 	@Override
 	public Workpane.Placement getPlacement() {
-		return Workpane.Placement.DOCK_RIGHT;
+		return Workpane.Placement.DEFAULT;
 	}
 
 	@Override
