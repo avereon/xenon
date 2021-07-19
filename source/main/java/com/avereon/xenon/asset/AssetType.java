@@ -4,10 +4,12 @@ import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.javafx.Fx;
 import lombok.CustomLog;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -65,6 +67,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 	private final Set<Codec> codecs;
 
 	private Codec defaultCodec;
+
+	private Map<String,SettingsPage> settingsPages;
 
 	public AssetType( ProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
@@ -236,6 +240,14 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	public Set<Codec> getSupportedCodecs( Codec.Pattern type, String value ) {
 		return codecs.stream().filter( c -> c.isSupported( type, value ) ).collect( Collectors.toSet() );
+	}
+
+	public Map<String, SettingsPage> getSettingsPages() {
+		return settingsPages;
+	}
+
+	public void setSettingsPages(Map<String,SettingsPage> pages) {
+		this.settingsPages = pages;
 	}
 
 }

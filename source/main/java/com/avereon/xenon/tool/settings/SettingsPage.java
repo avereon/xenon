@@ -14,6 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SettingsPage extends Node {
 
+	public static final SettingsPage EMPTY = new SettingsPage( null );
+
 	public static final String ID = "id";
 
 	private static final String ICON = "icon";

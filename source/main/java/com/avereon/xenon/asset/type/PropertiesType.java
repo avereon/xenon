@@ -29,5 +29,4 @@ public class PropertiesType extends AssetType {
 		return false;
 	}
 
-
 }

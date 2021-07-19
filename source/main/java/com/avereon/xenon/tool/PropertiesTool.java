@@ -77,13 +77,15 @@ public class PropertiesTool extends ProgramTool {
 		return scroller.getContent() == null;
 	}
 
-	private void showPage( SettingsPage page ) {
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		scroller.setContent( new SettingsPanel( page ) );
+	public void showPage( SettingsPage page ) {
+		Fx.run( () -> {
+			page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
+			scroller.setContent( new SettingsPanel( page ) );
+		});
 	}
 
-	private void hidePage() {
-		scroller.setContent( null );
+	public void hidePage() {
+		Fx.run( () -> scroller.setContent( null ) );
 	}
 
 }
