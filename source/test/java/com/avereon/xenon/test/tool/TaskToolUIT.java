@@ -5,8 +5,7 @@ import com.avereon.xenon.test.BaseToolUIT;
 abstract class TaskToolUIT extends BaseToolUIT {
 
 	void openTaskMenu() {
-		clickOn( "#menu-help" );
-		clickOn( "#menu-tools" );
+		clickOn( "#menu-view" );
 		clickOn( "#menuitem-task" );
 	}
 

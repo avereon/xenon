@@ -5,7 +5,7 @@ import com.avereon.xenon.test.BaseToolUIT;
 abstract class SettingsToolUIT extends BaseToolUIT {
 
 	void openTool() {
-		clickOn( "#menu-help" );
+		clickOn( "#menu-edit" );
 		clickOn( "#menuitem-settings" );
 	}
 
