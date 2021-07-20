@@ -20,13 +20,15 @@ public class SettingData extends SettingDependant {
 
 	public static final String VALUE = "value";
 
-	public static final String EDITOR = "editor";
+	static final String EDITOR = "editor";
 
-	private static final String OPAQUE = "opaque";
+	static final String OPAQUE = "opaque";
+
+	static final String ROWS = "rows";
+
+	static final String PROVIDER = "provider";
 
 	private static final String OPTIONS = "options";
-
-	private static final String OPTION_PROVIDER = "option-provider";
 
 	private final SettingGroup group;
 
@@ -58,14 +60,6 @@ public class SettingData extends SettingDependant {
 		setValue( KEY, key );
 	}
 
-	public String getSettingValue() {
-		return getValue( VALUE );
-	}
-
-	public void setSettingValue( String value ) {
-		setValue( VALUE, value );
-	}
-
 	public String getEditor() {
 		return getValue( EDITOR );
 	}
@@ -85,12 +79,20 @@ public class SettingData extends SettingDependant {
 		setValue( OPAQUE, opaque );
 	}
 
+	public int getRows() {
+		return getValue( ROWS );
+	}
+
+	public void setRows( int rows ) {
+		setValue( ROWS, rows );
+	}
+
 	public String getProvider() {
-		return getValue( OPTION_PROVIDER );
+		return getValue( PROVIDER );
 	}
 
 	public SettingData setProvider( String provider ) {
-		setValue( OPTION_PROVIDER, provider );
+		setValue( PROVIDER, provider );
 		return this;
 	}
 

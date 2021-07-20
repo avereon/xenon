@@ -27,8 +27,6 @@ public class SettingsPageParser {
 
 	private static final String SETTING = "setting";
 
-	private static final String PROVIDER = "provider";
-
 	private static final String OPTION = "option";
 
 	private static final String DEPENDENCY = "dependency";
@@ -41,21 +39,11 @@ public class SettingsPageParser {
 
 	private static final String KEY = "key";
 
-	private static final String RBKEY = "rbkey";
-
 	private static final String VALUE = "value";
 
 	private static final String ICON = "icon";
 
 	private static final String TITLE = "title";
-
-	private static final String EDITOR = "editor";
-
-	private static final String DISABLE = "disable";
-
-	//private static final String EDITABLE = "editable";
-
-	private static final String OPAQUE = "opaque";
 
 	private static final String PRODUCT_ICON = "product";
 
@@ -209,15 +197,14 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		// The setting key
 		String key = attributes.get( KEY );
-		//String rbkey = attributes.get( RBKEY );
-//		if( rbkey == null ) rbkey = key;
-//		if( rbkey == null ) rbkey = id;
-		String editor = attributes.get( EDITOR );
-		String disable = attributes.get( DISABLE );
+		String editor = attributes.get( SettingData.EDITOR );
+		String disable = attributes.get( SettingData.DISABLE );
 		if( disable == null ) disable = String.valueOf( false );
-		String opaque = attributes.get( OPAQUE );
+		String opaque = attributes.get( SettingData.OPAQUE );
 		if( opaque == null ) opaque = String.valueOf( false );
-		String provider = attributes.get( PROVIDER );
+		String rows = attributes.get( SettingData.ROWS );
+		if( rows == null ) rows = String.valueOf( 10 );
+		String provider = attributes.get( SettingData.PROVIDER );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingData setting = new SettingData( group );
@@ -226,6 +213,7 @@ public class SettingsPageParser {
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
+		setting.setRows( Integer.parseInt( rows ) );
 		setting.setProvider( provider );
 		setting.setFailDependencyAction( failDependencyAction );
 
@@ -327,9 +315,5 @@ public class SettingsPageParser {
 		}
 		return attributes;
 	}
-
-	//	private void printTag() {
-	//		Log.write( "Tag: " + reader.getEventType() + " > " + reader.getLocalName() );
-	//	}
 
 }
