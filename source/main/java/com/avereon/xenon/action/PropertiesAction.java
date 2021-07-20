@@ -1,5 +1,6 @@
 package com.avereon.xenon.action;
 
+import com.avereon.data.NodeSettings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.PropertiesToolEvent;
@@ -31,7 +32,7 @@ public class PropertiesAction extends ProgramAction {
 		SettingsPage page = asset.getType().getSettingsPages().get( "asset" );
 
 		// Set the settings for the pages
-		page.setSettings( asset.getSettings() );
+		page.setSettings( new NodeSettings( asset.getModel() ) );
 
 		// Switch to a task thread to get the tool
 		getProgram().getTaskManager().submit( Task.of( () -> {
