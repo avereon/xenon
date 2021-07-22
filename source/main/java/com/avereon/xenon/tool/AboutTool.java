@@ -22,6 +22,7 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -474,15 +475,17 @@ public class AboutTool extends GuidedTool {
 	private String getScreenDetail( Screen primary, Screen screen ) {
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
+
+		Scene scene = getScene();
 		Rectangle2D outputScale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
-		Rectangle2D renderScale = new Rectangle2D( 0, 0, getScene().getWindow().getRenderScaleX(), getScene().getWindow().getRenderScaleY() );
-		Rectangle2D sceneScale = new Rectangle2D( 0, 0, getScene().getRoot().getScaleX(), getScene().getRoot().getScaleY() );
+		Rectangle2D renderScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getWindow().getRenderScaleX(), scene.getWindow().getRenderScaleY() );
+		Rectangle2D sceneScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getRoot().getScaleX(), scene.getRoot().getScaleY() );
 		int dpi = (int)screen.getDpi();
 
 		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
 		String scaleText = outputScale.getWidth() + "x" + outputScale.getWidth();
-		String renderScaleText = renderScale.getWidth() + "x" + renderScale.getWidth();
-		String sceneScaleText = sceneScale.getWidth() + "x" + sceneScale.getWidth();
+		String renderScaleText = renderScale == null ? "" : renderScale.getWidth() + "x" + renderScale.getWidth();
+		String sceneScaleText = sceneScale == null ? "" : sceneScale.getWidth() + "x" + sceneScale.getWidth();
 
 		//System.out.println( "Screen scale: " + scaleText );
 		//System.out.println( "Render scale: " + renderScaleText );
