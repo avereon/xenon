@@ -45,7 +45,7 @@ public class IconLibrary {
 		register( "asset-save-all", new SaveIcon() );
 		register( "asset-rename", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
-		register( "properties", new HamburgerIcon() );
+		register( "properties", new PropertiesIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
