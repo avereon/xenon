@@ -41,9 +41,17 @@ public class StatusBar extends BorderPane {
 		leftToolStatusItems.getChildren().addAll( nodes );
 	}
 
+	public void removeLeftToolItems( Node... nodes ) {
+		leftToolStatusItems.getChildren().removeAll( nodes );
+	}
+
 	public void setRightToolItems( Node... nodes ) {
 		rightToolStatusItems.getChildren().clear();
 		rightToolStatusItems.getChildren().addAll( nodes );
+	}
+
+	public void removeRightToolItems( Node... nodes ) {
+		rightToolStatusItems.getChildren().removeAll( nodes );
 	}
 
 	public void addLeftItems( Node... nodes ) {
