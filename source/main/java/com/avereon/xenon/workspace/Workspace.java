@@ -390,9 +390,7 @@ public class Workspace implements WritableIdentity {
 			// TODO Remove the menu bar
 			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
-
-			// TODO Can I have the workarea "conceal" the tools instead of directly setting the current asset
-			getProgram().getAssetManager().setCurrentAsset( null );
+			activeWorkarea.getWorkpane().setVisible( false );
 		}
 
 		// If the workarea is not already added, add it
@@ -404,6 +402,7 @@ public class Workspace implements WritableIdentity {
 		// Connect the new active workarea
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
+			activeWorkarea.getWorkpane().setVisible( true );
 			// TODO Set the menu bar
 			// TODO Set the tool bar
 			activeWorkarea.setActive( true );
