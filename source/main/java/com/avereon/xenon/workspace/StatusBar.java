@@ -50,8 +50,8 @@ public class StatusBar extends BorderPane {
 		Arrays.stream( nodes ).filter( n -> !leftStatusBarItems.getChildren().contains( n ) ).forEach( n -> leftStatusBarItems.getChildren().add( n ) );
 	}
 
-	public void removeLeftItems( Node... node ) {
-		leftStatusBarItems.getChildren().removeAll( node );
+	public void removeLeftItems( Node... nodes ) {
+		leftStatusBarItems.getChildren().removeAll( nodes );
 	}
 
 	public void addRightItems( Node... nodes ) {
@@ -60,8 +60,8 @@ public class StatusBar extends BorderPane {
 		items.stream().filter( n -> !rightStatusBarItems.getChildren().contains( n ) ).forEach( n -> rightStatusBarItems.getChildren().add( 0, n ) );
 	}
 
-	public void removeRightItems( Node node ) {
-		rightStatusBarItems.getChildren().remove( node );
+	public void removeRightItems( Node... nodes ) {
+		rightStatusBarItems.getChildren().removeAll( nodes );
 	}
 
 }
