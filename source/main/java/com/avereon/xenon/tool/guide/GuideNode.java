@@ -69,6 +69,11 @@ public class GuideNode extends Node {
 
 	public GuideNode setName( String name ) {
 		setValue( NAME, name );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> {
+			// This seems to be simplest way to update the name on the tree item
+			getTreeItem().setValue( null );
+			getTreeItem().setValue( this );
+		} );
 		return this;
 	}
 
