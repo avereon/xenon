@@ -725,7 +725,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE, ProgramFlag.NODAEMON ) );
 
 		return count;
 	}

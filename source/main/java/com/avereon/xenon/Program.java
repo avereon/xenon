@@ -295,6 +295,7 @@ public class Program extends Application implements ProgramProduct {
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() );
 		boolean daemon = parameters.isSet( ProgramFlag.DAEMON );
+		if( parameters.isSet( ProgramFlag.NODAEMON ) ) daemon = false;
 		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
 		if( !daemon && !nosplash ) {
 			splashScreen.show( stage );
