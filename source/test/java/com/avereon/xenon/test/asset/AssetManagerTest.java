@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -85,7 +86,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isOpen(), is( false ) );
 
-		manager.openAssetsAndWait( asset );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
 		assertThat( asset.isOpen(), is( true ) );
 	}
 
@@ -162,7 +163,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		assertThat( asset.isSaved(), is( false ) );
 
 		// Asset must be open to be saved
-		manager.openAssetsAndWait( asset );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
 		assertThat( asset.isOpen(), is( true ) );
 
 		manager.saveAssetsAndWait( asset );
@@ -194,7 +195,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
 
 		// Asset must be open to be closed
-		manager.openAssetsAndWait( asset );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
 		assertThat( asset.isOpen(), is( true ) );
 
 		manager.closeAssetsAndWait( asset );

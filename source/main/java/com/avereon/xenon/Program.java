@@ -55,6 +55,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 @CustomLog
@@ -927,8 +928,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// Open the assets provided on the command line
 		try {
-			getAssetManager().openAssetsAndWait( getAssetManager().createAssets( uris ) );
-		} catch( ExecutionException | AssetException exception ) {
+			getAssetManager().openAssetsAndWait( getAssetManager().createAssets( uris ), 5, TimeUnit.SECONDS );
+		} catch( AssetException | ExecutionException | TimeoutException exception ) {
 			log.atWarning().log( "Unable to open assets: %s", uris );
 		} catch( InterruptedException exception ) {
 			// Intentionally ignore exception

@@ -58,8 +58,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	 */
 	@BeforeEach
 	protected void setup() throws Exception {
-		// Intentionally do not call super.setup()
-
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Program.class );

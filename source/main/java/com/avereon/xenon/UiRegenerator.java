@@ -113,7 +113,7 @@ class UiRegenerator {
 	void startAssetLoading() {
 		Collection<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toList() );
 		try {
-			getProgram().getAssetManager().openAssetsAndWait( assets );
+			getProgram().getAssetManager().openAssetsAndWait( assets, 5, TimeUnit.SECONDS );
 			getProgram().getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {
 			log.atError( exception ).log();

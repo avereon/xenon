@@ -19,16 +19,16 @@ import javafx.application.Platform;
 import lombok.CustomLog;
 
 import java.lang.reflect.Constructor;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @CustomLog
 public class ToolManager implements Controllable<ToolManager> {
+
+	private static final long WORK_TIME_LIMIT = 2;
+
+	private static final TimeUnit WORK_TIME_UNIT = TimeUnit.SECONDS;
 
 	private final Program program;
 
@@ -37,6 +37,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	private final Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
 
 	private final Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
+
+	private final Object singletonToolLock = new Object();
 
 	public ToolManager( Program program ) {
 		this.program = program;
@@ -77,7 +79,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @apiNote Should be called from a {@link TaskManager} thread
 	 * @apiNote This method is synchronized in order to enforce singleton instance mode
 	 */
-	public synchronized ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
+	public ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
 		// Check the calling thread
 		TaskManager.taskThreadCheck();
 
@@ -107,47 +109,57 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
-		ProgramTool tool = findToolInPane( pane, toolClass );
+		ProgramTool tool;
 
-		// If the instance mode is SINGLETON, check for an existing tool in the workpane
-		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
+		synchronized( singletonToolLock ) {
+			// Synchronizing this block before looking for an instance of the tool, and
+			// waiting for the FX thread at the end, is required to enforce singleton tools
+
+			tool = findToolInPane( pane, toolClass );
+
+			// If the instance mode is SINGLETON, check for an existing tool in the workpane
+			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
+				final Workpane finalPane = pane;
+				final ProgramTool finalTool = tool;
+				if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
+				return tool;
+			}
+
+			try {
+				tool = getToolInstance( request );
+			} catch( Exception exception ) {
+				log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
+				return null;
+			}
+
+			// Determine the placement
+			// A null value allows the tool to determine its own placement
+			Workpane.Placement placement = toolClassMetadata.get( tool.getClass() ).getPlacement();
+
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
-			return tool;
+			final WorkpaneView finalView = view;
+			scheduleWaitForReady( request, finalTool );
+			Fx.run( () -> finalPane.openTool( finalTool, finalView, placement, request.isSetActive() ) );
+			Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		}
 
-		try {
-			tool = getToolInstance( request );
-		} catch( Exception exception ) {
-			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
-			return null;
-		}
-
+		// FIXME Opening the dependencies after the tool causes some problems with the tool expecting the dependency to exist.
 		// Now that we have a tool...open dependent assets and associated tools
 		if( !openDependencies( request, tool ) ) return null;
-
-		// Determine the placement override
-		// A null value allows the tool to determine its placement
-		Workpane.Placement placementOverride = toolClassMetadata.get( tool.getClass() ).getPlacement();
-
-		final Workpane finalPane = pane;
-		final ProgramTool finalTool = tool;
-		final WorkpaneView finalView = view;
-		scheduleWaitForReady( request, finalTool );
-		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
 	}
 
 	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+		// NOTE There is no realistic way of opening the dependencies on the same thread
 		try {
-			for( URI dependency : tool.getAssetDependencies() ) {
-				program.getAssetManager().openAsset( dependency, true, false ).get();
+			for( Future<ProgramTool> future : program.getAssetManager().openAssets( tool.getAssetDependencies(), true, false ) ) {
+				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 			}
 			return true;
 		} catch( InterruptedException ignored ) {
-		} catch( ExecutionException exception ) {
+		} catch( ExecutionException | TimeoutException exception ) {
 			log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", request.getToolClass().getName() );
 		}
 		return false;
@@ -285,9 +297,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
-		tool.addEventHandler( ToolEvent.ADDED,
-			e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() )
-		);
+		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() ) );
 		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
 		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
@@ -295,7 +305,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
-		return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
+		return (ProgramTool)pane.getTools( type ).stream().findAny().orElse( null );
+		//return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
 	}
 
 	/**

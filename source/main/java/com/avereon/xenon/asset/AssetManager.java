@@ -28,10 +28,7 @@ import lombok.CustomLog;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -405,6 +402,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		return openAsset( uri, null, view, true, true );
 	}
 
+	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
+		Set<Future<ProgramTool>> futures = new HashSet<>();
+		for( URI uri : uris ) {
+			futures.add( openAsset( uri, null, null, openTool, setActive ) );
+		}
+		return futures;
+	}
+
 	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
@@ -608,13 +613,13 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * Request that the specified assets be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task
 	 * to be completed.
 	 *
-	 * @param assets The assets to open
+	 * @param asset The asset to open
 	 * @throws ExecutionException If there was an exception opening the asset
 	 * @throws InterruptedException If the process of opening the asset was interrupted
 	 * @implNote Do not call from a UI thread
 	 */
-	public void openAssetsAndWait( Asset... assets ) throws ExecutionException, InterruptedException {
-		openAssetsAndWait( List.of( assets ) );
+	public void openAssetsAndWait( Asset asset, long time, TimeUnit unit ) throws ExecutionException, InterruptedException, TimeoutException {
+		openAssetsAndWait( List.of( asset ), time, unit );
 	}
 
 	/**
@@ -626,8 +631,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @throws InterruptedException If the process of opening an asset was interrupted
 	 * @implNote Do not call from a UI thread
 	 */
-	public void openAssetsAndWait( Collection<Asset> assets ) throws ExecutionException, InterruptedException {
-		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) ).get();
+	public void openAssetsAndWait( Collection<Asset> assets, long time, TimeUnit unit ) throws ExecutionException, InterruptedException, TimeoutException {
+		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) ).get( time, unit );
 	}
 
 	/**
@@ -1337,7 +1342,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public ProgramTool call() throws Exception {
+		public ProgramTool call() throws AssetException, ExecutionException, TimeoutException, InterruptedException {
 			// Create and configure the asset
 			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
 			Asset asset = request.getAsset();
@@ -1347,7 +1352,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( codec != null ) asset.setCodec( codec );
 
 			// Open the asset
-			openAssetsAndWait( asset );
+			openAssetsAndWait( asset, 5, TimeUnit.SECONDS );
 			if( !asset.isOpen() || !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
