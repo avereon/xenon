@@ -75,8 +75,9 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open asset request
 	 * @return The tool for the request or null if a tool was not created
 	 * @apiNote Should be called from a {@link TaskManager} thread
+	 * @apiNote This method is synchronized in order to enforce singleton instance mode
 	 */
-	public ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
+	public synchronized ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
 		// Check the calling thread
 		TaskManager.taskThreadCheck();
 
@@ -193,8 +194,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	public ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
 		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
-		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
-		return instanceMode;
+		return instanceMode == null ? ToolInstanceMode.UNLIMITED : instanceMode;
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
