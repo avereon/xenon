@@ -21,6 +21,7 @@ import lombok.CustomLog;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 @CustomLog
@@ -38,7 +39,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private final Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
 
-	private final Object singletonToolLock = new Object();
+	private final Set<Class<?>> singletonLocks = new CopyOnWriteArraySet<>();
 
 	public ToolManager( Program program ) {
 		this.program = program;
@@ -91,9 +92,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		AssetType assetType = asset.getType();
 
 		// Determine which tool class will be used
-		Class<? extends ProgramTool> toolClass = request.getToolClass();
-		if( toolClass == null ) toolClass = determineToolClassForAssetType( assetType );
-		if( toolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
+		Class<? extends ProgramTool> requestedToolClass = request.getToolClass();
+		if( requestedToolClass == null ) requestedToolClass = determineToolClassForAssetType( assetType );
+		if( requestedToolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
+		final Class<? extends ProgramTool> toolClass = requestedToolClass;
 		request.setToolClass( toolClass );
 
 		// Check that the tool is registered
@@ -109,13 +111,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
-		ProgramTool tool;
+		try {
+			// Check for a singleton lock before looking for a tool instance
+			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
 
-		synchronized( singletonToolLock ) {
-			// Synchronizing this block before looking for an instance of the tool, and
-			// waiting for the FX thread at the end, is required to enforce singleton tools
-
-			tool = findToolInPane( pane, toolClass );
+			ProgramTool tool = findToolInPane( pane, toolClass );
 
 			// If the instance mode is SINGLETON, check for an existing tool in the workpane
 			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
@@ -132,6 +132,9 @@ public class ToolManager implements Controllable<ToolManager> {
 				return null;
 			}
 
+			// Now that we have a tool...open dependent assets and associated tools
+			if( !openDependencies( request, tool ) ) return null;
+
 			// Determine the placement
 			// A null value allows the tool to determine its own placement
 			Workpane.Placement placement = toolClassMetadata.get( tool.getClass() ).getPlacement();
@@ -142,13 +145,49 @@ public class ToolManager implements Controllable<ToolManager> {
 			scheduleWaitForReady( request, finalTool );
 			Fx.run( () -> finalPane.openTool( finalTool, finalView, placement, request.isSetActive() ) );
 			Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+
+			return tool;
+		} catch( InterruptedException ignore ) {
+			return null;
+		} finally {
+			clearSingletonLock( toolClass );
 		}
+	}
 
-		// FIXME Opening the dependencies after the tool causes some problems with the tool expecting the dependency to exist.
-		// Now that we have a tool...open dependent assets and associated tools
-		if( !openDependencies( request, tool ) ) return null;
+	/**
+	 * This very particular method acquires a lock when creating singleton tools
+	 * that blocks other threads from creating singleton tools if there is already
+	 * a thread creating one.
+	 *
+	 * @param toolClass The singleton tool class
+	 * @throws InterruptedException If a waiting thread is interrupted
+	 */
+	@SuppressWarnings( "SynchronizationOnLocalVariableOrMethodParameter" )
+	private void checkSingletonLock( Class<? extends ProgramTool> toolClass ) throws InterruptedException {
+		synchronized( singletonLocks ) {
+			synchronized( toolClass ) {
+				// Need special handling of singletons
+				while( singletonLocks.contains( toolClass ) ) {
+					toolClass.wait( 1000 );
+				}
+				singletonLocks.add( toolClass );
+			}
+		}
+	}
 
-		return tool;
+	/**
+	 * This very particular method clears the lock when creating singleton tools.
+	 *
+	 * @param toolClass The singleton tool class
+	 */
+	@SuppressWarnings( "SynchronizationOnLocalVariableOrMethodParameter" )
+	private void clearSingletonLock( Class<? extends ProgramTool> toolClass ) {
+		synchronized( singletonLocks ) {
+			synchronized( toolClass ) {
+				singletonLocks.remove( toolClass );
+				toolClass.notifyAll();
+			}
+		}
 	}
 
 	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
