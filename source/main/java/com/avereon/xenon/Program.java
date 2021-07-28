@@ -295,8 +295,7 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() );
-		boolean daemon = parameters.isSet( ProgramFlag.DAEMON );
-		if( parameters.isSet( ProgramFlag.NODAEMON ) ) daemon = false;
+		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
 		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
 		if( !daemon && !nosplash ) {
 			splashScreen.show( stage );
@@ -460,7 +459,7 @@ public class Program extends Application implements ProgramProduct {
 		// Give the slash screen time to render and the user to see it
 		if( splashScreen.isVisible() ) Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
 
-		boolean daemon = parameters.isSet( ProgramFlag.DAEMON );
+		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
 		Fx.run( () -> {
 			splashScreen.hide();
 			time( "splash hidden" );
