@@ -1105,7 +1105,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// Load the asset
 		asset.load( this );
-
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.atFiner().log( "Asset loaded: %s", asset );
 
 		updateActionState();
@@ -1116,6 +1116,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null || !asset.isLoaded() ) return false;
 
 		asset.load( this );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.atFiner().log( "Asset reloaded: %s", asset );
 
 		updateActionState();

@@ -290,6 +290,8 @@ public class Asset extends Node {
 		open = true;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
+
+		notifyAll();
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -305,7 +307,6 @@ public class Asset extends Node {
 		loaded = true;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
-		manager.getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		notifyAll();
 	}
@@ -324,6 +325,8 @@ public class Asset extends Node {
 		saved = true;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
+
+		notifyAll();
 	}
 
 	public synchronized final boolean isClosed() {
@@ -338,6 +341,8 @@ public class Asset extends Node {
 		open = false;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
+
+		notifyAll();
 	}
 
 	public boolean exists() throws AssetException {
