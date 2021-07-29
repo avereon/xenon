@@ -150,7 +150,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		} catch( InterruptedException ignore ) {
 			return null;
 		} finally {
-			clearSingletonLock( toolClass );
+			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}
 	}
 
@@ -162,16 +162,13 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param toolClass The singleton tool class
 	 * @throws InterruptedException If a waiting thread is interrupted
 	 */
-	@SuppressWarnings( "SynchronizationOnLocalVariableOrMethodParameter" )
 	private void checkSingletonLock( Class<? extends ProgramTool> toolClass ) throws InterruptedException {
 		synchronized( singletonLocks ) {
-			synchronized( toolClass ) {
-				// Need special handling of singletons
-				while( singletonLocks.contains( toolClass ) ) {
-					toolClass.wait( 1000 );
-				}
-				singletonLocks.add( toolClass );
+			// Need special handling of singletons
+			while( singletonLocks.contains( toolClass ) ) {
+				singletonLocks.wait( 1000 );
 			}
+			singletonLocks.add( toolClass );
 		}
 	}
 
@@ -180,13 +177,10 @@ public class ToolManager implements Controllable<ToolManager> {
 	 *
 	 * @param toolClass The singleton tool class
 	 */
-	@SuppressWarnings( "SynchronizationOnLocalVariableOrMethodParameter" )
 	private void clearSingletonLock( Class<? extends ProgramTool> toolClass ) {
 		synchronized( singletonLocks ) {
-			synchronized( toolClass ) {
-				singletonLocks.remove( toolClass );
-				toolClass.notifyAll();
-			}
+			singletonLocks.remove( toolClass );
+			singletonLocks.notifyAll();
 		}
 	}
 

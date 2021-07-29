@@ -1088,7 +1088,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets.add( asset );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
-		log.atFiner().log( "Asset opened: %s", asset );
+		log.atDebug().log( "Asset opened: %s", asset );
 
 		if( asset.isNew() ) doLoadAsset( asset );
 
@@ -1106,7 +1106,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Load the asset
 		asset.load( this );
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
-		log.atFiner().log( "Asset loaded: %s", asset );
+		log.atDebug().log( "Asset loaded: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1136,7 +1136,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
-		log.atFiner().log( "Asset saved: %s", asset );
+		log.atDebug().log( "Asset saved: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1164,7 +1164,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		//		if( settings != null ) settings.delete();
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
-		log.atFiner().log( "Asset closed: %s", asset );
+		log.atDebug().log( "Asset closed: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1359,7 +1359,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the tool if needed
 			ProgramTool tool;
 			try {
-				// If the asset is new get user input from the asset type.
+				// If the asset is new get user input from the asset type
 				if( asset.isNew() ) {
 					if( !asset.getType().callAssetNew( program, asset ) ) return null;
 					log.atFiner().log( "Asset initialized with user values." );
