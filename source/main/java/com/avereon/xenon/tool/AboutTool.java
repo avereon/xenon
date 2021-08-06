@@ -462,12 +462,13 @@ public class AboutTool extends GuidedTool {
 	private String getJavaFxDetail() {
 		StringBuilder builder = new StringBuilder();
 
-		Screen primary = Screen.getPrimary();
-		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
+		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
+		builder.append( "Hardware render: " ).append( scene3d ).append( "\n" );
 
 		builder.append( "\n" );
-		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "3D Accelerated: " ).append( scene3d ).append( "\n" );
+
+		Screen primary = Screen.getPrimary();
+		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
 
 		return builder.toString();
 	}

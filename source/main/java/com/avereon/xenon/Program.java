@@ -169,9 +169,9 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the FX framework
 	public Program() {
 		time( "instantiate" );
-		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
 
 		// Add the uncaught exception handler to the JavaFX Application Thread
+		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Do not implicitly close the program
