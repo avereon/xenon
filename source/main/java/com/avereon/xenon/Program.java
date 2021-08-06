@@ -32,6 +32,7 @@ import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;
+import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -282,8 +283,9 @@ public class Program extends Application implements ProgramProduct {
 	@Override
 	public void start( Stage stage ) {
 		time( "fx-start" );
+		if( !isHardwareRendered() ) log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 
-		// Add an uncaught exception handler to the FX thread
+		// Add the uncaught exception handler to the FX thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 		time( "uncaught-exception-handler" );
 
@@ -689,6 +691,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public boolean isRunning() {
 		return taskManager.isRunning();
+	}
+
+	public boolean isHardwareRendered() {
+		return Platform.isSupported( ConditionalFeature.SCENE3D );
 	}
 
 	public boolean isUpdateInProgress() {

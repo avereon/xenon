@@ -18,7 +18,6 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -462,11 +461,11 @@ public class AboutTool extends GuidedTool {
 	private String getJavaFxDetail() {
 		StringBuilder builder = new StringBuilder();
 
-		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "Hardware render: " ).append( scene3d ).append( "\n" );
+		// Is the program hardware rendered
+		builder.append( "Hardware rendered: " ).append( getProgram().isHardwareRendered() ).append( "\n" );
 
+		// The screen information
 		builder.append( "\n" );
-
 		Screen primary = Screen.getPrimary();
 		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
 
