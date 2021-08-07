@@ -5,7 +5,9 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.StoredSettings;
 import com.avereon.skill.Controllable;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.PathUtil;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
@@ -18,6 +20,7 @@ import javafx.scene.control.SelectionMode;
 import lombok.CustomLog;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -140,6 +143,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 
 		return ids;
+	}
+
+	public Settings getAssetSettings( Asset asset ) {
+		return getAssetSettings( asset.getUri() );
+	}
+
+	public Settings getAssetSettings( URI uri ) {
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
 	}
 
 	public SettingsPage getSettingsPage( String id ) {

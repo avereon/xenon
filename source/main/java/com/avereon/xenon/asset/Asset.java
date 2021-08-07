@@ -2,7 +2,6 @@ package com.avereon.xenon.asset;
 
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
-import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
@@ -62,8 +61,6 @@ public class Asset extends Node {
 	private final UndoManager<List<NodeChange>> undoManager;
 
 	private boolean captureUndoChanges;
-
-	private Settings settings;
 
 	private volatile boolean open;
 
@@ -400,22 +397,6 @@ public class Asset extends Node {
 	public long getSize() throws AssetException {
 		Scheme scheme = getScheme();
 		return scheme.getSize( this );
-	}
-
-	/**
-	 * These settings are set by the {@link AssetManager}.
-	 *
-	 * @return The asset settings
-	 */
-	public Settings getSettings() {
-		return settings;
-	}
-
-	/**
-	 * These settings are set by the {@link AssetManager}.
-	 */
-	public void setSettings( Settings settings ) {
-		this.settings = settings;
 	}
 
 	@Override

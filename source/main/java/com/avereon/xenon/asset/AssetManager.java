@@ -1070,10 +1070,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 		log.atFiner().log( "Asset codec: %s", codec );
 
-		// Create the asset settings
-		asset.setSettings( getAssetSettings( asset ) );
-		log.atFiner().log( "Asset settings: %s", asset.getSettings().getPath() );
-
 		// Initialize the asset
 		if( !type.callAssetOpen( program, asset ) ) return false;
 		log.atFiner().log( "Asset initialized with default values." );
@@ -1129,9 +1125,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		asset.save( this );
 		identifiedAssets.put( asset.getUri(), asset );
 
-		// Create the asset settings
 		// TODO If the asset is changing URI the settings need to be moved
-		asset.setSettings( getAssetSettings( asset ) );
 
 		// TODO Update the asset type.
 
@@ -1231,8 +1225,6 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 
 			// Update the target asset
-			//			target.setSettings( getAssetSettings( target ) );
-			//			target.getSettings().copyFrom( getAssetSettings( source ) );
 			if( selectedCodec != null ) target.setCodec( selectedCodec );
 
 			if( source.isNew() || saveAs ) {
@@ -1270,8 +1262,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private void copySettings( Asset source, Asset target, boolean delete ) {
-		Settings sourceSettings = getAssetSettings( source );
-		Settings targetSettings = getAssetSettings( target );
+		Settings sourceSettings = getProgram().getSettingsManager().getAssetSettings( source );
+		Settings targetSettings = getProgram().getSettingsManager().getAssetSettings( target );
 		targetSettings.copyFrom( sourceSettings );
 		if( delete ) sourceSettings.delete();
 	}
@@ -1318,14 +1310,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		updateActionState();
 		return true;
-	}
-
-	private Settings getAssetSettings( Asset asset ) {
-		return getAssetSettings( asset.getUri() );
-	}
-
-	private Settings getAssetSettings( URI uri ) {
-		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
 	}
 
 	private File getCurrentFolder() {
