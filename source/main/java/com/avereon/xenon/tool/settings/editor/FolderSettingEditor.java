@@ -38,7 +38,7 @@ public class FolderSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
@@ -46,7 +46,7 @@ public class FolderSettingEditor extends SettingEditor {
 		field.setId( rbKey );
 
 		Button button = new Button();
-		button.setText( Rb.text( getProduct(), "settings", "browse" ) );
+		button.setText( Rb.text( getProduct(), getBundleKey(), "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		nodes = List.of( label, field, button );
@@ -110,7 +110,7 @@ public class FolderSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle( Rb.text( getProduct(), "settings", "select-folder" ) );
+		chooser.setTitle( Rb.text( getProduct(), getBundleKey(), "select-folder" ) );
 
 		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( fileName ).toFile() );
 		File selectedFile = chooser.showDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
