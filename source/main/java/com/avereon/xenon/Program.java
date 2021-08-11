@@ -812,6 +812,14 @@ public class Program extends Application implements ProgramProduct {
 		return fxEventHub.unregister( type, handler );
 	}
 
+	/**
+	 * This implementation only returns the product card name.
+	 */
+	@Override
+	public String toString() {
+		return getCard().getName();
+	}
+
 	FxEventHub getFxEventHub() {
 		return fxEventHub;
 	}
