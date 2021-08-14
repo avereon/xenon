@@ -45,14 +45,16 @@ public abstract class GuidedTool extends ProgramTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 
-		getCurrentGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
-		getCurrentGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
-		getCurrentGuide().focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
+		Guide guide = getCurrentGuide();
+
+		guide.expandedItemsProperty().addListener( guideExpandedNodesListener );
+		guide.selectedItemsProperty().addListener( guideSelectedNodesListener );
+		guide.focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
 
 		Fx.run( () -> {
 			// Set the expanded ids before setting the selected ids
-			getCurrentGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-			getCurrentGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			guide.setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			guide.setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
 	}
 
@@ -70,8 +72,11 @@ public abstract class GuidedTool extends ProgramTool {
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getCurrentGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
-		getCurrentGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		Guide guide = getCurrentGuide();
+
+		guide.expandedItemsProperty().removeListener( guideExpandedNodesListener );
+		guide.selectedItemsProperty().removeListener( guideSelectedNodesListener );
+
 		super.deallocate();
 	}
 
@@ -102,7 +107,7 @@ public abstract class GuidedTool extends ProgramTool {
 	protected void guideFocusChanged( boolean focused, Set<GuideNode> nodes ) {}
 
 	private void doGuideFocused( boolean focused ) {
-		guideFocusChanged( focused, getGuideContext().getCurrentGuide().selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+		guideFocusChanged( focused, getCurrentGuide().selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
 	}
 
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
@@ -131,6 +136,8 @@ public abstract class GuidedTool extends ProgramTool {
 		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+
+			log.atConfig().log("Selected nodes changed...?" );
 
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {

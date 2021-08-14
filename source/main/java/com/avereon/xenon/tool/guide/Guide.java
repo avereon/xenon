@@ -100,18 +100,6 @@ public class Guide {
 		return node;
 	}
 
-	private static class GuideNodeTreeItemComparator implements Comparator<TreeItem<GuideNode>> {
-
-		@Override
-		public int compare( TreeItem<GuideNode> o1, TreeItem<GuideNode> o2 ) {
-			GuideNode n1 = o1.getValue();
-			GuideNode n2 = o2.getValue();
-			return n1.getComparator().compare( n1, n2 );
-			//return n2.getOrder() - n1.getOrder();
-		}
-
-	}
-
 	//	public final GuideNode addNode( GuideNode parent, GuideNode node, int index ) {
 	//		Fx.run( () -> {
 	//			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
@@ -331,6 +319,18 @@ public class Guide {
 		String ids = builder.toString();
 		ids = ids.substring( 0, ids.length() - 1 );
 		return ids;
+	}
+
+	private static class GuideNodeTreeItemComparator implements Comparator<TreeItem<GuideNode>> {
+
+		@Override
+		public int compare( TreeItem<GuideNode> o1, TreeItem<GuideNode> o2 ) {
+			GuideNode n1 = o1.getValue();
+			GuideNode n2 = o2.getValue();
+			return n1.getComparator().compare( n1, n2 );
+			//return n2.getOrder() - n1.getOrder();
+		}
+
 	}
 
 }
