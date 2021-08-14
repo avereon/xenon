@@ -28,8 +28,6 @@ import java.util.*;
 @CustomLog
 public class GuideTool extends ProgramTool {
 
-	public static final Guide NO_GUIDE = new Guide();
-
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
 
 	private static final String DROP_ABOVE_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0 0; -fx-padding: 0.125em 0.25em 0.25em 0.25em;";
@@ -52,7 +50,9 @@ public class GuideTool extends ProgramTool {
 
 	private ContextMenu contextMenu;
 
-	private Guide guide;
+	// Use the guide context instead
+	//@Deprecated
+	//private Guide guide;
 
 	private TreeCell<GuideNode> draggedCell;
 
@@ -67,8 +67,6 @@ public class GuideTool extends ProgramTool {
 		scroller.setFitToWidth( true );
 		scroller.setFitToHeight( true );
 		getChildren().add( scroller );
-
-		guide = NO_GUIDE;
 
 		toolActivatedWatcher = new ToolActivatedWatcher();
 		toolConcealedWatcher = new ToolConcealedWatcher();
@@ -114,7 +112,7 @@ public class GuideTool extends ProgramTool {
 	}
 
 	private Guide getGuide() {
-		return context == null ? guide : context.getCurrentGuide();
+		return context.getCurrentGuide();
 	}
 
 	private void setGuideContext( GuideContext context ) {
@@ -151,18 +149,17 @@ public class GuideTool extends ProgramTool {
 		return item;
 	}
 
-	private void doSetGuide( Guide guide ) {
-		Guide oldGuide = this.guide;
-		Guide newGuide = guide == null ? NO_GUIDE : guide;
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
+	private void doSetGuide( Guide newGuide ) {
+		Guide oldGuide = getGuide();
+		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
 
 		// Disconnect the old guide
-		if( this.guide != null ) {
+		if( oldGuide != null ) {
 			// Unset the guide view focused property
-			this.guide.focusedProperty().unbind();
+			oldGuide.focusedProperty().unbind();
 
 			// Remove the guide to tree selected item property listener
-			this.guide.selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
+			oldGuide.selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
 
 			// Remove the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( treeToGuideSelectedItemsListener );
@@ -174,27 +171,27 @@ public class GuideTool extends ProgramTool {
 			guideTree.setRoot( null );
 		}
 
-		this.guide = newGuide;
+		if( newGuide != null ) context.setCurrentGuide( newGuide );
 
 		// Connect the new guide
-		if( this.guide != null ) {
+		if( newGuide != null ) {
 			// Set the guide view root
-			guideTree.setRoot( this.guide.getRoot() );
+			guideTree.setRoot( newGuide.getRoot() );
 
 			// Set the tree view selection mode
-			guideTree.getSelectionModel().setSelectionMode( this.guide.getSelectionMode() );
+			guideTree.getSelectionModel().setSelectionMode( newGuide.getSelectionMode() );
 
 			// Add the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().addListener( treeToGuideSelectedItemsListener );
 
 			// Add the guide to tree selected item property listener
-			this.guide.selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
+			newGuide.selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
 
 			// Bind the focused property
-			this.guide.focusedProperty().bind( guideTree.focusedProperty() );
+			newGuide.focusedProperty().bind( guideTree.focusedProperty() );
 
 			// Set the selected items
-			Set<TreeItem<GuideNode>> items = this.guide.selectedItemsProperty().get();
+			Set<TreeItem<GuideNode>> items = newGuide.selectedItemsProperty().get();
 			if( items == null ) {
 				guideTree.getSelectionModel().selectFirst();
 			} else {
@@ -210,7 +207,7 @@ public class GuideTool extends ProgramTool {
 			setGraphic( getProduct().getProgram().getIconLibrary().getIcon( icon ) );
 		}
 
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
+		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
 	}
 
 	/**
@@ -348,19 +345,14 @@ public class GuideTool extends ProgramTool {
 
 		@Override
 		public void handle( ToolEvent event ) {
-			// NOTE This logic has been reworked a couple of times to change the
-			// behavior. The next time this logic is reworked here are some things
-			// to keep in mind:
+			// NOTE This logic has been reworked a couple of times to change the behavior.
+			// The next time this logic is reworked here are some things to keep in mind:
 			// - Only guided tools should show/hide guides
 			// - When a guided tool is closed it should also close it's own guide
 			// - There is an ongoing debate whether tools that don't have guides should hide existing guides
 			// - Some tools should definitely not hide a guide: GuideTool and PropertiesTool
 
 			Tool tool = event.getTool();
-
-			// Some tools should not cause the guide to change
-			//if( tool instanceof GuideTool ) return;
-
 			if( tool instanceof GuidedTool ) setGuideContext( ((GuidedTool)tool).getGuideContext() );
 		}
 
@@ -373,7 +365,7 @@ public class GuideTool extends ProgramTool {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
 			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
-			doSetGuide( null );
+			if( context != null ) doSetGuide( null );
 		}
 	}
 

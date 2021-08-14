@@ -169,7 +169,10 @@ public class AssetTool extends GuidedTool {
 		goButton.setOnAction( this::doGoAction );
 		assetTable.setOnMousePressed( this::selectAssetFromTable );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
+
 		closeUserNotice();
 	}
 

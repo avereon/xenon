@@ -4,6 +4,8 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -15,12 +17,15 @@ public class GuideContext {
 
 	private final ObservableList<Guide> guides;
 
-	private Guide currentGuide;
+	private final SimpleObjectProperty<Guide> currentGuide;
 
 	public GuideContext( GuidedTool tool ) {
 		this.tool = tool;
 		this.eventHub = new EventHub();
 		this.guides = FXCollections.observableArrayList();
+		this.currentGuide = new SimpleObjectProperty<>();
+
+		currentGuide.addListener( (p,o,n) -> dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, o, n ) ) );
 	}
 
 	public GuidedTool getTool() {
@@ -32,7 +37,14 @@ public class GuideContext {
 	}
 
 	public Guide getCurrentGuide() {
-		if( currentGuide == null && !guides.isEmpty() ) currentGuide = guides.get( 0 );
+		return currentGuide.get();
+	}
+
+	public void setCurrentGuide( Guide guide ) {
+		this.currentGuide.set( guide );
+	}
+
+	public ReadOnlyObjectProperty<Guide> currentGuideProperty() {
 		return currentGuide;
 	}
 

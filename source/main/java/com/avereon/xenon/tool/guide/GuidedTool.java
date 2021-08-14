@@ -137,8 +137,6 @@ public abstract class GuidedTool extends ProgramTool {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 
-			log.atConfig().log("Selected nodes changed...?" );
-
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {
 				getSettings().set( GUIDE_SELECTED_IDS, Guide.nodesToString( newNodes ) );

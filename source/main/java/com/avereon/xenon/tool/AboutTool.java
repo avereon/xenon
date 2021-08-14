@@ -90,7 +90,9 @@ public class AboutTool extends GuidedTool {
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
 	}
 
 	@Override

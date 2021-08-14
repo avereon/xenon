@@ -4,6 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.scene.control.ScrollPane;
@@ -34,7 +35,9 @@ public class SettingsTool extends GuidedTool {
 		scroller.setFitToWidth( true );
 		getChildren().add( scroller );
 
-		getGuideContext().getGuides().add( product.getProgram().getSettingsManager().getSettingsGuide() );
+		Guide guide = product.getProgram().getSettingsManager().getSettingsGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
 	}
 
 	@Override

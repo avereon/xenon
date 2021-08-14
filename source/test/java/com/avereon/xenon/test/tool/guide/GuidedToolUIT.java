@@ -116,7 +116,9 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		public MockGuidedTool( ProgramProduct product, Asset asset ) {
 			super( product, asset );
-			getGuideContext().getGuides().add( createGuide() );
+			Guide guide = createGuide();
+			getGuideContext().getGuides().add( guide );
+			getGuideContext().setCurrentGuide( guide );
 		}
 
 		Set<GuideNode> getExpandedNodes() {

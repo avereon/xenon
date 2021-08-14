@@ -73,7 +73,9 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
 	}
 
 	@Override
