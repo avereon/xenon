@@ -4,11 +4,8 @@ import com.avereon.xenon.test.FxProgramUIT;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.zerra.javafx.Fx;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -63,27 +60,27 @@ public class GuideUIT extends FxProgramUIT {
 		assertThat( guide.getRoot().getChildren().size(), is( 0 ) );
 	}
 
-	@Test
-	void testSetSelectedItems() throws Exception {
-		Fx.run( () -> guide.setSelectedIds( Set.of( "general" ) ) );
-		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
-
-		Fx.run( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
-		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
-	}
-
-	@Test
-	void testSetExpandedItems() throws Exception {
-		Fx.run( () -> guide.setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
-
-		Fx.run( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
-		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
-	}
+//	@Test
+//	void testSetSelectedItems() throws Exception {
+//		Fx.run( () -> guide.setSelectedIds( Set.of( "general" ) ) );
+//		Fx.waitForWithExceptions( TIMEOUT );
+//		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
+//
+//		Fx.run( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
+//		Fx.waitForWithExceptions( TIMEOUT );
+//		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
+//	}
+//
+//	@Test
+//	void testSetExpandedItems() throws Exception {
+//		Fx.run( () -> guide.setExpandedIds( Set.of( "general" ) ) );
+//		Fx.waitForWithExceptions( TIMEOUT );
+//		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
+//
+//		Fx.run( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
+//		Fx.waitForWithExceptions( TIMEOUT );
+//		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
+//	}
 
 	private Guide createGuide() {
 		Guide guide = new Guide();

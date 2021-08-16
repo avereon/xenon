@@ -50,10 +50,6 @@ public class GuideTool extends ProgramTool {
 
 	private ContextMenu contextMenu;
 
-	// Use the guide context instead
-	//@Deprecated
-	//private Guide guide;
-
 	private TreeCell<GuideNode> draggedCell;
 
 	@SuppressWarnings( "WeakerAccess" )
@@ -93,8 +89,6 @@ public class GuideTool extends ProgramTool {
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( Rb.text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
-
-		guideTree.focusedProperty().addListener( ( p, o, n ) -> getGuide().reselectSelectedItems() );
 	}
 
 	@Override
@@ -111,8 +105,8 @@ public class GuideTool extends ProgramTool {
 		getWorkpane().removeEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
 	}
 
-	private Guide getGuide() {
-		return context.getCurrentGuide();
+	private GuideContext getGuideContext() {
+		return context;
 	}
 
 	private void setGuideContext( GuideContext context ) {
@@ -150,16 +144,16 @@ public class GuideTool extends ProgramTool {
 	}
 
 	private void doSetGuide( Guide newGuide ) {
-		Guide oldGuide = getGuide();
-		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
+		Guide oldGuide = getGuideContext().getCurrentGuide();
+		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
 
 		// Disconnect the old guide
 		if( oldGuide != null ) {
-			// Unset the guide view focused property
-			oldGuide.focusedProperty().unbind();
-
-			// Remove the guide to tree selected item property listener
-			oldGuide.selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
+//			// Unset the guide view focused property
+//			getGuideContext().focusedProperty().unbind();
+//
+//			// Remove the guide to tree selected item property listener
+//			getGuideContext().selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
 
 			// Remove the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( treeToGuideSelectedItemsListener );
@@ -171,7 +165,7 @@ public class GuideTool extends ProgramTool {
 			guideTree.setRoot( null );
 		}
 
-		if( newGuide != null ) context.setCurrentGuide( newGuide );
+		if( newGuide != null ) getGuideContext().setCurrentGuide( newGuide );
 
 		// Connect the new guide
 		if( newGuide != null ) {
@@ -184,14 +178,14 @@ public class GuideTool extends ProgramTool {
 			// Add the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().addListener( treeToGuideSelectedItemsListener );
 
-			// Add the guide to tree selected item property listener
-			newGuide.selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
-
-			// Bind the focused property
-			newGuide.focusedProperty().bind( guideTree.focusedProperty() );
+//			// Add the guide to tree selected item property listener
+//			getGuideContext().selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
+//
+//			// Bind the focused property
+//			getGuideContext().focusedProperty().bind( guideTree.focusedProperty() );
 
 			// Set the selected items
-			Set<TreeItem<GuideNode>> items = newGuide.selectedItemsProperty().get();
+			Set<TreeItem<GuideNode>> items = getGuideContext().selectedItemsProperty().get();
 			if( items == null ) {
 				guideTree.getSelectionModel().selectFirst();
 			} else {
@@ -207,7 +201,7 @@ public class GuideTool extends ProgramTool {
 			setGraphic( getProduct().getProgram().getIconLibrary().getIcon( icon ) );
 		}
 
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
+		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
 	}
 
 	/**
@@ -271,7 +265,7 @@ public class GuideTool extends ProgramTool {
 
 	@SuppressWarnings( "unchecked" )
 	private void doDragDetected( MouseEvent event ) {
-		if( !getGuide().isDragAndDropEnabled() ) return;
+		if( !getGuideContext().isDragAndDropEnabled() ) return;
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
 		draggedCell = target;
@@ -321,7 +315,7 @@ public class GuideTool extends ProgramTool {
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
 		TreeItem<GuideNode> draggedItem = draggedCell.getTreeItem();
-		getGuide().moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
+		getGuideContext().getCurrentGuide().moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
 
 		event.setDropCompleted( true );
 	}
@@ -365,7 +359,7 @@ public class GuideTool extends ProgramTool {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
 			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
-			if( context != null ) doSetGuide( null );
+			doSetGuide( null );
 		}
 	}
 
@@ -381,7 +375,7 @@ public class GuideTool extends ProgramTool {
 
 			if( items.size() > 0 ) expandAndCollapsePaths( items.iterator().next() );
 
-			getGuide().setSelectedItems( items );
+			getGuideContext().setSelectedItems( items );
 		}
 
 	}

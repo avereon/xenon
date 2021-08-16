@@ -32,14 +32,20 @@ public class Guide {
 
 	private final StringProperty iconProperty;
 
+	// TODO Move the following five properties to GuideContext
+	@Deprecated
 	private final BooleanProperty focused;
 
+	@Deprecated
 	private final BooleanProperty activeProperty;
 
+	@Deprecated
 	private final BooleanProperty dragAndDropEnabledProperty;
 
+	@Deprecated
 	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
 
+	@Deprecated
 	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
@@ -136,34 +142,42 @@ public class Guide {
 		this.selectionMode = selectionMode == null ? SelectionMode.SINGLE : selectionMode;
 	}
 
+	@Deprecated
 	public boolean isFocused() {
 		return focused.get();
 	}
 
+	@Deprecated
 	public BooleanProperty focusedProperty() {
 		return focused;
 	}
 
+	@Deprecated
 	public boolean isActive() {
 		return activeProperty.get();
 	}
 
+	@Deprecated
 	public void setActive( boolean active ) {
 		activeProperty.set( active );
 	}
 
+	@Deprecated
 	public BooleanProperty activeProperty() {
 		return activeProperty;
 	}
 
+	@Deprecated
 	public boolean isDragAndDropEnabled() {
 		return dragAndDropEnabledProperty.get();
 	}
 
+	@Deprecated
 	public void setDragAndDropEnabled( boolean enabled ) {
 		dragAndDropEnabledProperty.set( enabled );
 	}
 
+	@Deprecated
 	public BooleanProperty dragAndDropEnabledProperty() {
 		return dragAndDropEnabledProperty;
 	}
@@ -200,11 +214,13 @@ public class Guide {
 		}
 	}
 
+	@Deprecated
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
 		return expandedItems.getReadOnlyProperty();
 	}
 
+	@Deprecated
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
 		expandedItems.set( items );
@@ -235,22 +251,16 @@ public class Guide {
 		setSelectedItems( newItems );
 	}
 
+	@Deprecated
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
 		return selectedItems.getReadOnlyProperty();
 	}
 
+	@Deprecated
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
 		selectedItems.set( items );
-	}
-
-	/* Only intended to be used by the GuideTool to reselect the selected items */
-	final void reselectSelectedItems() {
-		// FIXME This is causing some odd side effects because it can cause the target to disappear and reappear
-//		Set<TreeItem<GuideNode>> items = new HashSet<>(selectedItems.get());
-//		setSelectedItems( Set.of() );
-//		setSelectedItems( items );
 	}
 
 	private void updateExpandedItems() {
