@@ -12,6 +12,7 @@ import javafx.scene.control.TreeItem;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,18 @@ public class GuideContext {
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
+
+		currentGuide.addListener( ( p, o, n ) -> {
+			if( o != null ) {
+				o.focusedProperty().unbind();
+				o.setActive( false );
+			}
+			if( n != null ) {
+				dragAndDropEnabledProperty().bind( n.dragAndDropEnabledProperty() );
+				n.focusedProperty().bind( focusedProperty() );
+				n.setActive( true );
+			}
+		} );
 	}
 
 	public GuidedTool getTool() {
@@ -111,12 +124,9 @@ public class GuideContext {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedIds( Set<String> ids ) {
-		TreeItem<GuideNode> root = getCurrentGuide().getRoot();
-		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
-			if( item == root ) continue;
-			item.setExpanded( ids.contains( item.getValue().getId() ) );
-		}
+	// WORKAROUND This method is public because tests need access
+	public final void setExpandedIds( Set<String> ids ) {
+		setExpandedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
@@ -135,16 +145,9 @@ public class GuideContext {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setSelectedIds( Set<String> ids ) {
-		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
-
-		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );
-		for( String id : ids ) {
-			TreeItem<GuideNode> item = itemMap.get( id );
-			if( item != null ) newItems.add( item );
-		}
-
-		setSelectedItems( newItems );
+	// WORKAROUND This method is public because tests need access
+	public final void setSelectedIds( Set<String> ids ) {
+		setSelectedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */

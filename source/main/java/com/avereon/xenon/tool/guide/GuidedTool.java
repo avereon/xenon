@@ -130,21 +130,13 @@ public abstract class GuidedTool extends ProgramTool {
 		public void changed(
 			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
 		) {
-			log.atConfig().log( "GuideSelectedNodesListener.changed() A" );
-
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 
-			log.atConfig().log( "GuideSelectedNodesListener.changed() B" );
-
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {
-				log.atConfig().log( "GuideSelectedNodesListener.changed() C" );
-
 				getSettings().set( GUIDE_SELECTED_IDS, Guide.nodesToString( newNodes ) );
-				log.atConfig().log( "GuideSelectedNodesListener.changed() D" );
 				guideNodesSelected( oldNodes, newNodes );
-				log.atConfig().log( "GuideSelectedNodesListener.changed() E" );
 
 				// Run this later to set the tool to be the active tool again
 				//Fx.run( () -> getWorkpane().setActiveTool( GuidedTool.this ) );

@@ -1,13 +1,16 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxUtil;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import lombok.CustomLog;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -32,21 +35,14 @@ public class Guide {
 
 	private final StringProperty iconProperty;
 
-	// TODO Move the following five properties to GuideContext
-	@Deprecated
-	private final BooleanProperty focused;
-
-	@Deprecated
-	private final BooleanProperty activeProperty;
-
-	@Deprecated
+	// Passthrough from guide
 	private final BooleanProperty dragAndDropEnabledProperty;
 
-	@Deprecated
-	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
+	// Passthrough from guide tool
+	private final BooleanProperty focused;
 
-	@Deprecated
-	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
+	// Passthrough from guide tool
+	private final BooleanProperty activeProperty;
 
 	public Guide() {
 		this.root = new TreeItem<>();
@@ -55,10 +51,6 @@ public class Guide {
 		focused = new SimpleBooleanProperty( false );
 		activeProperty = new SimpleBooleanProperty( false );
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
-		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
-		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
-		root.addEventHandler( TreeItem.branchExpandedEvent(), ( event ) -> updateExpandedItems() );
-		root.addEventHandler( TreeItem.branchCollapsedEvent(), ( event ) -> updateExpandedItems() );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -167,17 +159,14 @@ public class Guide {
 		return activeProperty;
 	}
 
-	@Deprecated
 	public boolean isDragAndDropEnabled() {
 		return dragAndDropEnabledProperty.get();
 	}
 
-	@Deprecated
 	public void setDragAndDropEnabled( boolean enabled ) {
 		dragAndDropEnabledProperty.set( enabled );
 	}
 
-	@Deprecated
 	public BooleanProperty dragAndDropEnabledProperty() {
 		return dragAndDropEnabledProperty;
 	}
@@ -194,81 +183,6 @@ public class Guide {
 	/* Only intended to be used by the GuideTool */
 	public final TreeItem<GuideNode> getRoot() {
 		return root;
-	}
-
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	public final Set<String> getExpandedIds() {
-		Set<String> idSet = new HashSet<>();
-		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
-			if( item == root ) continue;
-			if( item.isExpanded() ) idSet.add( item.getValue().getId() );
-		}
-		return idSet;
-	}
-
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	public final void setExpandedIds( Set<String> ids ) {
-		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
-			if( item == root ) continue;
-			item.setExpanded( ids.contains( item.getValue().getId() ) );
-		}
-	}
-
-	@Deprecated
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
-		return expandedItems.getReadOnlyProperty();
-	}
-
-	@Deprecated
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
-		expandedItems.set( items );
-	}
-
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	public final List<String> getSelectedIds() {
-		Set<TreeItem<GuideNode>> selectedItems = Collections.unmodifiableSet( this.selectedItems.get() );
-
-		List<String> ids = new ArrayList<>( selectedItems.size() );
-		for( TreeItem<GuideNode> item : selectedItems ) {
-			ids.add( item.getValue().getId() );
-		}
-
-		return ids;
-	}
-
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	public final void setSelectedIds( Set<String> ids ) {
-		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
-
-		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );
-		for( String id : ids ) {
-			TreeItem<GuideNode> item = itemMap.get( id );
-			if( item != null ) newItems.add( item );
-		}
-
-		setSelectedItems( newItems );
-	}
-
-	@Deprecated
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
-		return selectedItems.getReadOnlyProperty();
-	}
-
-	@Deprecated
-	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
-		selectedItems.set( items );
-	}
-
-	private void updateExpandedItems() {
-		setExpandedItems( FxUtil.flatTree( root ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
-	}
-
-	private Map<String, TreeItem<GuideNode>> getItemMap() {
-		return FxUtil.flatTree( root ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
 	}
 
 	private TreeItem<GuideNode> findItem( GuideNode node ) {

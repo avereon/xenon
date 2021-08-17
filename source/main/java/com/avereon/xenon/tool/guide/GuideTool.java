@@ -17,6 +17,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
@@ -24,6 +25,7 @@ import javafx.util.Callback;
 import lombok.CustomLog;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class GuideTool extends ProgramTool {
@@ -45,6 +47,8 @@ public class GuideTool extends ProgramTool {
 	private final GuideToTreeSelectedItemsListener guideToTreeSelectedItemsListener;
 
 	private final TreeToGuideSelectedItemsListener treeToGuideSelectedItemsListener;
+
+	private final EventHandler<TreeItem.TreeModificationEvent<Object>> expandedNodeListener;
 
 	private GuideContext context;
 
@@ -68,6 +72,7 @@ public class GuideTool extends ProgramTool {
 		toolConcealedWatcher = new ToolConcealedWatcher();
 		guideToTreeSelectedItemsListener = new GuideToTreeSelectedItemsListener();
 		treeToGuideSelectedItemsListener = new TreeToGuideSelectedItemsListener();
+		expandedNodeListener = e -> updateExpandedItems();
 	}
 
 	@Override
@@ -149,17 +154,23 @@ public class GuideTool extends ProgramTool {
 
 		// Disconnect the old guide
 		if( oldGuide != null ) {
-//			// Unset the guide view focused property
-//			getGuideContext().focusedProperty().unbind();
-//
-//			// Remove the guide to tree selected item property listener
-//			getGuideContext().selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
+			// Unset the guide view focused property
+			getGuideContext().focusedProperty().unbind();
+
+			// Remove the guide to tree selected item property listener
+			getGuideContext().selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
 
 			// Remove the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( treeToGuideSelectedItemsListener );
 
 			// Unset the guide view selection mode
 			guideTree.getSelectionModel().setSelectionMode( SelectionMode.SINGLE );
+
+			TreeItem<?> root = guideTree.getRoot();
+			if( root != null ) {
+				root.removeEventHandler( TreeItem.branchExpandedEvent(), expandedNodeListener );
+				root.removeEventHandler( TreeItem.branchCollapsedEvent(), expandedNodeListener );
+			}
 
 			// Unset the guide view root
 			guideTree.setRoot( null );
@@ -172,17 +183,23 @@ public class GuideTool extends ProgramTool {
 			// Set the guide view root
 			guideTree.setRoot( newGuide.getRoot() );
 
+			TreeItem<?> root = guideTree.getRoot();
+			if( root != null ) {
+				root.addEventHandler( TreeItem.branchExpandedEvent(), expandedNodeListener );
+				root.addEventHandler( TreeItem.branchCollapsedEvent(), expandedNodeListener );
+			}
+
 			// Set the tree view selection mode
 			guideTree.getSelectionModel().setSelectionMode( newGuide.getSelectionMode() );
 
 			// Add the tree to guide selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().addListener( treeToGuideSelectedItemsListener );
 
-//			// Add the guide to tree selected item property listener
-//			getGuideContext().selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
-//
-//			// Bind the focused property
-//			getGuideContext().focusedProperty().bind( guideTree.focusedProperty() );
+			// Add the guide to tree selected item property listener
+			getGuideContext().selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
+
+			// Bind the focused property
+			getGuideContext().focusedProperty().bind( guideTree.focusedProperty() );
 
 			// Set the selected items
 			Set<TreeItem<GuideNode>> items = getGuideContext().selectedItemsProperty().get();
@@ -202,6 +219,10 @@ public class GuideTool extends ProgramTool {
 		}
 
 		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
+	}
+
+	private void updateExpandedItems() {
+		getGuideContext().setExpandedItems( FxUtil.flatTree( guideTree.getRoot() ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
 	}
 
 	/**
