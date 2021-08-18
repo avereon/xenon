@@ -111,7 +111,7 @@ class UiRegenerator {
 	}
 
 	void startAssetLoading() {
-		Collection<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toList() );
+		Set<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
 		try {
 			getProgram().getAssetManager().openAssetsAndWait( assets, 5, TimeUnit.SECONDS );
 			getProgram().getAssetManager().loadAssets( assets );
