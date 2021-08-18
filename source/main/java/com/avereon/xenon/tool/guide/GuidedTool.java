@@ -51,6 +51,7 @@ public abstract class GuidedTool extends ProgramTool {
 
 		Fx.run( () -> {
 			// Set the expanded ids before setting the selected ids
+			// FIXME Expanding the nodes here does not work because the node tree is not available
 			guideContext.setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 			guideContext.setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
@@ -117,8 +118,8 @@ public abstract class GuidedTool extends ProgramTool {
 
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {
-				guideNodesExpanded( oldNodes, newNodes );
 				getSettings().set( GUIDE_EXPANDED_IDS, Guide.nodesToString( newNodes ) );
+				guideNodesExpanded( oldNodes, newNodes );
 			}
 		}
 

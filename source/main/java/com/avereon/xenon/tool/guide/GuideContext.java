@@ -9,6 +9,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import lombok.CustomLog;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class GuideContext {
 
 	private final GuidedTool tool;
@@ -28,7 +30,7 @@ public class GuideContext {
 
 	private final BooleanProperty focused;
 
-	private final BooleanProperty activeProperty;
+	private final BooleanProperty active;
 
 	private final BooleanProperty dragAndDropEnabledProperty;
 
@@ -43,7 +45,7 @@ public class GuideContext {
 		this.currentGuide = new SimpleObjectProperty<>();
 
 		focused = new SimpleBooleanProperty( false );
-		activeProperty = new SimpleBooleanProperty( false );
+		active = new SimpleBooleanProperty( false );
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
@@ -90,15 +92,15 @@ public class GuideContext {
 	}
 
 	public boolean isActive() {
-		return activeProperty.get();
+		return active.get();
 	}
 
 	public void setActive( boolean active ) {
-		activeProperty.set( active );
+		this.active.set( active );
 	}
 
 	public BooleanProperty activeProperty() {
-		return activeProperty;
+		return active;
 	}
 
 	public boolean isDragAndDropEnabled() {
@@ -120,12 +122,15 @@ public class GuideContext {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
+		log.atConfig().log( "expanded items=" + items );
 		expandedItems.set( items );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	// WORKAROUND This method is public because tests need access
 	public final void setExpandedIds( Set<String> ids ) {
+		log.atConfig().log( "expanded items=" + ids );
+		log.atConfig().log( "item map=" + getItemMap() );
 		setExpandedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}
 

@@ -42,14 +42,14 @@ public class Guide {
 	private final BooleanProperty focused;
 
 	// Passthrough from guide tool
-	private final BooleanProperty activeProperty;
+	private final BooleanProperty active;
 
 	public Guide() {
 		this.root = new TreeItem<>();
 		titleProperty = new SimpleStringProperty();
 		iconProperty = new SimpleStringProperty();
 		focused = new SimpleBooleanProperty( false );
-		activeProperty = new SimpleBooleanProperty( false );
+		active = new SimpleBooleanProperty( false );
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
@@ -146,17 +146,17 @@ public class Guide {
 
 	@Deprecated
 	public boolean isActive() {
-		return activeProperty.get();
+		return active.get();
 	}
 
 	@Deprecated
 	public void setActive( boolean active ) {
-		activeProperty.set( active );
+		this.active.set( active );
 	}
 
 	@Deprecated
 	public BooleanProperty activeProperty() {
-		return activeProperty;
+		return active;
 	}
 
 	public boolean isDragAndDropEnabled() {
