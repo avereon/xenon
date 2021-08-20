@@ -3,9 +3,10 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -44,17 +45,23 @@ public abstract class GuidedTool extends ProgramTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-
 		guideContext.expandedItemsProperty().addListener( guideExpandedNodesListener );
 		guideContext.selectedItemsProperty().addListener( guideSelectedNodesListener );
 		guideContext.focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
+	}
 
-		Fx.run( () -> {
-			// Set the expanded ids before setting the selected ids
-			// FIXME Expanding the nodes here does not work because the node tree is not available
-			guideContext.setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-			guideContext.setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-		} );
+	@Override
+	protected void open( OpenAssetRequest request ) throws ToolException {
+		super.open( request );
+
+		log.atConfig().log( "guide nodes=" + FxUtil.flatTree( getGuideContext().getCurrentGuide().getRoot() ) );
+
+		// Set the expanded ids before setting the selected ids
+		// FIXME Expanding the nodes here does not work because the node tree is not available
+		// It is common that the guide has not even been populated for these two methods to work correctly
+		// This really needs to be done after ready has been called since a lot of tools will use ready() to populate the guides
+		guideContext.setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+		guideContext.setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 	}
 
 	@Override

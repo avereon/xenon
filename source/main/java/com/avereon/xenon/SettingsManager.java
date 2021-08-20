@@ -181,8 +181,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		allSettingsPages.put( page.getId(), page );
 
-		GuideNode guideNode = guide.addNode( parent, new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() ) );
-		createGuide( guideNode, page.getPages() );
+		final GuideNode guideNode = new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() );
+
+		Fx.run( () -> {
+			guide.addNode( parent, guideNode );
+			createGuide( guideNode, page.getPages() );
+		} );
 
 		return guideNode;
 	}

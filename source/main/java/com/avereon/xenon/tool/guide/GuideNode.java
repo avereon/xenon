@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.data.IdNode;
 import com.avereon.data.Node;
 import com.avereon.data.NodeComparator;
 import com.avereon.xenon.Program;
@@ -8,9 +9,7 @@ import javafx.scene.control.TreeItem;
 
 import java.util.Comparator;
 
-public class GuideNode extends Node {
-
-	public static final String ID = "id";
+public class GuideNode extends IdNode {
 
 	public static final String ICON = "icon";
 
@@ -36,21 +35,11 @@ public class GuideNode extends Node {
 
 	public GuideNode( Program program, String id, String name, String icon, int order ) {
 		this.program = program;
-		definePrimaryKey( ID );
 		defineNaturalKey( NAME );
 		setId( id );
 		setName( name );
 		setIcon( icon );
 		setOrder( order );
-	}
-
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public GuideNode setId( String id ) {
-		setValue( ID, id );
-		return this;
 	}
 
 	public String getIcon() {
@@ -113,9 +102,7 @@ public class GuideNode extends Node {
 	}
 
 	public TreeItem<GuideNode> getTreeItem() {
-		TreeItem<GuideNode> value = getValue( TREE_ITEM );
-		if( value == null ) value = setValue( TREE_ITEM, new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
-		return value;
+		return computeIfAbsent( TREE_ITEM, (k) -> new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 	}
 
 }

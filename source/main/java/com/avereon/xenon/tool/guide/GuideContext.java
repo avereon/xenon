@@ -122,15 +122,12 @@ public class GuideContext {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
-		log.atConfig().log( "expanded items=" + items );
 		expandedItems.set( items );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	// WORKAROUND This method is public because tests need access
 	public final void setExpandedIds( Set<String> ids ) {
-		log.atConfig().log( "expanded items=" + ids );
-		log.atConfig().log( "item map=" + getItemMap() );
 		setExpandedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}
 
@@ -173,8 +170,7 @@ public class GuideContext {
 	}
 
 	private Map<String, TreeItem<GuideNode>> getItemMap() {
-		TreeItem<GuideNode> root = getCurrentGuide().getRoot();
-		return FxUtil.flatTree( root ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
+		return FxUtil.flatTree( getCurrentGuide().getRoot() ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
 	}
 
 }

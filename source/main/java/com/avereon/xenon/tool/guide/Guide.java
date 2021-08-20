@@ -25,6 +25,8 @@ public class Guide {
 
 	public static final Guide EMPTY = new Guide();
 
+	public static final String GUIDE_NODE = Guide.class.getName() + ":guide-node";
+
 	private static final Comparator<TreeItem<GuideNode>> guideNodeComparator = new GuideNodeTreeItemComparator();
 
 	private final TreeItem<GuideNode> root;
@@ -90,24 +92,12 @@ public class Guide {
 	}
 
 	public final GuideNode addNode( GuideNode parent, GuideNode node ) {
-		Fx.run( () -> {
-			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
-			item.getChildren().add( node.getTreeItem() );
-			item.getChildren().sort( guideNodeComparator );
-		} );
+		// NOTE Intentionally do not force this code to run on the FX thread
+		TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
+		item.getChildren().add( node.getTreeItem() );
+		item.getChildren().sort( guideNodeComparator );
 		return node;
 	}
-
-	//	public final GuideNode addNode( GuideNode parent, GuideNode node, int index ) {
-	//		Fx.run( () -> {
-	//			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
-	//			int treeIndex = index;
-	//			int size = item.getChildren().size();
-	//			if( treeIndex > size ) treeIndex = size;
-	//			item.getChildren().add( treeIndex, node.getTreeItem() );
-	//		} );
-	//		return node;
-	//	}
 
 	public final GuideNode removeNode( GuideNode node ) {
 		Fx.run( () -> node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() ) );
