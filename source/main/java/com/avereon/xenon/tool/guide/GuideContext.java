@@ -170,7 +170,9 @@ public class GuideContext {
 	}
 
 	private Map<String, TreeItem<GuideNode>> getItemMap() {
-		return FxUtil.flatTree( getCurrentGuide().getRoot() ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
+		Map<String, TreeItem<GuideNode>> map = FxUtil.flatTree( getCurrentGuide().getRoot() ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
+		if( map.isEmpty()) log.atWarn().log( "Guide does not contain any tree items" );
+		return map;
 	}
 
 }

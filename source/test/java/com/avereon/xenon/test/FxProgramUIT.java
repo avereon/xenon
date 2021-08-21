@@ -168,7 +168,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 			) );
 		}
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
-		if( increasePercent > getAllowedMemoryGrowthPercent() ) {
+		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increasePercent > getAllowedMemoryGrowthPercent() ) {
 			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),

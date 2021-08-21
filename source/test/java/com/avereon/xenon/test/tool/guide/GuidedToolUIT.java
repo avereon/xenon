@@ -157,30 +157,31 @@ public class GuidedToolUIT extends BaseToolUIT {
 			generalNode.setId( "general" );
 			generalNode.setName( "general" );
 			guide.addNode( generalNode );
+			assertThat( guide.getNode( "general" ), is( generalNode ) );
 
 			GuideNode summaryNode = new GuideNode( getProgram() );
 			summaryNode.setId( "summary" );
 			summaryNode.setName( "summary" );
 			guide.addNode( generalNode, summaryNode );
+			assertThat( guide.getNode( "summary" ), is( summaryNode ) );
 
 			GuideNode detailsNode = new GuideNode( getProgram() );
 			detailsNode.setId( "details" );
 			detailsNode.setName( "details" );
 			guide.addNode( generalNode, detailsNode );
+			assertThat( guide.getNode( "details" ), is( detailsNode ) );
 
 			return guide;
 		}
 
 		@Override
 		protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-			System.out.println( "Expand: " + newNodes );
 			guideNodesExpandedEventCount++;
 			this.expandedNodes = newNodes;
 		}
 
 		@Override
 		protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-			System.out.println( "Select: " + newNodes );
 			guideNodesSelectedEventCount++;
 			this.selectedNodes = newNodes;
 		}

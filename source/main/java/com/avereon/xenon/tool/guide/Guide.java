@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -100,7 +100,7 @@ public class Guide {
 	}
 
 	public final GuideNode removeNode( GuideNode node ) {
-		Fx.run( () -> node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() ) );
+		node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() );
 		return node;
 	}
 
@@ -109,10 +109,8 @@ public class Guide {
 	}
 
 	public final Guide clear( GuideNode node ) {
-		Fx.run( () -> {
-			TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-			item.getChildren().clear();
-		} );
+		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
+		item.getChildren().clear();
 		return this;
 	}
 
@@ -189,14 +187,7 @@ public class Guide {
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {
 		if( node == null || id == null ) return null;
-		if( node != root && node.getValue().getId().equals( id ) ) return node;
-
-		for( TreeItem<GuideNode> child : node.getChildren() ) {
-			TreeItem<GuideNode> check = findItem( child, id );
-			if( check != null ) return check;
-		}
-
-		return null;
+		return FxUtil.flatTree( node ).stream().filter( n -> n.getValue().getId().equals( id ) ).findFirst().orElse( null );
 	}
 
 	/**

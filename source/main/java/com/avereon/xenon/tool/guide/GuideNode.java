@@ -36,7 +36,7 @@ public class GuideNode extends IdNode {
 	public GuideNode( Program program, String id, String name, String icon, int order ) {
 		this.program = program;
 		defineNaturalKey( NAME );
-		setId( id );
+		if( id != null ) setId( id );
 		setName( name );
 		setIcon( icon );
 		setOrder( order );
