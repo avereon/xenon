@@ -61,12 +61,12 @@ public abstract class GuidedTool extends ProgramTool {
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
-		getCurrentGuide().setActive( true );
+		getGuideContext().setActive( true );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		getCurrentGuide().setActive( false );
+		getGuideContext().setActive( false );
 		super.conceal();
 	}
 

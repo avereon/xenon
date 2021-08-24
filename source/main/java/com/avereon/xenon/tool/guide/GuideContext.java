@@ -52,13 +52,10 @@ public class GuideContext {
 
 		currentGuide.addListener( ( p, o, n ) -> {
 			if( o != null ) {
-				o.focusedProperty().unbind();
-				o.setActive( false );
+				dragAndDropEnabledProperty().unbind();
 			}
 			if( n != null ) {
 				dragAndDropEnabledProperty().bind( n.dragAndDropEnabledProperty() );
-				n.focusedProperty().bind( focusedProperty() );
-				n.setActive( true );
 			}
 		} );
 	}

@@ -25,8 +25,6 @@ public class Guide {
 
 	public static final Guide EMPTY = new Guide();
 
-	public static final String GUIDE_NODE = Guide.class.getName() + ":guide-node";
-
 	private static final Comparator<TreeItem<GuideNode>> guideNodeComparator = new GuideNodeTreeItemComparator();
 
 	private final TreeItem<GuideNode> root;
@@ -40,18 +38,10 @@ public class Guide {
 	// Passthrough from guide
 	private final BooleanProperty dragAndDropEnabledProperty;
 
-	// Passthrough from guide tool
-	private final BooleanProperty focused;
-
-	// Passthrough from guide tool
-	private final BooleanProperty active;
-
 	public Guide() {
 		this.root = new TreeItem<>();
 		titleProperty = new SimpleStringProperty();
 		iconProperty = new SimpleStringProperty();
-		focused = new SimpleBooleanProperty( false );
-		active = new SimpleBooleanProperty( false );
 		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
@@ -120,31 +110,6 @@ public class Guide {
 
 	public void setSelectionMode( SelectionMode selectionMode ) {
 		this.selectionMode = selectionMode == null ? SelectionMode.SINGLE : selectionMode;
-	}
-
-	@Deprecated
-	public boolean isFocused() {
-		return focused.get();
-	}
-
-	@Deprecated
-	public BooleanProperty focusedProperty() {
-		return focused;
-	}
-
-	@Deprecated
-	public boolean isActive() {
-		return active.get();
-	}
-
-	@Deprecated
-	public void setActive( boolean active ) {
-		this.active.set( active );
-	}
-
-	@Deprecated
-	public BooleanProperty activeProperty() {
-		return active;
 	}
 
 	public boolean isDragAndDropEnabled() {
