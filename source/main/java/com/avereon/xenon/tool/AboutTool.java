@@ -464,7 +464,9 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		// Is the program hardware rendered
-		builder.append( "Hardware rendered: " ).append( getProgram().isHardwareRendered() ).append( "\n" );
+		boolean hardwareRendered = getProgram().isHardwareRendered();
+		builder.append( "Hardware rendered: " ).append( hardwareRendered ).append( "\n" );
+		if( !hardwareRendered ) builder.append( "  Consider adding the following JVM args: -Dprism.forceGPU=true\n" );
 
 		// The screen information
 		builder.append( "\n" );
