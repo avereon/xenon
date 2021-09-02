@@ -72,7 +72,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Fx.run( () -> getWorkpane().setActiveTool( this ) ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e ->  getWorkpane().setActiveTool( this ) );
 	}
 
 	public final Asset getAsset() {
