@@ -196,6 +196,7 @@ public class PaintPickerPane extends VBox {
 			if( TextUtil.isEmpty( paint ) ) return PaintMode.NONE;
 
 			if( PaintMode.LAYER.getKey().equals( paint ) ) return PaintMode.LAYER;
+			if( paint.startsWith( "0x" )) return PaintMode.SOLID;
 
 			return switch( paint.charAt( 0 ) ) {
 				case '#' -> PaintMode.SOLID;
