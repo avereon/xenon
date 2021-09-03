@@ -13,7 +13,7 @@ public interface ProgramTestConfig {
 		values.add( ProgramFlag.PROFILE );
 		values.add( Profile.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
-		values.add( ProgramFlag.ERROR);
+		values.add( ProgramFlag.CONFIG);
 		return values.toArray( new String[ 0 ] );
 	}
 

@@ -19,6 +19,7 @@ import javafx.application.Platform;
 import lombok.CustomLog;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -240,6 +241,10 @@ public class ToolManager implements Controllable<ToolManager> {
 	public ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
 		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
 		return instanceMode == null ? ToolInstanceMode.UNLIMITED : instanceMode;
+	}
+
+	public List<Class<? extends ProgramTool>> getRegisteredTools( AssetType assetType ) {
+		return new ArrayList<>( assetTypeToolClasses.get( assetType ) );
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {

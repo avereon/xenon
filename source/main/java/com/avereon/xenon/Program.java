@@ -175,6 +175,10 @@ public class Program extends Application implements ProgramProduct {
 		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
+		// Create the product resource bundle
+		Rb.init( this );
+		time( "resource-bundle" );
+
 		// Do not implicitly close the program
 		Platform.setImplicitExit( false );
 		time( "implicit-exit-false" );
@@ -205,10 +209,6 @@ public class Program extends Application implements ProgramProduct {
 		// Determine the program data folder, depends on program parameters
 		programDataFolder = configureDataFolder();
 		time( "configure-data-folder" );
-
-		// Create the product resource bundle
-		Rb.init( this );
-		time( "resource-bundle" );
 
 		// Configure logging, depends on parameters and program data folder
 		configureLogging();
@@ -283,7 +283,7 @@ public class Program extends Application implements ProgramProduct {
 	@Override
 	public void start( Stage stage ) {
 		time( "fx-start" );
-		if( !isHardwareRendered() ) log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
+		if( !Profile.TEST.equals( profile ) && !isHardwareRendered() ) log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 
 		// Add the uncaught exception handler to the FX thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
@@ -479,9 +479,6 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
-		// Check to see if the application was updated
-		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
-
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
 	}
@@ -496,6 +493,8 @@ public class Program extends Application implements ProgramProduct {
 		getProductManager().scheduleUpdateCheck( true );
 
 		// TODO Show user notifications
+		// Check to see if the application was updated
+		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
 		//getTaskManager().submit( new ShowApplicationNotices() );
 		new ProgramChecks( this );
 

@@ -80,7 +80,8 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
 
-		// Wait for the active workarea to not be null
+		// Wait for the active workarea
+		// FIXME This should use an event listener to wait for the workarea
 		long limit = System.currentTimeMillis() + TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );

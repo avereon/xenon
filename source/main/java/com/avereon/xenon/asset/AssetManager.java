@@ -420,6 +420,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
+	public Future<ProgramTool> openAsset( Asset asset ) {
+		return openAsset( asset, null, null );
+	}
+
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
 		return openAsset( asset, view, null );
 	}
@@ -1351,6 +1355,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
 			} catch( NoToolRegisteredException exception ) {
+				log.atConfig().log( "No tool registered for: %s", asset );
 				String title = Rb.text( "program", "no-tool-for-asset-title" );
 				String message = Rb.text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
 				program.getNoticeManager().warning( title, message, asset.getName() );
