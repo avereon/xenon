@@ -4,7 +4,6 @@ import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.transaction.Txn;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.transaction.TxnException;
 import lombok.CustomLog;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.undo.UndoManagerFactory;
@@ -60,12 +59,10 @@ public class DataNodeUndo {
 	}
 
 	public static void apply( List<NodeChange> changes ) {
-		try( Txn ignore = Txn.create() ) {
+		Txn.run( () -> {
 			//changes.forEach( c -> System.out.println( "apply change=" + c ));
 			changes.forEach( c -> c.getNode().setValue( c.getKey(), c.getNewValue() ) );
-		} catch( TxnException exception ) {
-			log.atWarning().withCause( exception ).log( "Unable to apply node changes" );
-		}
+		} );
 	}
 
 }
