@@ -9,7 +9,7 @@ on:
     # Noon Saturday UTC
     - cron: '0 12 * * 6'
   workflow_dispatch:
-    event_type: build-trigger
+    ref: build-trigger
 
 env:
   AVN_PRODUCT: "xenon"
