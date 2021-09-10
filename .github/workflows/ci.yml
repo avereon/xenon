@@ -8,6 +8,7 @@ on:
   schedule:
     # Noon Saturday UTC
     - cron: '0 12 * * 6'
+  workflow_dispatch:
 
 env:
   AVN_PRODUCT: "xenon"
