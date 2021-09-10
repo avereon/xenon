@@ -7,7 +7,6 @@ import com.avereon.xenon.asset.*;
 import lombok.CustomLog;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,11 +67,22 @@ public class FileScheme extends BaseScheme {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		File file = getFile( asset );
+
+		// Step one - move current file out of the way
+		File temp = null;
+		try {
+			temp = File.createTempFile( "asset", null );
+			if( !file.renameTo( temp ) ) throw new IOException( "Unable to move " + file + " > " + temp );
+		} catch( IOException exception ) {
+			if( temp != null && !temp.delete() ) log.atWarn().log( "Unable to remove temp file: " + temp );
+		}
+
+		// Step two - save asset to file
 		try( OutputStream stream = new FileOutputStream( file ) ) {
 			codec.save( asset, stream );
-		} catch( MalformedURLException exception ) {
-			throw new AssetException( asset, exception );
+			if( temp != null && !temp.delete() ) log.atWarn().log( "Unable to remove temp file: " + temp );
 		} catch( IOException exception ) {
+			if( temp != null && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
 			throw new AssetException( asset, exception );
 		} finally {
 			asset.setLastSaved( System.currentTimeMillis() );
