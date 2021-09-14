@@ -203,7 +203,7 @@ public class Workspace implements WritableIdentity {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new|open,reload|save,save-as,save-all,rename|properties|close,exit]";
+		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close,exit]";
 		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
 		String help = "help[help-content,welcome|update|about]";
@@ -230,7 +230,7 @@ public class Workspace implements WritableIdentity {
 	private ToolBar createProgramToolBar( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
 
-		String descriptor = "new,open,save,properties|undo,redo|cut,copy,paste";
+		String descriptor = "new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
 		// Add the workarea menu and selector

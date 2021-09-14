@@ -46,6 +46,7 @@ public class IconLibrary {
 		register( "asset-rename", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
 		register( "properties", new PropertiesIcon() );
+		register( "print", new PrinterIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
