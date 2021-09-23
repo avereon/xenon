@@ -6,3 +6,4 @@
 --copyright "Copyright ${project.inceptionYear} ${project.organization.name}"
 --module "com.avereon.xenon"
 --module-path "${jlink.module.path}"
+--java-options "-Dprism.forceGPU=true"
