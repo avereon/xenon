@@ -187,16 +187,16 @@ public class RestartHook extends Thread {
 
 	@Override
 	public void run() {
-		// NOTE Because this is running as a shutdown hook, normal logging does not work
-
 		if( builder == null ) return;
 
 		try {
+			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
+			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
