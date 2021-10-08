@@ -5,7 +5,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.zerra.image.VectorImage;
+import com.avereon.zarra.image.VectorImage;
 import lombok.CustomLog;
 
 import java.io.IOException;

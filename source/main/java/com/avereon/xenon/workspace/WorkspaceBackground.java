@@ -2,7 +2,7 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.FileUtil;
-import com.avereon.zerra.color.Colors;
+import com.avereon.zarra.color.Colors;
 import com.avereon.zerra.javafx.FxUtil;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;

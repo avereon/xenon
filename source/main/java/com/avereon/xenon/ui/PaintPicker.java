@@ -2,8 +2,8 @@ package com.avereon.xenon.ui;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.BundleKey;
-import com.avereon.zerra.color.PaintSwatch;
-import com.avereon.zerra.color.Paints;
+import com.avereon.zarra.color.PaintSwatch;
+import com.avereon.zarra.color.Paints;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.zenna.icon.XRingLargeIcon;
-import com.avereon.zerra.image.RenderedImage;
+import com.avereon.zarra.image.RenderedImage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
