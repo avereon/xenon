@@ -4,7 +4,7 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

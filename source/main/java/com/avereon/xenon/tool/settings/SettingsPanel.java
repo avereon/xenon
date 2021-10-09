@@ -8,7 +8,7 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;

@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.xenon.util.Lambda;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
 

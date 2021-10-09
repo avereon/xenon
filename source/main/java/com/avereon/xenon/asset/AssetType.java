@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
 
 import java.util.Collections;

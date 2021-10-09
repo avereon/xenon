@@ -12,8 +12,8 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.event.FxEventWatcher;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zarra.event.FxEventWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 

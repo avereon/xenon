@@ -12,7 +12,7 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;

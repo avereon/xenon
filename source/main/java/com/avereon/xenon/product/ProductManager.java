@@ -16,8 +16,8 @@ import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.zerra.event.FxEventHub;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
 
 import java.io.IOException;

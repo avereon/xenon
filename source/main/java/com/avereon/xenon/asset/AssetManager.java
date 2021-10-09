@@ -17,7 +17,7 @@ import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.WorkpaneView;
-import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zarra.event.FxEventHub;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert;

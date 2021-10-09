@@ -7,7 +7,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
