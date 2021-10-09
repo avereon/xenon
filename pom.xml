@@ -149,6 +149,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>

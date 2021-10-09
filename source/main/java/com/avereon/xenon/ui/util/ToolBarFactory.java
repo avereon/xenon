@@ -3,7 +3,7 @@ package com.avereon.xenon.ui.util;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;

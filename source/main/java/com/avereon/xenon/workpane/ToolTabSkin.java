@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.log.LazyEval;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;

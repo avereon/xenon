@@ -3,7 +3,7 @@ package com.avereon.xenon.test.tool.settings;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

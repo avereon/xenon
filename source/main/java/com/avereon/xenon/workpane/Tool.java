@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

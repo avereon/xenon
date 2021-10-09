@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.ProductManager;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;

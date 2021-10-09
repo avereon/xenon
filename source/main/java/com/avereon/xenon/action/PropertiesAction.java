@@ -9,7 +9,7 @@ import com.avereon.xenon.asset.type.PropertiesType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.event.ActionEvent;
 import lombok.CustomLog;
 

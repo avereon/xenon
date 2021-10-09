@@ -18,7 +18,7 @@ module com.avereon.xenon {
 	requires org.controlsfx.controls;
 	requires reactfx;
 	requires transitive com.avereon.zenna;
-	requires transitive com.avereon.zerra;
+	requires transitive com.avereon.zarra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;

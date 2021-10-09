@@ -14,8 +14,8 @@ import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.zerra.event.FxEventHub;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
 import lombok.CustomLog;
 
