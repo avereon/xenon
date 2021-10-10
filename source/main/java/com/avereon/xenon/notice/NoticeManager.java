@@ -1,8 +1,7 @@
 package com.avereon.xenon.notice;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Controllable;
-import com.avereon.util.Log;
+import com.avereon.skill.Controllable;
 import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramEvent;
@@ -14,20 +13,19 @@ import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class NoticeManager implements Controllable<NoticeManager> {
-
-	private static final Logger log = Log.get();
 
 	private final Program program;
 
@@ -127,7 +125,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager start() {
-		log.log( Log.TRACE, "Notice manager starting..." );
+		log.atTrace().log( "Notice manager starting..." );
 		try {
 			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
 			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
@@ -135,16 +133,16 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		} catch( AssetException exception ) {
 			exception.printStackTrace();
 		}
-		log.log( Log.DEBUG, "Notice manager started." );
+		log.atDebug().log( "Notice manager started." );
 
 		return this;
 	}
 
 	@Override
 	public NoticeManager stop() {
-		log.log( Log.TRACE, "Notice manager stopping..." );
+		log.atTrace().log( "Notice manager stopping..." );
 		getProgram().getAssetManager().saveAssets( asset );
-		log.log( Log.DEBUG, "Notice manager stopped." );
+		log.atDebug().log( "Notice manager stopped." );
 		return this;
 	}
 

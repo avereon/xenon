@@ -40,7 +40,7 @@ public class FileSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
@@ -48,7 +48,7 @@ public class FileSettingEditor extends SettingEditor {
 		field.setId( rbKey );
 
 		button = new Button();
-		button.setText( Rb.text( getProduct(), "settings", "browse" ) );
+		button.setText( Rb.text( getProduct(), getBundleKey(), "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		nodes = List.of( label, field, button );
@@ -112,7 +112,7 @@ public class FileSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( Rb.text( getProduct(), "settings", "select-file" ) );
+		fileChooser.setTitle( Rb.text( getProduct(), getBundleKey(), "select-file" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );

@@ -1,25 +1,23 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CustomLog
 public abstract class GuidedTool extends ProgramTool {
-
-	private static final Logger log = Log.get();
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 
@@ -46,34 +44,37 @@ public abstract class GuidedTool extends ProgramTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
+		guideContext.expandedItemsProperty().addListener( guideExpandedNodesListener );
+		guideContext.selectedItemsProperty().addListener( guideSelectedNodesListener );
+		guideContext.focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
+	}
 
-		getCurrentGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
-		getCurrentGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
-		getCurrentGuide().focusedProperty().addListener( ( p, o, n ) -> doGuideFocused( n ) );
+	@Override
+	protected void open( OpenAssetRequest request ) throws ToolException {
+		super.open( request );
 
-		Fx.run( () -> {
-			// Set the expanded ids before setting the selected ids
-			getCurrentGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-			getCurrentGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
-		} );
+		// Set the expanded and selected ids after ready() has been called
+		guideContext.setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+		guideContext.setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
-		getCurrentGuide().setActive( true );
+		getGuideContext().setActive( true );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		getCurrentGuide().setActive( false );
+		getGuideContext().setActive( false );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getCurrentGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
-		getCurrentGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		guideContext.expandedItemsProperty().removeListener( guideExpandedNodesListener );
+		guideContext.selectedItemsProperty().removeListener( guideSelectedNodesListener );
+
 		super.deallocate();
 	}
 
@@ -93,7 +94,7 @@ public abstract class GuidedTool extends ProgramTool {
 	 *
 	 * @return The current guide
 	 */
-	Guide getCurrentGuide() {
+	public Guide getCurrentGuide() {
 		return guideContext.getCurrentGuide();
 	}
 
@@ -104,7 +105,7 @@ public abstract class GuidedTool extends ProgramTool {
 	protected void guideFocusChanged( boolean focused, Set<GuideNode> nodes ) {}
 
 	private void doGuideFocused( boolean focused ) {
-		guideFocusChanged( focused, getGuideContext().getCurrentGuide().selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+		guideFocusChanged( focused, guideContext.selectedItemsProperty().get().stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
 	}
 
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
@@ -118,8 +119,8 @@ public abstract class GuidedTool extends ProgramTool {
 
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {
-				guideNodesExpanded( oldNodes, newNodes );
 				getSettings().set( GUIDE_EXPANDED_IDS, Guide.nodesToString( newNodes ) );
+				guideNodesExpanded( oldNodes, newNodes );
 			}
 		}
 

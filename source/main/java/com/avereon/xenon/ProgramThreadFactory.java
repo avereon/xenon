@@ -1,16 +1,14 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Log;
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@CustomLog
 public class ProgramThreadFactory implements ThreadFactory {
 
-	private static final Logger log = Log.get();
-
-	private static AtomicInteger count = new AtomicInteger();
+	private static final AtomicInteger count = new AtomicInteger();
 
 	@Override
 	public Thread newThread( Runnable runnable ) {
@@ -23,7 +21,7 @@ public class ProgramThreadFactory implements ThreadFactory {
 
 		@Override
 		public void uncaughtException( Thread thread, Throwable throwable ) {
-			log.log( Log.ERROR, "Error on thread " + thread.getName(), throwable );
+			log.atSevere().withCause( throwable ).log( "Error on thread %s", thread.getName() );
 		}
 	}
 

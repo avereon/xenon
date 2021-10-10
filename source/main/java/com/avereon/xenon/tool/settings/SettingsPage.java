@@ -14,6 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SettingsPage extends Node {
 
+	public static final SettingsPage EMPTY = new SettingsPage( null );
+
 	public static final String ID = "id";
 
 	private static final String ICON = "icon";
@@ -34,7 +36,7 @@ public class SettingsPage extends Node {
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsPage( SettingsPage page ) {
+	SettingsPage( SettingsPage page ) {
 		this.page = page;
 
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );

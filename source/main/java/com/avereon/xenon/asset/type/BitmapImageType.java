@@ -10,21 +10,31 @@ import com.avereon.xenon.asset.PlaceholderCodec;
  */
 public class BitmapImageType extends AssetType {
 
+	private static final String assetTypeKey = "image:bitmap";
+
+	private static final String givMediaTypePattern = "image/gif";
+
+	private static final String jpgMediaTypePattern = "image/jpg";
+
+	private static final String jpegMediaTypePattern = "image/jpeg";
+
+	private static final String pngMediaTypePattern = "image/png";
+
 	public BitmapImageType( ProgramProduct product ) {
 		super( product, "image" );
 
 		// TODO Replace this placeholder codec with actual codecs
 		PlaceholderCodec codec = new PlaceholderCodec();
-		codec.addSupported( Codec.Pattern.EXTENSION, "png" );
+		codec.addSupported( Codec.Pattern.EXTENSION, "gif" );
 		codec.addSupported( Codec.Pattern.EXTENSION, "jpg" );
 		codec.addSupported( Codec.Pattern.EXTENSION, "jpeg" );
-		codec.addSupported( Codec.Pattern.EXTENSION, "gif" );
+		codec.addSupported( Codec.Pattern.EXTENSION, "png" );
 		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return "image:bitmap";
+		return assetTypeKey;
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
+import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
@@ -17,10 +18,10 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -28,16 +29,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
+import lombok.CustomLog;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class AboutTool extends GuidedTool {
-
-	private static final Logger log = Log.get();
 
 	public static final String SUMMARY = "summary";
 
@@ -90,7 +90,9 @@ public class AboutTool extends GuidedTool {
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
 	}
 
 	@Override
@@ -154,39 +156,39 @@ public class AboutTool extends GuidedTool {
 
 	private class SummaryPane extends HBox {
 
-		private Label productName;
+		private final Label productName;
 
-		private Label productVersion;
+		private final Label productVersion;
 
-		private Label productProvider;
+		private final Label productProvider;
 
-		private Label javaLabel;
+		private final Label javaLabel;
 
 		private Label javaName;
 
-		private Label javaVmName;
+		private final Label javaVmName;
 
-		private Label javaVersion;
+		private final Label javaVersion;
 
-		private Label javaProvider;
+		private final Label javaProvider;
 
-		private Label osLabel;
+		private final Label osLabel;
 
-		private Label osName;
+		private final Label osName;
 
-		private Label osVersion;
+		private final Label osVersion;
 
-		private Label osProvider;
+		private final Label osProvider;
 
 		private Label informationLabel;
 
-		private String lastUpdateCheckPrompt;
+		private final String lastUpdateCheckPrompt;
 
-		private Label lastUpdateTimestamp;
+		private final Label lastUpdateTimestamp;
 
-		private String nextUpdateCheckPrompt;
+		private final String nextUpdateCheckPrompt;
 
-		private Label nextUpdateTimestamp;
+		private final Label nextUpdateTimestamp;
 
 		public SummaryPane() {
 			super( UiFactory.PAD );
@@ -461,12 +463,15 @@ public class AboutTool extends GuidedTool {
 	private String getJavaFxDetail() {
 		StringBuilder builder = new StringBuilder();
 
+		// Is the program hardware rendered
+		boolean hardwareRendered = getProgram().isHardwareRendered();
+		builder.append( "Hardware rendered: " ).append( hardwareRendered ).append( "\n" );
+		if( !hardwareRendered ) builder.append( "  Consider adding the following JVM args: -Dprism.forceGPU=true\n" );
+
+		// The screen information
+		builder.append( "\n" );
 		Screen primary = Screen.getPrimary();
 		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
-
-		builder.append( "\n" );
-		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "3D Accelerated: " ).append( scene3d ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -474,15 +479,17 @@ public class AboutTool extends GuidedTool {
 	private String getScreenDetail( Screen primary, Screen screen ) {
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
+
+		Scene scene = getScene();
 		Rectangle2D outputScale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
-		Rectangle2D renderScale = new Rectangle2D( 0, 0, getScene().getWindow().getRenderScaleX(), getScene().getWindow().getRenderScaleY() );
-		Rectangle2D sceneScale = new Rectangle2D( 0, 0, getScene().getRoot().getScaleX(), getScene().getRoot().getScaleY() );
+		Rectangle2D renderScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getWindow().getRenderScaleX(), scene.getWindow().getRenderScaleY() );
+		Rectangle2D sceneScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getRoot().getScaleX(), scene.getRoot().getScaleY() );
 		int dpi = (int)screen.getDpi();
 
 		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
 		String scaleText = outputScale.getWidth() + "x" + outputScale.getWidth();
-		String renderScaleText = renderScale.getWidth() + "x" + renderScale.getWidth();
-		String sceneScaleText = sceneScale.getWidth() + "x" + sceneScale.getWidth();
+		String renderScaleText = renderScale == null ? "" : renderScale.getWidth() + "x" + renderScale.getWidth();
+		String sceneScaleText = sceneScale == null ? "" : sceneScale.getWidth() + "x" + sceneScale.getWidth();
 
 		//System.out.println( "Screen scale: " + scaleText );
 		//System.out.println( "Render scale: " + renderScaleText );

@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
@@ -14,24 +14,23 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
+import lombok.CustomLog;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.concurrent.*;
 
-import static java.lang.System.Logger.Level.*;
-
+@CustomLog
 public class ToolManager implements Controllable<ToolManager> {
 
-	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
+	private static final long WORK_TIME_LIMIT = 2;
+
+	private static final TimeUnit WORK_TIME_UNIT = TimeUnit.SECONDS;
 
 	private final Program program;
 
@@ -40,6 +39,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	private final Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
 
 	private final Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
+
+	private final Set<Class<?>> singletonLocks = new CopyOnWriteArraySet<>();
 
 	public ToolManager( Program program ) {
 		this.program = program;
@@ -59,7 +60,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.log( DEBUG, "Tool registered: assetType={0} -> tool={1}", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
 
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
@@ -68,7 +69,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
-		log.log( DEBUG, "Tool unregistered: assetType={0} -> tool={0}", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool unregistered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
 
 	/**
@@ -78,6 +79,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open asset request
 	 * @return The tool for the request or null if a tool was not created
 	 * @apiNote Should be called from a {@link TaskManager} thread
+	 * @apiNote This method is synchronized in order to enforce singleton instance mode
 	 */
 	public ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
 		// Check the calling thread
@@ -91,9 +93,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		AssetType assetType = asset.getType();
 
 		// Determine which tool class will be used
-		Class<? extends ProgramTool> toolClass = request.getToolClass();
-		if( toolClass == null ) toolClass = determineToolClassForAssetType( assetType );
-		if( toolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
+		Class<? extends ProgramTool> requestedToolClass = request.getToolClass();
+		if( requestedToolClass == null ) requestedToolClass = determineToolClassForAssetType( assetType );
+		if( requestedToolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
+		final Class<? extends ProgramTool> toolClass = requestedToolClass;
 		request.setToolClass( toolClass );
 
 		// Check that the tool is registered
@@ -109,48 +112,89 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
-		ProgramTool tool = findToolInPane( pane, toolClass );
+		try {
+			// Check for a singleton lock before looking for a tool instance
+			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
 
-		// If the instance mode is SINGLETON, check for an existing tool in the workpane
-		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
+			ProgramTool tool = findToolInPane( pane, toolClass );
+
+			// If the instance mode is SINGLETON, check for an existing tool in the workpane
+			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
+				final Workpane finalPane = pane;
+				final ProgramTool finalTool = tool;
+				if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
+				return tool;
+			}
+
+			try {
+				tool = getToolInstance( request );
+			} catch( Exception exception ) {
+				log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
+				return null;
+			}
+
+			// Now that we have a tool...open dependent assets and associated tools
+			if( !openDependencies( request, tool ) ) return null;
+
+			// Determine the placement
+			// A null value allows the tool to determine its own placement
+			Workpane.Placement placement = toolClassMetadata.get( tool.getClass() ).getPlacement();
+
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
+			final WorkpaneView finalView = view;
+			scheduleWaitForReady( request, finalTool );
+			Fx.run( () -> finalPane.openTool( finalTool, finalView, placement, request.isSetActive() ) );
+			Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+
 			return tool;
-		}
-
-		try {
-			tool = getToolInstance( request );
-		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
+		} catch( InterruptedException ignore ) {
 			return null;
+		} finally {
+			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}
+	}
 
-		// Now that we have a tool...open dependent assets and associated tools
-		if( !openDependencies( request, tool ) ) return null;
+	/**
+	 * This very particular method acquires a lock when creating singleton tools
+	 * that blocks other threads from creating singleton tools if there is already
+	 * a thread creating one.
+	 *
+	 * @param toolClass The singleton tool class
+	 * @throws InterruptedException If a waiting thread is interrupted
+	 */
+	private void checkSingletonLock( Class<? extends ProgramTool> toolClass ) throws InterruptedException {
+		synchronized( singletonLocks ) {
+			// Need special handling of singletons
+			while( singletonLocks.contains( toolClass ) ) {
+				singletonLocks.wait( 1000 );
+			}
+			singletonLocks.add( toolClass );
+		}
+	}
 
-		// Determine the placement override
-		// A null value allows the tool to determine its placement
-		Workpane.Placement placementOverride = toolClassMetadata.get( tool.getClass() ).getPlacement();
-
-		final Workpane finalPane = pane;
-		final ProgramTool finalTool = tool;
-		final WorkpaneView finalView = view;
-		scheduleWaitForReady( request, finalTool );
-		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
-
-		return tool;
+	/**
+	 * This very particular method clears the lock when creating singleton tools.
+	 *
+	 * @param toolClass The singleton tool class
+	 */
+	private void clearSingletonLock( Class<? extends ProgramTool> toolClass ) {
+		synchronized( singletonLocks ) {
+			singletonLocks.remove( toolClass );
+			singletonLocks.notifyAll();
+		}
 	}
 
 	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+		// NOTE There is no realistic way of opening the dependencies on the same thread
 		try {
-			for( URI dependency : tool.getAssetDependencies() ) {
-				program.getAssetManager().openAsset( dependency, true, false ).get();
+			for( Future<ProgramTool> future : program.getAssetManager().openAssets( tool.getAssetDependencies(), true, false ) ) {
+				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 			}
 			return true;
 		} catch( InterruptedException ignored ) {
-		} catch( ExecutionException exception ) {
-			log.log( ERROR, "Error opening tool dependencies: " + request.getToolClass().getName(), exception );
+		} catch( ExecutionException | TimeoutException exception ) {
+			log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", request.getToolClass().getName() );
 		}
 		return false;
 	}
@@ -178,7 +222,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Check for unregistered tool type
 		if( toolRegistration == null ) {
-			log.log( ERROR, "Tool class not registered: " + toolClassName );
+			log.atSevere().log( "Tool class not registered: %s", toolClassName );
 			return null;
 		}
 
@@ -189,15 +233,18 @@ public class ToolManager implements Controllable<ToolManager> {
 			scheduleWaitForReady( request, tool );
 			return tool;
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
+			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
 			return null;
 		}
 	}
 
 	public ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
 		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
-		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
-		return instanceMode;
+		return instanceMode == null ? ToolInstanceMode.UNLIMITED : instanceMode;
+	}
+
+	public List<Class<? extends ProgramTool>> getRegisteredTools( AssetType assetType ) {
+		return new ArrayList<>( assetTypeToolClasses.get( assetType ) );
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
@@ -205,14 +252,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
-			log.log( WARNING, "No tools registered for asset type {0}", assetType.getKey() );
+			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
-			log.log( DEBUG, "One tool registered for asset type {0}", assetType.getKey() );
+			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		} else {
 			// There is more than one tool registered for the asset type
-			log.log( WARNING, "Multiple tools registered for asset type {0}", assetType.getKey() );
+			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
 		return toolClass;
@@ -223,7 +270,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return data == null ? null : data.getProduct();
 	}
 
-	String getToolClassName( String className ) {
+	public String getToolClassName( String className ) {
 		String alias = null;
 		if( className != null ) alias = aliases.get( className );
 		return alias == null ? className : alias;
@@ -273,7 +320,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
 			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
 			addToolListenerForSettings( tool );
-			log.log( DEBUG, "Tool instance created: " + tool.getClass().getName() );
+			log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
 			return tool;
 		} );
 
@@ -288,9 +335,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
-		tool.addEventHandler( ToolEvent.ADDED,
-			e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() )
-		);
+		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() ) );
 		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
 		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
@@ -298,7 +343,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
-		return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
+		return (ProgramTool)pane.getTools( type ).stream().findAny().orElse( null );
+		//return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
 	}
 
 	/**

@@ -8,6 +8,10 @@ import com.avereon.xenon.scheme.FaultScheme;
 
 public class ProgramFaultType extends AssetType {
 
+	private static final String uriPattern = "program:/fault";
+
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
+
 	public ProgramFaultType( ProgramProduct product ) {
 		super( product, "fault" );
 
@@ -18,7 +22,7 @@ public class ProgramFaultType extends AssetType {
 
 	@Override
 	public String getKey() {
-		return "program:fault";
+		return uriPattern;
 	}
 
 	@Override

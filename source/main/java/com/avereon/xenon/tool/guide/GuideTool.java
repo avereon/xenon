@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
@@ -12,25 +11,24 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.util.Callback;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@CustomLog
 public class GuideTool extends ProgramTool {
-
-	public static final Guide NO_GUIDE = new Guide();
-
-	private static final Logger log = Log.get();
 
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
 
@@ -46,15 +44,17 @@ public class GuideTool extends ProgramTool {
 
 	private final ToolConcealedWatcher toolConcealedWatcher;
 
-	private final GuideTreeSelectedItemsListener selectedItemsListener;
+	private final GuideToTreeExpandedItemsListener guideToTreeExpandedItemsListener;
 
-	private final GuideSelectedItemsListener guideSelectedItemsListener;
+	private final GuideToTreeSelectedItemsListener guideToTreeSelectedItemsListener;
+
+	private final TreeToGuideSelectedItemsListener treeToGuideSelectedItemsListener;
+
+	private final EventHandler<TreeItem.TreeModificationEvent<Object>> treeToGuideExpandedItemsListener;
 
 	private GuideContext context;
 
 	private ContextMenu contextMenu;
-
-	private Guide guide;
 
 	private TreeCell<GuideNode> draggedCell;
 
@@ -70,12 +70,12 @@ public class GuideTool extends ProgramTool {
 		scroller.setFitToHeight( true );
 		getChildren().add( scroller );
 
-		guide = NO_GUIDE;
-
 		toolActivatedWatcher = new ToolActivatedWatcher();
 		toolConcealedWatcher = new ToolConcealedWatcher();
-		selectedItemsListener = new GuideTreeSelectedItemsListener();
-		guideSelectedItemsListener = new GuideSelectedItemsListener();
+		guideToTreeExpandedItemsListener = new GuideToTreeExpandedItemsListener();
+		guideToTreeSelectedItemsListener = new GuideToTreeSelectedItemsListener();
+		treeToGuideSelectedItemsListener = new TreeToGuideSelectedItemsListener();
+		treeToGuideExpandedItemsListener = e -> updateExpandedItems();
 	}
 
 	@Override
@@ -97,8 +97,6 @@ public class GuideTool extends ProgramTool {
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( Rb.text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
-
-		guideTree.focusedProperty().addListener( ( p, o, n ) -> guide.reselectSelectedItems() );
 	}
 
 	@Override
@@ -115,9 +113,13 @@ public class GuideTool extends ProgramTool {
 		getWorkpane().removeEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
 	}
 
+	private GuideContext getGuideContext() {
+		return context;
+	}
+
 	private void setGuideContext( GuideContext context ) {
 		this.context = context;
-		setGuide( context.getCurrentGuide() );
+		doSetGuide( context.getCurrentGuide() );
 		if( shouldEnableContextMenu( context ) ) {
 			setContextGraphic( getProgram().getIconLibrary().getIcon( "context" ) );
 			contextMenu = generateContextMenu( context );
@@ -142,62 +144,66 @@ public class GuideTool extends ProgramTool {
 		String icon = guide.getIcon();
 
 		MenuItem item = new MenuItem( name, getProgram().getIconLibrary().getIcon( icon ) );
-		item.setOnAction( e -> setGuide( guide ) );
+		item.setOnAction( e -> doSetGuide( guide ) );
 		guide.titleProperty().addListener( ( p, o, n ) -> item.setText( n ) );
 		guide.iconProperty().addListener( ( p, o, n ) -> item.setGraphic( getProgram().getIconLibrary().getIcon( n ) ) );
 
 		return item;
 	}
 
-	private void setGuide( Guide guide ) {
-		Guide oldGuide = this.guide;
-		Guide newGuide = guide == null ? NO_GUIDE : guide;
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
+	private void doSetGuide( Guide newGuide ) {
+		if( getGuideContext() == null ) return;
+
+		Guide oldGuide = getGuideContext().getCurrentGuide();
+		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
 
 		// Disconnect the old guide
-		if( this.guide != null ) {
-			// Remove the guide selected item property listener
-			this.guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
+		if( oldGuide != null ) {
+			// Remove the tree to guide expansion listener
+			TreeItem<?> root = guideTree.getRoot();
+			if( root != null ) {
+				root.removeEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
+				root.removeEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
+			}
 
-			// Remove the tree selected items listener
-			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+			// Remove the tree to guide selected items listener
+			guideTree.getSelectionModel().getSelectedIndices().removeListener( treeToGuideSelectedItemsListener );
+
+			// Remove the guide to tree selected item property listener
+			getGuideContext().selectedItemsProperty().removeListener( guideToTreeSelectedItemsListener );
+
+			// Remove the guide to tree expanded item property listener
+			getGuideContext().expandedItemsProperty().removeListener( guideToTreeExpandedItemsListener );
+
+			// Unset the guide view focused property
+			getGuideContext().focusedProperty().unbind();
 
 			// Unset the guide view selection mode
 			guideTree.getSelectionModel().setSelectionMode( SelectionMode.SINGLE );
-
-			// Unset the guide view focused property
-			this.guide.focusedProperty().unbind();
 
 			// Unset the guide view root
 			guideTree.setRoot( null );
 		}
 
-		this.guide = newGuide;
+		if( newGuide != null ) getGuideContext().setCurrentGuide( newGuide );
 
 		// Connect the new guide
-		if( this.guide != null ) {
+		if( newGuide != null ) {
 			// Set the guide view root
-			guideTree.setRoot( this.guide.getRoot() );
+			guideTree.setRoot( newGuide.getRoot() );
 
-			// Set the guide view selection mode
-			guideTree.getSelectionModel().setSelectionMode( this.guide.getSelectionMode() );
+			// Set the tree view selection mode
+			guideTree.getSelectionModel().setSelectionMode( newGuide.getSelectionMode() );
 
-			// Add the tree selected items listener
-			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
-
-			// Add the guide selected item property listener
-			// This listens to the guide for changes to the selected items
-			this.guide.selectedItemsProperty().addListener( guideSelectedItemsListener );
-
-			// Bind the focused property
-			this.guide.focusedProperty().bind( guideTree.focusedProperty() );
+			// Set the expanded items
+			getGuideContext().getExpandedItems().forEach( i -> i.setExpanded( true ) );
 
 			// Set the selected items
-			Set<TreeItem<GuideNode>> items = this.guide.selectedItemsProperty().get();
+			Set<TreeItem<GuideNode>> items = getGuideContext().selectedItemsProperty().get();
 			if( items == null ) {
 				guideTree.getSelectionModel().selectFirst();
 			} else {
-				setSelectedItems( items );
+				doSetSelectedItems( items );
 			}
 
 			String title = newGuide.getTitle();
@@ -207,17 +213,46 @@ public class GuideTool extends ProgramTool {
 			String icon = newGuide.getIcon();
 			if( TextUtil.isEmpty( icon ) ) icon = "guide";
 			setGraphic( getProduct().getProgram().getIconLibrary().getIcon( icon ) );
+
+			// Bind the focused property
+			getGuideContext().focusedProperty().bind( guideTree.focusedProperty() );
+
+			// Add the guide to tree expanded item property listener
+			getGuideContext().expandedItemsProperty().addListener( guideToTreeExpandedItemsListener );
+
+			// Add the guide to tree selected item property listener
+			getGuideContext().selectedItemsProperty().addListener( guideToTreeSelectedItemsListener );
+
+			// Add the tree to guide selected items listener
+			guideTree.getSelectionModel().getSelectedIndices().addListener( treeToGuideSelectedItemsListener );
+
+			// Set the tree to guide expansion listener
+			TreeItem<?> root = guideTree.getRoot();
+			if( root != null ) {
+				root.addEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
+				root.addEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
+			}
 		}
 
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
+		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
+	}
+
+	private void updateExpandedItems() {
+		getGuideContext().setExpandedItems( FxUtil.flatTree( guideTree.getRoot() ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
+	}
+
+	private void doSetExpandedItems( Set<? extends TreeItem<GuideNode>> expandedItems ) {
+		expandedItems.forEach( i -> Fx.run( () -> i.setExpanded( true ) ) );
 	}
 
 	/**
-	 * Called when the selected items change in the guide and the TreeView needs to be updated. Per the TreeView documentation the last item in the list becomes the "single" selected item.
+	 * Called when the selected items change in the guide and the TreeView needs
+	 * to be updated. Per the TreeView documentation the last item in the list
+	 * becomes the "single" selected item.
 	 *
 	 * @param selectedItems The selected items list.
 	 */
-	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
+	private void doSetSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
 		// NOTE The tree should already be expanded before calling this method
 
 		// Map the guide view tree item ids to indexes
@@ -271,7 +306,7 @@ public class GuideTool extends ProgramTool {
 
 	@SuppressWarnings( "unchecked" )
 	private void doDragDetected( MouseEvent event ) {
-		if( !guide.isDragAndDropEnabled() ) return;
+		if( !getGuideContext().isDragAndDropEnabled() ) return;
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
 		draggedCell = target;
@@ -321,7 +356,7 @@ public class GuideTool extends ProgramTool {
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
 		TreeItem<GuideNode> draggedItem = draggedCell.getTreeItem();
-		guide.moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
+		getGuideContext().getCurrentGuide().moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
 
 		event.setDropCompleted( true );
 	}
@@ -345,19 +380,14 @@ public class GuideTool extends ProgramTool {
 
 		@Override
 		public void handle( ToolEvent event ) {
-			// NOTE This logic has been reworked a couple of times to change the
-			// behavior. The next time this logic is reworked here are some things
-			// to keep in mind:
+			// NOTE This logic has been reworked a couple of times to change the behavior.
+			// The next time this logic is reworked here are some things to keep in mind:
 			// - Only guided tools should show/hide guides
 			// - When a guided tool is closed it should also close it's own guide
 			// - There is an ongoing debate whether tools that don't have guides should hide existing guides
 			// - Some tools should definitely not hide a guide: GuideTool and PropertiesTool
 
 			Tool tool = event.getTool();
-
-			// Some tools should not cause the guide to change
-			//if( tool instanceof GuideTool ) return;
-
 			if( tool instanceof GuidedTool ) setGuideContext( ((GuidedTool)tool).getGuideContext() );
 		}
 
@@ -369,12 +399,12 @@ public class GuideTool extends ProgramTool {
 		public void handle( ToolEvent event ) {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
-			log.log( Log.DEBUG, "hide guide: " + event.getTool().getClass().getName() );
-			setGuide( null );
+			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
+			doSetGuide( null );
 		}
 	}
 
-	private class GuideTreeSelectedItemsListener implements ListChangeListener<Integer> {
+	private class TreeToGuideSelectedItemsListener implements ListChangeListener<Integer> {
 
 		@Override
 		public void onChanged( Change<? extends Integer> change ) {
@@ -386,22 +416,51 @@ public class GuideTool extends ProgramTool {
 
 			if( items.size() > 0 ) expandAndCollapsePaths( items.iterator().next() );
 
-			guide.setSelectedItems( items );
+			getGuideContext().setSelectedItems( items );
 		}
 
 	}
 
-	private class GuideSelectedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
+	/**
+	 * This listener is notified when the expanded nodes are changed in the guide context.
+	 */
+	private class GuideToTreeExpandedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
 		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
-			// Disable the guide view selection change listener
-			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+			TreeItem<?> root = guideTree.getRoot();
 
-			setSelectedItems( newValue );
+			// Disable the tree to guide expanded change listener
+			if( root != null ) {
+				root.removeEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
+				root.removeEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
+			}
 
-			// Re-enable the guide view selection change listener
-			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
+			doSetExpandedItems( newValue );
+
+			// Re-enable the tree to guide expanded change listener
+			if( root != null ) {
+				root.addEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
+				root.addEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
+			}
+		}
+
+	}
+
+	/**
+	 * This listener is notified when the selected nodes are changed in the guide context.
+	 */
+	private class GuideToTreeSelectedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
+
+		@Override
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+			// Disable the tree to guide selection change listener
+			guideTree.getSelectionModel().getSelectedIndices().removeListener( treeToGuideSelectedItemsListener );
+
+			doSetSelectedItems( newValue );
+
+			// Re-enable the tree to guide selection change listener
+			guideTree.getSelectionModel().getSelectedIndices().addListener( treeToGuideSelectedItemsListener );
 		}
 
 	}

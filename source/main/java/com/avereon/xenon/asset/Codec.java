@@ -1,19 +1,20 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Predicate;
 
-public abstract class Codec {
+@CustomLog
+public abstract class Codec implements Predicate<Asset> {
 
 	public enum Pattern {
 		MEDIATYPE {
@@ -49,8 +50,6 @@ public abstract class Codec {
 
 		abstract boolean accept( String pattern, String value );
 	}
-
-	private static final Logger log = Log.get();
 
 	private AssetType assetType;
 
@@ -104,8 +103,17 @@ public abstract class Codec {
 		return supportedMatches.getOrDefault( type, Set.of() ).stream().anyMatch( p -> type.accept( p, value ) );
 	}
 
+	public final boolean isSupported( Asset asset ) {
+		return supportedMatches.keySet().stream().anyMatch( k -> isSupported( k, asset.getFileName() ) );
+	}
+
 	public int getPriority() {
 		return 0;
+	}
+
+	@Override
+	public final boolean test( Asset asset ) {
+		return isSupported( asset );
 	}
 
 	@Override

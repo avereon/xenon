@@ -2,11 +2,10 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +17,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@CustomLog
 public class DownloadTask extends Task<Download> {
-
-	private static final Logger log = Log.get();
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 
@@ -30,9 +28,9 @@ public class DownloadTask extends Task<Download> {
 
 	private static final boolean FORCE_SLOW_DOWNLOAD = false;
 
-	private URI uri;
+	private final URI uri;
 
-	private Path target;
+	private final Path target;
 
 	private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
@@ -118,8 +116,8 @@ public class DownloadTask extends Task<Download> {
 			if( isCancelled() ) return null;
 		}
 
-		log.log( Log.DEBUG,  "Resource downloaded: " + uri );
-		log.log( Log.TRACE,  "        to location: " + download.getTarget() );
+		log.atFine().log(  "Resource downloaded: %s", uri );
+		log.atFiner().log( "        to location: %s", download.getTarget() );
 
 		return download;
 	}

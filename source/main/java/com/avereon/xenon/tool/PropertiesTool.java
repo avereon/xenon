@@ -2,7 +2,6 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -12,15 +11,16 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
+import lombok.CustomLog;
 
 /**
- * This tool listens for "show properties" and "hide properties" events that allow the user to edit the properties of an object using the settings API.
+ * This tool listens for "show properties" and "hide properties" events that
+ * allow the user to edit the properties of an object using the settings API.
  */
+@CustomLog
 public class PropertiesTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final ScrollPane scroller;
 
@@ -41,7 +41,7 @@ public class PropertiesTool extends ProgramTool {
 
 	@Override
 	public Workpane.Placement getPlacement() {
-		return Workpane.Placement.DOCK_RIGHT;
+		return Workpane.Placement.DEFAULT;
 	}
 
 	@Override
@@ -78,12 +78,14 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	private void showPage( SettingsPage page ) {
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		scroller.setContent( new SettingsPanel( page ) );
+		Fx.run( () -> {
+			page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
+			scroller.setContent( new SettingsPanel( page ) );
+		});
 	}
 
 	private void hidePage() {
-		scroller.setContent( null );
+		Fx.run( () -> scroller.setContent( null ) );
 	}
 
 }

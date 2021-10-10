@@ -2,36 +2,34 @@ package com.avereon.xenon;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Controllable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private static final Logger log = Log.get();
+	private final Program program;
 
-	private Program program;
+	private final Set<Workspace> workspaces;
 
 	private String currentThemeId;
-
-	private Set<Workspace> workspaces;
 
 	private Workspace activeWorkspace;
 
@@ -39,7 +37,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	WorkspaceManager( Program program ) {
 		this.program = program;
-		workspaces = new CopyOnWriteArraySet<>();
+		this.workspaces = new CopyOnWriteArraySet<>();
 
 		program.getSettings().register( SettingsEvent.CHANGED, e -> {
 			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
@@ -187,12 +185,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {
-		return workspaces
-			.stream()
-			.flatMap( w -> w.getWorkareas().stream() )
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
-			.filter( t -> t.getAsset() == asset )
-			.collect( Collectors.toSet() );
+		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getWorkpane().getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets() {
@@ -206,13 +199,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Asset> getModifiedAssets( Workspace workspace ) {
-		return workspace
-			.getWorkareas()
-			.stream()
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
-			.map( Tool::getAsset )
-			.filter( Asset::isNewOrModified )
-			.collect( Collectors.toSet() );
+		return workspace.getWorkareas().stream().flatMap( a -> a.getWorkpane().getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -241,11 +228,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
-			if( result.get() == ButtonType.YES ) {
-				for( Asset asset : assets ) {
-					if( !getProgram().getAssetManager().saveAsset( asset ) ) return false;
-				}
-			}
+			if( result.get() == ButtonType.YES ) getProgram().getAssetManager().saveAssets( assets );
 			return result.get() == ButtonType.YES || result.get() == ButtonType.NO;
 		}
 
@@ -254,7 +237,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public void requestCloseWorkspace( Workspace workspace ) {
 		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
-		log.log( Log.WARN, "Number of visible workspaces: " + visibleWorkspaces );
+		log.atWarning().log( "Number of visible workspaces: %s", visibleWorkspaces );
 		boolean closeProgram = visibleWorkspaces == 1;
 		boolean shutdownVerify = getProgram().getSettings().get( "shutdown-verify", Boolean.class, true );
 

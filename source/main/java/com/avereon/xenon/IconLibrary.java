@@ -1,24 +1,25 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.zenna.icon.*;
-import com.avereon.zerra.image.*;
 import com.avereon.xenon.task.Task;
+import com.avereon.zenna.icon.*;
+import com.avereon.zarra.image.BrokenIcon;
+import com.avereon.zarra.image.ImageIcon;
+import com.avereon.zarra.image.Images;
+import com.avereon.zarra.image.VectorImage;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class IconLibrary {
-
-	private static final Logger log = Log.get();
 
 	private static final int DEFAULT_SIZE = 16;
 
@@ -41,8 +42,11 @@ public class IconLibrary {
 		register( "asset-new", new DocumentIcon() );
 		register( "asset-open", new FolderIcon() );
 		register( "asset-save", new SaveIcon() );
+		register( "asset-save-all", new SaveIcon() );
+		register( "asset-rename", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
-		register( "properties", new HamburgerIcon() );
+		register( "properties", new PropertiesIcon() );
+		register( "print", new PrinterIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
@@ -95,6 +99,7 @@ public class IconLibrary {
 
 		register( "add", new PlusIcon() );
 		register( "refresh", new RefreshIcon() );
+		register( "reload", new RefreshIcon() );
 		register( "download", new DownloadIcon() );
 		register( "market", new MarketIcon() );
 		register( "module", new ModuleIcon() );

@@ -47,7 +47,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	private String currentState;
 
-	private final Stack<Action> actionStack;
+	private final Stack<ProgramAction> actionStack;
 
 	private final BooleanProperty enabledProperty;
 
@@ -244,7 +244,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 		handle( new ActionEvent( this, this ) );
 	}
 
-	public void pushAction( Action action ) {
+	public void pushAction( ProgramAction action ) {
 		if( action == null ) return;
 		pullAction( action );
 		actionStack.push( action );
@@ -252,7 +252,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 		updateEnabled();
 	}
 
-	public void pullAction( Action action ) {
+	public void pullAction( ProgramAction action ) {
 		if( action == null ) return;
 		action.setActionProxy( null );
 		actionStack.remove( action );

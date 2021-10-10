@@ -1,12 +1,13 @@
 package com.avereon.xenon.undo;
 
 import com.avereon.data.Node;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@CustomLog
 public class NodeChange {
 
 	public static final String CAPTURE_UNDO_CHANGES = NodeChange.class.getName() + ":capture-undo-changes";
@@ -16,8 +17,6 @@ public class NodeChange {
 	public static final String CAPTURE_REDO_CHANGES = "capture-redo-changes";
 
 	public static final boolean DEFAULT_CAPTURE_UNDO_CHANGES = false;
-
-	private static final System.Logger log = Log.get();
 
 	private final Node node;
 

@@ -1,16 +1,14 @@
 package com.avereon.xenon.throwable;
 
-import com.avereon.util.Log;
+import com.avereon.log.LazyEval;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
-
+@CustomLog
 public class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
-
-	private static final Logger log = Log.get();
 
 	@Override
 	public void uncaughtException( Thread thread, Throwable throwable ) {
-		log.log( Log.ERROR, "Uncaught exception on " + thread.getName() + " thread", throwable );
+		log.atError( throwable ).log( "Uncaught exception on %s thread", LazyEval.of( thread::getName ) );
 	}
 
 }

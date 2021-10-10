@@ -2,52 +2,51 @@ package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.Action;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import lombok.CustomLog;
 
 import java.awt.event.KeyEvent;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-//import org.apache.commons.vfs2.FileSystemException;
-//import org.apache.commons.vfs2.FileSystemManager;
-//import org.apache.commons.vfs2.VFS;
-
+@CustomLog
 public class AssetTool extends GuidedTool {
 
 	private enum Mode {
 		OPEN,
 		SAVE
 	}
-
-	private static final System.Logger log = Log.get();
 
 	private Mode mode = Mode.OPEN;
 
@@ -59,29 +58,33 @@ public class AssetTool extends GuidedTool {
 
 	private final Label userMessage;
 
-	private final Label closeLabel;
+	private final ComboBox<AssetFilter> filters;
 
-	private final ObservableList<Asset> children;
+	private final TableView<Asset> assetTable;
 
-	private final TableView<Asset> table;
+	private final ObservableList<Asset> assets;
 
-	private final TableColumn<Asset, Node> assetLabel;
+	private final FilteredList<Asset> filtered;
 
-	private final Action priorAction;
+	private final SortedList<Asset> sorted;
 
-	private final Action nextAction;
+	private final ProgramAction priorAction;
 
-	private final Action parentAction;
+	private final ProgramAction nextAction;
 
-	//private final UndoScope undoScope;
+	private final ProgramAction parentAction;
 
 	private Asset parentAsset;
 
-	private Asset currentAsset;
+	private Asset currentFolder;
+
+	private String currentFilename;
 
 	private final LinkedList<String> history;
 
 	private int currentIndex;
+
+	private Consumer<Asset> saveActionConsumer;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -92,43 +95,62 @@ public class AssetTool extends GuidedTool {
 		HBox.setHgrow( uriField, Priority.ALWAYS );
 		goButton = new Button();
 
+		// Asset filters
+		filters = new ComboBox<>();
+		AssetFilter anyAssetFilter = new AnyAssetFilter();
+		filters.getItems().add( anyAssetFilter );
+		filters.getSelectionModel().select( anyAssetFilter );
+
 		// User notice bar
 		userMessage = new Label( "user message" );
 		userMessage.setMaxWidth( Double.MAX_VALUE );
 		userMessage.setMaxHeight( Double.MAX_VALUE );
 		userMessage.setPadding( new Insets( 0, UiFactory.PAD, 0, UiFactory.PAD ) );
 		HBox.setHgrow( userMessage, Priority.ALWAYS );
-		closeLabel = new Label( "", getProgram().getIconLibrary().getIcon( "workarea-close" ) );
+		Label closeLabel = new Label( "", getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 		closeLabel.setPadding( new Insets( UiFactory.PAD ) );
 		userNotice = new HBox( UiFactory.PAD, userMessage, closeLabel );
 		userNotice.setId( "user-notice" );
 		userNotice.setAlignment( Pos.CENTER );
 		closeLabel.setOnMousePressed( e -> closeUserNotice() );
 
+		String nameColumnHeader = Rb.text( BundleKey.LABEL, "name", "Name" );
+		String uriColumnHeader = Rb.text( BundleKey.LABEL, "uri", "URI" );
+		String sizeColumnHeader = Rb.text( BundleKey.LABEL, "size", "Size" );
+
+		// The asset collections
+		assets = FXCollections.observableArrayList();
+		filtered = new FilteredList<>( assets, i -> true );
+		sorted = new SortedList<>( filtered );
+
 		// Asset table
-		table = new TableView<>( children = FXCollections.observableArrayList() );
-		VBox.setVgrow( table, Priority.ALWAYS );
-		table.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
-		assetLabel = new TableColumn<>( "Name" );
+		assetTable = new TableView<>( sorted );
+		sorted.comparatorProperty().bind( assetTable.comparatorProperty() );
+		VBox.setVgrow( assetTable, Priority.ALWAYS );
+		TableColumn<Asset, Node> assetLabel = new TableColumn<>( nameColumnHeader );
 		assetLabel.setCellValueFactory( new NameValueFactory( getProgram() ) );
 		assetLabel.setComparator( new AssetLabelComparator() );
 		assetLabel.setSortType( TableColumn.SortType.ASCENDING );
-		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
+		TableColumn<Asset, String> assetUri = new TableColumn<>( uriColumnHeader );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
-		TableColumn<Asset, String> assetSize = new TableColumn<>( "Size" );
-		assetSize.setCellValueFactory( new SizeValueFactory( getProgram() ) );
+		TableColumn<Asset, String> assetSize = new TableColumn<>( sizeColumnHeader );
+		assetSize.setCellValueFactory( new SizeValueFactory() );
 		assetSize.setStyle( "-fx-alignment: CENTER-RIGHT;" );
-		table.getColumns().add( assetLabel );
-		table.getColumns().add( assetUri );
-		table.getColumns().add( assetSize );
-		table.getSortOrder().add( assetLabel );
+		assetTable.getColumns().add( assetLabel );
+		assetTable.getColumns().add( assetUri );
+		assetTable.getColumns().add( assetSize );
+		assetTable.getSortOrder().add( assetLabel );
+		assetTable.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
+
+		filtered.predicateProperty().bind( filters.getSelectionModel().selectedItemProperty() );
 
 		// Tool layout
 		VBox layout = new VBox( UiFactory.PAD );
 		layout.setPadding( new Insets( UiFactory.PAD ) );
 		layout.getChildren().add( new HBox( UiFactory.PAD, uriField, goButton ) );
+		layout.getChildren().add( filters );
 		layout.getChildren().add( userNotice );
-		layout.getChildren().add( table );
+		layout.getChildren().add( assetTable );
 		getChildren().add( layout );
 
 		// Actions
@@ -138,33 +160,61 @@ public class AssetTool extends GuidedTool {
 
 		history = new LinkedList<>();
 		currentIndex = -1;
-		//undoScope = new BasicUndoScope();
 
 		// Basic behavior
 		uriField.setOnKeyPressed( e -> {
 			if( e.getCode().getCode() == KeyEvent.VK_ESCAPE && userNotice.isVisible() ) closeUserNotice();
 		} );
 		uriField.setOnAction( e -> selectAsset( uriField.getText() ) );
-		goButton.setOnAction( e -> selectAsset( uriField.getText() ) );
-		table.setOnMousePressed( e -> {
-			int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
-			@SuppressWarnings( "unchecked" ) TableView<Asset> table = (TableView<Asset>)e.getSource();
-			Asset item = table.getSelectionModel().getSelectedItem();
-			if( item != null && e.getClickCount() >= clickCount ) selectAsset( item.getUri().toString() );
-		} );
+		goButton.setOnAction( this::doGoAction );
+		assetTable.setOnMousePressed( this::selectAssetFromTable );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
+
 		closeUserNotice();
+	}
+
+	public Asset getCurrentFolder() {
+		return currentFolder;
+	}
+
+	public String getCurrentFilename() {
+		return currentFilename;
+	}
+
+	public ObservableList<AssetFilter> getFilters() {
+		return filters.getItems();
+	}
+
+	public AssetFilter getSelectedFilter() {
+		return filters.getSelectionModel().getSelectedItem();
+	}
+
+	public void setSelectedFilter( AssetFilter filter ) {
+		this.filters.getSelectionModel().select( filter );
+	}
+
+	public ObservableValue<AssetFilter> selectedFilter() {
+		return filters.getSelectionModel().selectedItemProperty();
+	}
+
+	public void setSaveActionConsumer( Consumer<Asset> consumer ) {
+		this.saveActionConsumer = consumer;
 	}
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		mode = resolveMode( request.getFragment() );
+
 		// TODO Put the columns in the preferred order
 		// TODO Set the columns to the preferred size
 	}
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
+		// Update the mode
 		mode = resolveMode( request.getFragment() );
 
 		// Set the title depending on the mode requested
@@ -173,12 +223,23 @@ public class AssetTool extends GuidedTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
-		// Select the current asset
+		// Determine the current asset
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
-				log.log( Log.INFO, "Current folder string=" + currentFolderString );
-		URI uri = URI.create( currentFolderString );
-//		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
-		selectAsset( uri );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
+
+		// Select the current asset
+		URI uri;
+		try {
+			uri = resolveAsset( request.getQueryParameters() );
+			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
+			if( uri == null ) uri = currentFolder.toUri();
+			selectAsset( uri );
+		} catch( URISyntaxException exception ) {
+			log.atWarn( exception ).log();
+		}
+
+		if( mode == Mode.OPEN ) addSupportedFilters();
 	}
 
 	@Override
@@ -214,6 +275,56 @@ public class AssetTool extends GuidedTool {
 		}
 	}
 
+	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
+		if( parameters == null ) return null;
+		String asset = parameters.get( "uri" );
+		return asset == null ? null : new URI( asset );
+	}
+
+	private void addSupportedFilters() {
+		List<AssetFilter> filters = getProgram()
+			.getAssetManager()
+			.getAssetTypes()
+			.stream()
+			.filter( AssetType::isUserType )
+			.flatMap( t -> t.getCodecs().stream() )
+			.map( CodecAssetFilter::new )
+			.sorted()
+			.collect( Collectors.toList() );
+		getFilters().addAll( 0, filters );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	private void selectAssetFromTable( MouseEvent event ) {
+		TableView<Asset> table = (TableView<Asset>)event.getSource();
+		Asset item = table.getSelectionModel().getSelectedItem();
+		int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
+		if( item != null && event.getClickCount() >= clickCount ) {
+			try {
+				if( mode == Mode.OPEN ) {
+					selectAsset( item.getUri() );
+				} else if( mode == Mode.SAVE ) {
+					if( item.isFolder() ) {
+						selectAsset( item.getUri().resolve( currentFilename ) );
+					} else {
+						selectAsset( item.getUri() );
+					}
+				}
+			} catch( AssetException exception ) {
+				handleAssetException( exception );
+			}
+		}
+	}
+
+	private void doGoAction( ActionEvent e ) {
+		try {
+			selectAsset( uriField.getText() );
+			if( mode == Mode.SAVE ) requestSaveAsset();
+		} catch( AssetException exception ) {
+			handleAssetException( exception );
+		}
+	}
+
 	private void selectAsset( Asset asset ) {
 		selectAsset( asset.getUri() );
 	}
@@ -226,27 +337,25 @@ public class AssetTool extends GuidedTool {
 		selectAsset( text, true );
 	}
 
-	private void selectAsset( String text, boolean updateHistory ) {
+	private void selectAsset( final String text, boolean updateHistory ) {
 		Objects.requireNonNull( text );
 
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
-
 			history.add( text );
 			currentIndex++;
 		}
 
-		uriField.setText( text );
-
 		try {
 			Asset asset = getProgram().getAssetManager().createAsset( text );
+			uriField.setText( text );
 
-			if( asset.isFolder() ) {
-				loadFolder( asset );
-			} else {
-				if( mode == Mode.OPEN ) {
+			if( mode == Mode.OPEN ) {
+				if( asset.isFolder() ) {
+					loadFolder( asset );
+				} else {
 					if( !asset.exists() ) {
 						notifyUser( "asset-not-found", text );
 					} else {
@@ -254,20 +363,28 @@ public class AssetTool extends GuidedTool {
 						close();
 						return;
 					}
-				} else if( mode == Mode.SAVE ) {
-					// TODO The save action
-					//getProgram().getAssetManager().saveAsAsset( incomingAsset, asset.getUri() );
-					close();
-					return;
+				}
+			} else if( mode == Mode.SAVE ) {
+				if( asset.isFolder() ) {
+					loadFolder( asset );
+					uriField.setText( asset.getUri().resolve( currentFilename ).toString() );
+				} else {
+					currentFilename = asset.getFileName();
+					loadFolder( getProgram().getAssetManager().getParent( asset ) );
 				}
 			}
+
 			activateUriField();
 		} catch( AssetException exception ) {
-			notifyUser( "asset-error", exception.getMessage() );
-			log.log( Log.ERROR, exception );
+			handleAssetException( exception );
 		} finally {
 			updateActionState();
 		}
+	}
+
+	private void requestSaveAsset() throws AssetException {
+		if( saveActionConsumer != null ) saveActionConsumer.accept( getProgram().getAssetManager().resolve( getCurrentFolder(), currentFilename ) );
+		close();
 	}
 
 	private void updateActionState() {
@@ -276,30 +393,23 @@ public class AssetTool extends GuidedTool {
 		parentAction.updateEnabled();
 	}
 
-	private Asset getCurrentAsset() {
-		return currentAsset;
-	}
-
 	private void loadFolder( Asset asset ) {
-		if( "file".equals( asset.getUri().getScheme() ) ){
-			getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
-		}
-		currentAsset = asset;
+		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri().toString() );
+		currentFolder = asset;
 		updateActionState();
 		closeUserNotice();
 
-		getProgram().getTaskManager().submit( Task.of( "load-folder", () -> {
+		getProgram().getTaskManager().submit( Task.of( "load-asset", () -> {
 			try {
 				parentAsset = getProgram().getAssetManager().getParent( asset );
 				List<Asset> assets = asset.getChildren();
 				Fx.run( () -> {
-					children.clear();
-					children.addAll( assets );
-					table.sort();
+					this.assets.clear();
+					this.assets.addAll( assets );
+					this.assetTable.sort();
 				} );
 			} catch( AssetException exception ) {
-				notifyUser( "asset-error", exception.getMessage() );
-				log.log( Log.ERROR, exception );
+				handleAssetException( exception );
 			}
 		} ) );
 	}
@@ -341,7 +451,7 @@ public class AssetTool extends GuidedTool {
 				guide.addNode( createGuideNode( UriUtil.parseName( path.toUri() ), "asset-root", path.toString() ) );
 			}
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR, exception );
+			handleAssetException( exception );
 		}
 
 		return guide;
@@ -352,6 +462,11 @@ public class AssetTool extends GuidedTool {
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
 		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );
 		return node;
+	}
+
+	private void handleAssetException( AssetException exception ) {
+		notifyUser( "asset-error", exception.getMessage() );
+		log.atSevere().withCause( exception ).log();
 	}
 
 	/**
@@ -382,12 +497,6 @@ public class AssetTool extends GuidedTool {
 	 */
 	private static class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, String>, ObservableValue<String>> {
 
-		private final Program program;
-
-		public SizeValueFactory( Program program ) {
-			this.program = program;
-		}
-
 		@Override
 		public ObservableValue<String> call( TableColumn.CellDataFeatures<Asset, String> assetStringCellDataFeatures ) {
 			try {
@@ -396,7 +505,7 @@ public class AssetTool extends GuidedTool {
 				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( Rb.text( "asset", "asset-open-folder-size", size ) );
 				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
 			} catch( AssetException exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 				return new ReadOnlyObjectWrapper<>( "" );
 			}
 		}
@@ -415,7 +524,7 @@ public class AssetTool extends GuidedTool {
 		}
 	}
 
-	private final class PriorAction extends Action {
+	private final class PriorAction extends ProgramAction {
 
 		protected PriorAction( Program program ) {
 			super( program );
@@ -434,7 +543,7 @@ public class AssetTool extends GuidedTool {
 
 	}
 
-	private final class NextAction extends Action {
+	private final class NextAction extends ProgramAction {
 
 		protected NextAction( Program program ) {
 			super( program );
@@ -453,7 +562,7 @@ public class AssetTool extends GuidedTool {
 
 	}
 
-	private final class ParentAction extends Action {
+	private final class ParentAction extends ProgramAction {
 
 		protected ParentAction( Program program ) {
 			super( program );
@@ -461,12 +570,16 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			return currentAsset != null && UriUtil.hasParent( currentAsset.getUri() );
+			return currentFolder != null && UriUtil.hasParent( currentFolder.getUri() );
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			selectAsset( parentAsset );
+			if( mode == Mode.OPEN ) {
+				selectAsset( parentAsset );
+			} else if( mode == Mode.SAVE ) {
+				selectAsset( parentAsset.getUri().resolve( currentFilename ) );
+			}
 		}
 
 	}

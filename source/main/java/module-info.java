@@ -1,11 +1,15 @@
 import com.avereon.xenon.Mod;
 
 module com.avereon.xenon {
+
+	// Compile-time only
+	requires static lombok;
+
+	// Both compile-time and run-time
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	//requires commons.vfs2;
 	requires java.net.http;
 	requires java.logging;
 	requires java.management;
@@ -14,7 +18,7 @@ module com.avereon.xenon {
 	requires org.controlsfx.controls;
 	requires reactfx;
 	requires transitive com.avereon.zenna;
-	requires transitive com.avereon.zerra;
+	requires transitive com.avereon.zarra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;
@@ -38,6 +42,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.tool.settings;
 	exports com.avereon.xenon.undo;
 	exports com.avereon.xenon.util;
+	exports com.avereon.xenon.ui.util;
 	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
 
@@ -45,7 +50,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
-	exports com.avereon.xenon.ui.util;
 
 	uses Mod;
+
 }

@@ -62,7 +62,7 @@ public abstract class BaseScheme implements Scheme {
 		}
 
 		if( encoding == null ) encoding = StandardCharsets.UTF_8.name();
-		return TextUtil.cleanEmpty( new String( output.toByteArray(), encoding ) );
+		return TextUtil.cleanEmpty( output.toString( encoding ) );
 	}
 
 }

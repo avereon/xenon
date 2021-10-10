@@ -5,7 +5,6 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -16,9 +15,9 @@ import com.avereon.xenon.ui.util.MenuBarFactory;
 import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
-import com.avereon.zerra.event.FxEventHub;
-import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -34,6 +33,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import lombok.CustomLog;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -42,15 +42,15 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
+@CustomLog
 public class Workspace implements WritableIdentity {
 
 	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
-
-	private static final System.Logger log = Log.get();
 
 	public static final String EDIT_ACTION = "edit";
 
@@ -132,8 +132,8 @@ public class Workspace implements WritableIdentity {
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
 		menubar = createMenuBar( program );
-		menubarToolStart = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		menubarToolEnd = FxUtil.findMenuItemById(  menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		menubarToolStart = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		menubarToolEnd = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -203,11 +203,11 @@ public class Workspace implements WritableIdentity {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new,open,save,save-as,copy-as|close|exit]";
-		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|properties]";
-		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show]";
-		String help = "help[welcome,help-content,settings,product|tools[task,mock-update,restart]|update,about]";
-		String development = "development[test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close,exit]";
+		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
+		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
+		String help = "help[help-content,welcome|update|about]";
+		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 
 		// Construct the menubar descriptor
 		StringBuilder descriptor = new StringBuilder();
@@ -230,7 +230,7 @@ public class Workspace implements WritableIdentity {
 	private ToolBar createProgramToolBar( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
 
-		String descriptor = "new,open,save,properties|undo,redo|cut,copy,paste";
+		String descriptor = "new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
 		// Add the workarea menu and selector
@@ -376,6 +376,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public Workarea getActiveWorkarea() {
+		if( activeWorkarea == null && workareas.size() == 1 ) setActiveWorkarea( workareas.get( 0 ) );
 		return activeWorkarea;
 	}
 
@@ -389,9 +390,7 @@ public class Workspace implements WritableIdentity {
 			// TODO Remove the menu bar
 			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
-
-			// TODO Can I have the workarea "conceal" the tools instead of directly setting the current asset
-			getProgram().getAssetManager().setCurrentAsset( null );
+			activeWorkarea.getWorkpane().setVisible( false );
 		}
 
 		// If the workarea is not already added, add it
@@ -403,6 +402,7 @@ public class Workspace implements WritableIdentity {
 		// Connect the new active workarea
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
+			activeWorkarea.getWorkpane().setVisible( true );
 			// TODO Set the menu bar
 			// TODO Set the tool bar
 			activeWorkarea.setActive( true );
@@ -523,7 +523,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void screenshot( Path file ) {
-		Fx.waitFor( 5, 1000 );
+		Fx.waitFor( 5, TimeUnit.SECONDS );
 		Fx.run( () -> {
 			double renderScaleX = getStage().getRenderScaleX();
 			double renderScaleY = getStage().getRenderScaleY();
@@ -541,7 +541,7 @@ public class Workspace implements WritableIdentity {
 				exception.printStackTrace();
 			}
 		} );
-		Fx.waitFor( 5, 1000 );
+		Fx.waitFor( 5, TimeUnit.SECONDS );
 	}
 
 	public void close() {
@@ -562,9 +562,11 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private void updateBackgroundFromSettings( Settings settings ) {
-		settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
-		background.updateFromSettings( settings );
-		settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		Fx.run( () -> {
+			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
+			background.updateFromSettings( settings );
+			settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		} );
 	}
 
 	private void updateMemoryMonitorFromSettings( Settings settings ) {

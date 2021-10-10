@@ -12,8 +12,8 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxEventWatcher;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zarra.event.FxEventWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -166,7 +166,7 @@ abstract class Screenshots {
 				program.getWorkspaceManager().getActiveStage().setHeight( HEIGHT );
 				program.getWorkspaceManager().getActiveStage().centerOnScreen();
 			} );
-			Fx.waitForWithInterrupt( programWatcher.getTimeout() );
+			Fx.waitForWithExceptions( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
@@ -178,7 +178,7 @@ abstract class Screenshots {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		Fx.waitForWithInterrupt( workpaneWatcher.getTimeout() );
+		Fx.waitForWithExceptions( workpaneWatcher.getTimeout() );
 		reset();
 	}
 

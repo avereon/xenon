@@ -1,13 +1,12 @@
 package com.avereon.xenon.action;
 
-import com.avereon.util.Log;
-import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramAction;
 import javafx.event.ActionEvent;
+import lombok.CustomLog;
 
-public class RunnableTestAction extends Action {
-
-	private static final System.Logger log = Log.get();
+@CustomLog
+public class RunnableTestAction extends ProgramAction {
 
 	private final Runnable runnable;
 
@@ -26,7 +25,7 @@ public class RunnableTestAction extends Action {
 		try {
 			runnable.run();
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR,  "Error running action", throwable );
+			log.atError(throwable).log( "Error running action" );
 		}
 	}
 

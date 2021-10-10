@@ -1,10 +1,9 @@
 package com.avereon.xenon.task;
 
-import com.avereon.util.Controllable;
-import com.avereon.util.Log;
+import com.avereon.skill.Controllable;
 import com.avereon.xenon.Program;
-import com.avereon.zerra.event.FxEventHub;
-import java.lang.System.Logger;
+import com.avereon.zarra.event.FxEventHub;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 
+@CustomLog
 public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int PROCESSOR_COUNT = Runtime.getRuntime().availableProcessors();
@@ -31,8 +31,6 @@ public class TaskManager implements Controllable<TaskManager> {
 	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.min( HIGH_THREAD_COUNT, Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 ) );
 
 	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
-
-	private static final Logger log = Log.get();
 
 	int p1ThreadCount;
 
@@ -152,13 +150,7 @@ public class TaskManager implements Controllable<TaskManager> {
 	public TaskManager start() {
 		if( isRunning() ) return this;
 		LinkedBlockingQueue<Runnable> sharedQueue = new LinkedBlockingQueue<>();
-		executorP3 = new TaskManagerExecutor( Task.Priority.LOW,
-			p3ThreadCount,
-			getThreadIdleTimeout(),
-			TimeUnit.MILLISECONDS,
-			sharedQueue,
-			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
-		);
+		executorP3 = new TaskManagerExecutor( Task.Priority.LOW, p3ThreadCount, getThreadIdleTimeout(), TimeUnit.MILLISECONDS, sharedQueue, new TaskThreadFactory( this, group, Thread.MIN_PRIORITY ) );
 		executorP2 = new TaskManagerExecutor( Task.Priority.MEDIUM,
 			p2ThreadCount,
 			getThreadIdleTimeout(),
@@ -188,36 +180,36 @@ public class TaskManager implements Controllable<TaskManager> {
 			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
-			log.log( Log.ERROR,  "Error waiting for executor termination", exception );
+			log.atError( exception ).log( "Error waiting for executor termination" );
 		}
 		return this;
 	}
 
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		log.log( Log.ERROR,  "Task failed", throwable );
+		log.atError( throwable ).log( "Task failed" );
 	}
 
-	int getP1ThreadCount() {
+	public int getP1ThreadCount() {
 		return p1ThreadCount;
 	}
 
-	void setP1ThreadCount( int p1ThreadCount ) {
+	public void setP1ThreadCount( int p1ThreadCount ) {
 		this.p1ThreadCount = p1ThreadCount;
 	}
 
-	int getP2ThreadCount() {
+	public int getP2ThreadCount() {
 		return p2ThreadCount;
 	}
 
-	void setP2ThreadCount( int p2ThreadCount ) {
+	public void setP2ThreadCount( int p2ThreadCount ) {
 		this.p2ThreadCount = p2ThreadCount;
 	}
 
-	int getP3ThreadCount() {
+	public int getP3ThreadCount() {
 		return p3ThreadCount;
 	}
 
-	void setP3ThreadCount( int p3ThreadCount ) {
+	public void setP3ThreadCount( int p3ThreadCount ) {
 		this.p3ThreadCount = p3ThreadCount;
 	}
 
@@ -251,13 +243,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		}
 
 		private TaskManagerExecutor(
-			Task.Priority priority,
-			int poolSize,
-			long keepAliveTime,
-			TimeUnit unit,
-			BlockingQueue<Runnable> workQueue,
-			ThreadFactory threadFactory,
-			TaskManagerExecutor backup
+			Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, TaskManagerExecutor backup
 		) {
 			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory, new CascadingExecutionExceptionHandler( backup ) );
 			this.backup = backup;
@@ -308,7 +294,7 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private class CascadingExecutionExceptionHandler implements RejectedExecutionHandler {
 
-		private TaskManagerExecutor backupExecutor;
+		private final TaskManagerExecutor backupExecutor;
 
 		public CascadingExecutionExceptionHandler( TaskManagerExecutor backupExecutor ) {
 			this.backupExecutor = backupExecutor;
@@ -321,7 +307,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			} else {
 				backupExecutor.submit( runnable );
 			}
-			log.log( Log.WARN,  "Task cascaded to lower executor: " + runnable );
+			log.atWarn().log( "Task cascaded to lower executor: %s", runnable );
 		}
 
 	}

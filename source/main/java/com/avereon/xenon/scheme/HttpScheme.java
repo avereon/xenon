@@ -1,19 +1,18 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+@CustomLog
 public class HttpScheme extends BaseScheme {
 
 	public static final String ID = "http";
-
-	private static final System.Logger log = Log.get();
 
 	private HttpClient client;
 
@@ -43,7 +42,7 @@ public class HttpScheme extends BaseScheme {
 			HttpResponse<String> response = getClient().send( request, HttpResponse.BodyHandlers.ofString() );
 			return response.statusCode() < 500 & response.statusCode() != 404;
 		} catch( IOException | InterruptedException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 		return false;
 	}

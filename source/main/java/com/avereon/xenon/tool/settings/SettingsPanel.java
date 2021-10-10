@@ -2,13 +2,13 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
+import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -16,16 +16,15 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@CustomLog
 public class SettingsPanel extends VBox {
-
-	private static final Logger log = Log.get();
 
 	private final SettingsPage page;
 
@@ -144,7 +143,7 @@ public class SettingsPanel extends VBox {
 			// Determine the editor class
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
 			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
+				log.atWarn().log( "Setting editor not registered: %s", editorType );
 				editorClass = SettingEditor.getType( "textline" );
 			}
 
@@ -155,7 +154,7 @@ public class SettingsPanel extends VBox {
 			// Create the editor
 			SettingEditor editor = createSettingEditor( product, bundleKey, setting, editorClass );
 			if( editor != null ) editor.addComponents( grid, row++ );
-			if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
+			if( editor == null ) log.atDebug().log( "Editor not created: %s", LazyEval.of( editorClass::getName ) );
 
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
@@ -180,7 +179,7 @@ public class SettingsPanel extends VBox {
 			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
 			editor = constructor.newInstance( product, bundleKey, setting );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error creating setting editor: " + editorClass.getName(), exception );
+			log.atError( exception ).log( "Error creating setting editor: %s", LazyEval.of( editorClass::getName ) );
 		}
 		if( editor == null ) return null;
 

@@ -3,7 +3,6 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
@@ -13,10 +12,11 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.layout.BorderPane;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.*;
 
+@CustomLog
 public class ProductTool extends GuidedTool {
 
 	public static final String INSTALLED = "installed";
@@ -26,8 +26,6 @@ public class ProductTool extends GuidedTool {
 	public static final String UPDATES = "updates";
 
 	public static final String SOURCES = "sources";
-
-	static final Logger log = Log.get();
 
 	static final int ICON_SIZE = 48;
 
@@ -75,7 +73,9 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
 	}
 
 	@Override
@@ -96,37 +96,37 @@ public class ProductTool extends GuidedTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-		log.log( Log.DEBUG, "Product tool allocate" );
+		log.atFine().log( "Product tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.log( Log.DEBUG, "Product tool display" );
+		log.atFine().log( "Product tool display" );
 		super.display();
 		checkInfo.updateInfo();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.log( Log.DEBUG, "Product tool activate" );
+		log.atFine().log( "Product tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG, "Product tool deactivate" );
+		log.atFine().log( "Product tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG, "Product tool conceal" );
+		log.atFine().log( "Product tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG, "Product tool deallocate" );
+		log.atFine().log( "Product tool deallocate" );
 		super.deallocate();
 	}
 

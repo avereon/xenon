@@ -1,22 +1,26 @@
 package com.avereon.xenon.product;
 
 import com.avereon.event.EventHandler;
+import com.avereon.log.LazyEval;
+import com.avereon.log.Log;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
+import com.avereon.skill.Configurable;
+import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.zerra.event.FxEventHub;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zarra.javafx.Fx;
+import lombok.CustomLog;
 
 import java.io.IOException;
-import java.lang.System.Logger;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
@@ -30,13 +34,16 @@ import java.util.stream.Collectors;
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
- * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs. If the discovered pack is determined to
+ * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs.
+ * If the discovered pack is determined to
  * be newer than the installed pack it is considered an update.
  * <p>
  * Staging involves downloading new pack data and preparing it to be applied by the update application.
  * <p>
- * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required files.
+ * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required
+ * files.
  */
+@CustomLog
 public class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
@@ -69,8 +76,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		NOTIFY,
 		STORE
 	}
-
-	private static final Logger log = Log.get();
 
 	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
@@ -152,13 +157,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private UpdateCheckTask task;
 
-	private FxEventHub eventBus;
+	private final FxEventHub eventBus;
 
 	private long lastAvailableProductCheck;
 
 	private long lastAvailableUpdateCheck;
 
-	private RepoClient repoClient;
+	private final RepoClient repoClient;
 
 	private boolean productReposRegistered;
 
@@ -201,14 +206,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
-		log.log( Log.WARN, "upsert repo=" + repo );
+		log.atWarn().log( "upsert repo=%s", repo );
 		this.repos.put( repo.getInternalId(), new RepoState( repo ) );
 		saveRepos();
 		return repo;
 	}
 
 	public RepoCard removeRepo( RepoCard repo ) {
-		log.log( Log.WARN, "remove repo=" + repo );
+		log.atWarn().log( "remove repo=%s", repo );
 		this.repos.remove( repo.getInternalId() );
 		saveRepos();
 		return repo;
@@ -239,10 +244,15 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			lastAvailableProductCheck = System.currentTimeMillis();
 
 			try {
-				availableProducts = new ProductManagerLogic( getProgram() ).getAvailableProducts( force ).get().stream().filter( ( card ) -> "mod".equals( card.getPackaging() ) ).collect( Collectors.toSet() );
+				availableProducts = new ProductManagerLogic( getProgram() )
+					.getAvailableProducts( force )
+					.get()
+					.stream()
+					.filter( ( card ) -> "mod".equals( card.getPackaging() ) )
+					.collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, "Error getting available products", exception );
+				log.atError().withCause( exception ).log( "Error getting available products" );
 			}
 
 			return Set.of();
@@ -330,7 +340,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> downloads ) {
-		log.log( Log.TRACE, "Number of products to install: " + downloads.size() );
+		log.atTrace().log( "Number of products to install: %s", downloads.size() );
 		return new ProductManagerLogic( getProgram() ).installProducts( downloads );
 	}
 
@@ -339,7 +349,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public Task<Void> uninstallProducts( Set<ProductCard> cards ) {
-		log.log( Log.TRACE, "Number of products to remove: " + cards.size() );
+		log.atTrace().log( "Number of products to remove: %s", cards.size() );
 		return new ProductManagerLogic( getProgram() ).uninstallProducts( cards );
 	}
 
@@ -436,11 +446,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		Settings settings = getProgram().getSettingsManager().getProductSettings( mod.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.log( Log.TRACE, "Set mod enabled: " + settings.getPath() + ": " + enabled );
+		log.atTrace().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
-		//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
-		//			.fire( listeners )
-		//			.fire( getProgram().getListeners() );
 
 		// Should be called after setting the enabled flag
 		if( enabled ) callModStart( mod );
@@ -512,7 +519,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				boolean alreadyRun = task.scheduledExecutionTime() < now;
 				task.cancel();
 				task = null;
-				if( !alreadyRun ) log.log( Log.TRACE, "Current check for updates task cancelled for new schedule." );
+				if( !alreadyRun ) log.atTrace().log( "Current check for updates task cancelled for new schedule." );
 			}
 
 			Settings checkSettings = getSettings();
@@ -545,7 +552,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 			if( delay == NO_CHECK ) {
 				checkSettings.set( NEXT_CHECK_TIME, 0 );
-				log.log( Log.DEBUG, "Future update check not scheduled." );
+				log.atDebug().log( "Future update check not scheduled." );
 				return;
 			}
 
@@ -558,8 +565,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
 
 			// Log the next update check time
+			final long finalDelay = delay;
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.log( Log.DEBUG, "Next check scheduled for: " + (delay == 0 ? "now" : date) );
+			log.atDebug().log( "Next check scheduled for: %s", LazyEval.of( () -> (finalDelay == 0 ? "now" : date) ) );
 		}
 	}
 
@@ -577,23 +585,23 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public void checkForStagedUpdatesAtStart() {
 		if( getProgram().getHomeFolder() == null ) {
-			log.log( Log.WARN, "Program not running from updatable location." );
+			log.atWarn().log( "Program not running from updatable location." );
 			return;
 		}
 
-		log.log( Log.TRACE, "Checking for staged updates..." );
+		log.atTrace().log( "Checking for staged updates..." );
 
 		// If updates are staged, apply them.
 		int updateCount = getStagedUpdateCount();
 		if( updateCount > 0 ) {
-			log.log( Log.INFO, "Staged updates detected: {0}", updateCount );
+			log.atInfo().log( "Staged updates detected: %s", updateCount );
 			try {
 				applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
-				log.log( Log.WARN, "Failed to apply staged updates", exception );
+				log.atWarn().withCause( exception ).log( "Failed to apply staged updates" );
 			}
 		} else {
-			log.log( Log.DEBUG, "No staged updates detected." );
+			log.atDebug().log( "No staged updates detected." );
 		}
 	}
 
@@ -602,7 +610,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 */
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
-		log.log( Log.INFO, "Staged update count: {0}", stagedUpdateCount );
+		log.atInfo().log( "Staged update count: %s", stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {
@@ -631,7 +639,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				availableUpdates = new ProductManagerLogic( getProgram() ).findPostedUpdates( force ).get();
 				return new HashSet<>( availableUpdates );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, "Error refreshing available updates", exception );
+				log.atError().withCause( exception ).log( "Error refreshing available updates" );
 			}
 
 			return Set.of();
@@ -649,10 +657,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		for( ProductUpdate update : updates.values() ) {
 			if( Files.exists( update.getSource() ) ) {
 				staged.add( update );
-				log.log( Log.DEBUG, "Staged update found: " + update.getSource() );
+				log.atDebug().log( "Staged update found: %s", LazyEval.of( update::getSource ) );
 			} else {
 				remove.add( update );
-				log.log( Log.WARN, "Staged update missing: " + update.getSource() );
+				log.atWarn().log( "Staged update missing: %s", LazyEval.of( update::getSource ) );
 			}
 		}
 
@@ -706,17 +714,18 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated
+	 * to allow for the updates to be
 	 * applied.
 	 *
 	 * @return The number of updates applied.
 	 */
 	public int applyStagedUpdates() {
-		log.log( Log.INFO, "Update manager enabled: " + isEnabled() );
+		log.atInfo().log( "Update manager enabled: %s", LazyEval.of( this::isEnabled ) );
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE, ProgramFlag.NODAEMON ) );
 
 		return count;
 	}
@@ -731,7 +740,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 * @param updates The updates to apply.
 	 */
 	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
-		log.log( Log.TRACE, "Number of products to update: " + updates.size() );
+		log.atTrace().log( "Number of products to update: %s", LazyEval.of( updates::size ) );
 		return new ProductManagerLogic( getProgram() ).stageAndApplyUpdates( updates, interactive );
 	}
 
@@ -979,7 +988,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		try {
 			loadModulePathMods();
 		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error loading modules from module path", exception );
+			log.atError().withCause( exception ).log( "Error loading modules from module path" );
 		}
 
 		// Look for standard mods (most common)
@@ -987,7 +996,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			try {
 				Files.list( folder ).filter( Files::isDirectory ).forEach( this::loadStandardMod );
 			} catch( IOException exception ) {
-				log.log( Log.ERROR, "Error loading modules from: " + folder, exception );
+				log.atError().withCause( exception ).log( "Error loading modules from: %s", folder );
 			}
 		} );
 	}
@@ -995,23 +1004,23 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
 
-		log.log( Log.DEBUG, "Install product to: " + installFolder );
+		log.atDebug().log( "Install product to: %s", installFolder );
 
 		// Install all the resource files to the install folder
 		copyProductResources( resources, installFolder );
-		log.log( Log.DEBUG, "Mod copied to: " + installFolder );
+		log.atDebug().log( "Mod copied to: %s", installFolder );
 
 		// Load the mod
 		loadModules( getUserModuleFolder() );
-		log.log( Log.DEBUG, "Mod loaded from: " + getUserModuleFolder() );
+		log.atDebug().log( "Mod loaded from: ", LazyEval.of( this::getUserModuleFolder ) );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
-		log.log( Log.DEBUG, "Mod registered: " + card.getProductKey() );
+		log.atDebug().log( "Mod registered: ", LazyEval.of( card::getProductKey ) );
 
 		// Set the enabled state
 		setModEnabled( getMod( card.getProductKey() ), true );
-		log.log( Log.DEBUG, "Mod enabled: " + card.getProductKey() );
+		log.atDebug().log( "Mod enabled: ", LazyEval.of( card::getProductKey ) );
 	}
 
 	void doRemoveMod( Mod mod ) {
@@ -1019,19 +1028,19 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		Path installFolder = card.getInstallFolder();
 		String source = installFolder == null ? "classpath" : installFolder.toString();
 
-		log.log( Log.DEBUG, "Remove product from: " + source );
+		log.atDebug().log( "Remove product from: %s", source );
 
 		// Disable the product
 		setModEnabled( mod, false );
-		log.log( Log.DEBUG, "Mod disabled: " + card.getProductKey() );
+		log.atDebug().log( "Mod disabled: ", LazyEval.of( card::getProductKey ) );
 
 		// Allow the mod to unregister resources
 		callModUnregister( mod );
-		log.log( Log.DEBUG, "Mod unregistered: " + card.getProductKey() );
+		log.atDebug().log( "Mod unregistered: ", LazyEval.of( card::getProductKey ) );
 
 		// Unload the mod
 		unloadMod( mod );
-		log.log( Log.DEBUG, "Mod unloaded from: " + source );
+		log.atDebug().log( "Mod unloaded from: ", source );
 
 		// Remove the product settings
 		getProgram().getSettingsManager().getProductSettings( card ).delete();
@@ -1042,7 +1051,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			mod.register();
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error registering mod: " + mod.getCard().getProductKey(), throwable );
+			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
 		}
 	}
 
@@ -1052,7 +1061,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			mod.startup();
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error starting mod: " + mod.getCard().getProductKey(), throwable );
+			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
 		}
 	}
 
@@ -1062,7 +1071,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			mod.shutdown();
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
+			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
 		}
 	}
 
@@ -1071,7 +1080,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			mod.unregister();
 			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
+			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
 		}
 	}
 
@@ -1079,11 +1088,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Check for products marked for removal and remove the files.
 		Set<InstalledProduct> products = getStoredRemovedProducts();
 		for( InstalledProduct product : products ) {
-			log.log( Log.DEBUG, "Purging: " + product );
+			log.atDebug().log( "Purging: %s", product );
 			try {
 				FileUtil.delete( product.getTarget() );
 			} catch( IOException exception ) {
-				log.log( Log.ERROR, "Error removing product: " + product, exception );
+				log.atError().withCause( exception ).log( "Error removing product: %s", product );
 			}
 		}
 		getSettings().remove( REMOVES_SETTINGS_KEY );
@@ -1127,11 +1136,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	private void loadModulePathMods() {
-		log.log( Log.TRACE, "Loading standard mod from: module-path" );
+		log.atTrace().log( "Loading standard mod from: module-path" );
 		try {
 			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error loading module-path mods", throwable );
+			log.atError().withCause( throwable ).log( "Error loading module-path mods" );
 		}
 	}
 
@@ -1139,7 +1148,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// In this context module refers to Java modules and mod refers to program mods
 		// It is expected that each folder has only one mod
 
-		log.log( Log.TRACE, "Loading standard mod from: " + folder );
+		log.atTrace().log( "Loading standard mod from: %s", folder );
 		try {
 			// Load the mod descriptor
 			ProductCard card = ProductCard.card( folder );
@@ -1149,7 +1158,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			Configuration bootConfiguration = bootLayer.configuration();
 
 			String modVersion = card.getPackagingVersion();
-			log.log( Log.DEBUG, "Mod version: " + modVersion );
+			log.atDebug().log( "Mod version: %s", modVersion );
 
 			ModuleFinder finder = ModuleFinder.of( folder );
 			if( "2".equals( modVersion ) ) {
@@ -1165,10 +1174,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			loader.stream().findFirst().ifPresentOrElse( m -> {
 				loadMod( m.get(), folder );
 			}, () -> {
-				log.log( Log.ERROR, "Standard mod expected: " + folder );
+				log.atError().log( "Standard mod expected: %s", folder );
 			} );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error loading standard mods: " + folder, throwable );
+			log.atError().withCause( throwable ).log( "Error loading standard mods: %s", folder );
 		}
 	}
 
@@ -1176,14 +1185,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		ProductCard card = mod.getCard();
 		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
 		try {
-			log.log( Log.DEBUG, "Loading mod: " + message );
+			log.atDebug().log( "Loading mod: %s", message );
 
 			// Ignore included products
 			if( isIncludedProduct( card ) ) return;
 
 			// Check if mod is already loaded
 			if( getMod( card.getProductKey() ) != null ) {
-				log.log( Log.WARN, "Mod already loaded: " + card.getProductKey() );
+				log.atWarn().log( "Mod already loaded: %s", LazyEval.of( card::getProductKey ) );
 				return;
 			}
 
@@ -1209,9 +1218,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Notify handlers of install
 			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
 
-			log.log( Log.DEBUG, "Mod loaded: " + message );
+			log.atDebug().log( "Mod loaded: %s", message );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error loading mod " + message, throwable );
+			log.atError().withCause( throwable ).log( "Error loading mod %s", message );
 		}
 	}
 
@@ -1220,7 +1229,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 		String message = card.getProductKey();
 		try {
-			log.log( Log.DEBUG, "Unloading mod: " + message );
+			log.atDebug().log( "Unloading mod: %s", message );
 
 			// Remove the product registration from the manager
 			unregisterMod( mod );
@@ -1230,9 +1239,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 			// TODO Disable logging for a mod that has been removed
 
-			log.log( Log.DEBUG, "Mod unloaded: " + message );
+			log.atDebug().log( "Mod unloaded: %s", message );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error unloading mod " + message, throwable );
+			log.atError().withCause( throwable ).log( "Error unloading mod %s", message );
 		}
 	}
 
@@ -1241,15 +1250,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		@Override
 		public void handle( SettingsEvent event ) {
 			switch( event.getKey() ) {
-				case CHECK: {
+				case CHECK -> {
 					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 					scheduleUpdateCheck( false );
-					break;
 				}
-				case FOUND: {
-					setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-					break;
-				}
+				case FOUND -> setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 			}
 		}
 
@@ -1257,7 +1262,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private static final class UpdateCheckTask extends TimerTask {
 
-		private ProductManager productManager;
+		private final ProductManager productManager;
 
 		UpdateCheckTask( ProductManager productManager ) {
 			this.productManager = productManager;

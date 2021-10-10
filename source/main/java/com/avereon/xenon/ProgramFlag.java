@@ -13,6 +13,12 @@ public interface ProgramFlag extends LogFlag {
 	String DAEMON = "--daemon";
 
 	/**
+	 * Start the program normally even if the daemon flag is specified. This is
+	 * most commonly used when restarting after an update.
+	 */
+	String NODAEMON = "--nodaemon";
+
+	/**
 	 * Disable a specific mod. May be specified more than once.
 	 */
 	String DISABLE_MOD = "--disable-mod";

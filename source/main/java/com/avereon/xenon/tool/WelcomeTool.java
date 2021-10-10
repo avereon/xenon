@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -12,15 +11,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Ellipse;
+import lombok.CustomLog;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@CustomLog
 public class WelcomeTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
@@ -105,7 +104,7 @@ public class WelcomeTool extends ProgramTool {
 			try {
 				Desktop.getDesktop().browse( new URI( uri ) );
 			} catch( IOException | URISyntaxException ioException ) {
-				log.log( Log.WARN, "Unable to open uri=" + uri );
+				log.atWarn().log( "Unable to open uri=%s", uri );
 			}
 		} ) ) );
 

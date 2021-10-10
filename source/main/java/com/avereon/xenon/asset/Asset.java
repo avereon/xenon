@@ -2,24 +2,23 @@ package com.avereon.xenon.asset;
 
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
-import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.util.Log;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
-import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zarra.event.FxEventHub;
+import lombok.CustomLog;
 import org.fxmisc.undo.UndoManager;
 
-import java.io.File;
-import java.lang.System.Logger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
+@CustomLog
 public class Asset extends Node {
 
 	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
@@ -53,21 +52,15 @@ public class Asset extends Node {
 
 	private static final String LAST_SAVED_KEY = "last-saved";
 
-	private static final String FILE = "file";
-
 	//	private static final String EDITABLE = "editable";
 
 	//	private static final String UNDO_MANAGER = "undo-manager";
-
-	private static final Logger log = Log.get();
 
 	private final FxEventHub eventHub;
 
 	private final UndoManager<List<NodeChange>> undoManager;
 
 	private boolean captureUndoChanges;
-
-	private Settings settings;
 
 	private volatile boolean open;
 
@@ -84,15 +77,20 @@ public class Asset extends Node {
 	//private volatile boolean ready;
 
 	public Asset( URI uri ) {
-		this( uri, null );
+		this( null, uri );
 	}
 
 	// Testing only
 	public Asset( String uri ) {
-		this( java.net.URI.create( uri ), null );
+		this( null, java.net.URI.create( uri ) );
 	}
 
-	public Asset( URI uri, AssetType type ) {
+	public Asset( AssetType type ) {
+		this( type, null );
+	}
+
+	public Asset( AssetType type, URI uri ) {
+		if( uri == null ) uri = java.net.URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
@@ -235,13 +233,13 @@ public class Asset extends Node {
 		setValue( LAST_SAVED_KEY, timestamp );
 	}
 
-	public File getFile() {
-		return getValue( FILE );
-	}
-
-	public void setFile( File file ) {
-		setValue( FILE, file );
-	}
+//	public File getFile() {
+//		return getValue( FILE );
+//	}
+//
+//	public void setFile( File file ) {
+//		setValue( FILE, file );
+//	}
 
 	public <M> M getModel() {
 		return getValue( MODEL );
@@ -286,9 +284,11 @@ public class Asset extends Node {
 
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.open( this );
-
 		open = true;
+
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
+
+		notifyAll();
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -298,14 +298,12 @@ public class Asset extends Node {
 	public synchronized final void load( AssetManager manager ) throws AssetException {
 		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be loaded" );
 
-		loaded = false;
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
 		setModified( false );
 		loaded = true;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
-		manager.getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		notifyAll();
 	}
@@ -324,6 +322,8 @@ public class Asset extends Node {
 		saved = true;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
+
+		notifyAll();
 	}
 
 	public synchronized final boolean isClosed() {
@@ -338,6 +338,8 @@ public class Asset extends Node {
 		open = false;
 
 		getEventHub().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
+
+		notifyAll();
 	}
 
 	public boolean exists() throws AssetException {
@@ -347,7 +349,7 @@ public class Asset extends Node {
 
 		Scheme scheme = getScheme();
 		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
-		//log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists" );
+		//log.atWarning().log( "NO SCHEME - Can't determine if the asset exists" );
 		return scheme == null || scheme.exists( this );
 	}
 
@@ -395,22 +397,6 @@ public class Asset extends Node {
 	public long getSize() throws AssetException {
 		Scheme scheme = getScheme();
 		return scheme.getSize( this );
-	}
-
-	/**
-	 * These settings are set by the {@link AssetManager}.
-	 *
-	 * @return The asset settings
-	 */
-	public Settings getSettings() {
-		return settings;
-	}
-
-	/**
-	 * These settings are set by the {@link AssetManager}.
-	 */
-	public void setSettings( Settings settings ) {
-		this.settings = settings;
 	}
 
 	@Override

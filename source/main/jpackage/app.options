@@ -1,8 +1,9 @@
 --verbose
---app-version "1.4"
+--app-version "1.5"
 --name "${project.name}"
 --description "${project.description}"
 --vendor "${project.organization.name}"
 --copyright "Copyright ${project.inceptionYear} ${project.organization.name}"
 --module "com.avereon.xenon"
 --module-path "${jlink.module.path}"
+--java-options "-Dprism.forceGPU=true"

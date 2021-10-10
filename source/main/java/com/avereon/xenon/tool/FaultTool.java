@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -9,13 +8,13 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import javafx.scene.control.TextArea;
+import lombok.CustomLog;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+@CustomLog
 public class FaultTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final TextArea text;
 

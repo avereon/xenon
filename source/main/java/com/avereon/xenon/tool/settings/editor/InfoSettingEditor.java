@@ -35,7 +35,7 @@ public abstract class InfoSettingEditor extends SettingEditor {
 		Label text;
 		text = new Label();
 		text.getStyleClass().add( type == Type.AREA ? "settings-infoarea" : "settings-infoline" );
-		text.setText( Rb.text( getProduct(), "settings", rbKey ) );
+		text.setText( Rb.text( getProduct(), getBundleKey(), rbKey ) );
 		text.setId( rbKey );
 
 		nodes = List.of( text );

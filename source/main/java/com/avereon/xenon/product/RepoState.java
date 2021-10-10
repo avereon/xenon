@@ -76,7 +76,7 @@ public class RepoState extends RepoCard {
 		}
 	}
 
-	static List<RepoState> loadCards( InputStream input ) throws IOException {
+	public static List<RepoState> loadCards( InputStream input ) throws IOException {
 		return new ObjectMapper().readerFor( new TypeReference<List<RepoState>>() {} ).readValue( input );
 	}
 

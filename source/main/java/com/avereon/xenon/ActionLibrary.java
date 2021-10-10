@@ -2,17 +2,15 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class ActionLibrary {
-
-	private static final Logger log = Log.get();
 
 	private final Map<String, ActionProxy> actionsById;
 
@@ -24,10 +22,12 @@ public class ActionLibrary {
 		register( product, "file" );
 		register( product, "new" );
 		register( product, "open" );
+		register( product, "reload" );
 		register( product, "save" );
 		register( product, "save-as" );
-		register( product, "copy-as" );
 		register( product, "save-all" );
+		register( product, "rename" );
+		register( product, "print" );
 		register( product, "close" );
 		register( product, "close-all" );
 		register( product, "exit" );
@@ -110,7 +110,7 @@ public class ActionLibrary {
 
 	public ActionProxy getAction( String id ) {
 		ActionProxy proxy = actionsById.get( id );
-		if( proxy == null ) log.log( Log.WARN, "Action proxy not found: " + id );
+		if( proxy == null ) log.atWarning().log( "Action proxy not found: %s", id );
 		return proxy;
 	}
 
@@ -118,13 +118,13 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = Rb.textOr( product, BundleKey.ACTION, id + Action.ICON_SUFFIX, "" );
-		String name = Rb.textOr( product, BundleKey.ACTION, id + Action.NAME_SUFFIX, id );
-		String type = Rb.textOr( product, BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
-		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
-		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
-		String command = Rb.textOr( product, BundleKey.ACTION, id + Action.COMMAND_SUFFIX, null );
-		String description = Rb.textOr( product, BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
+		String icon = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.ICON_SUFFIX, "" );
+		String name = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.NAME_SUFFIX, id );
+		String type = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.TYPE_SUFFIX, null );
+		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.MNEMONIC_SUFFIX, null );
+		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.SHORTCUT_SUFFIX, null );
+		String command = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.COMMAND_SUFFIX, null );
+		String description = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.DESCRIPTION_SUFFIX, null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );

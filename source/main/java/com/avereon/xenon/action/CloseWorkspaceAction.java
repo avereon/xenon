@@ -1,10 +1,10 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import javafx.event.ActionEvent;
 
-public class CloseWorkspaceAction extends Action {
+public class CloseWorkspaceAction extends ProgramAction {
 
 	public CloseWorkspaceAction( Program program ) {
 		super( program );

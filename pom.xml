@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.1.0</version>
+		<version>3.2.0</version>
 		<relativePath/>
 	</parent>
 
@@ -17,7 +17,7 @@
 	<artifactId>xenon</artifactId>
 	<!-- To do a release, merge to the stage branch, update the version and then merge to the stable branch -->
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.4</version>
+	<version>1.5</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -83,8 +83,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>zerra</artifactId>
-			<version>${zerra.version}</version>
+			<artifactId>zarra</artifactId>
+			<version>${zarra.version}</version>
 		</dependency>
 
 		<dependency>
@@ -148,11 +148,12 @@
 			</exclusions>
 		</dependency>
 
-		<!--		<dependency>-->
-		<!--			<groupId>org.apache.commons</groupId>-->
-		<!--			<artifactId>commons-vfs2</artifactId>-->
-		<!--			<version>2.6.0</version>-->
-		<!--		</dependency>-->
+		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
@@ -225,18 +226,18 @@
 						-Xmx128m
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.ui.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.guide=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.settings=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.ui.util=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.undo=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.workpane=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.workspace=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -261,13 +262,25 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.avereon.xenon.Launcher</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>com.avereon.xenon.Launcher</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -417,19 +430,7 @@
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
 								<jar>
-									<name>miglayout-core*.jar</name>
-								</jar>
-								<jar>
 									<name>image4j*.jar</name>
-								</jar>
-								<jar>
-									<name>miglayout-javafx*.jar</name>
-									<modules>
-										<module>javafx.base</module>
-										<module>javafx.graphics</module>
-										<module>javafx.controls</module>
-										<module>miglayout.core</module>
-									</modules>
 								</jar>
 								<jar>
 									<name>reactfx*.jar</name>
@@ -450,14 +451,42 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>14</source>
-					<target>14</target>
-				</configuration>
-			</plugin>
+
+			<!--			<plugin>-->
+			<!--				<groupId>org.apache.maven.plugins</groupId>-->
+			<!--				<artifactId>maven-compiler-plugin</artifactId>-->
+			<!--				<configuration>-->
+			<!--					<source>14</source>-->
+			<!--					<target>14</target>-->
+			<!--					<fork>true</fork>-->
+			<!--					<compilerArgs>-->
+			<!--						<arg>-XDcompilePolicy=simple</arg>-->
+			<!--						<arg>-Xplugin:ErrorProne</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>-->
+			<!--						<arg>-J&#45;&#45;add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>-->
+			<!--					</compilerArgs>-->
+			<!--					<annotationProcessorPaths>-->
+			<!--						<path>-->
+			<!--							<groupId>org.projectlombok</groupId>-->
+			<!--							<artifactId>lombok</artifactId>-->
+			<!--							<version>${lombok.version}</version>-->
+			<!--						</path>-->
+			<!--						<path>-->
+			<!--							<groupId>com.google.errorprone</groupId>-->
+			<!--							<artifactId>error_prone_core</artifactId>-->
+			<!--							<version>2.7.1</version>-->
+			<!--						</path>-->
+			<!--					</annotationProcessorPaths>-->
+			<!--				</configuration>-->
+			<!--			</plugin>-->
 
 		</plugins>
 
@@ -553,19 +582,19 @@
 										-Xmx128m
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
-										--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.guide=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.tool.settings=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.ui.util=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.undo=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.workpane=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.workspace=ALL-UNNAMED
 									</argLine>
 									<systemPropertyVariables>
 										<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -593,148 +622,6 @@
 		</profile>
 
 		<profile>
-			<id>assemblies</id>
-			<build>
-				<plugins>
-
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>${maven.exec.version}</version>
-						<executions>
-							<execution>
-								<id>jlink</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${java.home}/bin/jlink</executable>
-									<arguments>
-										<argument>--module-path</argument>
-										<argument>${jlink.module.path}</argument>
-										<argument>--add-modules</argument>
-										<argument>com.avereon.xenon</argument>
-										<argument>--output</argument>
-										<argument>${basedir}/target/jlink</argument>
-										<argument>--launcher</argument>
-										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Launcher</argument>
-										<argument>--ignore-signing-information</argument>
-										<argument>--no-header-files</argument>
-										<argument>--no-man-pages</argument>
-										<argument>--strip-debug</argument>
-										<argument>--compress</argument>
-										<argument>2</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<executions>
-							<!-- Assemble the product pack -->
-							<execution>
-								<id>assembly-product</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<finalName>product</finalName>
-									<descriptorRefs>
-										<descriptorRef>product-${product.platform}</descriptorRef>
-									</descriptorRefs>
-									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
-								</configuration>
-							</execution>
-							<!-- Assemble the installer files -->
-							<execution>
-								<id>assembly-install</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<attach>false</attach>
-									<finalName>${product-pack-folder}</finalName>
-									<descriptorRefs>
-										<descriptorRef>install-${product.platform}</descriptorRef>
-									</descriptorRefs>
-									<appendAssemblyId>false</appendAssemblyId>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<!-- Copy extra installer resources -->
-					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>copy-izpack-resources</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<encoding>UTF-8</encoding>
-									<resources>
-										<resource>
-											<directory>${basedir}/source/main/izpack</directory>
-										</resource>
-									</resources>
-									<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-izpack-resources-filter</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<encoding>UTF-8</encoding>
-									<resources>
-										<resource>
-											<directory>${basedir}/source/main/izpack</directory>
-											<filtering>true</filtering>
-											<excludes>
-												<exclude>bin</exclude>
-											</excludes>
-										</resource>
-									</resources>
-									<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-platform-resources</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<encoding>UTF-8</encoding>
-									<resources>
-										<resource>
-											<directory>${basedir}/source/main/pack/${product.platform}</directory>
-											<excludes>
-												<exclude>bin</exclude>
-											</excludes>
-										</resource>
-									</resources>
-									<outputDirectory>${basedir}/target/pack/${product.platform}</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
 			<id>packs</id>
 			<build>
 				<plugins>
@@ -745,8 +632,7 @@
 						<executions>
 							<execution>
 								<id>jpackage-option-files</id>
-								<!-- This can be put back to post-integration-test once assemblies profiles is removed -->
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>

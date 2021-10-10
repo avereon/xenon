@@ -27,7 +27,7 @@ public class CheckBoxSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
 
-		String label = Rb.text( getProduct(), "settings", rbKey );
+		String label = Rb.text( getProduct(), getBundleKey(), rbKey );
 
 		checkbox = new CheckBox();
 		checkbox.setSelected( selected );

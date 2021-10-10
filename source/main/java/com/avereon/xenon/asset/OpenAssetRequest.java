@@ -1,10 +1,12 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.util.UriUtil;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolManager;
 import com.avereon.xenon.workpane.WorkpaneView;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * The OpenAssetRequest holds all the metadata needed to open an asset, and
@@ -82,12 +84,12 @@ public class OpenAssetRequest {
 		return this;
 	}
 
-	public String getQuery() {
-		return uri == null ? null : uri.getQuery();
+	public Map<String,String> getQueryParameters() {
+		return uri == null ? null : UriUtil.parseQuery( uri.getQuery() );
 	}
 
 	public String getFragment() {
-		return uri == null ? null : uri.getFragment();
+		return uri == null ? null : UriUtil.parseFragment( uri );
 	}
 
 	public Codec getCodec() {
