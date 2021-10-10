@@ -17,7 +17,7 @@
 	<artifactId>xenon</artifactId>
 	<!-- To do a release, merge to the stage branch, update the version and then merge to the stable branch -->
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.5</version>
+	<version>1.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
