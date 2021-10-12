@@ -25,7 +25,7 @@ module com.avereon.xenon {
 	requires transitive javafx.fxml;
 	requires transitive javafx.swing;
 	requires transitive javafx.web;
-	requires transitive undofx;
+	requires transitive org.fxmisc.undo;
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;

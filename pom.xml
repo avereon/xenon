@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.2.0</version>
+		<version>3.3.0</version>
 		<relativePath/>
 	</parent>
 
@@ -70,7 +70,8 @@
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
 		<reactfx.version>2.0-M5</reactfx.version>
-		<undofx.version>2.1.0</undofx.version>
+		<undofx.version>2.1.1</undofx.version>
+		<weave.version>1.2</weave.version>
 	</properties>
 
 	<dependencies>
