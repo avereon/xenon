@@ -13,7 +13,15 @@ class ProgramConfig {
 
 	static void configureCustomLauncherName() {
 		ProductCard card = loadProductInfo();
+
+		// Java 11-16
 		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+
+		// Java 17
+		if( System.getProperty( "jpackage.app-path" ) != null ) {
+			System.setProperty( "java.launcher.path", System.getProperty( "jpackage.app-path" ) );
+			System.setProperty( "java.launcher.name", card.getName() );
+		}
 	}
 
 }
