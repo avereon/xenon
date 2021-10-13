@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
+import com.avereon.util.OperatingSystem;
 
 class ProgramConfig {
 
@@ -15,7 +16,7 @@ class ProgramConfig {
 		ProductCard card = loadProductInfo();
 
 		// Java 11-16
-		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+		if( System.getProperty( OperatingSystem.CUSTOM_LAUNCHER_PATH ) != null ) System.setProperty( OperatingSystem.CUSTOM_LAUNCHER_NAME, card.getName() );
 	}
 
 }

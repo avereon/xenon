@@ -22,8 +22,6 @@ public class UpdateManager {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater-";
 
-		// System.getProperty( "java.launcher.name" );
-
 		Path javaLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
 		if( Profile.DEV.equals( program.getProfile() ) ) {
 			String updaterTarget = "target/" + program.getCard().getArtifact() + "-updater";

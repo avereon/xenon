@@ -1078,7 +1078,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath( System.getProperty( "java.launcher.path" ) );
+		return getHomeFromLauncherPath( System.getProperty( OperatingSystem.CUSTOM_LAUNCHER_PATH ) );
 	}
 
 	private Path getHomeFromLauncherPath( String launcherPath ) {
