@@ -2,6 +2,9 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
 
+import java.net.URI;
+import java.nio.file.Path;
+
 class ProgramConfig {
 
 	private static ProductCard card;
@@ -19,8 +22,9 @@ class ProgramConfig {
 
 		// Java 17
 		if( System.getProperty( "jpackage.app-path" ) != null ) {
-			System.setProperty( "java.launcher.path", System.getProperty( "jpackage.app-path" ) );
-			System.setProperty( "java.launcher.name", card.getName() );
+			Path jpackageAppPath = Path.of( URI.create( System.getProperty( "jpackage.app-path" ) ) );
+			System.setProperty( "java.launcher.path", jpackageAppPath.getParent().toString() );
+			System.setProperty( "java.launcher.name", jpackageAppPath.getFileName().toString() );
 		}
 	}
 
