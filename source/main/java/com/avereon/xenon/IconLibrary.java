@@ -162,9 +162,10 @@ public class IconLibrary {
 			if( icon == null ) icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
+		if( icon == null ) icon = icon.copy();
 		if( icon == null ) icon = new BrokenIcon();
 
-		return icon.copy().resize( size );
+		return icon.resize( size );
 	}
 
 	public Node getIcon( List<String> ids, String backupId, double size ) {
