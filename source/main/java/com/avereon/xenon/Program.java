@@ -1047,16 +1047,16 @@ public class Program extends Application implements ProgramProduct {
 			// Check the launcher path
 			if( programHomeFolder == null ) programHomeFolder = getHomeFromLauncherPath();
 
-			// When running as a linked (jlink) program, there is not a jdk.module.path system property.
-			// The java home can be used as the program home when running as a linked application.
+			// When running as a linked (jlink) program, there is not a jdk.module.path system property
+			// The java home can be used as the program home when running as a linked application
 			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
 				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 			}
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
+			if( Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
 
-			// Use the user directory as a last resort (usually for unit tests)
+			// Use the user folder as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path
@@ -1077,8 +1077,8 @@ public class Program extends Application implements ProgramProduct {
 		log.atFine().log( "Program data: %s", getDataFolder() );
 	}
 
-	private Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath( System.getProperty( OperatingSystem.CUSTOM_LAUNCHER_PATH ) );
+	public Path getHomeFromLauncherPath() {
+		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath() );
 	}
 
 	private Path getHomeFromLauncherPath( String launcherPath ) {
