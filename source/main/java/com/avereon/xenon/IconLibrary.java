@@ -162,7 +162,7 @@ public class IconLibrary {
 			if( icon == null ) icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
-		if( icon == null ) icon = icon.copy();
+		if( icon != null ) icon = icon.copy();
 		if( icon == null ) icon = new BrokenIcon();
 
 		return icon.resize( size );
