@@ -403,6 +403,7 @@ public class AboutTool extends GuidedTool {
 		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
 		builder.append( "Log file:    " ).append( Log.getLogFile() ).append( "\n" );
 		builder.append( "Launcher:    " ).append( OperatingSystem.getJavaLauncherPath() ).append( "\n" );
+		builder.append( "Updater:     " ).append( program.getUpdateManager().getUpdaterLauncher() ).append( "\n" );
 
 		return builder.toString();
 	}

@@ -1,23 +1,27 @@
 package com.avereon.xenon.test;
 
+import com.avereon.xenon.UpdateManager;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-public class UpdateManagerTest {
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class UpdateManagerTest extends ProgramTest {
 
 	@Test
-	void testRelativizeUpdaterPath() {
-		Path homeFolder = Path.of( "/opt/xenon/lib/runtime" );
-		Path dataFolder = Path.of( "/home/ecco/.config/xenon" );
-		Path javaLauncher = Path.of( "/opt/xenon/bin/Xenon" );
-		Path updaterFolder = dataFolder.resolve( "updates/updater" );
+	void testRelativizeUpdaterPathStrategyJava17() {
+		String binPath = "bin/Xenon";
+		String prefix = "mock-updater";
 
-		Path relative = homeFolder.relativize( javaLauncher );
-		Path updaterLauncher = updaterFolder.resolve( relative ).normalize();
+		Path homeFolder = Path.of( "/opt/xenon" );
+		Path dataFolder = Path.of( "/home/user/.config/xenon" );
+		Path updatesFolder = dataFolder.resolve( "updates" );
+		Path updaterFolder = updatesFolder.resolve( "updater" );
+		Path expectedUpdaterLauncher = updaterFolder.resolve( binPath );
 
-		System.out.println( "relative=" + relative );
-		System.out.println( "updaterLauncher=" + updaterLauncher );
+		assertThat( UpdateManager.calcUpdaterLauncher( homeFolder, updatesFolder, prefix, "" ), Matchers.is( expectedUpdaterLauncher ) );
 	}
 
 }

@@ -1084,7 +1084,7 @@ public class Program extends Application implements ProgramProduct {
 	private Path getHomeFromLauncherPath( String launcherPath ) {
 		if( launcherPath == null ) return null;
 
-		Path path = Paths.get( launcherPath );
+		Path path = Paths.get( launcherPath ).getParent();
 		if( OperatingSystem.isWindows() ) {
 			return path;
 		} else if( OperatingSystem.isLinux() ) {
