@@ -33,6 +33,8 @@ public class MenuBarFactory extends BarFactory {
 	public static Menu createMenu( Program program, Token token, boolean submenu ) {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
+		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
+
 		Menu menu = new Menu();
 		menu.setId( MENU_ID_PREFIX + action.getId() );
 		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
