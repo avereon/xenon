@@ -233,7 +233,6 @@ public class AboutTool extends GuidedTool {
 			VBox mods = new VBox( UiFactory.PAD );
 			for( ProductCard card : getProgram().getProductManager().getInstalledProductCards( false ) ) {
 				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
-				log.atConfig().log( "product: %s", card.getArtifact() );
 
 				Label modHeader = makeLabel( "tool-about-header" );
 				Label modVersion = makeLabel( "tool-about-version" );
