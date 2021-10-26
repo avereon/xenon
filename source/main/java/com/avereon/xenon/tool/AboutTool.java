@@ -194,6 +194,7 @@ public class AboutTool extends GuidedTool {
 			super( UiFactory.PAD );
 			setId( "tool-about-summary" );
 
+			String from = Rb.text( "tool", "about-from" );
 			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
 			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
 			lastUpdateTimestamp = makeLabel( "tool-about-version" );
@@ -240,7 +241,7 @@ public class AboutTool extends GuidedTool {
 
 				modHeader.setText( card.getName() );
 				modVersion.setText( card.getVersion() );
-				modProvider.setText( card.getProvider() );
+				modProvider.setText( from + " " + card.getProvider() );
 
 				mods.getChildren().add( modHeader );
 				mods.getChildren().add( modVersion );
