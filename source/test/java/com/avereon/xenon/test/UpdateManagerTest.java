@@ -1,5 +1,6 @@
 package com.avereon.xenon.test;
 
+import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.UpdateManager;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,13 @@ public class UpdateManagerTest extends ProgramTest {
 
 		Path homeFolder = Path.of( "/opt/xenon" );
 		Path dataFolder = Path.of( "/home/user/.config/xenon" );
+
+		if( OperatingSystem.isWindows() ) {
+			binPath = "Xenon.exe";
+			homeFolder = Path.of( "C:\\Program Files\\Xenon" );
+			dataFolder = Path.of( "C:\\Users\\user\\.config\\xenon" );
+		}
+
 		Path updatesFolder = dataFolder.resolve( "updates" );
 		Path updaterFolder = updatesFolder.resolve( "updater" );
 		Path expectedUpdaterLauncher = updaterFolder.resolve( binPath );
