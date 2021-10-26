@@ -196,31 +196,64 @@ public class AboutTool extends GuidedTool {
 
 			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
 			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
+			lastUpdateTimestamp = makeLabel( "tool-about-version" );
+			nextUpdateTimestamp = makeLabel( "tool-about-version" );
+			javaLabel = makeLabel( "tool-about-header" );
+			javaVmName = makeLabel( "tool-about-name" );
+			osName = makeLabel( "tool-about-name" );
 
 			getChildren().add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ) );
 
+			VBox header = new VBox( UiFactory.PAD );
+			header.getChildren().add( productName = makeLabel( "tool-about-title" ) );
+			header.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
+			header.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
+			//			header.getChildren().add( makeSeparator() );
+			//			header.getChildren().add( lastUpdateTimestamp );
+			//			header.getChildren().add( nextUpdateTimestamp );
+			header.getChildren().add( makeSeparator() );
+			header.getChildren().add( makeSeparator() );
+
 			VBox information = new VBox( UiFactory.PAD );
-			information.getChildren().add( productName = makeLabel( "tool-about-title" ) );
-			information.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
-			information.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
-			information.getChildren().add( makeSeparator() );
-			information.getChildren().add( lastUpdateTimestamp = makeLabel( "tool-about-version" ) );
-			information.getChildren().add( nextUpdateTimestamp = makeLabel( "tool-about-version" ) );
-			information.getChildren().add( makeSeparator() );
-			information.getChildren().add( makeSeparator() );
-			information.getChildren().add( javaLabel = makeLabel( "tool-about-header" ) );
-			//information.getChildren().add( javaName = makeLabel( "tool-about-name" ) );
-			information.getChildren().add( javaVmName = makeLabel( "tool-about-version" ) );
+			//information.getChildren().add( makeSeparator() );
+			//information.getChildren().add( makeSeparator() );
+			information.getChildren().add( javaLabel );
+			//information.getChildren().add( javaName );
+			//information.getChildren().add( javaVmName );
 			information.getChildren().add( javaVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( javaProvider = makeLabel( "tool-about-provider" ) );
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( osLabel = makeLabel( "tool-about-header" ) );
-			information.getChildren().add( osName = makeLabel( "tool-about-name" ) );
+			//information.getChildren().add( osName );
 			information.getChildren().add( osVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( osProvider = makeLabel( "tool-about-provider" ) );
 
-			getChildren().add( information );
+			// Mods
+			VBox mods = new VBox( UiFactory.PAD );
+			for( ProductCard card : getProgram().getProductManager().getInstalledProductCards( false ) ) {
+				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
+				log.atConfig().log( "product: %s", card.getArtifact() );
+
+				Label modHeader = makeLabel( "tool-about-header" );
+				Label modVersion = makeLabel( "tool-about-version" );
+				Label modProvider = makeLabel( "tool-about-provider" );
+
+				modHeader.setText( card.getName() );
+				modVersion.setText( card.getVersion() );
+				modProvider.setText( card.getProvider() );
+
+				mods.getChildren().add( modHeader );
+				mods.getChildren().add( modVersion );
+				mods.getChildren().add( modProvider );
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( makeSeparator() );
+			}
+
+			HBox hLayout = new HBox( 10 * UiFactory.PAD, information, mods );
+			VBox vLayout = new VBox( header, hLayout );
+
+			getChildren().addAll( vLayout );
 		}
 
 		public void update( ProductCard card ) {
@@ -233,19 +266,19 @@ public class AboutTool extends GuidedTool {
 			}
 			productProvider.setText( from + " " + card.getProvider() );
 
-			javaLabel.setText( "Java" );
+			javaLabel.setText( "Java " + System.getProperty( "java.version" ) );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
 			String javaVersionDate = System.getProperty( "java.version.date" );
 			if( javaVersionDate == null ) {
-				javaVersion.setText( System.getProperty( "java.runtime.version" ) );
+				javaVersion.setText( System.getProperty( "java.vendor.version" ) );
 			} else {
-				javaVersion.setText( System.getProperty( "java.runtime.version" ) + "  " + javaVersionDate );
+				javaVersion.setText( System.getProperty( "java.vendor.version" ) + "  " + javaVersionDate );
 			}
-			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
+			javaProvider.setText( from + " " + System.getProperty( "java.vendor" ) );
 
 			String osNameString = System.getProperty( "os.name" );
-			osLabel.setText( Rb.text( "tool", "about-system" ) );
-			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
+			//osLabel.setText( Rb.text( "tool", "about-system" ) );
+			osLabel.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
@@ -275,7 +308,7 @@ public class AboutTool extends GuidedTool {
 		return new Pane();
 	}
 
-	private Label makeLabel( String styleClass ) {
+	private Label makeLabel( String... styleClass ) {
 		Label label = new Label();
 		label.getStyleClass().addAll( styleClass );
 		return label;

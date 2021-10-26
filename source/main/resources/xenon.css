@@ -462,10 +462,6 @@
     -fx-background-color: transparent;
 }
 
-#tool-about .label {
-    -fx-padding: -0.25em;
-}
-
 #tool-about .tool-about-title {
     -fx-font-size: 5em;
 }
