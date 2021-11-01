@@ -20,15 +20,17 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import lombok.CustomLog;
 
@@ -155,7 +157,7 @@ public class AboutTool extends GuidedTool {
 		return guide;
 	}
 
-	private class SummaryPane extends HBox {
+	private class SummaryPane extends VBox {
 
 		private final Label productName;
 
@@ -204,7 +206,7 @@ public class AboutTool extends GuidedTool {
 			javaVmName = makeLabel( "tool-about-name" );
 			osName = makeLabel( "tool-about-name" );
 
-			getChildren().add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ) );
+			Node icon = getProgram().getIconLibrary().getIcon( "program", ICON_SIZE );
 
 			VBox header = new VBox( UiFactory.PAD );
 			header.getChildren().add( productName = makeLabel( "tool-about-title" ) );
@@ -233,7 +235,7 @@ public class AboutTool extends GuidedTool {
 
 			// Mods
 			VBox mods = new VBox( UiFactory.PAD );
-			List<ProductCard> cards = new ArrayList<>(getProgram().getProductManager().getInstalledProductCards( false ));
+			List<ProductCard> cards = new ArrayList<>( getProgram().getProductManager().getInstalledProductCards( false ) );
 			cards.sort( new ProductCardComparator( ProductCardComparator.Field.NAME ) );
 			for( ProductCard card : cards ) {
 				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
@@ -253,10 +255,17 @@ public class AboutTool extends GuidedTool {
 				mods.getChildren().add( modProvider );
 			}
 
-			//HBox hLayout = new HBox( 10 * UiFactory.PAD, information, mods );
-			VBox vLayout = new VBox( header, information, mods );
+			ScrollPane scroller = new ScrollPane( new VBox( information, mods ) );
 
-			getChildren().addAll( vLayout );
+			GridPane grid = new GridPane();
+			grid.getChildren().addAll( icon, header, scroller );
+			GridPane.setConstraints( icon, 1, 1, 1, 1, HPos.LEFT, VPos.TOP );
+			GridPane.setConstraints( header, 2, 1 );
+			GridPane.setConstraints( scroller, 2, 2 );
+			GridPane.setHgrow( header, Priority.ALWAYS );
+			GridPane.setHgrow( scroller, Priority.ALWAYS );
+
+			getChildren().addAll( grid );
 		}
 
 		public void update( ProductCard card ) {
