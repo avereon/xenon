@@ -3,6 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.event.EventHandler;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
+import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
@@ -232,7 +233,9 @@ public class AboutTool extends GuidedTool {
 
 			// Mods
 			VBox mods = new VBox( UiFactory.PAD );
-			for( ProductCard card : getProgram().getProductManager().getInstalledProductCards( false ) ) {
+			List<ProductCard> cards = new ArrayList<>(getProgram().getProductManager().getInstalledProductCards( false ));
+			cards.sort( new ProductCardComparator( ProductCardComparator.Field.NAME ) );
+			for( ProductCard card : cards ) {
 				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
 
 				Label modHeader = makeLabel( "tool-about-header" );
@@ -243,15 +246,15 @@ public class AboutTool extends GuidedTool {
 				modVersion.setText( card.getVersion() );
 				modProvider.setText( from + " " + card.getProvider() );
 
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( makeSeparator() );
 				mods.getChildren().add( modHeader );
 				mods.getChildren().add( modVersion );
 				mods.getChildren().add( modProvider );
-				mods.getChildren().add( makeSeparator() );
-				mods.getChildren().add( makeSeparator() );
 			}
 
-			HBox hLayout = new HBox( 10 * UiFactory.PAD, information, mods );
-			VBox vLayout = new VBox( header, hLayout );
+			//HBox hLayout = new HBox( 10 * UiFactory.PAD, information, mods );
+			VBox vLayout = new VBox( header, information, mods );
 
 			getChildren().addAll( vLayout );
 		}
