@@ -81,7 +81,7 @@ public class FileScheme extends BaseScheme {
 		try( OutputStream stream = new FileOutputStream( file ) ) {
 			codec.save( asset, stream );
 			if( temp != null && !temp.delete() ) log.atWarn().log( "Unable to remove temp file: " + temp );
-		} catch( IOException exception ) {
+		} catch( Exception exception ) {
 			if( temp != null && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
 			throw new AssetException( asset, exception );
 		} finally {
