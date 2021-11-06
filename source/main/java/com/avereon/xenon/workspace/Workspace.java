@@ -218,13 +218,7 @@ public class Workspace implements WritableIdentity {
 		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
 
 		// Build the menubar
-		MenuBar menubar = MenuBarFactory.createMenuBar( program, descriptor.toString() );
-
-		// FIXME This does not work if there are two menu bars (like this program uses)
-		// This generally affects MacOS users
-		menubar.setUseSystemMenuBar( true );
-
-		return menubar;
+		return MenuBarFactory.createMenuBar( program, descriptor.toString() );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
