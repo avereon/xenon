@@ -79,8 +79,9 @@
 
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
-		<openjfx.version>17.0.0.1</openjfx.version>
+		<lucene.version>[8.10.1,)</lucene.version>
 		<controlsfx.version>[11.1,)</controlsfx.version>
+		<openjfx.version>17.0.0.1</openjfx.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>[4.0,)</testfx.version>
@@ -171,6 +172,24 @@
 			<artifactId>zerra</artifactId>
 			<version>${zerra.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>${lucene.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queryparser</artifactId>
+			<version>${lucene.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers-common</artifactId>
+			<version>${lucene.version}</version>
 		</dependency>
 
 		<dependency>

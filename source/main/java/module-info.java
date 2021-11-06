@@ -15,6 +15,7 @@ module com.avereon.xenon {
 	requires java.management;
 	requires java.sql;
 	requires jdk.crypto.ec;
+	requires lucene.core;
 	requires org.controlsfx.controls;
 	requires reactfx;
 	requires transitive com.avereon.zenna;

@@ -15,6 +15,7 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.type.*;
+import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
@@ -121,6 +122,8 @@ public class Program extends Application implements ProgramProduct {
 	private ProductManager productManager;
 
 	private NoticeManager noticeManager;
+
+	private IndexService indexService;
 
 	private ProgramEventWatcher watcher;
 
@@ -388,8 +391,8 @@ public class Program extends Application implements ProgramProduct {
 		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 6;
-		int steps = managerCount + uiRegenerator.getToolCount();
+		int service = 7;
+		int steps = service + uiRegenerator.getToolCount();
 		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
@@ -444,6 +447,12 @@ public class Program extends Application implements ProgramProduct {
 		productManager.startMods();
 		updateManager = new UpdateManager( this );
 		log.atFine().log( "Product manager started." );
+
+		// Start the index service
+		log.atFiner().log( "Starting index service..." );
+		indexService = new IndexService( Program.this ).start();
+		Fx.run( () -> splashScreen.update() );
+		log.atFine().log( "Index service started." );
 
 		// Restore the user interface, depends on workspace manager
 		log.atFiner().log( "Restore the user interface..." );
@@ -548,6 +557,13 @@ public class Program extends Application implements ProgramProduct {
 		time( "do-shutdown-tasks" );
 
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPING ) );
+
+		// Stop the index service
+		if( indexService != null ) {
+			log.atFiner().log( "Stopping index service..." );
+			indexService.stop();
+			log.atFine().log( "Index service stopped." );
+		}
 
 		// Stop the product manager
 		if( productManager != null ) {
