@@ -459,6 +459,9 @@
 									<name>image4j*.jar</name>
 								</jar>
 								<jar>
+									<name>lucene*.jar</name>
+								</jar>
+								<jar>
 									<name>reactfx*.jar</name>
 									<modules>
 										<module>javafx.base</module>
