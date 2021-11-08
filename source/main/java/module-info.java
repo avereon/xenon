@@ -6,6 +6,7 @@ module com.avereon.xenon {
 	requires static lombok;
 
 	// Both compile-time and run-time
+	requires com.avereon.xenon.lucene;
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
@@ -15,7 +16,6 @@ module com.avereon.xenon {
 	requires java.management;
 	requires java.sql;
 	requires jdk.crypto.ec;
-	requires lucene.core;
 	requires org.controlsfx.controls;
 	requires reactfx;
 	requires transitive com.avereon.zenna;
