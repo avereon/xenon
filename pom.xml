@@ -167,12 +167,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.avereon.xenon</groupId>
-			<artifactId>lucene</artifactId>
-			<version>${xenon.lucene.version}</version>
-		</dependency>
-
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>com.avereon</groupId>
@@ -457,9 +451,6 @@
 							<jars>
 								<jar>
 									<name>image4j*.jar</name>
-								</jar>
-								<jar>
-									<name>lucene*.jar</name>
 								</jar>
 								<jar>
 									<name>reactfx*.jar</name>

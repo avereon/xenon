@@ -6,7 +6,6 @@ module com.avereon.xenon {
 	requires static lombok;
 
 	// Both compile-time and run-time
-	requires com.avereon.xenon.lucene;
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
