@@ -75,7 +75,7 @@
 		<zenna.version>[0.7,)</zenna.version>
 		<zarra.version>[0.7,)</zarra.version>
 		<zerra.version>[0.7,)</zerra.version>
-		<zevra.version>[0.7,)</zevra.version>
+		<zevra.version>[0.8-SNAPSHOT,)</zevra.version>
 
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
@@ -247,6 +247,7 @@
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.test.index=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
@@ -603,6 +604,7 @@
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.test=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.test.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.test.index=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.test.notice=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.test.product=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.test.task=ALL-UNNAMED
