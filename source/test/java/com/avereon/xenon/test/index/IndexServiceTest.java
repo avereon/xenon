@@ -1,31 +1,43 @@
 package com.avereon.xenon.test.index;
 
-import com.avereon.result.Result;
 import com.avereon.index.Document;
+import com.avereon.result.Result;
 import com.avereon.xenon.index.IndexService;
+import com.avereon.xenon.test.ProgramTestCase;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.Future;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class IndexServiceTest {
+public class IndexServiceTest extends ProgramTestCase {
 
 	private IndexService service;
 
+	@Override
 	@BeforeEach
-	void setup() {
-		service = new IndexService( null );
+	protected void setup() throws Exception {
+		super.setup();
+		service = new IndexService( getProgram() ).start();
+	}
+
+	@AfterEach
+	protected void teardown() {
+		service.stop();
 	}
 
 	@Test
 	void testSubmit() {
 		Document document = new Document();
-		Result<?> result = service.submit( document );
+		Result<Future<?>> result = service.submit( document );
 
+		assertTrue( result.isSuccessful() );
 		assertTrue( result.isPresent() );
-		assertThat( result.get(), is( document ) );
+		assertThat( result.get(), instanceOf( Future.class ) );
 	}
 
 }
