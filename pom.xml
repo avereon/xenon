@@ -450,6 +450,9 @@
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
 								<jar>
+									<name>fuzzywuzzy*.jar</name>
+								</jar>
+								<jar>
 									<name>image4j*.jar</name>
 								</jar>
 								<jar>
