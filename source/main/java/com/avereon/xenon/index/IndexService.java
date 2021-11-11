@@ -1,13 +1,14 @@
 package com.avereon.xenon.index;
 
-import com.avereon.index.Document;
-import com.avereon.index.Indexer;
+import com.avereon.index.*;
 import com.avereon.result.Result;
 import com.avereon.skill.Controllable;
 import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 @CustomLog
@@ -20,9 +21,9 @@ public class IndexService implements Controllable<IndexService> {
 	public IndexService( Program program ) {
 		this.program = program;
 
-		Path indexPath = program.getDataFolder().resolve("index");
+		Path indexPath = program.getDataFolder().resolve( "index" );
 
-		this.indexer = new Indexer(indexPath);
+		this.indexer = new Indexer( indexPath );
 	}
 
 	@Override
@@ -42,10 +43,12 @@ public class IndexService implements Controllable<IndexService> {
 		return this;
 	}
 
-	public <D extends Document> Result<Future<?>> submit( D document ) {
-		Result<Future<?>> result = indexer.submit( document );
+	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( D document ) {
+		return indexer.submit( document );
+	}
 
-		return result;
+	public Result<List<Hit>> search( String term ) {
+		return indexer.getIndex().map( i -> new FuzzySearch().search( i, IndexQuery.builder().text( "soon" ).build() ) ).orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
 }

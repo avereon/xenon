@@ -8,6 +8,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
+import java.net.URI;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,13 +34,17 @@ public class IndexServiceTest extends ProgramTestCase {
 	}
 
 	@Test
-	void testSubmit() {
-		Document document = new Document();
-		Result<Future<?>> result = service.submit( document );
+	void testSubmit() throws Exception {
+		Document document = new Document( URI.create( "" ), new StringReader( "" ) );
+		var result = service.submit( document );
 
+		assertThat( result.get(), instanceOf( Future.class ) );
 		assertTrue( result.isSuccessful() );
 		assertTrue( result.isPresent() );
-		assertThat( result.get(), instanceOf( Future.class ) );
+		assertThat( result.get().get(), instanceOf( Result.class ) );
+		assertTrue( result.get().get().isSuccessful() );
+		assertTrue( result.get().get().isPresent() );
+		assertThat( result.get().get().get(), instanceOf( Set.class ) );
 	}
 
 }
