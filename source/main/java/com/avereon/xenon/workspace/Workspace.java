@@ -1,14 +1,12 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.Profile;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -138,6 +136,16 @@ public class Workspace implements WritableIdentity {
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
+		addProgramTools( toolbar );
+
+		TextField searchField = new TextField( "");
+		searchField.setPromptText( Rb.text( BundleKey.PROMPT, "index-search") );
+		searchField.getStyleClass().add( "workspace-search");
+		Pane searchFieldPane = new BorderPane(searchField);
+		searchFieldPane.getStyleClass().addAll( );
+
+		BorderPane menubarPane = new BorderPane(menubar, null, searchFieldPane, null, null );
+		BorderPane toolbarPane = new BorderPane(toolbar);
 
 		statusBar = createStatusBar( program );
 
@@ -148,7 +156,7 @@ public class Workspace implements WritableIdentity {
 		BorderPane noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
 		noticeLayout.setPickOnBounds( false );
 
-		// Workpane Container
+		// Workpane container
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
@@ -157,7 +165,7 @@ public class Workspace implements WritableIdentity {
 
 		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( new VBox( menubar, toolbar ) );
+		workareaLayout.setTop( new VBox( menubarPane, toolbarPane ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
@@ -227,6 +235,10 @@ public class Workspace implements WritableIdentity {
 		String descriptor = "new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
+		return toolbar;
+	}
+
+	private void addProgramTools( ToolBar toolbar ) {
 		// Add the workarea menu and selector
 		toolbar.getItems().add( toolbarToolEnd );
 		toolbar.getItems().add( createWorkareaMenu( program ) );
@@ -235,8 +247,6 @@ public class Workspace implements WritableIdentity {
 		// Add the notice button
 		toolbar.getItems().add( ToolBarFactory.createPad() );
 		toolbar.getItems().add( createNoticeToolbarButton() );
-
-		return toolbar;
 	}
 
 	private Button createNoticeToolbarButton() {
