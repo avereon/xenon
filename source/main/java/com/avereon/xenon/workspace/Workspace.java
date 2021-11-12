@@ -32,6 +32,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import lombok.CustomLog;
 
 import javax.imageio.ImageIO;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -105,6 +105,10 @@ public class Workspace implements WritableIdentity {
 
 	private final Pane workpaneContainer;
 
+	private final ObservableList<Hit> hitList;
+
+	private final ListView<Hit> hitListView;
+
 	private final VBox hitBox;
 
 	private final VBox noticeBox;
@@ -152,7 +156,18 @@ public class Workspace implements WritableIdentity {
 
 		statusBar = createStatusBar( program );
 
-		hitBox = new VBox();
+		hitList = FXCollections.observableArrayList();
+
+		hitListView = new ListView<>(hitList);
+		hitListView.setCellFactory( new HitListCellFactory() );
+		hitListView.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
+		//		hitList.setOnMousePressed( e -> {
+		//			Hit hit = hitList.getSelectionModel().getSelectedItem();
+		//			if( hit != null ) searchbar.open( hit );
+		//		} );
+		VBox.setVgrow( hitListView, Priority.ALWAYS );
+
+		hitBox = new VBox(hitListView);
 		hitBox.getStyleClass().addAll( "flyout" );
 		hitBox.setPickOnBounds( false );
 		hitBox.setVisible( false );
@@ -473,31 +488,11 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void showHits( List<Hit> hits ) {
-		//if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
-
-		hitBox.getChildren().clear();
-
-		if( hits.isEmpty() ) {
-			String message = Rb.text( BundleKey.WORKSPACE, "search-no-results" );
-			hitBox.getChildren().add( new BorderPane( new Label( message ) ) );
-		} else {
-			hitBox.getChildren().addAll( hits.stream().map( h -> {
-				Node pane = new SearchResult( h.context() );
-
-				pane.setOnMouseClicked( ( event ) -> {
-					searchbar.open( h );
-					event.consume();
-				} );
-
-				return pane;
-			} ).collect( Collectors.toList() ) );
-		}
-
+		hitList.setAll( hits );
 		hitBox.setVisible( true );
 	}
 
 	public void hideHits() {
-		hitBox.getChildren().clear();
 		hitBox.setVisible( false );
 	}
 
@@ -718,6 +713,26 @@ public class Workspace implements WritableIdentity {
 			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
 		}
 
+	}
+
+	private static class HitListCellFactory implements Callback<ListView<Hit>, ListCell<Hit>> {
+
+		@Override
+		public ListCell<Hit> call( ListView<Hit> hitListView ) {
+
+			return new ListCell<>() {
+
+				@Override
+				protected void updateItem( Hit item, boolean empty ) {
+					if( item == null || empty ) {
+						setText( null );
+					} else {
+						setText( item.context() );
+					}
+				}
+			};
+
+		}
 	}
 
 }
