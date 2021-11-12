@@ -1,6 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
+import com.avereon.index.Hit;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -38,9 +39,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -100,7 +103,9 @@ public class Workspace implements WritableIdentity {
 
 	private final Pane workpaneContainer;
 
-	private final VBox noticeContainer;
+	private final VBox hitBox;
+
+	private final VBox noticeBox;
 
 	private ComboBox<Workarea> workareaSelector;
 
@@ -138,29 +143,37 @@ public class Workspace implements WritableIdentity {
 		toolbar = createProgramToolBar( program );
 		addProgramTools( toolbar );
 
-		TextField searchField = new TextField( "");
-		searchField.setPromptText( Rb.text( BundleKey.PROMPT, "index-search") );
-		searchField.getStyleClass().add( "workspace-search");
-		Pane searchFieldPane = new BorderPane(searchField);
-		searchFieldPane.getStyleClass().addAll( );
+		SearchBar searchbar = new SearchBar( this, program.getIndexService() );
+		TextField searchField = searchbar.getSearchField();
+		searchField.setPromptText( Rb.text( BundleKey.PROMPT, "index-search" ) );
+		searchField.getStyleClass().add( "workspace-search" );
 
-		BorderPane menubarPane = new BorderPane(menubar, null, searchFieldPane, null, null );
-		BorderPane toolbarPane = new BorderPane(toolbar);
+		BorderPane menubarPane = new BorderPane( menubar, null, searchbar, null, null );
+		BorderPane toolbarPane = new BorderPane( toolbar );
 
 		statusBar = createStatusBar( program );
 
-		noticeContainer = new VBox();
-		noticeContainer.getStyleClass().add( "notice-container" );
-		noticeContainer.setPickOnBounds( false );
+		hitBox = new VBox();
+		hitBox.getStyleClass().addAll( "flyout" );
+		hitBox.setPickOnBounds( false );
+		hitBox.setVisible( false );
 
-		BorderPane noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
-		noticeLayout.setPickOnBounds( false );
+		BorderPane hitPane = new BorderPane( null, null, hitBox, null, null );
+		hitPane.setPickOnBounds( false );
+
+		noticeBox = new VBox();
+		noticeBox.getStyleClass().addAll( "flyout" );
+		noticeBox.setPickOnBounds( false );
+		noticeBox.setVisible( false );
+
+		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+		noticePane.setPickOnBounds( false );
 
 		// Workpane container
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		StackPane workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		StackPane workspaceStack = new StackPane( workpaneContainer, hitPane, noticePane );
 		workspaceStack.setPickOnBounds( false );
 
 		workareaLayout = new BorderPane();
@@ -425,31 +438,65 @@ public class Workspace implements WritableIdentity {
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		NoticePane pane = new NoticePane( program, notice, true );
-		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
-		noticeContainer.getChildren().add( 0, pane );
+		noticeBox.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
+		noticeBox.getChildren().add( 0, pane );
 
 		pane.setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
-			noticeContainer.getChildren().remove( pane );
+			noticeBox.getChildren().remove( pane );
+			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
-			noticeContainer.getChildren().remove( pane );
+			noticeBox.getChildren().remove( pane );
+			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
 			event.consume();
 		} );
 
 		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
-			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
+			TimerUtil.fxTask( () -> {
+				noticeBox.getChildren().remove( pane );
+				if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
+			}, balloonTimeout );
 		}
+
+		noticeBox.setVisible( true );
 	}
 
 	public void hideNotices() {
-		noticeContainer.getChildren().clear();
+		noticeBox.getChildren().clear();
+		noticeBox.setVisible( false );
+	}
+
+	public void showHits( List<Hit> hits ) {
+		//if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
+
+		hitBox.getChildren().clear();
+		hitBox.getChildren().addAll( hits.stream().map( h -> {
+			Node pane = new SearchResult( h.context() );
+
+			pane.setOnMouseClicked( ( event ) -> {
+				//getProgram().getNoticeManager().readNotice( notice );
+				//hitBox.getChildren().remove( pane );
+				//if( hitBox.getChildren().size() == 0 ) hitBox.setVisible( false );
+				//pane.executeNoticeAction();
+				event.consume();
+			} );
+
+			return pane;
+		} ).collect( Collectors.toList() ) );
+
+		hitBox.setVisible( true );
+	}
+
+	public void hideHits() {
+		hitBox.getChildren().clear();
+		hitBox.setVisible( false );
 	}
 
 	public StatusBar getStatusBar() {

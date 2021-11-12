@@ -53,7 +53,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -516,8 +515,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void indexProgramDocuments() {
-		Document aboutDocument = Document.of( ProgramAboutType.URI, new StringReader( "about" ) );
-		aboutDocument.addTags( Set.of( Rb.text( BundleKey.ACTION, "about.name" ) ) );
+		String name = Rb.text( BundleKey.ACTION, "about.name" );
+		Document aboutDocument = new Document( ProgramAboutType.URI, name, new StringReader( "A document named " + name ) );
 		getIndexService().submit( aboutDocument );
 	}
 

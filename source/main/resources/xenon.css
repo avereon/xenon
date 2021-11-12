@@ -7,6 +7,8 @@ Derived from modena.css
     -ex-background-tags: rgba(236, 236, 236, 0.6);
     -ex-background-note: rgba(236, 236, 236, 0.8);
 
+    -ex-background-subdue: rgba(20, 20, 20, 0.6);
+
     -ex-workspace-tint-color: #c0c0c040;
     -ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 
@@ -22,11 +24,11 @@ Derived from modena.css
 }
 
 .prompt {
-    -fx-padding: 0 1mm 0 0;
+    -fx-padding: 0 0.5em 0 0;
 }
 
 .padded {
-    -fx-padding: 1.5mm;
+    -fx-padding: 0.5em;
 }
 
 /*******************************************************************************
@@ -166,7 +168,7 @@ Derived from modena.css
 }
 
 .workspace-search {
-    -fx-pref-width: 5cm;
+    -fx-pref-width: 15em;
 }
 
 /*******************************************************************************
@@ -301,37 +303,72 @@ Derived from modena.css
  * Status Bar
  ******************************************************************************/
 .status-bar {
-    -fx-padding: 1mm 1mm 1mm 1mm;
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
     -fx-font-weight: normal;
 }
 
 .status-bar > .box {
-    -fx-spacing: 1mm;
+    -fx-spacing: 0.5em;
 }
 
 .status-bar .label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+    -fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 .status-bar .text-field {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+    -fx-padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+/*******************************************************************************
+ * Flyout
+ ******************************************************************************/
+.flyout {
+    -fx-pref-width: 20em;
+    -fx-background-color: -ex-background-subdue;
+    /*-fx-background-color: transparent;*/
+    /*-fx-background-radius: 0.5em 0 0 0.5em;*/
+    /*-fx-background-insets: 0.5em 0 0.5em 0.5em;*/
+    /*-fx-padding: 0.5em;*/
+}
+
+/*******************************************************************************
+ * Search Hit
+ ******************************************************************************/
+.hit {
+    -fx-background-color: -ex-background-note;
+    -fx-background-insets: 0.5em;
+    -fx-padding: 1em;
+}
+
+.hit-flyout {
+    -fx-background-color: -ex-background-note;
+    -fx-background-radius: 0.5em 0 0 0.5em;
+    -fx-background-insets: 0.5em 0 0.5em 0.5em;
+    -fx-padding: 1em;
+}
+
+.hit-title {
+    -fx-font-weight: bold;
+}
+
+.hit-message {
+    -fx-font-weight: normal;
 }
 
 /*******************************************************************************
  * Notice
  ******************************************************************************/
 .notice {
-    -fx-background-color: -ex-background-text;
-    -fx-background-insets: 1.5mm;
-    -fx-padding: 3mm;
+    -fx-background-color: -ex-background-note;
+    -fx-background-insets: 0.5em;
+    -fx-padding: 1em;
 }
 
 .notice-flyout {
     -fx-background-color: -ex-background-note;
-    -fx-pref-width: 6cm;
-    -fx-background-radius: 1.5mm 0 0 1.5mm;
-    -fx-background-insets: 1.5mm 0 1.5mm 1.5mm;
-    -fx-padding: 3mm;
+    -fx-background-radius: 0.5em 0 0 0.5em;
+    -fx-background-insets: 0.5em 0 0.5em 0.5em;
+    -fx-padding: 1em;
 }
 
 .notice-title {
@@ -406,7 +443,7 @@ Derived from modena.css
 }
 
 .memory-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+    -fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
@@ -448,7 +485,7 @@ Derived from modena.css
 }
 
 .task-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+    -fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
@@ -459,7 +496,7 @@ Derived from modena.css
 }
 
 .fps-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+    -fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
@@ -533,9 +570,9 @@ Derived from modena.css
  * Product Tool
  ******************************************************************************/
 #tool-product-page-header {
-    -fx-background-insets: 0 0 1mm 0;
+    -fx-background-insets: 0 0 0.5em 0;
     -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm 1mm 2mm 1mm;
+    -fx-padding: 0.5em 0.5em 1em 0.5em;
 }
 
 #tool-product-page-title {
@@ -543,12 +580,12 @@ Derived from modena.css
 }
 
 #tool-product-page-header-buttons {
-    -fx-spacing: 1mm;
+    -fx-spacing: 0.5em;
 }
 
 #tool-product-artifact {
     -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm;
+    -fx-padding: 0.5em;
 }
 
 #tool-product-artifact-name {
@@ -557,7 +594,7 @@ Derived from modena.css
 
 #tool-product-market {
     -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm;
+    -fx-padding: 0.5em;
 }
 
 #tool-product-market-name {
@@ -565,14 +602,14 @@ Derived from modena.css
 }
 
 #tool-product-page-footer {
-    -fx-background-insets: 1mm 0 0 0;
+    -fx-background-insets: 0.5em 0 0 0;
     -fx-background-color: -ex-background-text;
-    -fx-padding: 2mm 1mm 1mm 1mm;
+    -fx-padding: 1em 0.5em 0.5em 0.5em;
 }
 
 .tool-product-message {
     -fx-background-color: -ex-background-text;
-    -fx-padding: 5mm;
+    -fx-padding: 2em;
     -fx-alignment: center;
     -fx-font-size: 2em;
 }
@@ -611,7 +648,7 @@ Derived from modena.css
 
 .tool-pane-header-area {
     -fx-background-color: -ex-background-tabs;
-    -fx-spacing: 0.5mm;
+    -fx-spacing: 0.2em;
 }
 
 .tool-pane-header-area .box {
@@ -626,7 +663,7 @@ Derived from modena.css
  * Tool Tab
  ******************************************************************************/
 .tool-pane .tool-tab {
-    -fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+    -fx-padding: 0.2em 0.2em 0.2em 0.2em;
     -fx-background-color: -ex-background-text;
 }
 
@@ -635,7 +672,7 @@ Derived from modena.css
 }
 
 .tool-pane .tool-tab .tool-tab-icon {
-    -fx-padding: 0 1mm 0 0;
+    -fx-padding: 0 0.5em 0 0;
 }
 
 .tool-pane .tool-tab .tool-tab-label {
@@ -643,17 +680,17 @@ Derived from modena.css
 }
 
 .tool-pane .tool-tab .tool-tab-context-icon {
-    -fx-padding: 0 0 0 1mm;
+    -fx-padding: 0 0 0 0.5em;
 }
 
 .tool-pane .tool-tab .tool-tab-close {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 0 1mm;
+    -fx-padding: 0 0 0 0.5em;
 }
 
 .tool-pane:active .tool-tab:selected {
-    -fx-padding: 0.5mm 0.5mm 0 0.5mm;
-    -fx-border-width: 0 0 0.5mm 0;
+    -fx-padding: 0.2em 0.2em 0 0.2em;
+    -fx-border-width: 0 0 0.2em 0;
     -fx-border-color: derive(-fx-focus-color, 20%);
     -fx-background-color: -ex-background-note;
 }
