@@ -4,6 +4,7 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
+import com.avereon.index.Document;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
@@ -43,10 +44,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,6 +53,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -495,21 +494,31 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartSuccess() {
+		// Program started event should be fired after the window is shown
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
+		time( "program started" );
+
 		// Check for staged updates
 		getProductManager().checkForStagedUpdatesAtStart();
 
 		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
 		getProductManager().scheduleUpdateCheck( true );
 
-		// TODO Show user notifications
 		// Check to see if the application was updated
 		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
+
+		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
 		new ProgramChecks( this );
 
-		// Program started event should be fired after the window is shown
-		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
-		time( "program started" );
+		// Index program documents
+		indexProgramDocuments();
+	}
+
+	private void indexProgramDocuments() {
+		Document aboutDocument = Document.of( ProgramAboutType.URI, new StringReader( "about" ) );
+		aboutDocument.addTags( Set.of( Rb.text( BundleKey.ACTION, "about.name" ) ) );
+		getIndexService().submit( aboutDocument );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -817,6 +826,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public NoticeManager getNoticeManager() {
 		return noticeManager;
+	}
+
+	public IndexService getIndexService() {
+		return indexService;
 	}
 
 	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {
