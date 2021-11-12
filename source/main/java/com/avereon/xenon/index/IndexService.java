@@ -48,7 +48,7 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	public Result<List<Hit>> search( String term ) {
-		return indexer.getIndex().map( i -> new FuzzySearch().search( i, IndexQuery.builder().text( term ).build() ) ).orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
+		return indexer.getIndex().map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ) ).orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
 }
