@@ -69,6 +69,8 @@ public class Workspace implements WritableIdentity {
 
 	private final BorderPane workareaLayout;
 
+	private final SearchBar searchbar;
+
 	private final MenuBar menubar;
 
 	// This menu is used to mark the beginning of the space where tools can push
@@ -143,10 +145,7 @@ public class Workspace implements WritableIdentity {
 		toolbar = createProgramToolBar( program );
 		addProgramTools( toolbar );
 
-		SearchBar searchbar = new SearchBar( this, program.getIndexService() );
-		TextField searchField = searchbar.getSearchField();
-		searchField.setPromptText( Rb.text( BundleKey.PROMPT, "index-search" ) );
-		searchField.getStyleClass().add( "workspace-search" );
+		searchbar = new SearchBar( this, program.getIndexService() );
 
 		BorderPane menubarPane = new BorderPane( menubar, null, searchbar, null, null );
 		BorderPane toolbarPane = new BorderPane( toolbar );
@@ -477,19 +476,22 @@ public class Workspace implements WritableIdentity {
 		//if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		hitBox.getChildren().clear();
-		hitBox.getChildren().addAll( hits.stream().map( h -> {
-			Node pane = new SearchResult( h.context() );
 
-			pane.setOnMouseClicked( ( event ) -> {
-				//getProgram().getNoticeManager().readNotice( notice );
-				//hitBox.getChildren().remove( pane );
-				//if( hitBox.getChildren().size() == 0 ) hitBox.setVisible( false );
-				//pane.executeNoticeAction();
-				event.consume();
-			} );
+		if( hits.isEmpty() ) {
+			String message = Rb.text( BundleKey.WORKSPACE, "search-no-results" );
+			hitBox.getChildren().add( new BorderPane( new Label( message ) ) );
+		} else {
+			hitBox.getChildren().addAll( hits.stream().map( h -> {
+				Node pane = new SearchResult( h.context() );
 
-			return pane;
-		} ).collect( Collectors.toList() ) );
+				pane.setOnMouseClicked( ( event ) -> {
+					searchbar.open( h );
+					event.consume();
+				} );
+
+				return pane;
+			} ).collect( Collectors.toList() ) );
+		}
 
 		hitBox.setVisible( true );
 	}

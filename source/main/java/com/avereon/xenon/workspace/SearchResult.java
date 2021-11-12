@@ -5,7 +5,7 @@ import javafx.scene.layout.BorderPane;
 
 public class SearchResult extends BorderPane {
 
-	private Label label;
+	private final Label label;
 
 	public SearchResult() {
 		this( "" );
@@ -14,8 +14,7 @@ public class SearchResult extends BorderPane {
 	public SearchResult( String text ) {
 		getStyleClass().addAll( "hit" );
 		this.label = new Label( text );
-
-		setCenter( label );
+		setLeft( label );
 	}
 
 }
