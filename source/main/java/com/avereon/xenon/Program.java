@@ -12,6 +12,7 @@ import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
@@ -515,9 +516,9 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void indexProgramDocuments() {
-		String name = Rb.text( BundleKey.ACTION, "about.name" );
-		Document aboutDocument = new Document( ProgramAboutType.URI, name, new StringReader( "A document named " + name ) );
-		getIndexService().submit( aboutDocument );
+		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
+		String name = Rb.text( BundleKey.TOOL, about.getTitle() + "-name" );
+		getIndexService().submit( new Document( ProgramAboutType.URI, name, new StringReader( about.getIndexContent() ) ) );
 	}
 
 	// THREAD JavaFX Application Thread

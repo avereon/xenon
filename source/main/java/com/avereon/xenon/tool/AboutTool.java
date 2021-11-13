@@ -21,7 +21,6 @@ import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -30,7 +29,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import lombok.CustomLog;
 
@@ -96,6 +94,10 @@ public class AboutTool extends GuidedTool {
 		Guide guide = createGuide();
 		getGuideContext().getGuides().add( guide );
 		getGuideContext().setCurrentGuide( guide );
+	}
+
+	public String getIndexContent() {
+		return getDetailsText( getProgram() );
 	}
 
 	@Override
