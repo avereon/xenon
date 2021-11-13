@@ -8,6 +8,7 @@ import com.avereon.xenon.index.IndexService;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import lombok.CustomLog;
 import lombok.NonNull;
 
@@ -29,6 +30,7 @@ public class SearchBar extends HBox {
 		this.indexService = indexService;
 		search = new TextField();
 		search.setPromptText( Rb.text( BundleKey.PROMPT, "index-search" ) );
+		HBox.setHgrow( search, Priority.ALWAYS );
 
 		getChildren().addAll( search );
 

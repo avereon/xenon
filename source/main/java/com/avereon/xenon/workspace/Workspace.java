@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -147,27 +148,26 @@ public class Workspace implements WritableIdentity {
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
-		addProgramTools( toolbar );
 
 		searchbar = new SearchBar( this, program.getIndexService() );
 
-		BorderPane menubarPane = new BorderPane( menubar, null, searchbar, null, null );
-		BorderPane toolbarPane = new BorderPane( toolbar );
+		BorderPane menubarPane = new BorderPane( menubar, null, getWorkareaTools(), null, null );
+		BorderPane toolbarPane = new BorderPane( toolbar, null, getProgramTools(), null, null );
 
 		statusBar = createStatusBar( program );
 
 		hitList = FXCollections.observableArrayList();
 
-		hitListView = new ListView<>(hitList);
+		hitListView = new ListView<>( hitList );
 		hitListView.setCellFactory( new HitListCellFactory() );
 		hitListView.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
-		//		hitList.setOnMousePressed( e -> {
-		//			Hit hit = hitList.getSelectionModel().getSelectedItem();
-		//			if( hit != null ) searchbar.open( hit );
-		//		} );
+		hitListView.setOnMousePressed( e -> {
+			Hit hit = hitListView.getSelectionModel().getSelectedItem();
+			if( hit != null ) searchbar.open( hit );
+		} );
 		VBox.setVgrow( hitListView, Priority.ALWAYS );
 
-		hitBox = new VBox(hitListView);
+		hitBox = new VBox( hitListView );
 		hitBox.getStyleClass().addAll( "flyout" );
 		hitBox.setPickOnBounds( false );
 		hitBox.setVisible( false );
@@ -261,13 +261,40 @@ public class Workspace implements WritableIdentity {
 
 		String descriptor = "new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
+		toolbar.getItems().add( toolbarToolEnd );
 
 		return toolbar;
 	}
 
+	private HBox getWorkareaTools() {
+		HBox box = new HBox();
+		box.setAlignment( Pos.CENTER_RIGHT );
+		box.getStyleClass().addAll( "menu-bar" );
+
+		// Add the workarea menu and selector
+		box.getChildren().add( createWorkareaMenu( program ) );
+		box.getChildren().add( workareaSelector = createWorkareaSelector() );
+
+		return box;
+	}
+
+	private HBox getProgramTools() {
+		HBox box = new HBox();
+		box.setAlignment( Pos.CENTER_RIGHT );
+		box.getStyleClass().addAll( "tool-bar" );
+
+		// Add the search bar
+		box.getChildren().add( searchbar );
+
+		// Add the notice button
+		box.getChildren().add( ToolBarFactory.createPad() );
+		box.getChildren().add( createNoticeToolbarButton() );
+
+		return box;
+	}
+
 	private void addProgramTools( ToolBar toolbar ) {
 		// Add the workarea menu and selector
-		toolbar.getItems().add( toolbarToolEnd );
 		toolbar.getItems().add( createWorkareaMenu( program ) );
 		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
@@ -724,6 +751,7 @@ public class Workspace implements WritableIdentity {
 
 				@Override
 				protected void updateItem( Hit item, boolean empty ) {
+					super.updateItem( item, empty );
 					if( item == null || empty ) {
 						setText( null );
 					} else {
