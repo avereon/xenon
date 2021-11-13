@@ -16,7 +16,7 @@ import java.io.OutputStream;
 @CustomLog
 public class ProgramNoticeType extends AssetType {
 
-	private static final String mediaTypePattern = "application/vnd.avereon.xenon.program.notice";
+	private static final String mediaTypePattern = BASE_MEDIA_TYPE + ".notice";
 
 	private static final String uriPattern = "program:/notice";
 

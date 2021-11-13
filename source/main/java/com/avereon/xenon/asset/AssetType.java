@@ -58,6 +58,8 @@ import java.util.stream.Collectors;
 @CustomLog
 public abstract class AssetType implements Comparable<AssetType> {
 
+	protected static final String BASE_MEDIA_TYPE = "application/vnd.avereon.xenon.program";
+
 	private final String key = getClass().getName();
 
 	private final ProgramProduct product;

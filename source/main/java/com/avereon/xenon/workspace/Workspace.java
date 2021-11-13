@@ -1,13 +1,14 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.index.Hit;
-import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.*;
+import com.avereon.xenon.Profile;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramSettings;
+import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -33,14 +34,15 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import lombok.CustomLog;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,8 +68,6 @@ public class Workspace implements WritableIdentity {
 	private final FxEventHub eventBus;
 
 	private final BorderPane workareaLayout;
-
-	private final SearchBar searchbar;
 
 	private final MenuBar menubar;
 
@@ -102,12 +102,6 @@ public class Workspace implements WritableIdentity {
 	private final WorkspaceBackground background;
 
 	private final Pane workpaneContainer;
-
-	private final ObservableList<Hit> hitListModel;
-
-	private final ListView<Hit> hitList;
-
-	private final VBox hitBox;
 
 	private final VBox noticeBox;
 
@@ -146,31 +140,10 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
-		searchbar = new SearchBar( this, program.getIndexService() );
-
 		BorderPane menubarPane = new BorderPane( menubar, null, getWorkareaTools(), null, null );
 		BorderPane toolbarPane = new BorderPane( toolbar, null, getProgramTools(), null, null );
 
 		statusBar = createStatusBar( program );
-
-		hitListModel = FXCollections.observableArrayList();
-
-		hitList = new ListView<>( hitListModel );
-		hitList.setCellFactory( new HitListCellFactory() );
-		hitList.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
-		hitList.setOnMousePressed( e -> {
-			Hit hit = hitList.getSelectionModel().getSelectedItem();
-			if( hit != null ) searchbar.open( hit );
-		} );
-		VBox.setVgrow( hitList, Priority.ALWAYS );
-
-		hitBox = new VBox( hitList );
-		hitBox.getStyleClass().addAll( "flyout" );
-		hitBox.setPickOnBounds( false );
-		hitBox.setVisible( false );
-
-		BorderPane hitPane = new BorderPane( null, null, hitBox, null, null );
-		hitPane.setPickOnBounds( false );
 
 		noticeBox = new VBox();
 		noticeBox.getStyleClass().addAll( "flyout" );
@@ -184,7 +157,7 @@ public class Workspace implements WritableIdentity {
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		StackPane workspaceStack = new StackPane( workpaneContainer, hitPane, noticePane );
+		StackPane workspaceStack = new StackPane( workpaneContainer, noticePane );
 		workspaceStack.setPickOnBounds( false );
 
 		workareaLayout = new BorderPane();
@@ -268,20 +241,18 @@ public class Workspace implements WritableIdentity {
 		box.setAlignment( Pos.CENTER_RIGHT );
 		box.getStyleClass().addAll( "menu-bar" );
 
-		// Add the workarea menu and selector
-		box.getChildren().add( createWorkareaMenu( program ) );
-		box.getChildren().add( workareaSelector = createWorkareaSelector() );
-
 		return box;
 	}
 
 	private HBox getProgramTools() {
 		HBox box = new HBox();
 		box.setAlignment( Pos.CENTER_RIGHT );
+		// FIXME Not sure why there is a small height difference
 		box.getStyleClass().addAll( "tool-bar" );
 
-		// Add the search bar
-		box.getChildren().add( searchbar );
+		// Add the workarea menu and selector
+		box.getChildren().add( createWorkareaMenu( program ) );
+		box.getChildren().add( workareaSelector = createWorkareaSelector() );
 
 		// Add the notice button
 		box.getChildren().add( ToolBarFactory.createPad() );
@@ -511,30 +482,6 @@ public class Workspace implements WritableIdentity {
 		noticeBox.setVisible( false );
 	}
 
-	public void showHits( List<Hit> hits ) {
-		hitListModel.setAll( hits );
-		hitList.getSelectionModel().selectFirst();
-		hitBox.setVisible( true );
-	}
-
-	public void hideHits() {
-		hitBox.setVisible( false );
-	}
-
-	public Optional<Hit> getSelectedHit() {
-		return Optional.of( hitList.getSelectionModel().getSelectedItem() );
-	}
-
-	public void selectPreviousHit() {
-		if( hitListModel.isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitListModel.get( 0 ) ) return;
-		hitList.getSelectionModel().selectPrevious();
-	}
-
-	public void selectNextHit() {
-		if( hitListModel.isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitListModel.get( hitListModel.size() - 1 ) ) return;
-		hitList.getSelectionModel().selectNext();
-	}
-
 	public StatusBar getStatusBar() {
 		return statusBar;
 	}
@@ -752,27 +699,6 @@ public class Workspace implements WritableIdentity {
 			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
 		}
 
-	}
-
-	private static class HitListCellFactory implements Callback<ListView<Hit>, ListCell<Hit>> {
-
-		@Override
-		public ListCell<Hit> call( ListView<Hit> hitListView ) {
-
-			return new ListCell<>() {
-
-				@Override
-				protected void updateItem( Hit item, boolean empty ) {
-					super.updateItem( item, empty );
-					if( item == null || empty ) {
-						setText( null );
-					} else {
-						setText( item.context() );
-					}
-				}
-			};
-
-		}
 	}
 
 }
