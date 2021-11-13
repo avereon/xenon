@@ -40,10 +40,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -106,9 +103,9 @@ public class Workspace implements WritableIdentity {
 
 	private final Pane workpaneContainer;
 
-	private final ObservableList<Hit> hitList;
+	private final ObservableList<Hit> hitListModel;
 
-	private final ListView<Hit> hitListView;
+	private final ListView<Hit> hitList;
 
 	private final VBox hitBox;
 
@@ -156,18 +153,18 @@ public class Workspace implements WritableIdentity {
 
 		statusBar = createStatusBar( program );
 
-		hitList = FXCollections.observableArrayList();
+		hitListModel = FXCollections.observableArrayList();
 
-		hitListView = new ListView<>( hitList );
-		hitListView.setCellFactory( new HitListCellFactory() );
-		hitListView.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
-		hitListView.setOnMousePressed( e -> {
-			Hit hit = hitListView.getSelectionModel().getSelectedItem();
+		hitList = new ListView<>( hitListModel );
+		hitList.setCellFactory( new HitListCellFactory() );
+		hitList.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
+		hitList.setOnMousePressed( e -> {
+			Hit hit = hitList.getSelectionModel().getSelectedItem();
 			if( hit != null ) searchbar.open( hit );
 		} );
-		VBox.setVgrow( hitListView, Priority.ALWAYS );
+		VBox.setVgrow( hitList, Priority.ALWAYS );
 
-		hitBox = new VBox( hitListView );
+		hitBox = new VBox( hitList );
 		hitBox.getStyleClass().addAll( "flyout" );
 		hitBox.setPickOnBounds( false );
 		hitBox.setVisible( false );
@@ -515,12 +512,27 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void showHits( List<Hit> hits ) {
-		hitList.setAll( hits );
+		hitListModel.setAll( hits );
+		hitList.getSelectionModel().selectFirst();
 		hitBox.setVisible( true );
 	}
 
 	public void hideHits() {
 		hitBox.setVisible( false );
+	}
+
+	public Optional<Hit> getSelectedHit() {
+		return Optional.of( hitList.getSelectionModel().getSelectedItem() );
+	}
+
+	public void selectPreviousHit() {
+		if( hitListModel.isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitListModel.get( 0 ) ) return;
+		hitList.getSelectionModel().selectPrevious();
+	}
+
+	public void selectNextHit() {
+		if( hitListModel.isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitListModel.get( hitListModel.size() - 1 ) ) return;
+		hitList.getSelectionModel().selectNext();
 	}
 
 	public StatusBar getStatusBar() {
