@@ -51,6 +51,7 @@ public class IndexSearchTool extends ProgramTool {
 				case DOWN -> selectNextHit();
 			}
 		} );
+		hitList.setOnMousePressed( e -> openHit() );
 	}
 
 	@Override
@@ -59,13 +60,15 @@ public class IndexSearchTool extends ProgramTool {
 	}
 
 	@Override
-	protected void ready( OpenAssetRequest request ) {
+	protected void ready( OpenAssetRequest request ) throws ToolException {
+		super.ready( request );
 		setTitle( Rb.text( BundleKey.TOOL, "index-search-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "index-search" ) );
+		requestFocus();
 	}
 
 	@Override
-	protected void activate() throws ToolException {
+	public void requestFocus() {
 		search.requestFocus();
 	}
 

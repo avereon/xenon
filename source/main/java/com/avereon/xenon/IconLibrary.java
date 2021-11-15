@@ -68,18 +68,19 @@ public class IconLibrary {
 		register( "fault", new FaultIcon() );
 		register( "terminal", new TerminalIcon() );
 
-		register( "welcome", new WelcomeIcon() );
+		register( "about", new ExclamationIcon() );
 		register( "help-content", new QuestionIcon() );
+		register( "index-search", new MagnifierIcon() );
 		register( "notice", new NoticeIcon() );
 		register( "notice-error", new NoticeIcon( Color.RED ) );
 		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
 		register( "notice-info", new NoticeIcon( Color.GREEN.brighter() ) );
 		register( "notice-norm", new NoticeIcon( Color.web( "#40a0c0" ) ) );
 		register( "notice-none", new NoticeIcon() );
-		register( "task", new TaskQueueIcon() );
 		register( "product", new ProductIcon() );
+		register( "task", new TaskQueueIcon() );
 		register( "update", new DownloadIcon() );
-		register( "about", new ExclamationIcon() );
+		register( "welcome", new WelcomeIcon() );
 
 		register( "workspace", new FrameIcon() );
 		register( "workspace-new", new FrameIcon() );
