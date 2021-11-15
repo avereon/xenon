@@ -10,6 +10,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -64,7 +65,9 @@ public class IndexSearchTool extends ProgramTool {
 		super.ready( request );
 		setTitle( Rb.text( BundleKey.TOOL, "index-search-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "index-search" ) );
-		requestFocus();
+
+		// FIXME Why is there a race condition here?
+		Fx.run( this::requestFocus );
 	}
 
 	@Override
