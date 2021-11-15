@@ -37,7 +37,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 		super.setup();
 
 		assertToolCount( getWorkpane(), 0 );
-		MatcherAssert.assertThat( getProgram().getAssetManager().getAssetTypes().size(), is( 12 ) );
 
 		MockAssetType assetType = new MockAssetType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
