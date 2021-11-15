@@ -23,6 +23,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -246,9 +247,8 @@ public class Workspace implements WritableIdentity {
 
 	private HBox getProgramTools() {
 		HBox box = new HBox();
-		box.setAlignment( Pos.CENTER_RIGHT );
-		// FIXME Not sure why there is a small height difference
 		box.getStyleClass().addAll( "tool-bar" );
+		box.setPadding( Insets.EMPTY );
 
 		// Add the workarea menu and selector
 		box.getChildren().add( createWorkareaMenu( program ) );
@@ -289,8 +289,8 @@ public class Workspace implements WritableIdentity {
 		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		workareaMenuBar.getMenus().add( MenuBarFactory.createMenu( program, descriptor, true ) );
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		return workareaMenuBar;
 	}
 
