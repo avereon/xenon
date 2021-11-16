@@ -9,7 +9,7 @@ import com.avereon.product.Rb;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.skill.Configurable;
+import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
