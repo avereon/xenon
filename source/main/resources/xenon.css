@@ -266,28 +266,6 @@ Derived from modena.css
     -fx-background-color: -ex-background-text
 }
 
-.tool .list-view {
-    -fx-background-color: transparent;
-}
-
-.tool .list-cell {
-    -fx-indent: 1em;
-    -fx-background-color: transparent;
-}
-
-.tool .list-cell:filled:selected {
-    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
-}
-
-.tool .list-view:focused .list-cell:filled:selected {
-    -fx-background: -fx-selection-bar;
-    -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
-}
-
-.tool .list-view:focused .list-cell:focused {
-    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
-}
-
 .tool .tree-view {
     /*-fx-background-color: -ex-background-text;*/
     -fx-background-color: transparent;
@@ -596,6 +574,11 @@ Derived from modena.css
 }
 
 /*******************************************************************************
+ * Fault Tool
+ ******************************************************************************/
+#tool-guide {}
+
+/*******************************************************************************
  * Index Search Tool
  ******************************************************************************/
 /*#tool-index-search {*/
@@ -606,6 +589,28 @@ Derived from modena.css
 #tool-index-search VBox {
     -fx-spacing: 0.5em;
     -fx-padding: 0.5em 0 0 0;
+}
+
+#tool-index-search .list-view {
+    -fx-background-color: transparent;
+}
+
+#tool-index-search .list-cell {
+    -fx-indent: 1em;
+    -fx-background-color: transparent;
+}
+
+#tool-index-search .list-cell:filled:selected {
+    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+}
+
+#tool-index-search .list-view:focused .list-cell:filled:selected {
+    -fx-background: -fx-selection-bar;
+    -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+
+#tool-index-search .list-view:focused .list-cell:focused {
+    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
 /*******************************************************************************
