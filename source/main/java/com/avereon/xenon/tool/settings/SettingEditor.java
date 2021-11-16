@@ -18,7 +18,7 @@ public abstract class SettingEditor {
 
 	protected final SettingData setting;
 
-	protected final String bundleKey;
+	protected final String rbKey;
 
 	static {
 		editors = new HashMap<>();
@@ -40,11 +40,11 @@ public abstract class SettingEditor {
 		addType( "update-checks", UpdateSettingViewer.class );
 	}
 
-	public SettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
+	public SettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
-		this.bundleKey = bundleKey;
+		this.rbKey = rbKey;
 		this.setting = setting;
 	}
 
@@ -52,8 +52,8 @@ public abstract class SettingEditor {
 		return product;
 	}
 
-	public String getBundleKey() {
-		return bundleKey;
+	public String getRbKey() {
+		return rbKey;
 	}
 
 	public SettingData getSetting() {

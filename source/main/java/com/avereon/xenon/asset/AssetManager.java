@@ -483,9 +483,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	public void close( Asset asset ) {
 		if( asset.isModified() && canSaveAsset( asset ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-			alert.setTitle( Rb.text( BundleKey.ASSET, "close-save-title" ) );
-			alert.setHeaderText( Rb.text( BundleKey.ASSET, "close-save-message" ) );
-			alert.setContentText( Rb.text( BundleKey.ASSET, "close-save-prompt" ) );
+			alert.setTitle( Rb.text( RbKey.ASSET, "close-save-title" ) );
+			alert.setHeaderText( Rb.text( RbKey.ASSET, "close-save-message" ) );
+			alert.setContentText( Rb.text( RbKey.ASSET, "close-save-prompt" ) );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -1059,8 +1059,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		if( type == null ) {
 			log.atDebug().log( "Asset type not found for: " + asset.getFileName() );
-			String title = Rb.text( BundleKey.LABEL, "asset" );
-			String message = Rb.text( BundleKey.ASSET, "asset-type-not-supported", asset.getFileName() );
+			String title = Rb.text( RbKey.LABEL, "asset" );
+			String message = Rb.text( RbKey.ASSET, "asset-type-not-supported", asset.getFileName() );
 			Notice notice = new Notice( title, message ).setType( Notice.Type.WARN );
 			getProgram().getNoticeManager().addNotice( notice );
 			return false;

@@ -7,7 +7,7 @@ import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
@@ -200,8 +200,8 @@ public class AboutTool extends GuidedTool {
 			setId( "tool-about-summary" );
 
 			String from = Rb.text( "tool", "about-from" );
-			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
-			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
+			lastUpdateCheckPrompt = Rb.text( RbKey.UPDATE, "product-update-check-last" );
+			nextUpdateCheckPrompt = Rb.text( RbKey.UPDATE, "product-update-check-next" );
 			lastUpdateTimestamp = makeLabel( "tool-about-version" );
 			nextUpdateTimestamp = makeLabel( "tool-about-version" );
 			javaLabel = makeLabel( "tool-about-header" );
@@ -296,7 +296,7 @@ public class AboutTool extends GuidedTool {
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
-			//informationLabel.setText( Rb.text( BundleKey.LABEL, "information" ) );
+			//informationLabel.setText( Rb.text( RbKey.LABEL, "information" ) );
 			updateUpdateCheckInfo();
 		}
 
@@ -305,8 +305,8 @@ public class AboutTool extends GuidedTool {
 			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-			String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
-			String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
+			String unknown = Rb.text( RbKey.UPDATE, "unknown" );
+			String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
 			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 

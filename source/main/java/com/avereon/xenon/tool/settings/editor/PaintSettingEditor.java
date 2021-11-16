@@ -28,8 +28,8 @@ public class PaintSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public PaintSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public PaintSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 		label = new Label();
 		paintPicker = new PaintPicker();
 		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
@@ -44,10 +44,10 @@ public class PaintSettingEditor extends SettingEditor {
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label.setText( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label.setText( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		paintPicker.setId( rbKey );

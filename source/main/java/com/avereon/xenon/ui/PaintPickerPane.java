@@ -2,7 +2,7 @@ package com.avereon.xenon.ui;
 
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
 import com.avereon.zarra.color.Colors;
 import com.avereon.zarra.color.PaintSwatch;
@@ -172,11 +172,11 @@ public class PaintPickerPane extends VBox {
 		private final String label;
 
 		static {
-			NONE = new PaintMode( "none", Rb.text( BundleKey.LABEL, "none" ) );
-			LAYER = new PaintMode( "layer", Rb.text( BundleKey.LABEL, "layer" ) );
-			SOLID = new PaintMode( "solid", Rb.text( BundleKey.LABEL, "solid" ) );
-			LINEAR = new PaintMode( "linear", Rb.text( BundleKey.LABEL, "linear" ) );
-			RADIAL = new PaintMode( "radial", Rb.text( BundleKey.LABEL, "radial" ) );
+			NONE = new PaintMode( "none", Rb.text( RbKey.LABEL, "none" ) );
+			LAYER = new PaintMode( "layer", Rb.text( RbKey.LABEL, "layer" ) );
+			SOLID = new PaintMode( "solid", Rb.text( RbKey.LABEL, "solid" ) );
+			LINEAR = new PaintMode( "linear", Rb.text( RbKey.LABEL, "linear" ) );
+			RADIAL = new PaintMode( "radial", Rb.text( RbKey.LABEL, "radial" ) );
 		}
 
 		public PaintMode( String key, String label ) {

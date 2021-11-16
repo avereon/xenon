@@ -3,7 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -36,7 +36,7 @@ public class NoticeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-notice" );
 
-		String clearAllText = Rb.text( BundleKey.TOOL, "notice-clear-all" );
+		String clearAllText = Rb.text( RbKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
 		clearAllButton.getStyleClass().addAll( "padded" );
 		clearAllButton.setOnMouseClicked( ( event ) -> this.clearAll() );

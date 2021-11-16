@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-public interface BundleKey {
+public interface RbKey {
 
 	String ACTION = "action";
 	String LABEL = "label";

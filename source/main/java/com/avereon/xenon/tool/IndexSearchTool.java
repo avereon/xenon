@@ -3,7 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.index.Hit;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -34,11 +34,11 @@ public class IndexSearchTool extends ProgramTool {
 		setId( "tool-index-search" );
 
 		search = new TextField();
-		search.setPromptText( Rb.text( BundleKey.PROMPT, "index-search" ) );
+		search.setPromptText( Rb.text( RbKey.PROMPT, "index-search" ) );
 
 		hitList = new ListView<>();
 		hitList.setCellFactory( new HitListCellFactory() );
-		hitList.setPlaceholder( new Label( Rb.text( BundleKey.WORKSPACE, "search-no-results" ) ) );
+		hitList.setPlaceholder( new Label( Rb.text( RbKey.WORKSPACE, "search-no-results" ) ) );
 		VBox.setVgrow( hitList, Priority.ALWAYS );
 
 		getChildren().add( new VBox( search, hitList ) );
@@ -63,7 +63,7 @@ public class IndexSearchTool extends ProgramTool {
 	@Override
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		super.ready( request );
-		setTitle( Rb.text( BundleKey.TOOL, "index-search-name" ) );
+		setTitle( Rb.text( RbKey.TOOL, "index-search-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "index-search" ) );
 
 		// FIXME Why is there a race condition here?

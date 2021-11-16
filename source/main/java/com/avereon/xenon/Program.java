@@ -519,7 +519,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private void indexProgramDocuments() {
 		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
-		String name = Rb.text( BundleKey.TOOL, about.getTitle() + "-name" );
+		String name = Rb.text( RbKey.TOOL, about.getTitle() + "-name" );
 		getIndexService().submit( new Document( ProgramAboutType.URI, name, new StringReader( about.getIndexContent() ) ) );
 	}
 
@@ -695,9 +695,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( Rb.text( BundleKey.PROGRAM, "program.close.title" ) );
-			alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "program.close.message" ) );
-			alert.setContentText( Rb.text( BundleKey.PROGRAM, "program.close.prompt" ) );
+			alert.setTitle( Rb.text( RbKey.PROGRAM, "program.close.title" ) );
+			alert.setHeaderText( Rb.text( RbKey.PROGRAM, "program.close.message" ) );
+			alert.setContentText( Rb.text( RbKey.PROGRAM, "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -1329,7 +1329,7 @@ public class Program extends Application implements ProgramProduct {
 	//		}
 	//
 	//		// The progress window title
-	//		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+	//		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
 	//
 	//		// Force the location of the updater log file
 	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
@@ -1355,8 +1355,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = Rb.text( BundleKey.UPDATE, "updates" );
-		String message = Rb.text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
+		String title = Rb.text( RbKey.UPDATE, "updates" );
+		String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 

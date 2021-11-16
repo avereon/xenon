@@ -29,16 +29,16 @@ public class FolderSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FolderSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public FolderSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
@@ -46,7 +46,7 @@ public class FolderSettingEditor extends SettingEditor {
 		field.setId( rbKey );
 
 		Button button = new Button();
-		button.setText( Rb.text( getProduct(), getBundleKey(), "browse" ) );
+		button.setText( Rb.text( getProduct(), getRbKey(), "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		nodes = List.of( label, field, button );
@@ -110,7 +110,7 @@ public class FolderSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle( Rb.text( getProduct(), getBundleKey(), "select-folder" ) );
+		chooser.setTitle( Rb.text( getProduct(), getRbKey(), "select-folder" ) );
 
 		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( fileName ).toFile() );
 		File selectedFile = chooser.showDialog( product.getProgram().getWorkspaceManager().getActiveStage() );

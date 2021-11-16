@@ -219,9 +219,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( Rb.text( BundleKey.PROGRAM, "asset-modified" ) );
-		alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "asset-modified-message" ) );
-		alert.setContentText( Rb.text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
+		alert.setTitle( Rb.text( RbKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( Rb.text( RbKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( Rb.text( RbKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();

@@ -23,19 +23,19 @@ public abstract class InfoSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public InfoSettingEditor( ProgramProduct product, String bundleKey, SettingData setting, Type type ) {
-		super( product, bundleKey, setting );
+	public InfoSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Type type ) {
+		super( product, rbKey, setting );
 		this.type = type;
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 
 		Label text;
 		text = new Label();
 		text.getStyleClass().add( type == Type.AREA ? "settings-infoarea" : "settings-infoline" );
-		text.setText( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		text.setText( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		text.setId( rbKey );
 
 		nodes = List.of( text );

@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings.editor;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.DateUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
@@ -28,14 +28,14 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public UpdateSettingViewer( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public UpdateSettingViewer( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		Label lastUpdateCheckLabel = new Label( Rb.text( getProduct(), BundleKey.UPDATE, "product-update-check-last" ) );
-		Label nextUpdateCheckLabel = new Label( Rb.text( getProduct(), BundleKey.UPDATE, "product-update-check-next" ) );
+		Label lastUpdateCheckLabel = new Label( Rb.text( getProduct(), RbKey.UPDATE, "product-update-check-last" ) );
+		Label nextUpdateCheckLabel = new Label( Rb.text( getProduct(), RbKey.UPDATE, "product-update-check-next" ) );
 		lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
 		nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
 		lastUpdateCheckLabel.getStyleClass().add( "prompt" );
@@ -76,8 +76,8 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private void updateLabels() {
 		Program program = product.getProgram();
-		String unknown = Rb.text( getProduct(), BundleKey.UPDATE, "unknown" );
-		String notScheduled = Rb.text( getProduct(), BundleKey.UPDATE, "not-scheduled" );
+		String unknown = Rb.text( getProduct(), RbKey.UPDATE, "unknown" );
+		String notScheduled = Rb.text( getProduct(), RbKey.UPDATE, "not-scheduled" );
 
 		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();

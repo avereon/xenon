@@ -308,7 +308,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
-		String taskName = Rb.text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
 			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );

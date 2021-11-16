@@ -1,13 +1,13 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 
 public class AnyAssetFilter implements AssetFilter {
 
 	@Override
 	public String getDescription() {
-		return Rb.text( BundleKey.LABEL, "all-assets" ) + " (*.*)";
+		return Rb.text( RbKey.LABEL, "all-assets" ) + " (*.*)";
 	}
 
 	@Override

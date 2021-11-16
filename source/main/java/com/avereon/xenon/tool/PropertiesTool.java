@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
@@ -57,7 +57,7 @@ public class PropertiesTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( Rb.text( BundleKey.TOOL, "properties-name" ) );
+		setTitle( Rb.text( RbKey.TOOL, "properties-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "properties" ) );
 	}
 

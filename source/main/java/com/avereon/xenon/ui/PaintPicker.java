@@ -1,7 +1,7 @@
 package com.avereon.xenon.ui;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.zarra.color.PaintSwatch;
 import com.avereon.zarra.color.Paints;
 import javafx.beans.property.StringProperty;
@@ -121,8 +121,8 @@ public class PaintPicker extends Button {
 	private void doUpdateText( String paint ) {
 		String text = paint == null ? PaintPickerPane.PaintMode.NONE.getKey() : paint.trim();
 
-		if( PaintPickerPane.PaintMode.LAYER.getKey().equals( text ) ) text = Rb.text( BundleKey.LABEL, "layer" ).toLowerCase();
-		if( PaintPickerPane.PaintMode.NONE.getKey().equals( text ) ) text = Rb.text( BundleKey.LABEL, "none" ).toLowerCase();
+		if( PaintPickerPane.PaintMode.LAYER.getKey().equals( text ) ) text = Rb.text( RbKey.LABEL, "layer" ).toLowerCase();
+		if( PaintPickerPane.PaintMode.NONE.getKey().equals( text ) ) text = Rb.text( RbKey.LABEL, "none" ).toLowerCase();
 
 		setText( text );
 	}

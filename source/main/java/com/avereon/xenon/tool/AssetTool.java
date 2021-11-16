@@ -114,9 +114,9 @@ public class AssetTool extends GuidedTool {
 		userNotice.setAlignment( Pos.CENTER );
 		closeLabel.setOnMousePressed( e -> closeUserNotice() );
 
-		String nameColumnHeader = Rb.text( BundleKey.LABEL, "name", "Name" );
-		String uriColumnHeader = Rb.text( BundleKey.LABEL, "uri", "URI" );
-		String sizeColumnHeader = Rb.text( BundleKey.LABEL, "size", "Size" );
+		String nameColumnHeader = Rb.text( RbKey.LABEL, "name", "Name" );
+		String uriColumnHeader = Rb.text( RbKey.LABEL, "uri", "URI" );
+		String sizeColumnHeader = Rb.text( RbKey.LABEL, "size", "Size" );
 
 		// The asset collections
 		assets = FXCollections.observableArrayList();

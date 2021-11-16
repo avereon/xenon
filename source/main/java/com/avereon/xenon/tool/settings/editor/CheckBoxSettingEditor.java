@@ -18,16 +18,16 @@ public class CheckBoxSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public CheckBoxSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public CheckBoxSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
 
-		String label = Rb.text( getProduct(), getBundleKey(), rbKey );
+		String label = Rb.text( getProduct(), getRbKey(), rbKey );
 
 		checkbox = new CheckBox();
 		checkbox.setSelected( selected );
