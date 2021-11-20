@@ -1,8 +1,8 @@
 package com.avereon.xenon.test.tool;
 
-import com.avereon.xenon.test.FxProgramUIT;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
+import com.avereon.xenon.test.FxProgramUIT;
 import com.avereon.xenon.tool.WelcomeTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 
@@ -24,14 +23,14 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( FxProgramUIT.TIMEOUT );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( FxProgramUIT.TIMEOUT );
-		assertThat( pane.getMaximizedView(), is( nullValue() ) );
+		assertThat( pane.getMaximizedView() ).isNull();
 		assertToolCount( pane, 0 );
 	}
 

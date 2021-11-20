@@ -5,8 +5,7 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductToolOpenTwiceUIT extends ProductToolUIT {
 
@@ -19,7 +18,7 @@ class ProductToolOpenTwiceUIT extends ProductToolUIT {
 		clickOn( "#menuitem-product" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( ProductTool.class );
 		assertToolCount( pane, 2 );
 
 		// Try to open the tool again and make sure there is still only one

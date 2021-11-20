@@ -5,8 +5,7 @@ import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.tool.TaskTool;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskToolGetRequiredAssetsUIT extends TaskToolUIT {
 
@@ -14,8 +13,7 @@ class TaskToolGetRequiredAssetsUIT extends TaskToolUIT {
 	void execute() {
 		Asset asset = new Asset( ProgramTaskType.URI );
 		TaskTool tool = new TaskTool( getProgram(), asset );
-		assertThat( tool.getAssetDependencies().size(), is( 0 ) );
+		assertThat( tool.getAssetDependencies().size() ).isEqualTo( 0 );
 	}
 
 }
-

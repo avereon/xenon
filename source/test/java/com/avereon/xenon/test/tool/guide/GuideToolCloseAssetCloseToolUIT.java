@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 
@@ -21,7 +20,7 @@ class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );

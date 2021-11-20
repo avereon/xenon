@@ -1,8 +1,8 @@
 package com.avereon.xenon.test.tool.product;
 
-import com.avereon.xenon.test.FxProgramUIT;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramProductType;
+import com.avereon.xenon.test.FxProgramUIT;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 
@@ -25,7 +24,7 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitFor( FxProgramUIT.TIMEOUT );
-		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( ProductTool.class );
 		assertToolCount( pane, 2 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );

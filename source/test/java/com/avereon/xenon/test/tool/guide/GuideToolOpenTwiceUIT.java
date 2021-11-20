@@ -6,8 +6,7 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GuideToolOpenTwiceUIT extends GuideToolUIT {
 
@@ -18,14 +17,14 @@ class GuideToolOpenTwiceUIT extends GuideToolUIT {
 
 		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 
 		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
-		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( pane, 1 );
 	}
 

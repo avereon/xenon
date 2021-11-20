@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 
@@ -23,7 +22,7 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramTaskType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
+		assertThat( pane.getActiveTool()).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );

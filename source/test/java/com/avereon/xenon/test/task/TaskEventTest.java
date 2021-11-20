@@ -6,9 +6,8 @@ import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskManagerEvent;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 
 class TaskEventTest extends BaseTaskTest {
 
@@ -22,9 +21,9 @@ class TaskEventTest extends BaseTaskTest {
 		manager.submit( task );
 		task.get();
 
-		assertThat( task.isDone(), is( true ) );
-		assertThat( task.isCancelled(), is( false ) );
-		assertThat( task.getState(), is( Task.State.SUCCESS ) );
+		assertThat( task.isDone() ).isEqualTo( true );
+		assertThat( task.isCancelled() ).isEqualTo( false );
+		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 
 		/*
 		 * Because there are two threads involved in this test, the test thread
@@ -39,10 +38,11 @@ class TaskEventTest extends BaseTaskTest {
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUCCESS );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
-		assertThat( watcher.getEvents().size(), is( index ) );
+		assertThat( watcher.getEvents().size() ).isEqualTo( index );
 	}
 
 	@Test
+	@SuppressWarnings( { "CatchMayIgnoreException", "ResultOfMethodCallIgnored" } )
 	void testFailure() throws Exception {
 		Task<Object> task = new MockTask( manager, null, true );
 
@@ -54,12 +54,12 @@ class TaskEventTest extends BaseTaskTest {
 			task.get();
 			fail( "Exception should be thrown." );
 		} catch( Exception exception ) {
-			assertThat( exception, not( is( nullValue() ) ) );
+			assertThat( exception ).isNotNull();
 		}
 
-		assertThat( task.isDone(), is( true ) );
-		assertThat( task.isCancelled(), is( false ) );
-		assertThat( task.getState(), is( Task.State.FAILED ) );
+		assertThat( task.isDone() ).isEqualTo( true );
+		assertThat( task.isCancelled() ).isEqualTo( false );
+		assertThat( task.getState() ).isEqualTo( Task.State.FAILED );
 
 		/*
 		 * Because there are two threads involved in this test, the test thread
@@ -74,12 +74,12 @@ class TaskEventTest extends BaseTaskTest {
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FAILURE );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
-		assertThat( watcher.getEvents().size(), is( index ) );
+		assertThat( watcher.getEvents().size() ).isEqualTo( index );
 	}
 
 	private void assertEvent( TaskManagerEvent event, Task<?> task, EventType<? extends TaskManagerEvent> type ) {
-		assertThat( ((TaskEvent)event).getTask(), is( task ) );
-		assertThat( event.getEventType(), is( type ) );
+		assertThat( ((TaskEvent)event).getTask() ).isEqualTo( task );
+		assertThat( event.getEventType() ).isEqualTo( type );
 	}
 
 }

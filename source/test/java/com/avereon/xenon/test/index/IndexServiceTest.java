@@ -13,9 +13,7 @@ import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexServiceTest extends ProgramTestCase {
 
@@ -38,13 +36,13 @@ public class IndexServiceTest extends ProgramTestCase {
 		Document document = new Document( URI.create( "" ), "", new StringReader( "" ) );
 		var result = service.submit( document );
 
-		assertThat( result.get(), instanceOf( Future.class ) );
-		assertTrue( result.isSuccessful() );
-		assertTrue( result.isPresent() );
-		assertThat( result.get().get(), instanceOf( Result.class ) );
-		assertTrue( result.get().get().isSuccessful() );
-		assertTrue( result.get().get().isPresent() );
-		assertThat( result.get().get().get(), instanceOf( Set.class ) );
+		assertThat( result.get() ).isInstanceOf( Future.class );
+		assertThat( result.isSuccessful() ).isTrue();
+		assertThat( result.isPresent() ).isTrue();
+		assertThat( result.get().get() ).isInstanceOf( Result.class );
+		assertThat( result.get().get().isSuccessful() ).isTrue();
+		assertThat( result.get().get().isPresent() ).isTrue();
+		assertThat( result.get().get().get() ).isInstanceOf( Set.class );
 	}
 
 }

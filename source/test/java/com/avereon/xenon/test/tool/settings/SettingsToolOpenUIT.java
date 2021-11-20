@@ -6,8 +6,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SettingsToolOpenUIT extends SettingsToolUIT {
 
@@ -20,7 +19,7 @@ class SettingsToolOpenUIT extends SettingsToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 	}
 

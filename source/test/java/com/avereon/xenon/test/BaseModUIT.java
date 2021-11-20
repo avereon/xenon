@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.xenon.Mod;
 import lombok.CustomLog;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @CustomLog
 public abstract class BaseModUIT extends FxProgramUIT {
@@ -15,7 +15,7 @@ public abstract class BaseModUIT extends FxProgramUIT {
 		this.mod = getProgram().getProductManager().getMod( card.getProductKey() );
 
 		getProgram().getProductManager().setModEnabled( card, true );
-		assertTrue( getProgram().getProductManager().isEnabled( card ), "Module not ready for testing: " + mod );
+		assertThat( getProgram().getProductManager().isEnabled( card ) ).withFailMessage( "Module not ready for testing: " + mod ).isTrue();
 	}
 
 	protected Mod getMod() {

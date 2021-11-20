@@ -10,8 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.net.URI;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WorkpaneTestCase extends FxPlatformTestCase {
 
@@ -23,28 +22,27 @@ public class WorkpaneTestCase extends FxPlatformTestCase {
 
 	protected Asset asset = new Asset( URI.create( "" ) );
 
-	// TODO Rename to toolview when tests are complete
-	WorkpaneView toolview;
+	WorkpaneView view;
 
 	@BeforeEach
 	public void setup() throws Exception {
 		workpane = new Workpane();
-		toolview = workpane.getActiveView();
+		view = workpane.getActiveView();
 
-		assertThat( toolview.getEdge( Side.TOP ).isWall(), is( true ) );
-		assertThat( toolview.getEdge( Side.BOTTOM ).isWall(), is( true ) );
-		assertThat( toolview.getEdge( Side.LEFT ).isWall(), is( true ) );
-		assertThat( toolview.getEdge( Side.RIGHT ).isWall(), is( true ) );
+		assertThat( view.getEdge( Side.TOP ).isWall()).isEqualTo( true  );
+		assertThat( view.getEdge( Side.BOTTOM ).isWall()).isEqualTo( true  );
+		assertThat( view.getEdge( Side.LEFT ).isWall()).isEqualTo( true  );
+		assertThat( view.getEdge( Side.RIGHT ).isWall()).isEqualTo( true  );
 
-		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
-		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+		assertThat( view.getEdge( Side.TOP ).getPosition()).isEqualTo( 0d  );
+		assertThat( view.getEdge( Side.BOTTOM ).getPosition()).isEqualTo( 1d  );
+		assertThat( view.getEdge( Side.LEFT ).getPosition()).isEqualTo( 0d  );
+		assertThat( view.getEdge( Side.RIGHT ).getPosition()).isEqualTo( 1d  );
 
 		// Workpane size must be set for move methods to work correctly.
 		new Scene( workpane, WORKPANE_WIDTH, WORKPANE_HEIGHT );
-		assertThat( workpane.getWidth(), is( WORKPANE_WIDTH ) );
-		assertThat( workpane.getHeight(), is( WORKPANE_HEIGHT ) );
+		assertThat( workpane.getWidth()).isEqualTo( WORKPANE_WIDTH  );
+		assertThat( workpane.getHeight()).isEqualTo( WORKPANE_HEIGHT  );
 
 		// Layout the workpane
 		workpane.layout();

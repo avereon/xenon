@@ -5,8 +5,7 @@ import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.tool.WelcomeTool;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolGetRequiredAssetsUIT extends WelcomeToolUIT {
 
@@ -14,7 +13,7 @@ class WelcomeToolGetRequiredAssetsUIT extends WelcomeToolUIT {
 	void execute() {
 		Asset asset = new Asset( ProgramWelcomeType.URI );
 		WelcomeTool tool = new WelcomeTool( getProgram(), asset );
-		assertThat( tool.getAssetDependencies().size(), is( 0 ) );
+		assertThat( tool.getAssetDependencies().size() ).isEqualTo( 0 );
 	}
 
 }

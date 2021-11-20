@@ -20,7 +20,7 @@ public class WorkpaneMain extends Application {
 
 		StackPane container = new StackPane();
 		container.getChildren().add( pane );
-		Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
+		@SuppressWarnings( "ConstantConditions" ) Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
 		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		container.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 

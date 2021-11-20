@@ -24,8 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
@@ -62,7 +61,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Program.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertTrue( aggressiveDelete( programDataFolder ), "Failed to delete program data folder" );
+		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 
 		// For the parameters to be available using Java 9, the following needs to be added
 		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
@@ -87,11 +86,11 @@ public abstract class FxProgramUIT extends ApplicationTest {
 			ThreadUtil.pause( 100 );
 		}
 
-		assertNotNull( program, "Program is null" );
-		assertNotNull( program.getWorkspaceManager(), "Workspace manager is null" );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace(), "Active workspace is null" );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea(), "Active workarea is null" );
-		assertNotNull( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane(), "Active workpane is null" );
+		assertThat( program ).withFailMessage( "Program is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
 
 		Workpane workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );

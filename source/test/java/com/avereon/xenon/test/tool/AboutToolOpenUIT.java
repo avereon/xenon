@@ -4,8 +4,7 @@ import com.avereon.xenon.tool.AboutTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AboutToolOpenUIT extends AboutToolUIT {
 
@@ -18,7 +17,7 @@ class AboutToolOpenUIT extends AboutToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
-		assertThat( getWorkpane().getActiveTool(), instanceOf( AboutTool.class ) );
+		assertThat( getWorkpane().getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( getWorkpane(), 2 );
 	}
 

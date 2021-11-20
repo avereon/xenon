@@ -5,8 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.xenon.tool.settings.SettingDependency;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SettingDependencyTest {
 
@@ -16,9 +15,9 @@ class SettingDependencyTest {
 		dependency.setKey( "enabled" );
 		dependency.setDependencyValue( "true" );
 
-		assertThat( dependency.getOperator(), is( SettingDependency.Operator.AND ) );
-		assertThat( dependency.getKey(), is( "enabled" ) );
-		assertThat( dependency.getDependencyValue(), is( "true" ) );
+		assertThat( dependency.getOperator() ).isEqualTo( SettingDependency.Operator.AND );
+		assertThat( dependency.getKey() ).isEqualTo( "enabled" );
+		assertThat( dependency.getDependencyValue() ).isEqualTo( "true" );
 	}
 
 	@Test
@@ -28,9 +27,9 @@ class SettingDependencyTest {
 		dependency.setKey( "enabled" );
 		dependency.setDependencyValue( "true" );
 
-		assertThat( dependency.getOperator(), is( SettingDependency.Operator.OR ) );
-		assertThat( dependency.getKey(), is( "enabled" ) );
-		assertThat( dependency.getDependencyValue(), is( "true" ) );
+		assertThat( dependency.getOperator() ).isEqualTo( SettingDependency.Operator.OR );
+		assertThat( dependency.getKey() ).isEqualTo( "enabled" );
+		assertThat( dependency.getDependencyValue() ).isEqualTo( "true" );
 	}
 
 	@Test
@@ -42,12 +41,12 @@ class SettingDependencyTest {
 		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( true ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
 
 		settings.set( "enabled", true );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( false ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( false );
 	}
 
 	@Test
@@ -59,12 +58,12 @@ class SettingDependencyTest {
 		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( false ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( false );
 
 		settings.set( "enabled", true );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( true ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
 	}
 
 	@Test
@@ -76,12 +75,12 @@ class SettingDependencyTest {
 		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( true ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
 
 		settings.set( "enabled", true );
-		assertThat( dependency.evaluate( settings, false ), is( true ) );
-		assertThat( dependency.evaluate( settings, true ), is( true ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( true );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
 	}
 
 	@Test
@@ -93,12 +92,12 @@ class SettingDependencyTest {
 		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
-		assertThat( dependency.evaluate( settings, false ), is( false ) );
-		assertThat( dependency.evaluate( settings, true ), is( true ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
 
 		settings.set( "enabled", true );
-		assertThat( dependency.evaluate( settings, false ), is( true ) );
-		assertThat( dependency.evaluate( settings, true ), is( false ) );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( true );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( false );
 	}
 
 }

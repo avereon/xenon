@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BarFactoryTest {
 
@@ -15,94 +13,94 @@ public class BarFactoryTest {
 	void testParseTokensWithSimpleMenu() {
 		String descriptor = "file[new,open,save,close,exit]";
 		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
-		assertThat( tokens.get( 0 ).getId(), is( "file" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId(), is( "new" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId(), is( "open" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId(), is( "save" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId(), is( "close" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId(), is( "exit" ) );
-		assertThat( tokens.get( 0 ).getChildren().size(), is( 5 ) );
-		assertThat( tokens.size(), is( 1 ) );
+		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
+		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
+		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
+		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
+		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "exit" );
+		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 5 );
+		assertThat( tokens.size() ).isEqualTo( 1 );
 	}
 
 	@Test
 	void testParseTokensWithSimpleMenuAndSeparator() {
 		String descriptor = "file[new,open,save,close|exit]";
 		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
-		assertThat( tokens.get( 0 ).getId(), is( "file" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId(), is( "new" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId(), is( "open" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId(), is( "save" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId(), is( "close" ) );
-		assertTrue( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId(), is( "exit" ) );
-		assertThat( tokens.get( 0 ).getChildren().size(), is( 6 ) );
-		assertThat( tokens.size(), is( 1 ) );
+		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
+		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
+		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
+		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
+		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
+		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
+		assertThat( tokens.size() ).isEqualTo( 1 );
 	}
 
 	@Test
 	void testParseTokensWithSimpleMenuAndCommaSeparatedSeparator() {
 		String descriptor = "file[new,open,save,close,|,exit]";
 		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
-		assertThat( tokens.get( 0 ).getId(), is( "file" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId(), is( "new" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId(), is( "open" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId(), is( "save" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId(), is( "close" ) );
-		assertTrue( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId(), is( "exit" ) );
-		assertThat( tokens.get( 0 ).getChildren().size(), is( 6 ) );
-		assertThat( tokens.size(), is( 1 ) );
+		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
+		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
+		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
+		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
+		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
+		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
+		assertThat( tokens.size() ).isEqualTo( 1 );
 	}
 
 	@Test
 	void testParseTokensWithMultipleMenus() {
 		String descriptor = "file[new,open,save,close|exit],edit[undo,redo|cut,copy,paste]";
 		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
-		assertThat( tokens.get( 0 ).getId(), is( "file" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId(), is( "new" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId(), is( "open" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId(), is( "save" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId(), is( "close" ) );
-		assertTrue( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId(), is( "exit" ) );
-		assertThat( tokens.get( 0 ).getChildren().size(), is( 6 ) );
-		assertThat( tokens.get( 1 ).getId(), is( "edit" ) );
-		assertThat( tokens.get( 1 ).getChildren().get( 0 ).getId(), is( "undo" ) );
-		assertThat( tokens.get( 1 ).getChildren().get( 1 ).getId(), is( "redo" ) );
-		assertTrue( tokens.get( 1 ).getChildren().get( 2 ).isSeparator() );
-		assertThat( tokens.get( 1 ).getChildren().get( 2 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 1 ).getChildren().get( 3 ).getId(), is( "cut" ) );
-		assertThat( tokens.get( 1 ).getChildren().get( 4 ).getId(), is( "copy" ) );
-		assertThat( tokens.get( 1 ).getChildren().get( 5 ).getId(), is( "paste" ) );
-		assertThat( tokens.get( 1 ).getChildren().size(), is( 6 ) );
-		assertThat( tokens.size(), is( 2 ) );
+		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
+		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
+		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
+		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
+		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
+		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
+		assertThat( tokens.get( 1 ).getId() ).isEqualTo( "edit" );
+		assertThat( tokens.get( 1 ).getChildren().get( 0 ).getId() ).isEqualTo( "undo" );
+		assertThat( tokens.get( 1 ).getChildren().get( 1 ).getId() ).isEqualTo( "redo" );
+		assertThat( tokens.get( 1 ).getChildren().get( 2 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 1 ).getChildren().get( 2 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 1 ).getChildren().get( 3 ).getId() ).isEqualTo( "cut" );
+		assertThat( tokens.get( 1 ).getChildren().get( 4 ).getId() ).isEqualTo( "copy" );
+		assertThat( tokens.get( 1 ).getChildren().get( 5 ).getId() ).isEqualTo( "paste" );
+		assertThat( tokens.get( 1 ).getChildren().size() ).isEqualTo( 6 );
+		assertThat( tokens.size() ).isEqualTo( 2 );
 	}
 
 	@Test
 	void testParseTokensWithNestedMenu() {
 		String descriptor = "file[new,open,save,close,|,settings[program,project],|,exit]";
 		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
-		assertThat( tokens.get( 0 ).getId(), is( "file" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId(), is( "new" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId(), is( "open" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId(), is( "save" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId(), is( "close" ) );
-		assertTrue( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId(), is( "settings" ) );
-		assertTrue( tokens.get( 0 ).getChildren().get( 6 ).isSeparator() );
-		assertThat( tokens.get( 0 ).getChildren().get( 6 ).getId(), is( "|" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 7 ).getId(), is( "exit" ) );
-		assertThat( tokens.get( 0 ).getChildren().size(), is( 8 ) );
-		assertThat( tokens.size(), is( 1 ) );
+		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
+		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
+		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
+		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
+		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "settings" );
+		assertThat( tokens.get( 0 ).getChildren().get( 6 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 6 ).getId() ).isEqualTo( "|" );
+		assertThat( tokens.get( 0 ).getChildren().get( 7 ).getId() ).isEqualTo( "exit" );
+		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 8 );
+		assertThat( tokens.size() ).isEqualTo( 1 );
 
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().get( 0 ).getId(), is( "program" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().get( 1 ).getId(), is( "project" ) );
-		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().size(), is( 2 ) );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().get( 0 ).getId() ).isEqualTo( "program" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().get( 1 ).getId() ).isEqualTo( "project" );
+		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getChildren().size() ).isEqualTo( 2 );
 	}
 
 }

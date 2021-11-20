@@ -6,11 +6,8 @@ import com.avereon.xenon.task.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 
 public class ToolManagerTest extends BaseTestCase {
 
@@ -29,34 +26,34 @@ public class ToolManagerTest extends BaseTestCase {
 	@Test
 	void testGetToolClassName() {
 		toolManager.addToolAlias( "oldName", "newName" );
-		assertThat( toolManager.getToolClassName( "oldName" ), is( "newName" ) );
+		assertThat( toolManager.getToolClassName( "oldName" ) ).isEqualTo( "newName" );
 	}
 
 	@Test
 	void testGetToolClassNameWithNull() {
-		assertThat( toolManager.getToolClassName( null ), is( nullValue() ) );
+		assertThat( toolManager.getToolClassName( null ) ).isNull();
 	}
 
 	@Test
-	@SuppressWarnings( "ConstantConditions" )
+	@SuppressWarnings( { "ConstantConditions", "CatchMayIgnoreException", "ResultOfMethodCallIgnored" } )
 	void testOpenToolNotOnTaskThread() {
 		try {
 			toolManager.openTool( null );
 			fail( "Should throw a RuntimeException" );
 		} catch( Exception exception ) {
-			assertThat( exception, is( instanceOf( RuntimeException.class ) ) );
+			assertThat( exception ).isInstanceOf( RuntimeException.class );
 		}
 	}
 
 	@Test
-	@SuppressWarnings( "ConstantConditions" )
+	@SuppressWarnings( { "ConstantConditions", "CatchMayIgnoreException", "ResultOfMethodCallIgnored" } )
 	void testOpenToolWithNullAsset() {
 		taskManager.submit( Task.of( "", () -> {
 			try {
 				toolManager.openTool( null );
 				fail( "Should throw a NullPointerException" );
 			} catch( Exception exception ) {
-				assertThat( exception, is( instanceOf( NullPointerException.class ) ) );
+				assertThat( exception ).isInstanceOf( NullPointerException.class );
 			}
 		} ) );
 	}

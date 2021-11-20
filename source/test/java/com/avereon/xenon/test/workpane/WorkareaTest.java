@@ -4,16 +4,14 @@ import com.avereon.xenon.test.FxPlatformTestCase;
 import com.avereon.xenon.workspace.Workarea;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkareaTest extends FxPlatformTestCase {
 
 	@Test
 	void testConstructor() {
 		Workarea area = new Workarea();
-		assertNotNull( area );
+		assertThat( area ).isNotNull();
 	}
 
 	@Test
@@ -27,22 +25,22 @@ class WorkareaTest extends FxPlatformTestCase {
 		area.setName( name );
 
 		// Assertions
-		assertThat( area.getName(), is( name ) );
+		assertThat( area.getName() ).isEqualTo( name );
 	}
 
 	@Test
 	void testActiveProperty() {
 		// Create and setup the settings
 		Workarea area = new Workarea();
-		assertFalse( area.isActive() );
+		assertThat( area.isActive() ).isFalse();
 
 		// Active
 		area.setActive( true );
-		assertTrue( area.isActive() );
+		assertThat( area.isActive() ).isTrue();
 
 		// Inactive
 		area.setActive( false );
-		assertFalse( area.isActive() );
+		assertThat( area.isActive() ).isFalse();
 	}
 
 }

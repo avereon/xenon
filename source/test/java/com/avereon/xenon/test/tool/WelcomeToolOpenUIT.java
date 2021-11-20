@@ -6,9 +6,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolOpenUIT extends WelcomeToolUIT {
 
@@ -21,8 +19,8 @@ class WelcomeToolOpenUIT extends WelcomeToolUIT {
 		clickOn( "#menuitem-welcome" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 	}
 

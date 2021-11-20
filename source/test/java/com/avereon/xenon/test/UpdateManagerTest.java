@@ -2,12 +2,11 @@ package com.avereon.xenon.test;
 
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.UpdateManager;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdateManagerTest extends ProgramTest {
 
@@ -29,7 +28,7 @@ public class UpdateManagerTest extends ProgramTest {
 		Path updaterFolder = updatesFolder.resolve( "updater" );
 		Path expectedUpdaterLauncher = updaterFolder.resolve( binPath );
 
-		assertThat( UpdateManager.calcUpdaterLauncher( homeFolder, updatesFolder, prefix, "" ), Matchers.is( expectedUpdaterLauncher ) );
+		assertThat( UpdateManager.calcUpdaterLauncher( homeFolder, updatesFolder, prefix, "" ) ).isEqualTo( expectedUpdaterLauncher );
 	}
 
 }
