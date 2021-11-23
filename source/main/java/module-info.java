@@ -37,6 +37,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
+	exports com.avereon.xenon.test;
 	exports com.avereon.xenon.throwable;
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
