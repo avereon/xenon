@@ -167,6 +167,10 @@
 		</dependency>
 
 		<!-- Test dependencies -->
+		<!-- Xenon has a strange circular dependency with zerra now. This is to
+		allow mods to use some of the test classes as well as Xenon. This was also
+		in an effort to keep junit from being included in Xenon, but that may not
+		actually be an issue. This situation could use some more help. -->
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zerra</artifactId>
