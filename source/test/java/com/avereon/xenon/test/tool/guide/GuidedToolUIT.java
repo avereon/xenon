@@ -14,8 +14,6 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zarra.javafx.Fx;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +61,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		MatcherAssert.assertThat( mockGuidedTool.getExpandedNodes(), Matchers.containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getExpandedNodes()).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test
@@ -86,7 +84,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		MatcherAssert.assertThat( mockGuidedTool.getSelectedNodes(), Matchers.containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getSelectedNodes()).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test
