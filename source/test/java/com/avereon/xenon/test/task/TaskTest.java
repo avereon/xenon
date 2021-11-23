@@ -22,7 +22,7 @@ class TaskTest extends BaseTaskTest {
 		assertThat( task.getPercent() ).isEqualTo( (double)Task.INDETERMINATE );
 
 		task.setTotal( 0 );
-		assertThat( task.getPercent() ).isEqualTo( Double.NaN );
+		assertThat( task.getPercent() ).isNaN();
 
 		task.setTotal( 10 );
 		assertThat( task.getPercent() ).isEqualTo( 0.0 );
