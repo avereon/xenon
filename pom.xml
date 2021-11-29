@@ -166,17 +166,47 @@
 			</exclusions>
 		</dependency>
 
+		<!-- Development dependencies -->
+		<!-- This need to stay in the provided scope so that the classes provided by
+		Xenon can be compiled and distributed. However, junit is not part of Xenon
+		and therefore is marked "provided". -->
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>${assertj.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.junit.jupiter</groupId>-->
+<!--			<artifactId>junit-jupiter-api</artifactId>-->
+<!--			<version>${junit.version}</version>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.junit.jupiter</groupId>-->
+<!--			<artifactId>junit-jupiter-engine</artifactId>-->
+<!--			<version>${junit.version}</version>-->
+<!--		</dependency>-->
+
 		<!-- Test dependencies -->
 		<!-- Xenon has a strange circular dependency with zerra now. This is to
 		allow mods to use some of the test classes as well as Xenon. This was also
 		in an effort to keep junit from being included in Xenon, but that may not
 		actually be an issue. This situation could use some more help. -->
-		<dependency>
-			<groupId>com.avereon</groupId>
-			<artifactId>zerra</artifactId>
-			<version>${zerra.version}</version>
-			<scope>test</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.avereon</groupId>-->
+<!--			<artifactId>zerra</artifactId>-->
+<!--			<version>${zerra.version}</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.testfx</groupId>
@@ -201,7 +231,12 @@
 				<!-- Exclude the junit-jupiter-api, it is already available-->
 				<exclusion>
 					<groupId>org.junit.jupiter</groupId>
-					<artifactId>junit-jupiter-api</artifactId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

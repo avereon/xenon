@@ -4,6 +4,10 @@ module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
+	//requires static org.assertj.core;
+	//requires static org.junit.jupiter.api;
+	//requires static org.testfx;
+	//requires static org.testfx.junit5;
 
 	// Both compile-time and run-time
 	requires com.avereon.weave;
@@ -37,7 +41,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
-	exports com.avereon.xenon.test;
+	//exports com.avereon.xenon.test;
 	exports com.avereon.xenon.throwable;
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;

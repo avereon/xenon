@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.zerra.test.BaseXenonTestCase;
+import com.avereon.xenon.BaseXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

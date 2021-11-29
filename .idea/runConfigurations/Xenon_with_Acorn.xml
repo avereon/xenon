@@ -8,7 +8,7 @@
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../acorn" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.avereon.xenon.test.ProgramTestConfig" />
+        <option name="PATTERN" value="com.avereon.xenon.ProgramTestConfig" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

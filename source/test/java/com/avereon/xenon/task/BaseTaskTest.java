@@ -1,6 +1,6 @@
 package com.avereon.xenon.task;
 
-import com.avereon.zerra.test.BaseXenonTestCase;
+import com.avereon.xenon.BaseXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.TimeUnit;

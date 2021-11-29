@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import com.avereon.zerra.test.BaseXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
