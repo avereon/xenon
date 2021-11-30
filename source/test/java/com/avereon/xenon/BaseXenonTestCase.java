@@ -12,7 +12,7 @@ import java.util.logging.Level;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
-public class BaseXenonTestCase {
+public abstract class BaseXenonTestCase {
 
 	protected Program program;
 

@@ -10,7 +10,6 @@ import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
 import javafx.stage.Stage;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.opentest4j.AssertionFailedError;
@@ -23,6 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * This class is a duplicate of com.avereon.zenna.BaseXenonTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
@@ -30,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
-public class BaseXenonUiTestCase extends ApplicationTest {
+public abstract class BaseXenonUiTestCase extends ApplicationTest {
 
 	private Program program;
 
@@ -54,7 +56,7 @@ public class BaseXenonUiTestCase extends ApplicationTest {
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Program.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		Assertions.assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
+		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 
 		// For the parameters to be available using Java 9, the following needs to be added
 		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
@@ -63,27 +65,27 @@ public class BaseXenonUiTestCase extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
-		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( ProgramTestConfig.TIMEOUT ) );
-		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
+		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
+		Fx.waitForWithExceptions( TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
-		programWatcher.waitForEvent( ProgramEvent.STARTED, ProgramTestConfig.TIMEOUT );
-		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
+		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
+		Fx.waitForWithExceptions( TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
 
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
-		long limit = System.currentTimeMillis() + ProgramTestConfig.TIMEOUT;
+		long limit = System.currentTimeMillis() + TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
 
-		Assertions.assertThat( program ).withFailMessage( "Program is null" ).isNotNull();
-		Assertions.assertThat( program.getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
-		Assertions.assertThat( program.getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
-		Assertions.assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
-		Assertions.assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
+		assertThat( program ).withFailMessage( "Program is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
 
 		Workpane workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
@@ -171,7 +173,7 @@ public class BaseXenonUiTestCase extends ApplicationTest {
 	}
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
-		long limit = System.currentTimeMillis() + ProgramTestConfig.TIMEOUT;
+		long limit = System.currentTimeMillis() + TIMEOUT;
 		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
 			try {
 				FileUtil.delete( path );

@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.xenon.FxProgramUIT;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.workpane.ToolEvent;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
@@ -22,13 +22,13 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramProductType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		Fx.waitFor( FxProgramUIT.TIMEOUT );
+		Fx.waitFor( TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( ProductTool.class );
 		assertToolCount( pane, 2 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
-		Fx.waitFor( FxProgramUIT.TIMEOUT );
+		Fx.waitFor( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}
 
