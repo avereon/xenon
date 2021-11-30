@@ -2,7 +2,6 @@ package com.avereon.xenon.asset;
 
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventType;
-import com.avereon.xenon.asset.AssetEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -170,20 +170,6 @@
 		<!-- This need to stay in the provided scope so that the classes provided by
 		Xenon can be compiled and distributed. However, junit is not part of Xenon
 		and therefore is marked "provided". -->
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>${assertj.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 <!--		<dependency>-->
 <!--			<groupId>org.junit.jupiter</groupId>-->
 <!--			<artifactId>junit-jupiter-api</artifactId>-->
@@ -197,16 +183,19 @@
 <!--		</dependency>-->
 
 		<!-- Test dependencies -->
-		<!-- Xenon has a strange circular dependency with zerra now. This is to
-		allow mods to use some of the test classes as well as Xenon. This was also
-		in an effort to keep junit from being included in Xenon, but that may not
-		actually be an issue. This situation could use some more help. -->
-<!--		<dependency>-->
-<!--			<groupId>com.avereon</groupId>-->
-<!--			<artifactId>zerra</artifactId>-->
-<!--			<version>${zerra.version}</version>-->
-<!--			<scope>test</scope>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>${assertj.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
@@ -214,7 +203,7 @@
 			<version>${testfx.version}</version>
 			<scope>test</scope>
 			<exclusions>
-				<!-- Exclude the openjfx libraries, they are already available -->
+				<!-- Exclude org.openjfx, it is already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
 					<artifactId>*</artifactId>
@@ -228,12 +217,12 @@
 			<version>${testfx.version}</version>
 			<scope>test</scope>
 			<exclusions>
-				<!-- Exclude the junit-jupiter-api, it is already available-->
+				<!-- Exclude org.junit.jupiter, it is already available-->
 				<exclusion>
 					<groupId>org.junit.jupiter</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
-				<!-- Exclude the openjfx libraries, they are already available -->
+				<!-- Exclude org.openjfx, it is already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
 					<artifactId>*</artifactId>

@@ -1,6 +1,5 @@
 package com.avereon.xenon.ui.util;
 
-import com.avereon.xenon.ui.util.BarFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

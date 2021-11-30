@@ -13,7 +13,7 @@ public abstract class BaseToolUIT extends FxProgramUIT {
 		Collection<Tool> tools = pane.getTools();
 
 		try {
-			assertThat( tools.size()).isEqualTo( count );
+			assertThat( tools.size() ).isEqualTo( count );
 		} catch( AssertionError error ) {
 			tools.forEach( t -> System.out.println( "Tool: " + t ) );
 			throw error;

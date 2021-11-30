@@ -3,7 +3,6 @@ package com.avereon.xenon.task;
 import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventType;
-import com.avereon.xenon.task.TaskManagerEvent;
 
 import java.util.ArrayList;
 import java.util.List;

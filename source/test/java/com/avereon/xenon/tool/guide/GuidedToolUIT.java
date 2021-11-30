@@ -1,13 +1,13 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
+import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		assertThat( mockGuidedTool.getExpandedNodes()).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
+		assertThat( mockGuidedTool.getExpandedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( mockGuidedTool.getSelectedNodes()).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
+		assertThat( mockGuidedTool.getSelectedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test

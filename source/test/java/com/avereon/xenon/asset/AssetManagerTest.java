@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.ProgramTestCase;
+import com.avereon.xenon.scheme.NewScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

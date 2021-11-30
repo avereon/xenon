@@ -1,6 +1,5 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.xenon.notice.Notice;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

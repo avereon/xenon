@@ -1,7 +1,6 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.Program;
-import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.scheme.BaseScheme;
 
 public class MockScheme extends BaseScheme {

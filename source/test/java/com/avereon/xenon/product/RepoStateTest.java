@@ -1,7 +1,6 @@
 package com.avereon.xenon.product;
 
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.product.RepoState;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

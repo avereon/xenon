@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.Program;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.logging.Level;
@@ -21,7 +20,5 @@ public class BaseXenonTestCase {
 	protected Program getProgram() {
 		return program;
 	}
-
-
 
 }

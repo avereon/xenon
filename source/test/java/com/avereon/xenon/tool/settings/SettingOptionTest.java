@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.xenon.tool.settings.SettingOption;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.xenon.BaseXenonTestCase;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.mod.MockMod;
-import com.avereon.xenon.BaseXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

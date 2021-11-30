@@ -1,8 +1,5 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.Codec;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 

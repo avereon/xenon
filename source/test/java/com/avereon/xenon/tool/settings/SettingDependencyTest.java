@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.MapSettings;
 import com.avereon.settings.Settings;
-import com.avereon.xenon.tool.settings.SettingDependency;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

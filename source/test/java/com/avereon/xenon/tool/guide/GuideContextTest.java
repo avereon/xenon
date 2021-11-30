@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.tool.guide.GuideContext;
 import org.junit.jupiter.api.BeforeEach;
 
 public class GuideContextTest {

@@ -1,8 +1,6 @@
 package com.avereon.xenon.task;
 
 import com.avereon.util.ThreadUtil;
-import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskManager;
 
 final class MockTask extends Task<Object> {
 

@@ -21,7 +21,7 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramTaskType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( pane.getActiveTool()).isInstanceOf( TaskTool.class );
+		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );

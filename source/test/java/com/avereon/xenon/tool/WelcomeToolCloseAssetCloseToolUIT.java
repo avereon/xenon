@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.xenon.FxProgramUIT;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
-import com.avereon.xenon.FxProgramUIT;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
