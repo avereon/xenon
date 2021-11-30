@@ -4,6 +4,7 @@ import com.avereon.event.EventWatcher;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
+import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
@@ -23,17 +24,6 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 public class BaseXenonUiTestCase extends ApplicationTest {
-
-	/**
-	 * The wait timeout for many operations. Common values are:
-	 * <pre>
-	 * 30000 - GitHub Actions, Mintbox Mini
-	 *  | Slower computers
-	 *  |
-	 *  | Faster computers
-	 * 5000 - AMD Threadripper, Intel i9</pre>
-	 */
-	protected static final int TIMEOUT = 30000;
 
 	private Program program;
 
@@ -66,18 +56,18 @@ public class BaseXenonUiTestCase extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
-		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
-		Fx.waitForWithExceptions( TIMEOUT );
+		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( ProgramTestConfig.TIMEOUT ) );
+		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
-		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
-		Fx.waitForWithExceptions( TIMEOUT );
+		programWatcher.waitForEvent( ProgramEvent.STARTED, ProgramTestConfig.TIMEOUT );
+		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
 
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
-		long limit = System.currentTimeMillis() + TIMEOUT;
+		long limit = System.currentTimeMillis() + ProgramTestConfig.TIMEOUT;
 		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
@@ -174,7 +164,7 @@ public class BaseXenonUiTestCase extends ApplicationTest {
 	}
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
-		long limit = System.currentTimeMillis() + TIMEOUT;
+		long limit = System.currentTimeMillis() + ProgramTestConfig.TIMEOUT;
 		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
 			try {
 				FileUtil.delete( path );

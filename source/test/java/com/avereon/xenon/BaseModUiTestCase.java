@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.ProductCard;
 import lombok.CustomLog;
 
+@Deprecated
 @CustomLog
 public abstract class BaseModUiTestCase extends BaseXenonUiTestCase {
 
