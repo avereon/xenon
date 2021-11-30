@@ -23,6 +23,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class is a duplicate of com.avereon.zenna.BaseXenonTestCase which is
+ * intended to be visible for mod testing but is not available to Xenon to
+ * avoid a circular dependency. Attempts at making this
+ * class publicly available have run in to various challenges with the most
+ * recent being with Surefire not putting JUnit 5 on the module path.
+ */
 public class BaseXenonUiTestCase extends ApplicationTest {
 
 	private Program program;
