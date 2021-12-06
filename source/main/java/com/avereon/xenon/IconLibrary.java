@@ -70,7 +70,7 @@ public class IconLibrary {
 
 		register( "about", new ExclamationIcon() );
 		register( "help-content", new QuestionIcon() );
-		register( "index-search", new MagnifierIcon() );
+		register( "search", new MagnifierIcon() );
 		register( "notice", new NoticeIcon() );
 		register( "notice-error", new NoticeIcon( Color.RED ) );
 		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
@@ -107,6 +107,8 @@ public class IconLibrary {
 		register( "enable", new LightningIcon() );
 		register( "disable", new DisableIcon() );
 		register( "remove", new CloseIcon() );
+		register( "tag", new TagIcon() );
+		register( "title", new TitleIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );

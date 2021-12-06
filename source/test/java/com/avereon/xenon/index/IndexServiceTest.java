@@ -32,7 +32,7 @@ public class IndexServiceTest extends ProgramTestCase {
 
 	@Test
 	void testSubmit() throws Exception {
-		Document document = new Document( URI.create( "" ), "", new StringReader( "" ) );
+		Document document = new Document( URI.create( "" ), "", "", new StringReader( "" ) );
 		var result = service.submit( document );
 
 		assertThat( result.get() ).isInstanceOf( Future.class );

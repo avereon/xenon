@@ -581,35 +581,35 @@ Derived from modena.css
 /*******************************************************************************
  * Index Search Tool
  ******************************************************************************/
-/*#tool-index-search {*/
+/*#tool-search {*/
 /*    -fx-spacing: 1em;*/
 /*    -fx-padding: 1em;*/
 /*}*/
 
-#tool-index-search VBox {
+#tool-search VBox {
     -fx-spacing: 0.5em;
     -fx-padding: 0.5em 0 0 0;
 }
 
-#tool-index-search .list-view {
+#tool-search .list-view {
     -fx-background-color: transparent;
 }
 
-#tool-index-search .list-cell {
+#tool-search .list-cell {
     -fx-indent: 1em;
     -fx-background-color: transparent;
 }
 
-#tool-index-search .list-cell:filled:selected {
+#tool-search .list-cell:filled:selected {
     -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
-#tool-index-search .list-view:focused .list-cell:filled:selected {
+#tool-search .list-view:focused .list-cell:filled:selected {
     -fx-background: -fx-selection-bar;
     -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
 }
 
-#tool-index-search .list-view:focused .list-cell:focused {
+#tool-search .list-view:focused .list-cell:focused {
     -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 

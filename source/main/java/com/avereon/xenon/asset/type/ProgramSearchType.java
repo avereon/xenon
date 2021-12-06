@@ -4,7 +4,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.*;
 
-public class ProgramIndexSearchType extends AssetType {
+public class ProgramSearchType extends AssetType {
 
 	private static final String mediaTypePattern = BASE_MEDIA_TYPE + ".index.search";
 
@@ -12,7 +12,7 @@ public class ProgramIndexSearchType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramIndexSearchType( ProgramProduct product ) {
+	public ProgramSearchType( ProgramProduct product ) {
 		super( product, "index-search" );
 		PlaceholderCodec codec = new PlaceholderCodec();
 		codec.addSupported( Codec.Pattern.URI, uriPattern );

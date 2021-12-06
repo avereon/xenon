@@ -695,8 +695,11 @@ public class Workspace implements WritableIdentity {
 		@Override
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
-			textProperty().unbind();
-			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
+			if( item == null || empty ) {
+				textProperty().unbind();
+			} else {
+				textProperty().bind( item.nameProperty() );
+			}
 		}
 
 	}

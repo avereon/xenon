@@ -61,7 +61,7 @@ public class ActionLibrary {
 
 		register( product, "help" );
 		register( product, "help-content" );
-		register( product, "index-search" );
+		register( product, "search" );
 		register( product, "welcome" );
 		register( product, "notice" );
 		register( product, "product" );
