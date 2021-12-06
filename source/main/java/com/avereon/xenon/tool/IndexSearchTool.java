@@ -3,9 +3,9 @@ package com.avereon.xenon.tool;
 import com.avereon.index.Hit;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.ToolException;
@@ -43,7 +43,7 @@ public class IndexSearchTool extends ProgramTool {
 
 		getChildren().add( new VBox( search, hitList ) );
 
-		search.textProperty().addListener( ( p, o, n ) -> doSearch( n ) );
+		search.textProperty().addListener( ( p, o, n ) -> doSearchAll( n ) );
 		search.setOnKeyPressed( e -> {
 			switch( e.getCode() ) {
 				case ESCAPE -> reset();
@@ -103,14 +103,14 @@ public class IndexSearchTool extends ProgramTool {
 		this.getSelectedHit().ifPresent( this::open );
 	}
 
-	private void doSearch( String term ) {
-		getProgram().getIndexService().search( term.toLowerCase() ).ifSuccess( hits -> {
+	private void doSearchAll( String term ) {
+		getProgram().getIndexService().searchAll( term.toLowerCase() ).ifPresentOrElse( hits -> {
 			if( TextUtil.isEmpty( term ) ) {
 				this.hideHits();
 			} else {
 				this.showHits( hits );
 			}
-		} );
+		}, this::hideHits );
 	}
 
 	private void showHits( List<Hit> hits ) {

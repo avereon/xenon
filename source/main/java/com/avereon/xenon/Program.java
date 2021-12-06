@@ -411,6 +411,12 @@ public class Program extends Application implements ProgramProduct {
 		Fx.run( () -> splashScreen.update() );
 		log.atFine().log( "Asset manager started." );
 
+		// Start the index service
+		log.atFiner().log( "Starting index service..." );
+		indexService = new IndexService( Program.this ).start();
+		Fx.run( () -> splashScreen.update() );
+		log.atFine().log( "Index service started." );
+
 		// Load the settings pages
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 
@@ -448,12 +454,6 @@ public class Program extends Application implements ProgramProduct {
 		productManager.startMods();
 		updateManager = new UpdateManager( this );
 		log.atFine().log( "Product manager started." );
-
-		// Start the index service
-		log.atFiner().log( "Starting index service..." );
-		indexService = new IndexService( Program.this ).start();
-		Fx.run( () -> splashScreen.update() );
-		log.atFine().log( "Index service started." );
 
 		// Restore the user interface, depends on workspace manager
 		log.atFiner().log( "Restore the user interface..." );
@@ -569,13 +569,6 @@ public class Program extends Application implements ProgramProduct {
 
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPING ) );
 
-		// Stop the index service
-		if( indexService != null ) {
-			log.atFiner().log( "Stopping index service..." );
-			indexService.stop();
-			log.atFine().log( "Index service stopped." );
-		}
-
 		// Stop the product manager
 		if( productManager != null ) {
 			log.atFiner().log( "Stopping product manager..." );
@@ -614,6 +607,13 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// NOTE Do not try to remove the settings pages during shutdown
+
+		// Stop the index service
+		if( indexService != null ) {
+			log.atFiner().log( "Stopping index service..." );
+			indexService.stop();
+			log.atFine().log( "Index service stopped." );
+		}
 
 		// Stop the asset manager
 		if( assetManager != null ) {

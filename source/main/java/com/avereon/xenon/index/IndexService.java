@@ -7,6 +7,7 @@ import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -47,8 +48,30 @@ public class IndexService implements Controllable<IndexService> {
 		return indexer.submit( document );
 	}
 
-	public Result<List<Hit>> search( String term ) {
-		return indexer.getIndex().map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ) ).orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
+	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( String scope, D document ) {
+		return indexer.submit( scope, document );
+	}
+
+	public Result<List<Hit>> searchAll( String term ) {
+		return Result.of( indexer
+			.allIndexes()
+			.parallelStream()
+			.flatMap( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ).stream() )
+			.reduce( new ArrayList<>(), ( a, b ) -> {
+				a.addAll( b );
+				return a;
+			} ) );
+	}
+
+	public Result<List<Hit>> searchAll( String index, String term ) {
+		return indexer
+			.getIndex( index )
+			.map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ) )
+			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
+	}
+
+	public void removeIndex( String index ) {
+		indexer.removeIndex( index );
 	}
 
 }
