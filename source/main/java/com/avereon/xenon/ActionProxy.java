@@ -41,6 +41,8 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	private String command;
 
+	private String[] tags;
+
 	private final List<String> states;
 
 	private final Map<String, ActionState> stateMap;
@@ -172,6 +174,14 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	public void setCommand( String command ) {
 		this.command = command;
+	}
+
+	public String[] getTags() {
+		return tags == null ? new String[]{} : tags;
+	}
+
+	public void setTags( String[] tags ) {
+		this.tags = tags;
 	}
 
 	public boolean isEnabled() {

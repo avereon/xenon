@@ -126,6 +126,11 @@ public class ActionLibrary {
 		String shortcut = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.SHORTCUT_SUFFIX, null );
 		String command = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.COMMAND_SUFFIX, null );
 		String description = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.DESCRIPTION_SUFFIX, null );
+		String[] tags = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.TAGS_SUFFIX, "" ).split( "," );
+
+		for( int index = 0; index < tags.length; index++ ) {
+			tags[index] = tags[index].trim().toLowerCase();
+		}
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
@@ -134,6 +139,7 @@ public class ActionLibrary {
 		proxy.setMnemonic( mnemonic );
 		proxy.setShortcut( shortcut );
 		proxy.setCommand( command );
+		proxy.setTags( tags );
 		if( command != null ) proxy.setName( name + " (" + command + ")" );
 		proxy.setDescription( description );
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
