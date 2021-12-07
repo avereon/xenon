@@ -7,13 +7,15 @@ import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 @CustomLog
 public class IndexService implements Controllable<IndexService> {
+
+	private static final int FUZZY_SEARCH_THRESHOLD = 80;
 
 	private final Program program;
 
@@ -55,16 +57,13 @@ public class IndexService implements Controllable<IndexService> {
 	/**
 	 * Search all indexes for the specified term.
 	 *
-	 * @param term The term to search for
+	 * @param terms The terms to search for
 	 * @return The resulting hit list
 	 */
-	public Result<List<Hit>> searchAll( String term ) {
-		return Result.of( indexer
-			.allIndexes()
-			.parallelStream()
-			.flatMap( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ).get().stream() )
-			.sorted( new FuzzySearch.HitSort() )
-			.collect( Collectors.toList() ) );
+	public Result<List<Hit>> searchAll( String... terms ) {
+		Search search = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
+		IndexQuery query = IndexQuery.builder().terms( Arrays.asList( terms ) ).build();
+		return Indexer.search( search, query, indexer.allIndexes() );
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class IndexService implements Controllable<IndexService> {
 	public Result<List<Hit>> search( String index, String term ) {
 		return indexer
 			.getIndex( index )
-			.map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().text( term ).build() ) )
+			.map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().term( term ).build() ) )
 			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
