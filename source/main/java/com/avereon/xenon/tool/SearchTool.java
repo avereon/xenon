@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.index.Hit;
+import com.avereon.index.Terms;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
@@ -102,14 +103,18 @@ public class SearchTool extends ProgramTool {
 		this.getSelectedHit().ifPresent( this::open );
 	}
 
-	private void doSearchAll( String term ) {
-		getProgram().getIndexService().searchAll( term.toLowerCase() ).ifPresentOrElse( hits -> {
-			if( TextUtil.isEmpty( term ) ) {
-				this.hideHits();
-			} else {
-				this.showHits( hits );
-			}
-		}, this::hideHits );
+	private void doSearchAll( String text ) {
+		if( TextUtil.isEmpty( text ) ) {
+			this.hideHits();
+		} else {
+			// Split the text into terms
+			List<String> terms = Terms.split( text.toLowerCase() );
+
+			// Add the exact text as the first term
+			terms.add( 0, text );
+
+			getProgram().getIndexService().searchAll( terms ).ifPresentOrElse( this::showHits, this::hideHits );
+		}
 	}
 
 	private void showHits( List<Hit> hits ) {
@@ -153,7 +158,7 @@ public class SearchTool extends ProgramTool {
 						category.setGraphic( null );
 						category.setText( null );
 					} else {
-						String icon = switch(item.priority()) {
+						String icon = switch( item.priority() ) {
 							case Hit.TAG_PRIORITY -> "tag";
 							case Hit.TITLE_PRIORITY -> "title";
 							default -> "document";

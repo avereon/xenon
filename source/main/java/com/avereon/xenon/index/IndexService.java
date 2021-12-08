@@ -7,7 +7,6 @@ import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -60,9 +59,9 @@ public class IndexService implements Controllable<IndexService> {
 	 * @param terms The terms to search for
 	 * @return The resulting hit list
 	 */
-	public Result<List<Hit>> searchAll( String... terms ) {
+	public Result<List<Hit>> searchAll( List<String> terms ) {
 		Search search = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
-		IndexQuery query = IndexQuery.builder().terms( Arrays.asList( terms ) ).build();
+		IndexQuery query = IndexQuery.builder().terms( terms ).build();
 		return Indexer.search( search, query, indexer.allIndexes() );
 	}
 
