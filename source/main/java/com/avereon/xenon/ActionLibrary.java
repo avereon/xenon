@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import lombok.CustomLog;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -139,7 +140,7 @@ public class ActionLibrary {
 		proxy.setMnemonic( mnemonic );
 		proxy.setShortcut( shortcut );
 		proxy.setCommand( command );
-		proxy.setTags( tags );
+		proxy.setTags( Arrays.asList( tags ) );
 		if( command != null ) proxy.setName( name + " (" + command + ")" );
 		proxy.setDescription( description );
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
