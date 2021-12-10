@@ -7,6 +7,8 @@ import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -59,10 +61,22 @@ public class IndexService implements Controllable<IndexService> {
 	 * @param terms The terms to search for
 	 * @return The resulting hit list
 	 */
-	public Result<List<Hit>> searchAll( List<String> terms ) {
-		Search search = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
-		IndexQuery query = IndexQuery.builder().terms( terms ).build();
-		return Indexer.search( search, query, indexer.allIndexes() );
+	public Result<List<Hit>> searchAll( String text, List<String> terms ) {
+		Collection<Index> indexes = indexer.allIndexes();
+
+		Search exactSearch = new FuzzySearch( 100 );
+		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
+		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
+
+		Search fuzzySearch = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
+		IndexQuery fuzzyQuery = IndexQuery.builder().terms( terms ).build();
+		List<Hit> fuzzyHits = Indexer.search( fuzzySearch, fuzzyQuery, indexer.allIndexes() ).get();
+
+		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
+		allHits.addAll( exactHits );
+		allHits.addAll( fuzzyHits );
+
+		return Result.of( allHits );
 	}
 
 	/**

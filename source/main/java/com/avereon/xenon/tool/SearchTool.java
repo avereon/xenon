@@ -107,13 +107,9 @@ public class SearchTool extends ProgramTool {
 		if( TextUtil.isEmpty( text ) ) {
 			this.hideHits();
 		} else {
-			// Split the text into terms
-			List<String> terms = Terms.split( text.toLowerCase() );
-
-			// Add the exact text as the first term
-			//terms.add( 0, text );
-
-			getProgram().getIndexService().searchAll( terms ).ifPresentOrElse( this::showHits, this::hideHits );
+			String query = text.toLowerCase();
+			List<String> terms = Terms.split( query );
+			getProgram().getIndexService().searchAll( query, terms ).ifPresentOrElse( this::showHits, this::hideHits );
 		}
 	}
 
