@@ -71,7 +71,7 @@
 		<!-- Runtime dependencies -->
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
-		<weave.version>1.2</weave.version>
+		<weave.version>[1.2,)</weave.version>
 		<zenna.version>[0.7,)</zenna.version>
 		<zarra.version>[0.7,)</zarra.version>
 		<zerra.version>[0.7,)</zerra.version>
