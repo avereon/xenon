@@ -74,7 +74,6 @@
 		<weave.version>[1.2,)</weave.version>
 		<zenna.version>[0.7,)</zenna.version>
 		<zarra.version>[0.7,)</zarra.version>
-		<zerra.version>[0.7,)</zerra.version>
 		<zevra.version>[0.8-SNAPSHOT,)</zevra.version>
 
 		<!-- Version numbers updated 11 Oct 2021 -->
