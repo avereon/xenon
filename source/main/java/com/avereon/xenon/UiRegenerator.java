@@ -84,12 +84,21 @@ class UiRegenerator {
 		Fx.checkFxThread();
 		restoreLock.lock();
 		try {
+			// Restore the workspaces or generate the default workspace
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
 			if( workspaceIds.size() == 0 ) {
 				createDefaultWorkspace();
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
 			}
+
+			// Ensure there is an active workarea
+			if( getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
+				Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
+				workspace.setActiveWorkarea( workspace.getWorkareas().iterator().next() );
+			}
+
+			// Notify the workspace manager the UI is ready
 			getProgram().getWorkspaceManager().setUiReady( true );
 		} finally {
 			restored = true;
@@ -120,7 +129,7 @@ class UiRegenerator {
 		}
 	}
 
-	private Workspace createDefaultWorkspace() {
+	private void createDefaultWorkspace() {
 		// Create the default workspace
 		Workspace workspace = getProgram().getWorkspaceManager().newWorkspace();
 		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
@@ -131,8 +140,6 @@ class UiRegenerator {
 		workspace.setActiveWorkarea( workarea );
 
 		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
-
-		return workspace;
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
