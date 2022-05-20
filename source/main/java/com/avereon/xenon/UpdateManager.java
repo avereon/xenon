@@ -23,7 +23,7 @@ public class UpdateManager {
 		this.prefix = program.getCard().getArtifact() + "-updater";
 
 		updaterLauncher = calcUpdaterLauncher( program.getHomeFolder(), program.getProductManager().getUpdatesFolder(), prefix, program.getProfile() );
-		updaterFolder = updaterLauncher.getParent();
+		updaterFolder = updaterLauncher.getParent().getParent();
 	}
 
 	public static Path calcUpdaterLauncher( Path home, Path updatesFolder, String prefix, String profile ) {
