@@ -4,7 +4,7 @@
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
     <module name="acorn" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.acornmod" />
-    <option name="VM_PARAMETERS" value="-Duser.language=es" />
+    <option name="VM_PARAMETERS" value="-Duser.language=es -Dprism.forceGPU=true" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../acorn" />
     <extension name="coverage">
       <pattern>
