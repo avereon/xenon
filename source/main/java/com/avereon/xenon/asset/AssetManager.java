@@ -1033,7 +1033,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
-		uri = UriUtil.removeQueryAndFragment( uri );
+		// NOTE Many assets require query parameters in the URI
+		uri = UriUtil.removeFragment( uri );
 		uri = fixUris( uri.normalize() );
 
 		Asset asset = identifiedAssets.get( uri );
