@@ -2,9 +2,14 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.NullCodecException;
 import lombok.CustomLog;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,6 +18,8 @@ import java.net.http.HttpResponse;
 public class HttpScheme extends BaseScheme {
 
 	public static final String ID = "http";
+
+	private static final String URL = "url";
 
 	private HttpClient client;
 
@@ -36,6 +43,18 @@ public class HttpScheme extends BaseScheme {
 	}
 
 	@Override
+	public void load( Asset asset, Codec codec ) throws AssetException {
+		if( codec == null ) throw new NullCodecException( asset );
+
+		URL url = getUrl( asset );
+		try( InputStream stream = url.openStream() ) {
+			codec.load( asset, stream );
+		} catch( Throwable exception ) {
+			throw new AssetException( asset, exception );
+		}
+	}
+
+	@Override
 	public boolean exists( Asset asset ) {
 		try {
 			HttpRequest request = HttpRequest.newBuilder().uri( asset.getUri() ).build();
@@ -50,6 +69,23 @@ public class HttpScheme extends BaseScheme {
 	private HttpClient getClient() {
 		if( client == null ) client = HttpClient.newBuilder().version( HttpClient.Version.HTTP_2 ).followRedirects( HttpClient.Redirect.ALWAYS ).build();
 		return client;
+	}
+
+	/**
+	 * Get the file.
+	 */
+	private URL getUrl( Asset asset ) throws AssetException {
+		URL url = asset.getValue( URL );
+
+		if( url == null ) {
+			try {
+				asset.setValue( URL, url = asset.getUri().toURL() );
+			} catch( IOException exception ) {
+				throw new AssetException( asset, exception );
+			}
+		}
+
+		return url;
 	}
 
 }
