@@ -896,9 +896,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public Set<Codec> autoDetectCodecs( Asset asset ) {
 		String uri = UriUtil.removeQueryAndFragment( asset.getUri() ).toString();
+		String fileName = asset.getFileName();
 		// FIXME Only query media type if there are supported codecs to compare with
 		String mediaType = asset.getScheme().getMediaType( asset );
-		String fileName = asset.getFileName();
 		// FIXME Only query first line if there are supported codecs to compare with
 		String firstLine = asset.getScheme().getFirstLine( asset );
 
@@ -1091,7 +1091,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.atDebug().log( "Asset opened: %s", asset );
 
-		if( asset.isNew() ) doLoadAsset( asset );
+		// NOTE Loading a new asset here does nothing
+		// since the ProgramAssetNewType just uses a placeholder codec
+		// FIXME If this call was to set the loaded flag on a new asset it should be done differently
+		//if( asset.isNew() ) doLoadAsset( asset );
 
 		updateActionState();
 		return true;
@@ -1105,6 +1108,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		//if( !asset.exists() ) return false;
 
 		// Load the asset
+		log.atTrace().log( "Loading asset " + asset.getUri() );
 		asset.load( this );
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.atDebug().log( "Asset loaded: %s", asset );
@@ -1352,6 +1356,9 @@ public class AssetManager implements Controllable<AssetManager> {
 				if( asset.isNew() ) {
 					if( !asset.getType().callAssetNew( program, asset ) ) return null;
 					log.atFiner().log( "Asset initialized with user values." );
+
+					// The asset type may have changed the URI so resolve the scheme again
+					resolveScheme( asset );
 				}
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;

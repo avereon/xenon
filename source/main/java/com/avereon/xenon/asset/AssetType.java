@@ -183,6 +183,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		Fx.run( () -> {
 			synchronized( lock ) {
 				try {
+					log.atTrace().log( "Calling assetNew()..." );
 					result.set( assetNew( program, asset ) );
 				} catch( AssetException exception ) {
 					resultException.set( exception );
@@ -199,6 +200,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 				exception.printStackTrace();
 			}
 		}
+
+		log.atDebug().log( "Done waiting for assetNew()." );
 
 		if( resultException.get() != null ) throw resultException.get();
 		return result.get();

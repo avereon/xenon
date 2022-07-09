@@ -299,7 +299,12 @@ public class Asset extends Node {
 		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be loaded" );
 
 		Scheme scheme = getScheme();
-		if( scheme != null ) scheme.load( this, getCodec() );
+		if( scheme != null ) {
+			log.atDebug().log( "Loading with scheme=" + scheme.getName() );
+			scheme.load( this, getCodec() );
+		} else {
+			log.atWarn().log( "Undefined scheme for asset " + this );
+		}
 		setModified( false );
 		loaded = true;
 
