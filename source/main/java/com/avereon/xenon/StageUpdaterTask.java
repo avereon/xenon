@@ -7,6 +7,7 @@ import lombok.CustomLog;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 /**
  * This task makes a copy of the program in a temporary location to be used to
@@ -67,14 +68,16 @@ public class StageUpdaterTask extends Task<Void> {
 	private void removePriorFolders( UpdateManager manager ) throws IOException {
 		String prefix = manager.getPrefix();
 		if( !Files.exists( manager.getUpdaterFolder() ) ) return;
-		Files.list( manager.getUpdaterFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
-			log.atFine().log( "Delete prior updater: %s", p.getFileName() );
-			try {
-				FileUtil.delete( p );
-			} catch( IOException exception ) {
-				log.atSevere().withCause( exception ).log( "Unable to cleanup prior updater files" );
-			}
-		} );
+		try( Stream<Path> paths = Files.list( manager.getUpdaterFolder() ) ) {
+			paths.filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
+				log.atFine().log( "Delete prior updater file: %s", p.getFileName() );
+				try {
+					FileUtil.delete( p );
+				} catch( IOException exception ) {
+					log.atSevere().withCause( exception ).log( "Unable to cleanup prior updater files" );
+				}
+			} );
+		}
 	}
 
 }
