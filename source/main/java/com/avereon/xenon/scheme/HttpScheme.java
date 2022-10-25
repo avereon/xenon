@@ -10,6 +10,7 @@ import lombok.CustomLog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -47,8 +48,17 @@ public class HttpScheme extends BaseScheme {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		URL url = getUrl( asset );
-		try( InputStream stream = url.openStream() ) {
-			codec.load( asset, stream );
+		try {
+			URLConnection connection = url.openConnection();
+
+			asset.setEncoding( connection.getContentEncoding() );
+			asset.setMediaType( connection.getContentType() );
+
+			try( InputStream stream = connection.getInputStream() ) {
+				codec.load( asset, stream );
+			} catch( Throwable exception ) {
+				throw new AssetException( asset, exception );
+			}
 		} catch( Throwable exception ) {
 			throw new AssetException( asset, exception );
 		}
