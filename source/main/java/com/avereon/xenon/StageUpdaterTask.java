@@ -40,9 +40,9 @@ public class StageUpdaterTask extends Task<Void> {
 		// Create the updater home folders
 		Files.createDirectories( updaterHome );
 
-		// Copy all the modules needed for the updater
+		// Copy everything needed for the updater
 		log.atFine().log( "Copy %s to %s", program.getHomeFolder(), updaterHome );
-		FileUtil.copy( program.getHomeFolder(), updaterHome );
+		if( !FileUtil.copy( program.getHomeFolder(), updaterHome ) ) log.atWarn().log( "Unable to stage program updater" );
 
 		// NOTE Do not mark the updater files to be deleted on exit
 		// because they need to exist for the updater to start after the JVM exits
