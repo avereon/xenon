@@ -42,7 +42,7 @@ public class StageUpdaterTask extends Task<Void> {
 
 		// Copy everything needed for the updater
 		log.atFine().log( "Copy %s to %s", program.getHomeFolder(), updaterHome );
-		if( !FileUtil.copy( program.getHomeFolder(), updaterHome ) ) log.atWarn().log( "Unable to stage program updater" );
+		if( !FileUtil.copy( program.getHomeFolder(), updaterHome ) ) log.atWarn().log( "Failed to stage updater at: %s", updaterHome );
 
 		// NOTE Do not mark the updater files to be deleted on exit
 		// because they need to exist for the updater to start after the JVM exits
