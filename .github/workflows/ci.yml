@@ -36,10 +36,10 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -62,7 +62,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -125,10 +125,10 @@ jobs:
       XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -150,7 +150,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -178,10 +178,10 @@ jobs:
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -203,7 +203,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -230,10 +230,10 @@ jobs:
       AVN_PLATFORM: "linux"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -255,7 +255,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -305,10 +305,10 @@ jobs:
       AVN_PLATFORM: "macosx"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -330,7 +330,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -380,10 +380,10 @@ jobs:
       AVN_PLATFORM: "windows"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -406,7 +406,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
