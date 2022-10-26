@@ -7,6 +7,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Side;
 import javafx.geometry.VPos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
@@ -88,11 +89,13 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		Dragboard board = tab.startDragAndDrop( modes );
 
 		ClipboardContent content = new ClipboardContent();
-		content.putUrl( tool.getAsset().getUri().toString() );
 		content.putString( tool.getAsset().getUri().toString() );
+		content.putUrl( tool.getAsset().getUri().toString() );
 		board.setContent( content );
 
-		Image image = tab.snapshot( null, null );
+		SnapshotParameters parameters = new SnapshotParameters();
+		parameters.setTransform( tab.getLocalToSceneTransform() );
+		Image image = tab.snapshot( parameters, null );
 		board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 	}
 

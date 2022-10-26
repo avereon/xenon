@@ -79,7 +79,7 @@
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
 		<controlsfx.version>[11.1,)</controlsfx.version>
-		<openjfx.version>17.0.0.1</openjfx.version>
+		<openjfx.version>[17.0,)</openjfx.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>[4.0,)</testfx.version>
