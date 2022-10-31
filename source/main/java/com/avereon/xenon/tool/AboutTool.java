@@ -167,6 +167,10 @@ public class AboutTool extends GuidedTool {
 
 		private final Label productProvider;
 
+		private final Label javaFxHeader;
+
+		private final Label javaFxRuntime;
+
 		private final Label javaLabel;
 
 		private Label javaName;
@@ -204,6 +208,7 @@ public class AboutTool extends GuidedTool {
 			nextUpdateCheckPrompt = Rb.text( RbKey.UPDATE, "product-update-check-next" );
 			lastUpdateTimestamp = makeLabel( "tool-about-version" );
 			nextUpdateTimestamp = makeLabel( "tool-about-version" );
+			javaFxHeader = makeLabel( "tool-about-header" );
 			javaLabel = makeLabel( "tool-about-header" );
 			javaVmName = makeLabel( "tool-about-name" );
 			osName = makeLabel( "tool-about-name" );
@@ -217,17 +222,26 @@ public class AboutTool extends GuidedTool {
 			//			header.getChildren().add( makeSeparator() );
 			//			header.getChildren().add( lastUpdateTimestamp );
 			//			header.getChildren().add( nextUpdateTimestamp );
-			header.getChildren().add( makeSeparator() );
-			header.getChildren().add( makeSeparator() );
+//			header.getChildren().add( makeSeparator() );
+//			header.getChildren().add( makeSeparator() );
 
 			VBox information = new VBox( UiFactory.PAD );
-			//information.getChildren().add( makeSeparator() );
-			//information.getChildren().add( makeSeparator() );
+			// Java
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( javaLabel );
 			//information.getChildren().add( javaName );
 			//information.getChildren().add( javaVmName );
 			information.getChildren().add( javaVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( javaProvider = makeLabel( "tool-about-provider" ) );
+
+			// Java FX
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( javaFxHeader );
+			information.getChildren().add( javaFxRuntime = makeLabel( "tool-about-version" ) );
+
+			// Operating System
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( osLabel = makeLabel( "tool-about-header" ) );
@@ -279,6 +293,9 @@ public class AboutTool extends GuidedTool {
 				productVersion.setText( card.getRelease().getVersion().toHumanString() );
 			}
 			productProvider.setText( from + " " + card.getProvider() );
+
+			javaFxHeader.setText( "JavaFX " + System.getProperty( "javafx.version" ) );
+			javaFxRuntime.setText( "JavaFX Runtime " + System.getProperty( "javafx.runtime.version" ) );
 
 			javaLabel.setText( "Java " + System.getProperty( "java.version" ) );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
@@ -511,6 +528,9 @@ public class AboutTool extends GuidedTool {
 	private String getJavaFxDetail() {
 		StringBuilder builder = new StringBuilder();
 
+		String javaFxVersion = System.getProperty( "javafx.runtime.version" );
+		builder.append( "Java FX version:" ).append( javaFxVersion ).append( "\n" );
+
 		// Is the program hardware rendered
 		boolean hardwareRendered = getProgram().isHardwareRendered();
 		builder.append( "Hardware rendered: " ).append( hardwareRendered ).append( "\n" );
@@ -518,13 +538,13 @@ public class AboutTool extends GuidedTool {
 
 		// The screen information
 		builder.append( "\n" );
-		Screen primary = Screen.getPrimary();
-		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
+		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( screen ) ) );
 
 		return builder.toString();
 	}
 
-	private String getScreenDetail( Screen primary, Screen screen ) {
+	private String getScreenDetail( Screen screen ) {
+		Screen primary = Screen.getPrimary();
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
 
