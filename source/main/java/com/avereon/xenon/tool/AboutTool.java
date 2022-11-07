@@ -529,7 +529,7 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		String javaFxVersion = System.getProperty( "javafx.runtime.version" );
-		builder.append( "Java FX version:" ).append( javaFxVersion ).append( "\n" );
+		builder.append( "Java FX version: " ).append( javaFxVersion ).append( "\n" );
 
 		// Is the program hardware rendered
 		boolean hardwareRendered = getProgram().isHardwareRendered();
