@@ -1111,7 +1111,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// It's problematic to check if an asset exists, particularly for new assets
 		//if( !asset.exists() ) return false;
-		if( !asset.getScheme().canLoad( asset )) return false;
+
+		if( !asset.getScheme().canLoad( asset ) ) return false;
 
 		// Load the asset
 		log.atTrace().log( "Loading asset " + asset.getUri() );
@@ -1136,6 +1137,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doSaveAsset( Asset asset ) throws AssetException {
 		if( asset == null || !isManagedAssetOpen( asset ) ) return false;
+
+		if( !asset.getScheme().canSave( asset ) ) return false;
 
 		asset.save( this );
 		identifiedAssets.put( asset.getUri(), asset );

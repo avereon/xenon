@@ -16,4 +16,14 @@ public class MockScheme extends BaseScheme {
 		return true;
 	}
 
+	@Override
+	public boolean canLoad( Asset asset ) {
+		return true;
+	}
+
+	@Override
+	public boolean canSave( Asset asset ) {
+		return true;
+	}
+
 }
