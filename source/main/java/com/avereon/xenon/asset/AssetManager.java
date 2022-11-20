@@ -1111,7 +1111,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// It's problematic to check if an asset exists, particularly for new assets
 		//if( !asset.exists() ) return false;
-		if( !asset.getScheme().canLoad( asset )) return false;
+
+		if( !asset.getScheme().canLoad( asset ) ) return false;
 
 		if( !asset.getScheme().canLoad( asset ) ) return false;
 
