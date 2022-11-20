@@ -7,6 +7,8 @@ import com.avereon.util.IoUtil;
 import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +22,6 @@ public class IndexService implements Controllable<IndexService> {
 
 	private static final int FUZZY_SEARCH_THRESHOLD = 80;
 
-	@SuppressWarnings( { "FieldCanBeLocal", "unused" } )
 	private final Program program;
 
 	private final Indexer indexer;
@@ -31,9 +32,9 @@ public class IndexService implements Controllable<IndexService> {
 		this.program = program;
 
 		Path indexPath = program.getDataFolder().resolve( "index" );
-		this.indexer = new Indexer( indexPath );
-
 		contentPath = indexPath.resolve( "content" );
+
+		this.indexer = new Indexer( indexPath );
 	}
 
 	@Override
@@ -99,8 +100,8 @@ public class IndexService implements Controllable<IndexService> {
 			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
-	public Document lookup( URI uri ) throws Exception {
-		return new Document( uri, "", "",  getDocumentContentPath( uri ).toFile().toURI().toURL() );
+	public Document lookup( URI uri ) throws FileNotFoundException {
+		return new Document( uri, "", "", new FileReader( getDocumentContentPath( uri ).toFile() ) );
 	}
 
 	/**
@@ -121,7 +122,7 @@ public class IndexService implements Controllable<IndexService> {
 		try {
 			Files.createDirectories( contentPath );
 			try( FileWriter writer = new FileWriter( path.toFile() ) ) {
-				IoUtil.copy( document.reader(), writer );
+				IoUtil.copy( document.content(), writer );
 			} catch( Exception exception ) {
 				log.atWarn( exception );
 			}

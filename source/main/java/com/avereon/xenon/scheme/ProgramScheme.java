@@ -58,9 +58,9 @@ public class ProgramScheme extends ProductScheme {
 				log.atWarn().log( "Document not found: doc=%s", uri );
 				content = "<html><body></body></html>";
 			} else {
-				content = IoUtil.toString( document.reader() );
+				content = IoUtil.toString( document.content() );
 			}
-		} catch( Exception exception ) {
+		} catch( IOException exception ) {
 			content = "<html><body></body></html>";
 		}
 
