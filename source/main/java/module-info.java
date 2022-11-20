@@ -10,6 +10,7 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
+	requires com.sandec.mdfx;
 	requires java.net.http;
 	requires java.logging;
 	requires java.management;
@@ -52,6 +53,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
+	exports com.avereon.xenon.ui;
 
 	uses Mod;
 

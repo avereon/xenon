@@ -267,6 +267,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return productKey == null ? getProgram() : products.get( productKey );
 	}
 
+	public Set<String> getModKeys() {
+		return modules.keySet();
+	}
+
 	public Mod getMod( String productKey ) {
 		return modules.get( productKey );
 	}

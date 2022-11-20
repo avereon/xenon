@@ -855,10 +855,15 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Determine the asset type for the given asset. The asset URI is used to find the asset type in the following order: <ol> <li>Lookup the asset
-	 * type by the full URI</li> <li>Lookup the asset type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the asset type associated to the
-	 * codec</li> </ol>
+	 * Determine the asset type for the given asset. The asset URI is used to find
+	 * the asset type in the following order:
+	 * <ol>
+	 *   <li>Lookup the asset type by the full URI</li>
+	 *   <li>Lookup the asset type by the URI scheme</li>
+	 *   <li>Find all the codecs that match the URI</li>
+	 *   <li>Sort the codecs by priority, select the highest</li>
+	 *   <li>Use the asset type associated to the codec</li>
+	 * </ol>
 	 *
 	 * @param asset The asset for which to resolve the asset type
 	 * @return The auto detected asset type
@@ -1033,9 +1038,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
+
 		// NOTE Many assets require query parameters in the URI
-		uri = UriUtil.removeFragment( uri );
-		uri = fixUris( uri.normalize() );
+		uri = uriCleanup( uri );
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
@@ -1059,7 +1064,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( type == null ) type = autoDetectAssetType( asset );
 
 		if( type == null ) {
-			log.atDebug().log( "Asset type not found for: " + asset.getFileName() );
+			log.atWarn().log( "Asset type not found: " + asset.getMediaType() );
 			String title = Rb.text( RbKey.LABEL, "asset" );
 			String message = Rb.text( RbKey.ASSET, "asset-type-not-supported", asset.getFileName() );
 			Notice notice = new Notice( title, message ).setType( Notice.Type.WARN );
@@ -1106,6 +1111,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// It's problematic to check if an asset exists, particularly for new assets
 		//if( !asset.exists() ) return false;
+		if( !asset.getScheme().canLoad( asset )) return false;
 
 		// Load the asset
 		log.atTrace().log( "Loading asset " + asset.getUri() );
@@ -1283,13 +1289,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return filters;
 	}
 
-	private URI fixUris( URI uri ) {
-		String uriString = uri.toString();
-
-		// Fix program URIs
-		if( uriString.startsWith( "program:" ) && !uriString.startsWith( "program:/" ) ) uri = URI.create( uriString.replace( "program:", "program:/" ) );
-
-		return uri;
+	private URI uriCleanup( URI uri ) {
+		return UriUtil.removeFragment( uri ).normalize();
 	}
 
 	private boolean doSetCurrentAsset( Asset asset ) {

@@ -3,14 +3,18 @@ package com.avereon.xenon.index;
 import com.avereon.index.*;
 import com.avereon.result.Result;
 import com.avereon.skill.Controllable;
+import com.avereon.util.IoUtil;
 import com.avereon.xenon.Program;
 import lombok.CustomLog;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Future;
 
 @CustomLog
@@ -22,10 +26,13 @@ public class IndexService implements Controllable<IndexService> {
 
 	private final Indexer indexer;
 
+	private final Path contentPath;
+
 	public IndexService( Program program ) {
 		this.program = program;
 
 		Path indexPath = program.getDataFolder().resolve( "index" );
+		contentPath = indexPath.resolve( "content" );
 
 		this.indexer = new Indexer( indexPath );
 	}
@@ -48,10 +55,11 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( D document ) {
-		return indexer.submit( document );
+		return submit( Index.DEFAULT, document );
 	}
 
 	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( String index, D document ) {
+		storeContent( document );
 		return indexer.submit( index, document );
 	}
 
@@ -92,6 +100,10 @@ public class IndexService implements Controllable<IndexService> {
 			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
+	public Document lookup( URI uri ) throws FileNotFoundException {
+		return new Document( uri, "", "", new FileReader( getDocumentContentPath( uri ).toFile() ) );
+	}
+
 	/**
 	 * Remove a search index.
 	 *
@@ -99,6 +111,32 @@ public class IndexService implements Controllable<IndexService> {
 	 */
 	public void removeIndex( String index ) {
 		indexer.removeIndex( index );
+	}
+
+	private void storeContent( Document document ) {
+		if( !document.store() ) return;
+
+		// TODO Do this work on IO threads
+
+		Path path = getDocumentContentPath( document.uri() );
+		try {
+			Files.createDirectories( contentPath );
+			try( FileWriter writer = new FileWriter( path.toFile() ) ) {
+				IoUtil.copy( document.content(), writer );
+			} catch( Exception exception ) {
+				log.atWarn( exception );
+			}
+		} catch( Exception exception ) {
+			log.atWarn( exception );
+		}
+	}
+
+	private Path getDocumentContentPath( URI uri ) {
+		return contentPath.resolve( documentId( uri ) + ".dat" );
+	}
+
+	private String documentId( URI uri ) {
+		return UUID.nameUUIDFromBytes( uri.toString().getBytes( StandardCharsets.UTF_8 ) ).toString();
 	}
 
 }

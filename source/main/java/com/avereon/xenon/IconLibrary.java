@@ -69,6 +69,7 @@ public class IconLibrary {
 		register( "terminal", new TerminalIcon() );
 
 		register( "about", new ExclamationIcon() );
+		register( "help", new QuestionIcon() );
 		register( "help-content", new QuestionIcon() );
 		register( "search", new MagnifierIcon() );
 		register( "notice", new NoticeIcon() );

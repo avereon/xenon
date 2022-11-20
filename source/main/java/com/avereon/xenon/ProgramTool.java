@@ -284,8 +284,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		try {
 			if( asset.exists() && !asset.isLoaded() ) {
 				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-				//if( timeout ) log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
-				if( timeout ) throw new TimeoutException( "Timeout waiting for asset to load: " + this );
+				if( timeout ) {
+					log.atWarning().log( "Timeout waiting for asset to load: %s > %s", this, asset );
+					throw new TimeoutException( "Timeout waiting for asset to load: " + this + " > " + asset );
+				}
 			}
 		} finally {
 			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );

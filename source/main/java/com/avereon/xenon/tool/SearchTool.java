@@ -18,11 +18,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import lombok.CustomLog;
 import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
 
+@CustomLog
 public class SearchTool extends ProgramTool {
 
 	private final TextField search;
@@ -168,6 +170,7 @@ public class SearchTool extends ProgramTool {
 			};
 
 		}
+
 	}
 
 }

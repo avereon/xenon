@@ -42,7 +42,7 @@ public class GuideContext {
 		this.tool = tool;
 		this.eventHub = new EventHub();
 		this.guides = FXCollections.observableArrayList();
-		this.currentGuide = new SimpleObjectProperty<>();
+		this.currentGuide = new SimpleObjectProperty<>( Guide.EMPTY );
 
 		focused = new SimpleBooleanProperty( false );
 		active = new SimpleBooleanProperty( false );
@@ -73,7 +73,7 @@ public class GuideContext {
 	}
 
 	public void setCurrentGuide( Guide guide ) {
-		this.currentGuide.set( guide );
+		this.currentGuide.set( guide == null ? Guide.EMPTY : guide );
 	}
 
 	public ReadOnlyObjectProperty<Guide> currentGuideProperty() {
@@ -168,7 +168,7 @@ public class GuideContext {
 
 	private Map<String, TreeItem<GuideNode>> getItemMap() {
 		Map<String, TreeItem<GuideNode>> map = FxUtil.flatTree( getCurrentGuide().getRoot() ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
-		if( map.isEmpty()) log.atWarn().log( "Guide does not contain any tree items" );
+		if( map.isEmpty() ) log.atWarn().log( "Guide does not contain any tree items" );
 		return map;
 	}
 

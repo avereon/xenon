@@ -17,6 +17,8 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.type.*;
+import com.avereon.xenon.tool.HelpTool;
+import com.avereon.xenon.asset.type.ProgramHelpType;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeLogHandler;
@@ -1186,6 +1188,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
 		manager.addScheme( new ProgramScheme( this ) );
+		//manager.addScheme( new ProgramHelpScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new HttpsScheme( this ) );
 		manager.addScheme( new HttpScheme( this ) );
@@ -1195,6 +1198,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.removeScheme( HttpScheme.ID );
 		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
+		//manager.removeScheme( ProgramHelpScheme.ID );
 		manager.removeScheme( ProgramScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( NewScheme.ID );
@@ -1207,6 +1211,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.addAssetType( new ProgramWelcomeType( this ) );
 		manager.addAssetType( new ProgramNoticeType( this ) );
 		manager.addAssetType( new ProgramSearchType( this ) );
+		manager.addAssetType( new ProgramHelpType( this ) );
 		manager.addAssetType( new ProgramProductType( this ) );
 		manager.addAssetType( new ProgramTaskType( this ) );
 		manager.addAssetType( new ProgramAssetNewType( this ) );
@@ -1224,6 +1229,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.removeAssetType( new ProgramAssetNewType( this ) );
 		manager.removeAssetType( new ProgramTaskType( this ) );
 		manager.removeAssetType( new ProgramProductType( this ) );
+		manager.removeAssetType( new ProgramHelpType( this ) );
 		manager.removeAssetType( new ProgramSearchType( this ) );
 		manager.removeAssetType( new ProgramNoticeType( this ) );
 		manager.removeAssetType( new ProgramWelcomeType( this ) );
@@ -1245,8 +1251,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
-
-		// This is intended to be used with the asset properties
+		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.SINGLETON, "help", "help" );
 		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
@@ -1257,6 +1262,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private void unregisterTools( ToolManager manager ) {
 		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
+		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
 		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
