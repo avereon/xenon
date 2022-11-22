@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -32,7 +31,7 @@ public class IndexServiceTest extends ProgramTestCase {
 
 	@Test
 	void testSubmit() throws Exception {
-		Document document = new Document( URI.create( "" ), "", "", new StringReader( "" ) );
+		Document document = new Document( URI.create( "" ), "", "", "" );
 		var result = service.submit( document );
 
 		assertThat( result.get() ).isInstanceOf( Future.class );

@@ -522,8 +522,8 @@ public class Program extends Application implements ProgramProduct {
 	private void indexProgramDocuments() {
 		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
 		String icon = "about";
-		String name = Rb.text( RbKey.TOOL, about.getTitle() + "-name" );
-		getIndexService().submit( new Document( ProgramAboutType.URI, icon, name, new StringReader( about.getIndexContent() ) ) );
+		String name = Rb.text( RbKey.TOOL, "about-name" );
+		getIndexService().submit( new Document( ProgramAboutType.URI, icon, name, about.getIndexContent() ) );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -1251,7 +1251,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
-		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.SINGLETON, "help", "help" );
+		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.UNLIMITED, "help", "help" );
 		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
