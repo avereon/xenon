@@ -13,6 +13,11 @@ public class NewScheme extends BaseScheme {
 	}
 
 	@Override
+	public boolean canLoad( Asset asset ) throws AssetException {
+		return true;
+	}
+
+	@Override
 	public boolean canSave( Asset asset ) throws AssetException {
 		return true;
 	}

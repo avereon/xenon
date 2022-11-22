@@ -1114,8 +1114,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		if( !asset.getScheme().canLoad( asset ) ) return false;
 
-		if( !asset.getScheme().canLoad( asset ) ) return false;
-
 		// Load the asset
 		log.atTrace().log( "Loading asset " + asset.getUri() );
 		asset.load( this );

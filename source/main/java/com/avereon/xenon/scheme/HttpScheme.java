@@ -44,6 +44,11 @@ public class HttpScheme extends BaseScheme {
 	}
 
 	@Override
+	public boolean canLoad( Asset asset ) throws AssetException {
+		return true;
+	}
+
+	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 

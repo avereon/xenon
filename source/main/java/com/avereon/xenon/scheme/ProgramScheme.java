@@ -28,11 +28,6 @@ public class ProgramScheme extends ProductScheme {
 	}
 
 	@Override
-	public boolean canSave( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		// Most assets don't actually load anything
 
