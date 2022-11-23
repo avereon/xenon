@@ -39,9 +39,9 @@ public class MenuBarFactory extends BarFactory {
 		menu.setId( MENU_ID_PREFIX + action.getId() );
 		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
-		menu.setText( action.getMnemonicName() );
+		menu.setText( action.getNameWithMnemonic() );
 		if( submenu ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
-		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
+		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
@@ -82,9 +82,11 @@ public class MenuBarFactory extends BarFactory {
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setDisable( !action.isEnabled() );
-		item.setText( action.getMnemonicName() );
+		item.setText( action.getNameWithMnemonic() );
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
+
+		if( action.getCommand() != null ) item.setText( action.getNameWithMnemonic() + " [" + action.getCommand() + "]");
 
 		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );

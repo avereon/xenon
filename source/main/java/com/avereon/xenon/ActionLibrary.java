@@ -141,7 +141,7 @@ public class ActionLibrary {
 		proxy.setShortcut( shortcut );
 		proxy.setCommand( command );
 		proxy.setTags( Arrays.asList( tags ) );
-		if( command != null ) proxy.setName( name + " (" + command + ")" );
+		//if( command != null ) proxy.setName( "[" + command + "] " + name );
 		proxy.setDescription( description );
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
 
