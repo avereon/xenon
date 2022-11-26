@@ -5,7 +5,7 @@
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
     <module name="aveon" />
     <option name="PROGRAM_PARAMETERS" value="--noupdate --profile dev --log-level info --enable-mod com.avereon.aveon" />
-    <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es -Dprism.forceGPU=true" />
+    <option name="VM_PARAMETERS" value="-Xmx64m -Duser.language=es -Dprism.forceGPU=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
