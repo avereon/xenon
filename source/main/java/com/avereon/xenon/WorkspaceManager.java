@@ -122,7 +122,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 		this.currentThemeId = id;
 		final ThemeMetadata finalTheme = theme;
-		workspaces.forEach( w -> w.setTheme( finalTheme.getStylesheet() ) );
+		workspaces.forEach( w -> w.setTheme( finalTheme.getUrl() ) );
 	}
 
 	public Set<Workspace> getWorkspaces() {
@@ -137,7 +137,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Workspace workspace = new Workspace( program );
 		workspace.setUid( id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
-		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
 		workspace.getEventBus().parent( program.getFxEventHub() );
 
 		return workspace;

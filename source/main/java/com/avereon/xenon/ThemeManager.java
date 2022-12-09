@@ -68,9 +68,9 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		return themes.get( id );
 	}
 
-	private void registerTheme( String id, String name, String stylesheet ) {
-		Path path = profileThemeFolder.resolve( stylesheet );
-		themes.put( id, new ThemeMetadata( id, name, path.toUri().toString() ) );
+	private void registerTheme( String id, String name, boolean isDark, String url ) {
+		Path path = profileThemeFolder.resolve( url );
+		themes.put( id, new ThemeMetadata( id, name, isDark, path.toUri().toString() ) );
 		log.atFiner().log( "Theme registered: %s", name );
 	}
 
@@ -83,8 +83,9 @@ public class ThemeManager implements Controllable<ThemeManager> {
 					List<String> lines = TextUtil.getLines( FileUtil.load( p ) );
 					String id = getProperty( lines, "id" );
 					String name = getProperty( lines, "name" );
-					String theme = p.toAbsolutePath().toString();
-					registerTheme( id, name, theme );
+					boolean isDark = Boolean.parseBoolean( getProperty( lines, "dark" ) );
+					String url = p.toAbsolutePath().toString();
+					registerTheme( id, name, isDark, url );
 				} catch( IOException exception ) {
 					exception.printStackTrace();
 				}
