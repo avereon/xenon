@@ -154,22 +154,6 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		createTheme( name, Colors.opaque( base ), accent, Colors.mix( focus, Color.WHITE, 0.1 ) );
 	}
 
-	private void createMaterialDarkTheme( Color color ) {
-		String name = "Xenon Dark Material " + MaterialColor.getName( color );
-		Color base = Colors.mix( Colors.parse( "#202020" ), color, 0.1 );
-		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
-		Color focus = color;
-		createTheme( name, format( base ), format( accent ), format( focus ) );
-	}
-
-	private void createMaterialLightTheme( Color color ) {
-		String name = "Xenon Light Material " + MaterialColor.getName( color );
-		Color base = Colors.mix( Colors.parse( "#E0E0E0" ), color, 0.1 );
-		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
-		Color focus = color;
-		createTheme( name, format( base ), format( accent ), format( focus ) );
-	}
-
 	private void createTheme( String name, String base, String accent, String focus ) {
 		Color colorA = base == null ? null : Color.web( base );
 		Color colorB = accent == null ? null : Color.web( accent );
