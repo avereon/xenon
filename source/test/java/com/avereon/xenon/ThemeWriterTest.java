@@ -29,6 +29,8 @@ public class ThemeWriterTest {
 		assertThat( lines.next() ).isEqualTo( "/*" );
 		assertThat( lines.next() ).isEqualTo( " * id=xenon-evening-field" );
 		assertThat( lines.next() ).isEqualTo( " * name=Xenon Evening Field" );
+		assertThat( lines.next() ).isEqualTo( " * dark=false" );
+		assertThat( lines.next() ).isEqualTo( " * light=true" );
 		assertThat( lines.next() ).isEqualTo( " * base=#FEF7C9FF" );
 		assertThat( lines.next() ).isEqualTo( " * accent=#ABC6ACFF" );
 		assertThat( lines.next() ).isEqualTo( " * focus=#657DA0FF" );
@@ -75,6 +77,8 @@ public class ThemeWriterTest {
 		assertThat( lines.next() ).isEqualTo( "/*" );
 		assertThat( lines.next() ).isEqualTo( " * id=xenon-evening-sky" );
 		assertThat( lines.next() ).isEqualTo( " * name=Xenon Evening Sky" );
+		assertThat( lines.next() ).isEqualTo( " * dark=true" );
+		assertThat( lines.next() ).isEqualTo( " * light=false" );
 		assertThat( lines.next() ).isEqualTo( " * base=#1A2C3AFF" );
 		assertThat( lines.next() ).isEqualTo( " * accent=#223854FF" );
 		assertThat( lines.next() ).isEqualTo( " * focus=#68685EFF" );
