@@ -248,49 +248,49 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		this.setActiveWhenReady = true;
 	}
 
-	void waitForReady( OpenAssetRequest request ) {
+	static void waitForReady( OpenAssetRequest request, ProgramTool tool ) {
 		TaskChain.of( "wait for ready", () -> {
-			waitForTool();
+			waitForTool( tool);
 			return null;
 		} ).link( () -> {
-			waitForAsset( getAsset() );
+			waitForAsset( request.getAsset() );
 			return null;
 		} ).link( () -> {
-			callToolReady( request );
+			tool.callToolReady( request );
 			return null;
-		} ).run( getProgram() );
+		} ).run( tool.getProgram() );
 	}
 
-	private void waitForTool() throws TimeoutException, InterruptedException {
+	private static void waitForTool( ProgramTool tool ) throws TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
-		javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
+		javafx.event.EventHandler<ToolEvent> handler = e -> latch.countDown();
 
 		try {
-			addEventFilter( ToolEvent.ADDED, h );
-			if( getToolView() == null ) {
+			tool.addEventFilter( ToolEvent.ADDED, handler );
+			if( tool.getToolView() == null ) {
 				boolean timeout = !latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-				//if( timeout ) log.atWarning().log( "Timeout waiting for tool to be allocated: %s", this );
-				if( timeout ) throw new TimeoutException( "Timeout waiting for tool to be created: " + this );
+				//if( timeout ) log.atWarning().log( "Timeout waiting for tool to be allocated: %s", tool );
+				if( timeout ) throw new TimeoutException( "Timeout waiting for tool to be created: " + tool );
 			}
 		} finally {
-			removeEventFilter( ToolEvent.ADDED, h );
+			tool.removeEventFilter( ToolEvent.ADDED, handler );
 		}
 	}
 
-	private void waitForAsset( Asset asset ) throws AssetException, TimeoutException, InterruptedException {
+	private static void waitForAsset( Asset asset ) throws AssetException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
-		EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
-		asset.register( AssetEvent.LOADED, assetLoadedHandler );
+		EventHandler<AssetEvent> handler = e -> latch.countDown();
+		asset.register( AssetEvent.LOADED, handler );
 		try {
 			if( asset.exists() && !asset.isLoaded() ) {
 				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
 				if( timeout ) {
-					log.atWarning().log( "Timeout waiting for asset to load: %s > %s", this, asset );
-					throw new TimeoutException( "Timeout waiting for asset to load: " + this + " > " + asset );
+					//log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
+					throw new TimeoutException( "Timeout waiting for asset to load: " + asset );
 				}
 			}
 		} finally {
-			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
+			asset.unregister( AssetEvent.LOADED, handler );
 		}
 	}
 

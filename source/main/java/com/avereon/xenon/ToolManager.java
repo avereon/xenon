@@ -344,17 +344,17 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
 		return (ProgramTool)pane.getTools( type ).stream().findAny().orElse( null );
-		//return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
 	}
 
 	/**
-	 * This method creates a task that waits for the asset to be ready then calls the tool assetReady() method.
+	 * This method creates a task that waits for both the tool to be added
+	 * and asset to be loaded then calls the tool ready() method.
 	 *
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
 	private void scheduleWaitForReady( OpenAssetRequest request, ProgramTool tool ) {
-		tool.waitForReady( request );
+		ProgramTool.waitForReady( request, tool );
 	}
 
 }
