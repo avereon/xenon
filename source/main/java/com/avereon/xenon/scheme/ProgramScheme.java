@@ -1,6 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.index.Document;
+import com.avereon.product.Rb;
 import com.avereon.util.IoUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
@@ -30,8 +31,7 @@ public class ProgramScheme extends ProductScheme {
 	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		// Most assets don't actually load anything
-
-		// However, the following do
+		// However, the following do:
 
 		// Help content
 		URI uri = URI.create( asset.getUri().getSchemeSpecificPart() );
@@ -44,19 +44,21 @@ public class ProgramScheme extends ProductScheme {
 
 	private void loadHelp( Asset asset, Codec codec ) {
 		URI uri = asset.getUri();
-		//log.atConfig().log( "help uri=%s", uri );
 
 		String content;
 		try {
 			Document document = getProgram().getIndexService().lookup( uri );
 			if( document == null ) {
 				log.atWarn().log( "Document not found: doc=%s", uri );
-				content = "<html><body></body></html>";
+				String message = Rb.text( "program", "help-document-not-found" );
+				content = "<html><body>" + message + "</body></html>";
 			} else {
 				content = IoUtil.toString( document.reader() );
 			}
 		} catch( Exception exception ) {
-			content = "<html><body></body></html>";
+			String message = Rb.text( "program", "error-loading-help-content" );
+			content = "<html><body>" + message + "</body></html>";
+			log.atError( exception ).log();
 		}
 
 		try {
