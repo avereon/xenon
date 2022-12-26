@@ -13,8 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import lombok.CustomLog;
+import org.controlsfx.dialog.FontSelectorDialog;
 
 import java.util.List;
+import java.util.Optional;
 
 @CustomLog
 public class FontSettingEditor extends SettingEditor {
@@ -63,17 +65,17 @@ public class FontSettingEditor extends SettingEditor {
 
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
-		log.atFine().log(  "Setting font updated: %s", font );
+		log.atFine().log( "Setting font updated: %s", font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
-//		button.setOnAction( ( event ) -> {
-//			FontSelectorDialog dialog = new FontSelectorDialog( font );
-//			Optional<Font> optional = dialog.showAndWait();
-//			optional.ifPresent( font1 -> {
-//				log.log( Log.DEBUG,  "Setting font selected: " + font1 );
-//				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
-//			} );
-//		} );
+		button.setOnAction( ( event ) -> {
+			FontSelectorDialog dialog = new FontSelectorDialog( font );
+			Optional<Font> optional = dialog.showAndWait();
+			optional.ifPresent( selected -> {
+				log.atDebug().log( "Setting font selected: " + selected );
+				setting.getSettings().set( setting.getKey(), FontUtil.encode( selected ) );
+			} );
+		} );
 	}
 
 }
