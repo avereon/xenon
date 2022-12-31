@@ -98,6 +98,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programLogFolder;
 
+	private Path programTempFolder;
+
 	private UpdateManager updateManager;
 
 	private Settings programSettings;
@@ -213,7 +215,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "print-header" );
 
 		// Determine the program data folder, depends on program parameters
-		programDataFolder = configureDataFolder();
+		configureDataFolder();
 		time( "configure-data-folder" );
 
 		// Configure logging, depends on parameters and program data folder
@@ -780,6 +782,10 @@ public class Program extends Application implements ProgramProduct {
 		return programLogFolder;
 	}
 
+	public Path getTempFolder() {
+		return programTempFolder;
+	}
+
 	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
@@ -1055,9 +1061,10 @@ public class Program extends Application implements ProgramProduct {
 		return profile == null ? "" : "-" + profile;
 	}
 
-	private Path configureDataFolder() {
+	private void configureDataFolder() {
 		String suffix = getProfileSuffix();
-		return OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		programTempFolder = programDataFolder.resolve( "temp" );
 	}
 
 	private void configureLogging() {
