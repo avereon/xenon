@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings( "unused" )
 public class ProgramEventCollector implements EventHandler<ProductEvent> {
 
-	private List<ProductEvent> events = new CopyOnWriteArrayList<>();
+	private final List<ProductEvent> events = new CopyOnWriteArrayList<>();
 
 	@Override
 	public void handle( ProductEvent event ) {

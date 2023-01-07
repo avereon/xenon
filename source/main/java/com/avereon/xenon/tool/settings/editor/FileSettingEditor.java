@@ -31,16 +31,16 @@ public class FileSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FileSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public FileSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( Rb.text( getProduct(), "settings", rbKey ) );
+		label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
@@ -48,7 +48,7 @@ public class FileSettingEditor extends SettingEditor {
 		field.setId( rbKey );
 
 		button = new Button();
-		button.setText( Rb.text( getProduct(), "settings", "browse" ) );
+		button.setText( Rb.text( getProduct(), getRbKey(), "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		nodes = List.of( label, field, button );
@@ -112,7 +112,7 @@ public class FileSettingEditor extends SettingEditor {
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( Rb.text( getProduct(), "settings", "select-file" ) );
+		fileChooser.setTitle( Rb.text( getProduct(), getRbKey(), "select-file" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );

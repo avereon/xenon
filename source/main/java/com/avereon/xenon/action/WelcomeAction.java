@@ -1,11 +1,11 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import javafx.event.ActionEvent;
 
-public class WelcomeAction extends Action {
+public class WelcomeAction extends ProgramAction {
 
 	public WelcomeAction( Program program ) {
 		super( program );

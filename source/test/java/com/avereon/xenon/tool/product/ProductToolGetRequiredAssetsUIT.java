@@ -8,17 +8,16 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductToolGetRequiredAssetsUIT extends ProductToolUIT {
 
 	@Test
 	void execute() {
 		Asset asset = new Asset( ProgramProductType.URI );
-		ProductTool tool = new ProductTool( program, asset );
+		ProductTool tool = new ProductTool( getProgram(), asset );
 		Set<URI> assets = tool.getAssetDependencies();
-		assertThat( assets, containsInAnyOrder( ProgramGuideType.URI ) );
+		assertThat( assets ).contains( ProgramGuideType.URI );
 	}
 
 }

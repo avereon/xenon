@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Xenon Daemon" type="Application" factoryName="Application" singleton="false">
+    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
+    <module name="xenon" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --daemon" />
+    <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

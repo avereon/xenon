@@ -6,8 +6,9 @@ import com.avereon.weave.UpdateFlag;
 public class Launcher {
 
 	public static void main( String[] commands ) {
-		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
 		ProgramConfig.configureCustomLauncherName();
+
+		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
 
 		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
 			// Launch an elevated updater instance

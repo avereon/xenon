@@ -3,17 +3,16 @@ package com.avereon.xenon.workspace;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ProgramWorkspaceTitleUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveStage();
-		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
-		assertThat( stage.isShowing(), is( true ) );
-		assertThat( stage.getTitle(), is( workareaName + " - " + program.getCard().getName() ) );
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
+		String workareaName = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
+		assertThat( stage.isShowing() ).isTrue();
+		assertThat( stage.getTitle() ).isEqualTo( workareaName + " - " + getProgram().getCard().getName() );
 	}
 
 }

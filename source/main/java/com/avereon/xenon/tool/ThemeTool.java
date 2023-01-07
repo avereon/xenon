@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ThemeMetadata;
@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,16 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@CustomLog
 @Deprecated
 public class ThemeTool extends GuidedTool {
 
-	private static final System.Logger log = Log.get();
+	private final ComboBox<ThemeMetadata> chooser;
 
-	private ComboBox<ThemeMetadata> chooser;
+	private final Region sample;
 
-	private Region sample;
-
-	private VBox layout;
+	private final VBox layout;
 
 	public ThemeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -59,7 +59,7 @@ public class ThemeTool extends GuidedTool {
 
 	private void setSampleTheme( ThemeMetadata theme ) {
 		sample.getStylesheets().clear();
-		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getStylesheet() );
+		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getUrl() );
 
 		refreshThemeOptions( theme );
 	}
@@ -101,7 +101,7 @@ public class ThemeTool extends GuidedTool {
 		// -fx-base
 		// ...
 		try {
-			List<Rule> rules = new CssParser().parse( new URL( theme.getStylesheet() ) ).getRules();
+			List<Rule> rules = new CssParser().parse( new URL( theme.getUrl() ) ).getRules();
 			Map<String, Rule> ruleSelectors = new HashMap<>();
 			for( Rule rule : rules ) {
 
@@ -111,26 +111,26 @@ public class ThemeTool extends GuidedTool {
 
 				for( Selector selector : rule.getSelectors() ) {
 					ruleSelectors.put( selector.toString(), rule );
-					log.log( Log.INFO, "selector=" + selector.toString() );
+					log.atInfo().log( "selector=%s", selector );
 					for( Declaration declaration : rule.getDeclarations() ) {
 						StyleConverter<?, ?> converter = declaration.getParsedValue().getConverter();
 						if( converter == null ) {
 							Assign assign = Assign.of( declaration );
-							log.log( Log.INFO, "  " + assign );
+							log.atInfo().log( "  %s", assign );
 						} else if( converter instanceof DeriveColorConverter ) {
 							Derive derive = Derive.of( declaration );
-							log.log( Log.INFO, "  " + derive );
+							log.atInfo().log( "  %s", derive );
 						} else if( converter instanceof PaintConverter.SequenceConverter ) {
 							PaintSequence seq = PaintSequence.of( declaration );
-							log.log( Log.INFO, "  " + seq );
+							log.atInfo().log( "  %s", seq );
 						} else {
-							log.log( Log.WARN, "unknown type=" + converter.getClass().getName() );
+							log.atWarn().log( "unknown type=%s", LazyEval.of( () -> converter.getClass().getName() ) );
 						}
 					}
 				}
 			}
 		} catch( IOException exception ) {
-			log.log( Log.ERROR, "Unable to parse theme CSS: " + theme.getId(), exception );
+			log.atError( exception ).log( "Unable to parse theme CSS: %s", theme.getId() );
 		}
 	}
 
@@ -210,7 +210,7 @@ public class ThemeTool extends GuidedTool {
 
 			boolean first = false;
 			for( Object value : values ) {
-				if( !first ) builder.append( ",");
+				if( !first ) builder.append( "," );
 				builder.append( value );
 				first = true;
 			}
@@ -219,10 +219,10 @@ public class ThemeTool extends GuidedTool {
 		}
 
 		public static PaintSequence of( Declaration declaration ) {
-			log.log( Log.INFO, "  decl=" + declaration.getProperty() + "=paint" );
+			log.atInfo().log( "  decl=%s=paint", LazyEval.of( declaration::getProperty ) );
 			ParsedValue<?, ?>[] values = (ParsedValue<?, ?>[])declaration.getParsedValue().getValue();
 			for( ParsedValue<?, ?> value : values ) {
-				log.log( Log.INFO, "  val=" + value.getValue() );
+				log.atInfo().log( "  val=%s", LazyEval.of( value::getValue ) );
 			}
 
 			return new PaintSequence( declaration.getProperty() );

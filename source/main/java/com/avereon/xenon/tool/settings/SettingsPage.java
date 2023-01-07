@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 
 import java.util.Collections;
@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SettingsPage extends Node {
+
+	public static final SettingsPage EMPTY = new SettingsPage( null );
 
 	public static final String ID = "id";
 
@@ -30,11 +32,11 @@ public class SettingsPage extends Node {
 
 	private final SettingsPage page;
 
-	private String bundleKey = BundleKey.SETTINGS;
+	private String rbKey = RbKey.SETTINGS;
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsPage( SettingsPage page ) {
+	SettingsPage( SettingsPage page ) {
 		this.page = page;
 
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
@@ -112,12 +114,12 @@ public class SettingsPage extends Node {
 		setValue( SETTINGS, settings );
 	}
 
-	public String getBundleKey() {
-		return bundleKey;
+	public String getRbKey() {
+		return rbKey;
 	}
 
-	public void setBundleKey( String bundleKey ) {
-		this.bundleKey = bundleKey;
+	public void setRbKey( String rbKey ) {
+		this.rbKey = rbKey;
 	}
 
 	public Map<String, SettingOptionProvider> getOptionProviders() {

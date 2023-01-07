@@ -1,5 +1,5 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.xenon.FxProgramUIT;
+import com.avereon.xenon.BaseXenonUiTestCase;
 
-abstract class ProgramWorkspaceUIT extends FxProgramUIT {}
+abstract class ProgramWorkspaceUIT extends BaseXenonUiTestCase {}

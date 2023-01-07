@@ -1,14 +1,15 @@
 package com.avereon.xenon;
 
+import com.avereon.log.Log;
 import com.avereon.product.Rb;
 import com.avereon.util.*;
-import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.weave.UpdateCommandBuilder;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.UpdateTask;
+import com.avereon.xenon.product.ProductUpdate;
+import lombok.CustomLog;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Mark Soderquist
  */
+@CustomLog
 public class RestartHook extends Thread {
 
 	public enum Mode {
@@ -29,8 +31,6 @@ public class RestartHook extends Thread {
 		MOCK_UPDATE,
 		UPDATE
 	}
-
-	private static final Logger log = Log.get();
 
 	private static final String DELETE_SUFFIX = "delete";
 
@@ -59,7 +59,7 @@ public class RestartHook extends Thread {
 				// Ensure the updater is staged...even if we have to wait
 				program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR, "Error staging updater", exception );
+				log.atSevere().withCause( exception ).log( "Error staging updater" );
 			}
 		}
 
@@ -90,7 +90,7 @@ public class RestartHook extends Thread {
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
 		Path updaterFolder = manager.getUpdaterFolder();
-		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
+		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
 		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
@@ -113,14 +113,14 @@ public class RestartHook extends Thread {
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 		}
 
-		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+		log.atFine().log( "%s command: %s", mode, TextUtil.toString( builder.command(), " " ) );
 
 		try {
-			log.log( Log.TRACE, "Storing update commands..." );
+			log.atFiner().log( "Storing update commands..." );
 			Files.writeString( updateCommandFile, createUpdateCommands() );
-			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
+			log.atFine().log( "Update commands stored file=%s", updateCommandFile );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error storing update commands", throwable );
+			log.atSevere().withCause( throwable ).log( "Error storing update commands" );
 		}
 
 		return this;
@@ -133,7 +133,7 @@ public class RestartHook extends Thread {
 		if( mock ) {
 			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
 			for( String name : names ) {
-				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
+				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", name );
 				boolean isProgram = name.equals( program.getCard().getName() );
 				int steps = isProgram ? 15 : 3;
 				steps += random.nextInt( 5 );
@@ -154,7 +154,7 @@ public class RestartHook extends Thread {
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String launchPath = OperatingSystem.getJavaLauncherPath();
-				String updatingProductText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
+				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 
@@ -187,16 +187,16 @@ public class RestartHook extends Thread {
 
 	@Override
 	public void run() {
-		// NOTE Because this is running as a shutdown hook, normal logging does not work
-
 		if( builder == null ) return;
 
 		try {
+			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
+			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );

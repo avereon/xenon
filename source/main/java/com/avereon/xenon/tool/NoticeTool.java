@@ -3,8 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -13,11 +12,12 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import lombok.CustomLog;
 
 import java.util.List;
 
@@ -25,9 +25,8 @@ import java.util.List;
  * The notice tool displays the program notices that have been posted. The tool allows the user to close/dismiss notices or click on the notice to execute a
  * program action.
  */
+@CustomLog
 public class NoticeTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final VBox noticeContainer;
 
@@ -37,7 +36,7 @@ public class NoticeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-notice" );
 
-		String clearAllText = Rb.text( BundleKey.TOOL, "notice-clear-all" );
+		String clearAllText = Rb.text( RbKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
 		clearAllButton.getStyleClass().addAll( "padded" );
 		clearAllButton.setOnMouseClicked( ( event ) -> this.clearAll() );

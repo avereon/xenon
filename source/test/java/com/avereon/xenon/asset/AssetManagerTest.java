@@ -7,11 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssetManagerTest extends ProgramTestCase {
 
@@ -32,7 +30,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		// New assets have a asset type when created.
 		// The URI is assigned when the asset is saved.
 		Asset newAsset = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
-		assertThat( newAsset.isNew(), is( true ) );
+		assertThat( newAsset.isNew() ).isTrue();
 	}
 
 	@Test
@@ -41,25 +39,25 @@ public class AssetManagerTest extends ProgramTestCase {
 		// The asset type is assigned when the asset is opened.
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset oldAsset = manager.createAsset( uri );
-		assertThat( oldAsset.isNew(), is( false ) );
+		assertThat( oldAsset.isNew() ).isFalse();
 	}
 
 	@Test
 	void testCreateAssetWithUri() throws Exception {
 		URI uri = URI.create( "mock:///home/user/temp/test.txt" );
 		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme(), is( manager.getScheme( MockScheme.ID ) ) );
-		assertThat( asset.getUri(), is( uri ) );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
+		assertThat( asset.getUri() ).isEqualTo( uri );
+		assertThat( asset.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testCreateAssetWithString() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme(), is( manager.getScheme( MockScheme.ID ) ) );
-		assertThat( asset.getUri(), is( URI.create( uri ) ) );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
+		assertThat( asset.getUri() ).isEqualTo( URI.create( uri ) );
+		assertThat( asset.isOpen() ).isFalse();
 	}
 
 	@Test
@@ -68,11 +66,11 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.isOpen() ).isFalse();
 
 		manager.openAssets( asset );
 		watcher.waitForEvent( AssetEvent.OPENED );
-		assertThat( asset.isOpen(), is( true ) );
+		assertThat( asset.isOpen() ).isTrue();
 	}
 
 	@Test
@@ -81,10 +79,10 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.isOpen() ).isFalse();
 
-		manager.openAssetsAndWait( asset );
-		assertThat( asset.isOpen(), is( true ) );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
+		assertThat( asset.isOpen() ).isTrue();
 	}
 
 	@Test
@@ -93,12 +91,12 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isLoaded(), is( false ) );
+		assertThat( asset.isLoaded() ).isFalse();
 
 		manager.loadAssets( asset );
 		watcher.waitForEvent( AssetEvent.LOADED );
-		assertThat( asset.isOpen(), is( true ) );
-		assertThat( asset.isLoaded(), is( true ) );
+		assertThat( asset.isOpen() ).isTrue();
+		assertThat( asset.isLoaded() ).isTrue();
 	}
 
 	@Test
@@ -107,11 +105,30 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isLoaded(), is( false ) );
+		assertThat( asset.isLoaded() ).isFalse();
 
 		manager.loadAssetsAndWait( asset );
-		assertThat( asset.isOpen(), is( true ) );
-		assertThat( asset.isLoaded(), is( true ) );
+		assertThat( asset.isOpen() ).isTrue();
+		assertThat( asset.isLoaded() ).isTrue();
+	}
+
+	@Test
+	void testReloadAssets() throws Exception {
+		String uri = "mock:///home/user/temp/test.txt";
+		Asset asset = manager.createAsset( uri );
+		AssetWatcher watcher = new AssetWatcher();
+		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		assertThat( asset.isLoaded() ).isFalse();
+
+		manager.loadAssetsAndWait( asset );
+		assertThat( asset.isOpen() ).isTrue();
+		assertThat( asset.isLoaded() ).isTrue();
+		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( AssetEvent.LOADED );
+		AssetEvent event = watcher.getLastEvent();
+
+		manager.reloadAssetsAndWait( asset );
+		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( AssetEvent.LOADED );
+		assertThat( event ).isNotEqualTo( watcher.getLastEvent() );
 	}
 
 	@Test
@@ -120,16 +137,16 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isSaved(), is( false ) );
+		assertThat( asset.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
 		manager.openAssets( asset );
 		watcher.waitForEvent( AssetEvent.OPENED );
-		assertThat( asset.isOpen(), is( true ) );
+		assertThat( asset.isOpen() ).isTrue();
 
 		manager.saveAssets( asset );
 		watcher.waitForEvent( AssetEvent.SAVED );
-		assertThat( asset.isSaved(), is( true ) );
+		assertThat( asset.isSaved() ).isTrue();
 	}
 
 	@Test
@@ -138,14 +155,14 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
-		assertThat( asset.isSaved(), is( false ) );
+		assertThat( asset.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
-		manager.openAssetsAndWait( asset );
-		assertThat( asset.isOpen(), is( true ) );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
+		assertThat( asset.isOpen() ).isTrue();
 
 		manager.saveAssetsAndWait( asset );
-		assertThat( asset.isSaved(), is( true ) );
+		assertThat( asset.isSaved() ).isTrue();
 	}
 
 	@Test
@@ -158,11 +175,11 @@ public class AssetManagerTest extends ProgramTestCase {
 		// Asset must be open to be closed
 		manager.openAssets( asset );
 		watcher.waitForEvent( AssetEvent.OPENED );
-		assertThat( asset.isOpen(), is( true ) );
+		assertThat( asset.isOpen() ).isTrue();
 
 		manager.closeAssets( asset );
 		watcher.waitForEvent( AssetEvent.CLOSED );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.isOpen() ).isFalse();
 	}
 
 	@Test
@@ -173,18 +190,18 @@ public class AssetManagerTest extends ProgramTestCase {
 		asset.getEventHub().register( AssetEvent.ANY, watcher );
 
 		// Asset must be open to be closed
-		manager.openAssetsAndWait( asset );
-		assertThat( asset.isOpen(), is( true ) );
+		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
+		assertThat( asset.isOpen() ).isTrue();
 
 		manager.closeAssetsAndWait( asset );
-		assertThat( asset.isOpen(), is( false ) );
+		assertThat( asset.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testAutoDetectAssetTypeWithOpaqueUri() throws Exception {
 		Asset asset = manager.createAsset( URI.create( "mock:test" ) );
 		manager.autoDetectAssetType( asset );
-		assertThat( asset.getType(), instanceOf( MockAssetType.class ) );
+		assertThat( asset.getType() ).isInstanceOf( MockAssetType.class );
 	}
 
 	@Test
@@ -192,7 +209,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		AssetType type = manager.getAssetType( new MockAssetType( program ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
-		assertThat( codecs, equalTo( type.getCodecs() ) );
+		assertThat( codecs ).isEqualTo( type.getCodecs() );
 	}
 
 }

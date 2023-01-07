@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -12,15 +11,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Ellipse;
+import lombok.CustomLog;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@CustomLog
 public class WelcomeTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
@@ -38,12 +37,12 @@ public class WelcomeTool extends ProgramTool {
 		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
 		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
 
-		String documentButtonTitle = Rb.text( BundleKey.LABEL, "documentation" );
-		String documentButtonDescription = Rb.text( BundleKey.LABEL, "documentation-desc" );
-		String documentButtonUrl = Rb.text( BundleKey.LABEL, "documentation-url" );
-		String modsButtonTitle = Rb.text( BundleKey.LABEL, "mods" );
-		String modsButtonDescription = Rb.text( BundleKey.LABEL, "mods-desc" );
-		String modsButtonUrl = Rb.text( BundleKey.LABEL, "mods-url" );
+		String documentButtonTitle = Rb.text( RbKey.LABEL, "documentation" );
+		String documentButtonDescription = Rb.text( RbKey.LABEL, "documentation-desc" );
+		String documentButtonUrl = Rb.text( RbKey.LABEL, "documentation-url" );
+		String modsButtonTitle = Rb.text( RbKey.LABEL, "mods" );
+		String modsButtonDescription = Rb.text( RbKey.LABEL, "mods-desc" );
+		String modsButtonUrl = Rb.text( RbKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -76,7 +75,7 @@ public class WelcomeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( Rb.text( BundleKey.TOOL, "welcome-name" ) );
+		setTitle( Rb.text( RbKey.TOOL, "welcome-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 
@@ -105,7 +104,7 @@ public class WelcomeTool extends ProgramTool {
 			try {
 				Desktop.getDesktop().browse( new URI( uri ) );
 			} catch( IOException | URISyntaxException ioException ) {
-				log.log( Log.WARN, "Unable to open uri=" + uri );
+				log.atWarn().log( "Unable to open uri=%s", uri );
 			}
 		} ) ) );
 

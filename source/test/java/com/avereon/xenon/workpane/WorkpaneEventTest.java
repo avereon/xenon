@@ -1,5 +1,6 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.zarra.event.FxEventWatcher;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Side;
@@ -9,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkpaneEventTest extends WorkpaneTestCase {
 
@@ -19,13 +19,13 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView west = workpane.split( Side.LEFT );
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		workpane.moveEdge( edge, 25 );
 
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 0 ), EdgeEvent.MOVED, workpane, edge );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.CHANGED, workpane );
-		assertThat( workpaneWatcher.getEvents().size(), is( 2 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.CHANGED, workpane );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 2 );
 	}
 
 	@Test
@@ -34,10 +34,10 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView west = area.split( Side.LEFT );
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.moveEdge( edge, 0 );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -47,13 +47,13 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView north = area.split( south, Side.TOP );
 		area.setActiveView( south );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.setActiveView( north );
-		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 3 );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 0 ), ViewEvent.DEACTIVATED, area, south );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 1 ), ViewEvent.ACTIVATED, area, north );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.CHANGED, area );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.CHANGED, area );
 	}
 
 	@Test
@@ -62,10 +62,10 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView south = area.getDefaultView();
 		area.setActiveView( south );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.setActiveView( south );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -76,10 +76,10 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView view1 = area1.getDefaultView();
 		area0.setActiveView( view0 );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area0.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area0.setActiveView( view1 );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -89,11 +89,11 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView north = area.split( south, Side.TOP );
 		area.setDefaultView( south );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.setDefaultView( north );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 1 );
 	}
 
 	@Test
@@ -102,10 +102,10 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView south = area.getDefaultView();
 		area.setDefaultView( south );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.setDefaultView( south );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -113,26 +113,26 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Workpane area = new Workpane();
 		area.setMaximizedView( null );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		area.setMaximizedView( area.getDefaultView() );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 1 );
 	}
 
 	@Test
 	void testSplit() {
 		Workpane area = new Workpane();
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		WorkpaneView north = area.split( Side.TOP );
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 0 ), EdgeEvent.ADDED, area, north.getEdge( Side.BOTTOM ) );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 1 ), ViewEvent.ADDED, area, north );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 2 ), ViewEvent.SPLIT, area, null );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 4 );
 	}
 
 	@Test
@@ -140,7 +140,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		WorkpaneView north = area.split( view, Side.TOP );
@@ -148,8 +148,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 1 ), EdgeEvent.ADDED, area, view.getEdge( Side.TOP ) );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 2 ), ViewEvent.ADDED, area, north );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 3 ), ViewEvent.SPLIT, area, view );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 5 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 5 );
 	}
 
 	@Test
@@ -159,7 +159,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView north = area.split( view, Side.TOP );
 		WorkpaneEdge edge = view.getEdge( Side.TOP );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		area.pushMerge( view, Side.TOP );
@@ -167,8 +167,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 1 ), ViewEvent.REMOVED, area, north );
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 2 ), EdgeEvent.REMOVED, area, edge );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 3 ), ViewEvent.MERGED, area, view );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 5 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 5 );
 	}
 
 	@Test
@@ -177,7 +177,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView view = area.getDefaultView();
 		Tool tool = new MockTool( asset );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		ToolEventWatcher toolEventWatcher = new ToolEventWatcher();
@@ -188,8 +188,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.ADDED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( count );
 
 		count = 0;
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.OPENING, tool );
@@ -198,7 +198,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.OPENED, tool );
-		assertThat( toolEventWatcher.events.size(), is( count ) );
+		assertThat( toolEventWatcher.events.size() ).isEqualTo( count );
 	}
 
 	@Test
@@ -207,7 +207,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView view = area.getDefaultView();
 		Tool tool = new MockTool( asset );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		ToolEventWatcher toolEventWatcher = new ToolEventWatcher();
@@ -218,15 +218,15 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.ADDED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( count );
 
 		count = 0;
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ORDERED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ADDED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.DISPLAYED, tool );
 		assertToolEvent( toolEventWatcher.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
-		assertThat( toolEventWatcher.events.size(), is( count ) );
+		assertThat( toolEventWatcher.events.size() ).isEqualTo( count );
 	}
 
 	@Test
@@ -236,7 +236,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Tool tool = new MockTool( asset );
 		area.addTool( tool, view );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		ToolEventWatcher toolEventWatcher = new ToolEventWatcher();
@@ -248,14 +248,14 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.DEACTIVATED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.CONCEALED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.REMOVED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( count );
 
 		count = 0;
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.DEACTIVATED, tool );
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.CONCEALED, tool );
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.REMOVED, tool );
-		assertThat( toolEventWatcher.events.size(), is( count ) );
+		assertThat( toolEventWatcher.events.size() ).isEqualTo( count );
 	}
 
 	@Test
@@ -265,7 +265,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Tool tool = new MockTool( asset );
 		area.addTool( tool, view );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		ToolEventWatcher toolEventWatcher = new ToolEventWatcher();
@@ -277,8 +277,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.DEACTIVATED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.CONCEALED, area, tool );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( count++ ), ToolEvent.REMOVED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( count );
 
 		count = 0;
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.CLOSING, tool );
@@ -286,7 +286,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.CONCEALED, tool );
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.REMOVED, tool );
 		assertToolEvent( toolEventWatcher.events.get( count++ ), ToolEvent.CLOSED, tool );
-		assertThat( toolEventWatcher.events.size(), is( count ) );
+		assertThat( toolEventWatcher.events.size() ).isEqualTo( count );
 	}
 
 	@Test
@@ -300,7 +300,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		area.addTool( southTool, southView );
 		area.setActiveTool( southTool );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		area.setActiveTool( northTool );
@@ -308,8 +308,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 1 ), ViewEvent.DEACTIVATED, area, southView );
 		assertWorkpaneViewEvent( (ViewEvent)workpaneWatcher.getEvents().get( 2 ), ViewEvent.ACTIVATED, area, northView );
 		assertWorkpaneToolEvent( (ToolEvent)workpaneWatcher.getEvents().get( 3 ), ToolEvent.ACTIVATED, area, northTool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 5 ) );
+		assertWorkpaneEvent( (WorkpaneEvent)workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 5 );
 	}
 
 	@Test
@@ -321,11 +321,11 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		area.addTool( southTool, southView );
 		area.setActiveTool( southTool );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		area.setActiveTool( northTool );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -340,39 +340,39 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		area1.addTool( tool1, view1 );
 		area0.setActiveTool( tool0 );
 
-		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		FxEventWatcher workpaneWatcher = new FxEventWatcher();
 		area0.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		area0.setActiveTool( tool1 );
-		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
+		assertThat( workpaneWatcher.getEvents().size() ).isEqualTo( 0 );
 	}
 
 	private void assertWorkpaneEvent( WorkpaneEvent event, EventType<WorkpaneEvent> type, Workpane area ) {
-		assertThat( "Event type", event.getEventType(), is( type ) );
-		assertThat( "Work area", event.getWorkpane(), is( area ) );
+		assertThat( event.getEventType() ).withFailMessage( "Event type" ).isEqualTo( type );
+		assertThat( event.getWorkpane() ).withFailMessage( "Work area" ).isEqualTo( area );
 	}
 
 	private void assertWorkpaneEdgeEvent( EdgeEvent event, EventType<EdgeEvent> type, Workpane area, WorkpaneEdge edge ) {
-		assertThat( "Event type", event.getEventType(), is( type ) );
-		assertThat( "Work area", event.getWorkpane(), is( area ) );
-		assertThat( "Tool edge", event.getEdge(), is( edge ) );
+		assertThat( event.getEventType() ).withFailMessage( "Event type" ).isEqualTo( type );
+		assertThat( event.getWorkpane() ).withFailMessage( "Work area" ).isEqualTo( area );
+		assertThat( event.getEdge() ).withFailMessage( "Tool edge" ).isEqualTo( edge );
 	}
 
 	private void assertWorkpaneViewEvent( ViewEvent event, EventType<ViewEvent> type, Workpane pane, WorkpaneView view ) {
-		assertThat( "Event type", event.getEventType(), is( type ) );
-		assertThat( "Work area", event.getWorkpane(), is( pane ) );
-		assertThat( "Tool view", event.getView(), is( view ) );
+		assertThat( event.getEventType() ).withFailMessage( "Event type" ).isEqualTo( type );
+		assertThat( event.getWorkpane() ).withFailMessage( "Work area" ).isEqualTo( pane );
+		assertThat( event.getView() ).withFailMessage( "Tool view" ).isEqualTo( view );
 	}
 
 	private void assertWorkpaneToolEvent( ToolEvent event, EventType<ToolEvent> type, Workpane area, Tool tool ) {
-		assertThat( "Event type", event.getEventType(), is( type ) );
-		assertThat( "Work area", event.getWorkpane(), is( area ) );
-		assertThat( "Tool", event.getTool(), is( tool ) );
+		assertThat( event.getEventType() ).withFailMessage( "Event type" ).isEqualTo( type );
+		assertThat( event.getWorkpane() ).withFailMessage( "Work pane" ).isEqualTo( area );
+		assertThat( event.getTool() ).withFailMessage( "Tool" ).isEqualTo( tool );
 	}
 
 	private void assertToolEvent( ToolEvent event, javafx.event.EventType<ToolEvent> type, Tool tool ) {
-		assertThat( "Event type", event.getEventType(), is( type ) );
-		assertThat( "Tool", event.getTool(), is( tool ) );
+		assertThat( event.getEventType() ).withFailMessage( "Event type" ).isEqualTo( type );
+		assertThat( event.getTool() ).withFailMessage( "Tool" ).isEqualTo( tool );
 	}
 
 	private static class ToolEventWatcher implements EventHandler<ToolEvent> {

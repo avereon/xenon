@@ -4,6 +4,9 @@ import com.avereon.event.Event;
 import com.avereon.event.EventType;
 import com.avereon.xenon.tool.settings.SettingsPage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PropertiesToolEvent extends Event {
 
 	public static final EventType<PropertiesToolEvent> PROPERTIES = new EventType<>( Event.ANY, "PROPERTIES" );
@@ -14,16 +17,20 @@ public class PropertiesToolEvent extends Event {
 
 	public static final EventType<PropertiesToolEvent> HIDE = new EventType<>( PROPERTIES, "HIDE" );
 
-	private final SettingsPage page;
+	private final List<SettingsPage> pages;
 
-	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type, SettingsPage page ) {
-		super( source, type );
-		if( type == SHOW && page == null ) throw new IllegalArgumentException( "Show page cannot be null" );
-		this.page = page;
+	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type, SettingsPage... page ) {
+		this( source, type, List.of( page ) );
 	}
 
-	public SettingsPage getPage() {
-		return page;
+	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type, List<SettingsPage> pages ) {
+		super( source, type );
+		if( type == SHOW && pages == null || pages.isEmpty() ) throw new IllegalArgumentException( "Show pages cannot be null or empty" );
+		this.pages = new ArrayList<>( pages );
+	}
+
+	public List<SettingsPage> getPages() {
+		return pages;
 	}
 
 }

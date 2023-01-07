@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.zerra.color.Colors;
+import com.avereon.zarra.color.Colors;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
@@ -24,16 +24,16 @@ public class ColorSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public ColorSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public ColorSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey(), "#000000ff" );
 
-		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		colorPicker = new ColorPicker();

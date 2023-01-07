@@ -1,11 +1,13 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
+import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
+import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
@@ -17,27 +19,26 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.geometry.HPos;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Screen;
+import lombok.CustomLog;
 
 import java.io.File;
-import java.lang.System.Logger;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class AboutTool extends GuidedTool {
-
-	private static final Logger log = Log.get();
 
 	public static final String SUMMARY = "summary";
 
@@ -90,7 +91,13 @@ public class AboutTool extends GuidedTool {
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
 
-		getGuideContext().getGuides().add( createGuide() );
+		Guide guide = createGuide();
+		getGuideContext().getGuides().add( guide );
+		getGuideContext().setCurrentGuide( guide );
+	}
+
+	public String getIndexContent() {
+		return getDetailsText( getProgram() );
 	}
 
 	@Override
@@ -152,73 +159,129 @@ public class AboutTool extends GuidedTool {
 		return guide;
 	}
 
-	private class SummaryPane extends HBox {
+	private class SummaryPane extends VBox {
 
-		private Label productName;
+		private final Label productName;
 
-		private Label productVersion;
+		private final Label productVersion;
 
-		private Label productProvider;
+		private final Label productProvider;
 
-		private Label javaLabel;
+		private final Label javaFxHeader;
+
+		private final Label javaFxRuntime;
+
+		private final Label javaLabel;
 
 		private Label javaName;
 
-		private Label javaVmName;
+		private final Label javaVmName;
 
-		private Label javaVersion;
+		private final Label javaVersion;
 
-		private Label javaProvider;
+		private final Label javaProvider;
 
-		private Label osLabel;
+		private final Label osLabel;
 
-		private Label osName;
+		private final Label osName;
 
-		private Label osVersion;
+		private final Label osVersion;
 
-		private Label osProvider;
+		private final Label osProvider;
 
 		private Label informationLabel;
 
-		private String lastUpdateCheckPrompt;
+		private final String lastUpdateCheckPrompt;
 
-		private Label lastUpdateTimestamp;
+		private final Label lastUpdateTimestamp;
 
-		private String nextUpdateCheckPrompt;
+		private final String nextUpdateCheckPrompt;
 
-		private Label nextUpdateTimestamp;
+		private final Label nextUpdateTimestamp;
 
 		public SummaryPane() {
 			super( UiFactory.PAD );
 			setId( "tool-about-summary" );
 
-			lastUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-last" );
-			nextUpdateCheckPrompt = Rb.text( BundleKey.UPDATE, "product-update-check-next" );
+			String from = Rb.text( "tool", "about-from" );
+			lastUpdateCheckPrompt = Rb.text( RbKey.UPDATE, "product-update-check-last" );
+			nextUpdateCheckPrompt = Rb.text( RbKey.UPDATE, "product-update-check-next" );
+			lastUpdateTimestamp = makeLabel( "tool-about-version" );
+			nextUpdateTimestamp = makeLabel( "tool-about-version" );
+			javaFxHeader = makeLabel( "tool-about-header" );
+			javaLabel = makeLabel( "tool-about-header" );
+			javaVmName = makeLabel( "tool-about-name" );
+			osName = makeLabel( "tool-about-name" );
 
-			getChildren().add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ) );
+			Node icon = getProgram().getIconLibrary().getIcon( "program", ICON_SIZE );
+
+			VBox header = new VBox( UiFactory.PAD );
+			header.getChildren().add( productName = makeLabel( "tool-about-title" ) );
+			header.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
+			header.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
+			//			header.getChildren().add( makeSeparator() );
+			//			header.getChildren().add( lastUpdateTimestamp );
+			//			header.getChildren().add( nextUpdateTimestamp );
+//			header.getChildren().add( makeSeparator() );
+//			header.getChildren().add( makeSeparator() );
 
 			VBox information = new VBox( UiFactory.PAD );
-			information.getChildren().add( productName = makeLabel( "tool-about-title" ) );
-			information.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
-			information.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
-			information.getChildren().add( makeSeparator() );
-			information.getChildren().add( lastUpdateTimestamp = makeLabel( "tool-about-version" ) );
-			information.getChildren().add( nextUpdateTimestamp = makeLabel( "tool-about-version" ) );
+			// Java
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( makeSeparator() );
-			information.getChildren().add( javaLabel = makeLabel( "tool-about-header" ) );
-			//information.getChildren().add( javaName = makeLabel( "tool-about-name" ) );
-			information.getChildren().add( javaVmName = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( javaLabel );
+			//information.getChildren().add( javaName );
+			//information.getChildren().add( javaVmName );
 			information.getChildren().add( javaVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( javaProvider = makeLabel( "tool-about-provider" ) );
+
+			// Java FX
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( makeSeparator() );
+			information.getChildren().add( javaFxHeader );
+			information.getChildren().add( javaFxRuntime = makeLabel( "tool-about-version" ) );
+
+			// Operating System
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( osLabel = makeLabel( "tool-about-header" ) );
-			information.getChildren().add( osName = makeLabel( "tool-about-name" ) );
+			//information.getChildren().add( osName );
 			information.getChildren().add( osVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( osProvider = makeLabel( "tool-about-provider" ) );
 
-			getChildren().add( information );
+			// Mods
+			VBox mods = new VBox( UiFactory.PAD );
+			List<ProductCard> cards = new ArrayList<>( getProgram().getProductManager().getInstalledProductCards( false ) );
+			cards.sort( new ProductCardComparator( ProductCardComparator.Field.NAME ) );
+			for( ProductCard card : cards ) {
+				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
+
+				Label modHeader = makeLabel( "tool-about-header" );
+				Label modVersion = makeLabel( "tool-about-version" );
+				Label modProvider = makeLabel( "tool-about-provider" );
+
+				modHeader.setText( card.getName() );
+				modVersion.setText( card.getVersion() );
+				modProvider.setText( from + " " + card.getProvider() );
+
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( modHeader );
+				mods.getChildren().add( modVersion );
+				mods.getChildren().add( modProvider );
+			}
+
+			ScrollPane scroller = new ScrollPane( new VBox( information, mods ) );
+
+			GridPane grid = new GridPane();
+			grid.getChildren().addAll( icon, header, scroller );
+			GridPane.setConstraints( icon, 1, 1, 1, 1, HPos.LEFT, VPos.TOP );
+			GridPane.setConstraints( header, 2, 1 );
+			GridPane.setConstraints( scroller, 2, 2 );
+			GridPane.setHgrow( header, Priority.ALWAYS );
+			GridPane.setHgrow( scroller, Priority.ALWAYS );
+
+			getChildren().addAll( grid );
 		}
 
 		public void update( ProductCard card ) {
@@ -231,23 +294,26 @@ public class AboutTool extends GuidedTool {
 			}
 			productProvider.setText( from + " " + card.getProvider() );
 
-			javaLabel.setText( "Java" );
+			javaFxHeader.setText( "JavaFX " + System.getProperty( "javafx.version" ) );
+			javaFxRuntime.setText( "JavaFX Runtime " + System.getProperty( "javafx.runtime.version" ) );
+
+			javaLabel.setText( "Java " + System.getProperty( "java.version" ) );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
 			String javaVersionDate = System.getProperty( "java.version.date" );
 			if( javaVersionDate == null ) {
-				javaVersion.setText( System.getProperty( "java.runtime.version" ) );
+				javaVersion.setText( System.getProperty( "java.vendor.version" ) );
 			} else {
-				javaVersion.setText( System.getProperty( "java.runtime.version" ) + "  " + javaVersionDate );
+				javaVersion.setText( System.getProperty( "java.vendor.version" ) + "  " + javaVersionDate );
 			}
-			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
+			javaProvider.setText( from + " " + System.getProperty( "java.vendor" ) );
 
 			String osNameString = System.getProperty( "os.name" );
-			osLabel.setText( Rb.text( "tool", "about-system" ) );
-			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
+			//osLabel.setText( Rb.text( "tool", "about-system" ) );
+			osLabel.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
-			//informationLabel.setText( Rb.text( BundleKey.LABEL, "information" ) );
+			//informationLabel.setText( Rb.text( RbKey.LABEL, "information" ) );
 			updateUpdateCheckInfo();
 		}
 
@@ -256,8 +322,8 @@ public class AboutTool extends GuidedTool {
 			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-			String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
-			String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
+			String unknown = Rb.text( RbKey.UPDATE, "unknown" );
+			String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
 			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 
@@ -273,7 +339,7 @@ public class AboutTool extends GuidedTool {
 		return new Pane();
 	}
 
-	private Label makeLabel( String styleClass ) {
+	private Label makeLabel( String... styleClass ) {
 		Label label = new Label();
 		label.getStyleClass().addAll( styleClass );
 		return label;
@@ -401,6 +467,7 @@ public class AboutTool extends GuidedTool {
 		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
 		builder.append( "Log file:    " ).append( Log.getLogFile() ).append( "\n" );
 		builder.append( "Launcher:    " ).append( OperatingSystem.getJavaLauncherPath() ).append( "\n" );
+		builder.append( "Updater:     " ).append( program.getUpdateManager().getUpdaterLauncher() ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -461,28 +528,36 @@ public class AboutTool extends GuidedTool {
 	private String getJavaFxDetail() {
 		StringBuilder builder = new StringBuilder();
 
-		Screen primary = Screen.getPrimary();
-		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
+		String javaFxVersion = System.getProperty( "javafx.runtime.version" );
+		builder.append( "Java FX version: " ).append( javaFxVersion ).append( "\n" );
 
+		// Is the program hardware rendered
+		boolean hardwareRendered = getProgram().isHardwareRendered();
+		builder.append( "Hardware rendered: " ).append( hardwareRendered ).append( "\n" );
+		if( !hardwareRendered ) builder.append( "  Consider adding the following JVM args: -Dprism.forceGPU=true\n" );
+
+		// The screen information
 		builder.append( "\n" );
-		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "3D Accelerated: " ).append( scene3d ).append( "\n" );
+		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( screen ) ) );
 
 		return builder.toString();
 	}
 
-	private String getScreenDetail( Screen primary, Screen screen ) {
+	private String getScreenDetail( Screen screen ) {
+		Screen primary = Screen.getPrimary();
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
+
+		Scene scene = getScene();
 		Rectangle2D outputScale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
-		Rectangle2D renderScale = new Rectangle2D( 0, 0, getScene().getWindow().getRenderScaleX(), getScene().getWindow().getRenderScaleY() );
-		Rectangle2D sceneScale = new Rectangle2D( 0, 0, getScene().getRoot().getScaleX(), getScene().getRoot().getScaleY() );
+		Rectangle2D renderScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getWindow().getRenderScaleX(), scene.getWindow().getRenderScaleY() );
+		Rectangle2D sceneScale = scene == null ? null : new Rectangle2D( 0, 0, scene.getRoot().getScaleX(), scene.getRoot().getScaleY() );
 		int dpi = (int)screen.getDpi();
 
 		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
 		String scaleText = outputScale.getWidth() + "x" + outputScale.getWidth();
-		String renderScaleText = renderScale.getWidth() + "x" + renderScale.getWidth();
-		String sceneScaleText = sceneScale.getWidth() + "x" + sceneScale.getWidth();
+		String renderScaleText = renderScale == null ? "" : renderScale.getWidth() + "x" + renderScale.getWidth();
+		String sceneScaleText = sceneScale == null ? "" : sceneScale.getWidth() + "x" + sceneScale.getWidth();
 
 		//System.out.println( "Screen scale: " + scaleText );
 		//System.out.println( "Render scale: " + renderScaleText );

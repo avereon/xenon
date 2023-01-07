@@ -2,9 +2,9 @@ package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
 import com.avereon.zenna.icon.XRingLargeIcon;
-import com.avereon.zerra.image.Proof;
-import com.avereon.zerra.image.RenderedImage;
-import com.avereon.zerra.style.Theme;
+import com.avereon.zarra.image.Proof;
+import com.avereon.zarra.image.RenderedImage;
+import com.avereon.zarra.style.Theme;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
@@ -32,7 +32,7 @@ public class InstallerBannerImage extends RenderedImage {
 		setHeight( 180 );
 
 		try {
-			card = new ProductCard().jsonCard( getClass() );
+			card = ProductCard.card( getClass() );
 			providerUrl = new URL( card.getProviderUrl() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();

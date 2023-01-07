@@ -1,16 +1,15 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.data.IdNode;
 import com.avereon.data.Node;
 import com.avereon.data.NodeComparator;
 import com.avereon.xenon.Program;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.TreeItem;
 
 import java.util.Comparator;
 
-public class GuideNode extends Node {
-
-	public static final String ID = "id";
+public class GuideNode extends IdNode {
 
 	public static final String ICON = "icon";
 
@@ -22,11 +21,11 @@ public class GuideNode extends Node {
 
 	private final Program program;
 
-	GuideNode( Program program ) {
+	public GuideNode( Program program ) {
 		this( program, null, null, null );
 	}
 
-	GuideNode( Program program, String id, String name ) {
+	public GuideNode( Program program, String id, String name ) {
 		this( program, id, name, null );
 	}
 
@@ -36,21 +35,11 @@ public class GuideNode extends Node {
 
 	public GuideNode( Program program, String id, String name, String icon, int order ) {
 		this.program = program;
-		definePrimaryKey( ID );
 		defineNaturalKey( NAME );
-		setId( id );
+		if( id != null ) setId( id );
 		setName( name );
 		setIcon( icon );
 		setOrder( order );
-	}
-
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public GuideNode setId( String id ) {
-		setValue( ID, id );
-		return this;
 	}
 
 	public String getIcon() {
@@ -69,6 +58,11 @@ public class GuideNode extends Node {
 
 	public GuideNode setName( String name ) {
 		setValue( NAME, name );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> {
+			// This seems to be simplest way to update the name on the tree item
+			getTreeItem().setValue( null );
+			getTreeItem().setValue( this );
+		} );
 		return this;
 	}
 
@@ -107,10 +101,8 @@ public class GuideNode extends Node {
 		return getName();
 	}
 
-	TreeItem<GuideNode> getTreeItem() {
-		TreeItem<GuideNode> value = getValue( TREE_ITEM );
-		if( value == null ) value = setValue( TREE_ITEM, new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
-		return value;
+	public TreeItem<GuideNode> getTreeItem() {
+		return computeIfAbsent( TREE_ITEM, (k) -> new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 	}
 
 }

@@ -11,7 +11,7 @@
     <patterns>
       <pattern testClass=".*UIT" />
     </patterns>
-    <fork_mode value="method" />
+    <fork_mode value="class" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

@@ -2,25 +2,30 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
-import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
+import lombok.CustomLog;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * This tool listens for "show properties" and "hide properties" events that allow the user to edit the properties of an object using the settings API.
+ * This tool listens for "show properties" and "hide properties" events that
+ * allow the user to edit the properties of an object using the settings API.
  */
+@CustomLog
 public class PropertiesTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	private final ScrollPane scroller;
 
@@ -35,13 +40,13 @@ public class PropertiesTool extends ProgramTool {
 		scroller = new ScrollPane();
 		scroller.setFitToWidth( true );
 		getChildren().addAll( scroller );
-		this.showHandler = e -> Fx.run( () -> showPage( e.getPage() ) );
+		this.showHandler = e -> Fx.run( () -> showPage( e.getPages() ) );
 		this.hideHandler = e -> Fx.run( this::hidePage );
 	}
 
 	@Override
 	public Workpane.Placement getPlacement() {
-		return Workpane.Placement.DOCK_RIGHT;
+		return Workpane.Placement.DEFAULT;
 	}
 
 	@Override
@@ -51,7 +56,7 @@ public class PropertiesTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( Rb.text( BundleKey.TOOL, "properties-name" ) );
+		setTitle( Rb.text( RbKey.TOOL, "properties-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "properties" ) );
 	}
 
@@ -64,7 +69,7 @@ public class PropertiesTool extends ProgramTool {
 	@Override
 	protected void activate() {
 		PropertiesToolEvent event = getWorkspace().getEventBus().getPriorEvent( PropertiesToolEvent.class );
-		if( event != null && event.getEventType() == PropertiesToolEvent.SHOW && isEmpty() ) showPage( event.getPage() );
+		if( event != null && event.getEventType() == PropertiesToolEvent.SHOW && isEmpty() ) showPage( event.getPages() );
 	}
 
 	@Override
@@ -77,13 +82,22 @@ public class PropertiesTool extends ProgramTool {
 		return scroller.getContent() == null;
 	}
 
-	private void showPage( SettingsPage page ) {
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		scroller.setContent( new SettingsPanel( page ) );
+	private void showPage( List<SettingsPage> pages ) {
+		Map<String, SettingOptionProvider> optionProviders = getProgram().getSettingsManager().getOptionProviders();
+
+		// Create a new VBox for all the pages
+		VBox container = new VBox();
+		container.getChildren().addAll( pages.stream().map( p -> {
+			p.setOptionProviders( optionProviders );
+			return new SettingsPanel( p );
+		} ).toList() );
+
+		// Add the container to the scroller
+		Fx.run( () -> scroller.setContent( container ) );
 	}
 
 	private void hidePage() {
-		scroller.setContent( null );
+		Fx.run( () -> scroller.setContent( null ) );
 	}
 
 }

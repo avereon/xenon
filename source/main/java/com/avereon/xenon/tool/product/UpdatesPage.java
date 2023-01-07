@@ -1,16 +1,13 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
-
+@CustomLog
 class UpdatesPage extends ProductPage {
 
-	private static final Logger log = Log.get();
-
-	private ProductTool productTool;
+	private final ProductTool productTool;
 
 	UpdatesPage( Program program, ProductTool productTool ) {
 		super( program, productTool, ProductTool.UPDATES );
@@ -26,7 +23,7 @@ class UpdatesPage extends ProductPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.log( Log.TRACE,  "Update available updates" );
+		log.atFiner().log( "Update available updates" );
 		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, force ) );
 	}
 

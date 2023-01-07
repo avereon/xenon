@@ -1,21 +1,23 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.Log;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.log.LazyEval;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.binding.Bindings;
-import javafx.geometry.*;
+import javafx.geometry.Bounds;
+import javafx.geometry.HPos;
+import javafx.geometry.Side;
+import javafx.geometry.VPos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
-
+@CustomLog
 public class ToolTabSkin extends SkinBase<ToolTab> {
-
-	private static final Logger log = Log.get();
 
 	private final BorderPane tabLayout;
 
@@ -81,17 +83,19 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
 
-		log.log( Log.DEBUG, "Drag start: " + tool.getAsset().getUri() );
+		log.atDebug().log( "Drag start: %s", LazyEval.of( () -> tool.getAsset().getUri() ) );
 
 		TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes( tool );
 		Dragboard board = tab.startDragAndDrop( modes );
 
 		ClipboardContent content = new ClipboardContent();
-		content.putUrl( tool.getAsset().getUri().toString() );
 		content.putString( tool.getAsset().getUri().toString() );
+		content.putUrl( tool.getAsset().getUri().toString() );
 		board.setContent( content );
 
-		Image image = tab.snapshot( null, null );
+		SnapshotParameters parameters = new SnapshotParameters();
+		parameters.setTransform( tab.getLocalToSceneTransform() );
+		Image image = tab.snapshot( parameters, null );
 		board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 	}
 
@@ -101,7 +105,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
 
-		log.log( Log.DEBUG, "Drag over tab: " + event.getDragboard().getUrl() );
+		log.atDebug().log( "Drag over tab: %s", LazyEval.of( () -> event.getDragboard().getUrl() ) );
 		Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
 		tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 		FxUtil.setTransferMode( event );
@@ -113,7 +117,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
 
-		log.log( Log.DEBUG, "Drag exit tab: " + event.getDragboard().getUrl() );
+		log.atDebug().log( "Drag exit tab: %s", LazyEval.of( () -> event.getDragboard().getUrl() ) );
 		if( tool.getWorkpane() != null ) tool.getWorkpane().setDropHint( null );
 	}
 
@@ -122,7 +126,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		ToolTab tab = getSkinnable();
 
-		log.log( Log.DEBUG, "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+		log.atDebug().log( "Drag dropped on tab: %s: %s", LazyEval.of( () -> event.getDragboard().getUrl() ), LazyEval.of( event::getAcceptedTransferMode ) );
 		int index = tab.getToolTabPane().getTabs().indexOf( tab );
 		tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
 	}
@@ -132,7 +136,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
-		log.log( Log.DEBUG, "Drag done: " + tool.getAsset().getUri() );
+		log.atDebug().log( "Drag done: %s", LazyEval.of( () -> tool.getAsset().getUri() ) );
 	}
 
 	private boolean isShowContextMenu( Tool tool ) {

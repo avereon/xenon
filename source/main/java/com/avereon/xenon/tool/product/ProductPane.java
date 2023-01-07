@@ -3,16 +3,15 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
@@ -23,24 +22,23 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import lombok.CustomLog;
 import org.controlsfx.control.ToggleSwitch;
 
-import java.lang.System.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
+@CustomLog
 class ProductPane extends GridPane {
 
-	private static final Logger log = Log.get();
+	private final ProductTool tool;
 
-	private ProductTool tool;
+	private final Program program;
 
-	private Program program;
+	private final ProductManager manager;
 
-	private ProductManager manager;
-
-	private ProductCard source;
+	private final ProductCard source;
 
 	private Label iconLabel;
 
@@ -210,7 +208,7 @@ class ProductPane extends GridPane {
 		if( inProgress ) {
 			stateContainer.getChildren().add( progress );
 		} else {
-			stateLabel.setText( Rb.text( BundleKey.LABEL, stateLabelKey ) );
+			stateLabel.setText( Rb.text( RbKey.LABEL, stateLabelKey ) );
 			stateContainer.getChildren().add( stateLabel );
 		}
 
@@ -270,9 +268,9 @@ class ProductPane extends GridPane {
 	private void requestRemoveProduct() {
 		String modName = getSource().getName();
 
-		String title = Rb.text( BundleKey.PRODUCT, "products" );
-		String header = Rb.text( BundleKey.PRODUCT, "product-remove-header", modName );
-		String message = Rb.text( BundleKey.PRODUCT, "product-remove-message" );
+		String title = Rb.text( RbKey.PRODUCT, "products" );
+		String header = Rb.text( RbKey.PRODUCT, "product-remove-header", modName );
+		String message = Rb.text( RbKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );
@@ -291,7 +289,7 @@ class ProductPane extends GridPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN, "Error uninstalling product", exception );
+				log.atWarning().withCause(exception).log( "Error uninstalling product", exception );
 			}
 			Fx.run( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );

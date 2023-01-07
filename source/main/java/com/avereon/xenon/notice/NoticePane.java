@@ -1,17 +1,15 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
+@CustomLog
 public class NoticePane extends GridPane {
-
-	private static final Logger log = Log.get();
 
 	private final Program program;
 
@@ -22,7 +20,7 @@ public class NoticePane extends GridPane {
 	public NoticePane( Program program, Notice notice, boolean flyout ) {
 		this.program = program;
 		this.notice = notice;
-		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice", "padded" );
+		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice" );
 
 		Node noticeIcon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
 		Label title = new Label( String.valueOf( notice.getTitle() ) );

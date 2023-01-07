@@ -2,7 +2,6 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.util.Log;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
@@ -14,12 +13,13 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class Workpane extends Control implements WritableIdentity {
 
 	public enum Placement {
@@ -38,17 +38,15 @@ public class Workpane extends Control implements WritableIdentity {
 		PORTRAIT
 	}
 
-	static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
+	public static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
 
-	static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
+	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
-	static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
+	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
 	private static final boolean DEFAULT_AUTO_MERGE = true;
-
-	private static final Logger log = Log.get();
 
 	private final WorkpaneEdge topWall;
 
@@ -182,12 +180,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @return The edges in the workpane
 	 */
 	public Set<WorkpaneEdge> getEdges() {
-		return getChildren()
-			.stream()
-			.filter( ( c ) -> c instanceof WorkpaneEdge )
-			.map( n -> (WorkpaneEdge)n )
-			.filter( e -> !e.isWall() )
-			.collect( Collectors.toSet() );
+		return getChildren().stream().filter( ( c ) -> c instanceof WorkpaneEdge ).map( n -> (WorkpaneEdge)n ).filter( e -> !e.isWall() ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -502,7 +495,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private void finishOperation( boolean changed ) {
 		int value = operation.decrementAndGet();
-		if( value < 0 ) log.log( Log.ERROR, "Workpane operation flag is less than zero." );
+		if( value < 0 ) log.atError().log( "Workpane operation flag is less than zero." );
 		updateComponentTree( changed );
 	}
 
@@ -716,7 +709,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @return The actual distance moved
 	 */
 	@SuppressWarnings( "UnusedReturnValue" )
-	double moveEdge( WorkpaneEdge edge, double offset ) {
+	public double moveEdge( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 ) return 0;
 
 		double result = 0;
@@ -1035,11 +1028,11 @@ public class Workpane extends Control implements WritableIdentity {
 		return weight == 0 ? null : directions.get( 0 ).getDirection();
 	}
 
-	Tool addTool( Tool tool ) {
+	public Tool addTool( Tool tool ) {
 		return addTool( tool, true );
 	}
 
-	Tool addTool( Tool tool, boolean activate ) {
+	public Tool addTool( Tool tool, boolean activate ) {
 		return addTool( tool, (WorkpaneView)null, activate );
 	}
 
@@ -1053,7 +1046,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return addTool( tool, determineViewFromPlacement( placement ), activate );
 	}
 
-	Tool addTool( Tool tool, WorkpaneView view ) {
+	public Tool addTool( Tool tool, WorkpaneView view ) {
 		return addTool( tool, view, true );
 	}
 
@@ -1087,7 +1080,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return tool;
 	}
 
-	Tool openTool( Tool tool, WorkpaneView view ) {
+	public Tool openTool( Tool tool, WorkpaneView view ) {
 		return openTool( tool, view, true );
 	}
 
@@ -1647,11 +1640,7 @@ public class Workpane extends Control implements WritableIdentity {
 		// Fire the splitting event.
 		fireEvent( new ViewEvent( this, ViewEvent.SPLITTING, this, source ) );
 
-		return isDockSpace( Side.BOTTOM, source ) ? getBottomDockView() : newBottomView( source,
-			source.getEdge( Side.LEFT ),
-			source.getEdge( Side.RIGHT ),
-			percent
-		);
+		return isDockSpace( Side.BOTTOM, source ) ? getBottomDockView() : newBottomView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
 	}
 
 	private WorkpaneView splitWest( WorkpaneView source, double percent ) {
@@ -1676,7 +1665,7 @@ public class Workpane extends Control implements WritableIdentity {
 		return isDockSpace( Side.RIGHT, source ) ? getRightDockView() : newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
 
-	boolean isDockSpace( Side side, WorkpaneView source ) {
+	public boolean isDockSpace( Side side, WorkpaneView source ) {
 		if( source == null ) return false;
 
 		WorkpaneEdge leftTurn = source.getEdge( getSideAtLeft( side ) );
@@ -2122,7 +2111,7 @@ public class Workpane extends Control implements WritableIdentity {
 		MergeDirection( WorkpaneView target, Side direction ) {
 			this.direction = direction;
 			this.weight = getMergeWeight( target, direction );
-			log.log( Log.TRACE, "Direction: " + direction + "  Weight: " + weight );
+			log.atTrace().log( "Direction: %s  Weight: %s", direction, weight );
 		}
 
 		Side getDirection() {

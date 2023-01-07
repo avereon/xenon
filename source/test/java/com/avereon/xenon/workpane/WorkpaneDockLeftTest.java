@@ -4,27 +4,24 @@ import com.avereon.xenon.asset.Asset;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testLeftDockSize() {
-		assertThat( workpane.getLeftDockSize(), is( 0.2 ) );
+		assertThat( workpane.getLeftDockSize() ).isEqualTo( 0.2 );
 		workpane.setLeftDockSize( 0.25 );
-		assertThat( workpane.getLeftDockSize(), is( 0.25 ) );
+		assertThat( workpane.getLeftDockSize() ).isEqualTo( 0.25 );
 	}
 
 	@Test
 	void testIsDockSpace() {
 		WorkpaneView view = workpane.getDefaultView();
-		assertTrue( workpane.isDockSpace( Side.TOP, view ) );
-		assertTrue( workpane.isDockSpace( Side.BOTTOM, view ) );
-		assertTrue( workpane.isDockSpace( Side.LEFT, view ) );
-		assertTrue( workpane.isDockSpace( Side.RIGHT, view ) );
+		assertThat( workpane.isDockSpace( Side.TOP, view ) ).isTrue();
+		assertThat( workpane.isDockSpace( Side.BOTTOM, view ) ).isTrue();
+		assertThat( workpane.isDockSpace( Side.LEFT, view ) ).isTrue();
+		assertThat( workpane.isDockSpace( Side.RIGHT, view ) ).isTrue();
 
 		Asset asset = new Asset( "mock:asset" );
 		MockTool tool = new MockTool( asset );
@@ -34,15 +31,15 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 		workpane.setDockMode( Workpane.DockMode.LANDSCAPE );
 		workpane.addTool( tool );
 
-		assertFalse( workpane.isDockSpace( Side.TOP, tool.getToolView() ) );
-		assertFalse( workpane.isDockSpace( Side.BOTTOM, tool.getToolView() ) );
-		assertTrue( workpane.isDockSpace( Side.LEFT, tool.getToolView() ) );
-		assertFalse( workpane.isDockSpace( Side.RIGHT, tool.getToolView() ) );
+		assertThat( workpane.isDockSpace( Side.TOP, tool.getToolView() ) ).isFalse();
+		assertThat( workpane.isDockSpace( Side.BOTTOM, tool.getToolView() ) ).isFalse();
+		assertThat( workpane.isDockSpace( Side.LEFT, tool.getToolView() ) ).isTrue();
+		assertThat( workpane.isDockSpace( Side.RIGHT, tool.getToolView() ) ).isFalse();
 
-		assertFalse( workpane.isDockSpace( Side.TOP, view ) );
-		assertFalse( workpane.isDockSpace( Side.BOTTOM, view ) );
-		assertFalse( workpane.isDockSpace( Side.LEFT, view ) );
-		assertTrue( workpane.isDockSpace( Side.RIGHT, view ) );
+		assertThat( workpane.isDockSpace( Side.TOP, view ) ).isFalse();
+		assertThat( workpane.isDockSpace( Side.BOTTOM, view ) ).isFalse();
+		assertThat( workpane.isDockSpace( Side.LEFT, view ) ).isFalse();
+		assertThat( workpane.isDockSpace( Side.RIGHT, view ) ).isTrue();
 	}
 
 	@Test
@@ -56,16 +53,16 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 		// Check the view placement
 		WorkpaneView view = tool.getToolView();
-		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DOCK_LEFT );
 
 		// Move the dock edge
 		WorkpaneEdge edge = view.getEdge( Side.RIGHT );
-		assertThat( edge.getPosition(), is( workpane.getLeftDockSize() ) );
+		assertThat( edge.getPosition() ).isEqualTo( workpane.getLeftDockSize() );
 		workpane.moveEdge( edge, WORKPANE_WIDTH * 0.05 );
-		assertThat( edge.getPosition(), is( 0.25 ) );
+		assertThat( edge.getPosition() ).isEqualTo( 0.25 );
 
 		// Verify the top dock size followed the dock edge
-		assertThat( workpane.getLeftDockSize(), is( 0.25 ) );
+		assertThat( workpane.getLeftDockSize() ).isEqualTo( 0.25 );
 	}
 
 	@Test
@@ -80,11 +77,11 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 		// Check the view placement
 		WorkpaneView view = tool.getToolView();
-		assertThat( view, is( not( nullValue() ) ) );
-		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
-		assertThat( view.getEdge( Side.TOP ), is( workpane.getWallEdge( Side.TOP ) ) );
-		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
-		assertThat( view.getEdge( Side.BOTTOM ), is( workpane.getWallEdge( Side.BOTTOM ) ) );
+		assertThat( view ).isNotNull();
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DOCK_LEFT );
+		assertThat( view.getEdge( Side.TOP ) ).isEqualTo( workpane.getWallEdge( Side.TOP ) );
+		assertThat( view.getEdge( Side.LEFT ) ).isEqualTo( workpane.getWallEdge( Side.LEFT ) );
+		assertThat( view.getEdge( Side.BOTTOM ) ).isEqualTo( workpane.getWallEdge( Side.BOTTOM ) );
 	}
 
 	@Test
@@ -108,11 +105,11 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 		// Check the view placement
 		WorkpaneView view = tool.getToolView();
-		assertThat( view, is( not( nullValue() ) ) );
-		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
-		assertThat( view.getEdge( Side.TOP ), is( workpane.getWallEdge( Side.TOP ) ) );
-		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
-		assertThat( view.getEdge( Side.BOTTOM ), is( workpane.getWallEdge( Side.BOTTOM ) ) );
+		assertThat( view ).isNotNull();
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DOCK_LEFT );
+		assertThat( view.getEdge( Side.TOP ) ).isEqualTo( workpane.getWallEdge( Side.TOP ) );
+		assertThat( view.getEdge( Side.LEFT ) ).isEqualTo( workpane.getWallEdge( Side.LEFT ) );
+		assertThat( view.getEdge( Side.BOTTOM ) ).isEqualTo( workpane.getWallEdge( Side.BOTTOM ) );
 	}
 
 	@Test
@@ -127,11 +124,11 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 		// Check the view placement
 		WorkpaneView view = tool.getToolView();
-		assertThat( view, is( not( nullValue() ) ) );
-		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
-		assertThat( view.getEdge( Side.TOP ), is( workpane.getWallEdge( Side.TOP ) ) );
-		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
-		assertThat( view.getEdge( Side.BOTTOM ), is( workpane.getWallEdge( Side.BOTTOM ) ) );
+		assertThat( view ).isNotNull();
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DOCK_LEFT );
+		assertThat( view.getEdge( Side.TOP ) ).isEqualTo( workpane.getWallEdge( Side.TOP ) );
+		assertThat( view.getEdge( Side.LEFT ) ).isEqualTo( workpane.getWallEdge( Side.LEFT ) );
+		assertThat( view.getEdge( Side.BOTTOM ) ).isEqualTo( workpane.getWallEdge( Side.BOTTOM ) );
 	}
 
 	@Test
@@ -155,15 +152,15 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 		// Check the view placement
 		WorkpaneView view = tool.getToolView();
-		assertThat( view, is( not( nullValue() ) ) );
-		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
-		assertThat( view.getEdge( Side.TOP ), is( topTool.getToolView().getEdge( Side.BOTTOM ) ) );
-		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
-		assertThat( view.getEdge( Side.BOTTOM ), is( bottomTool.getToolView().getEdge( Side.TOP ) ) );
+		assertThat( view ).isNotNull();
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DOCK_LEFT );
+		assertThat( view.getEdge( Side.TOP ) ).isEqualTo( topTool.getToolView().getEdge( Side.BOTTOM ) );
+		assertThat( view.getEdge( Side.LEFT ) ).isEqualTo( workpane.getWallEdge( Side.LEFT ) );
+		assertThat( view.getEdge( Side.BOTTOM ) ).isEqualTo( bottomTool.getToolView().getEdge( Side.TOP ) );
 
 		WorkpaneEdge edge = view.getEdge( Side.RIGHT );
-		assertThat( edge.getEdge( Side.TOP ), is( topTool.getToolView().getEdge( Side.BOTTOM ) ) );
-		assertThat( edge.getEdge( Side.BOTTOM ), is( bottomTool.getToolView().getEdge( Side.TOP ) ) );
+		assertThat( edge.getEdge( Side.TOP ) ).isEqualTo( topTool.getToolView().getEdge( Side.BOTTOM ) );
+		assertThat( edge.getEdge( Side.BOTTOM ) ).isEqualTo( bottomTool.getToolView().getEdge( Side.TOP ) );
 	}
 
 }

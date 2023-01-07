@@ -1,6 +1,5 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
@@ -8,21 +7,20 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.notice.NoticeModel;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
 
+@CustomLog
 public class ProgramNoticeType extends AssetType {
 
-	private static final String mediaTypePattern = "application/vnd.avereon.xenon.program.notice";
+	private static final String mediaTypePattern = BASE_MEDIA_TYPE + ".notice";
 
-	private static final String uriPattern = "program:notice";
+	private static final String uriPattern = "program:/notice";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
-
-	private static final Logger log = Log.get();
 
 	public ProgramNoticeType( ProgramProduct product ) {
 		super( product, "notice" );
@@ -76,7 +74,7 @@ public class ProgramNoticeType extends AssetType {
 		public void load( Asset asset, InputStream input ) throws IOException {
 			NoticeModel notices = new NoticeModel();
 
-			log.log( Log.TRACE,  "Load program notices..." );
+			log.atTrace().log( "Load program notices..." );
 			// TODO How do I want to store the notices? In settings? In a folder as separate files? As a single file?
 			// TODO Remove old notices...
 
@@ -88,7 +86,7 @@ public class ProgramNoticeType extends AssetType {
 		public void save( Asset asset, OutputStream output ) throws IOException {
 			NoticeModel notices = asset.getModel();
 
-			log.log( Log.TRACE,  "Save program notices..." );
+			log.atTrace().log( "Save program notices..." );
 
 			asset.setModified( false );
 		}

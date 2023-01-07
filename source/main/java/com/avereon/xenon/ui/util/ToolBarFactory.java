@@ -3,7 +3,7 @@ package com.avereon.xenon.ui.util;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -23,7 +23,7 @@ public class ToolBarFactory extends BarFactory {
 	public static ToolBar createToolBar( Program program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
-		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t, null ) ).collect( Collectors.toList() ) );
+		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).collect( Collectors.toList() ) );
 		return toolbar;
 	}
 
@@ -43,11 +43,11 @@ public class ToolBarFactory extends BarFactory {
 		return pad;
 	}
 
-	private static Node createToolBarItem( Program program, Node parent, Token item, Popup popup ) {
+	private static Node createToolBarItem( Program program, Node parent, Token item ) {
 		if( item.isSeparator() ) {
 			return new Separator();
 		} else if( item.getChildren().isEmpty() ) {
-			return createToolBarButton( program, item, popup );
+			return createToolBarButton( program, item );
 		} else {
 			return createToolTray( program, parent, item );
 		}
@@ -55,9 +55,12 @@ public class ToolBarFactory extends BarFactory {
 
 	private static Button createToolTray( Program program, Node parent, Token item ) {
 		Popup popup = new Popup();
+		popup.setAutoFix( true );
+		popup.setAutoHide( true );
 
 		ToolBar tray = new ToolBar();
-		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t, popup ) ).collect( Collectors.toList() ) );
+		tray.getStyleClass().add( "toolbar-tray" );
+		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).collect( Collectors.toList() ) );
 		tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) );
 		((ToolBar)parent).orientationProperty().addListener( ( p, o, n ) -> tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) ) );
 
@@ -65,7 +68,7 @@ public class ToolBarFactory extends BarFactory {
 
 		Button button = createToolBarButton( program, item );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
-		button.setOnAction( ( e ) -> doToggleTrayDialog( button, popup ) );
+		button.setOnAction( ( e ) -> doToggleTrayDialog( button, popup, tray ) );
 		button.setDisable( false );
 
 		return button;
@@ -76,33 +79,30 @@ public class ToolBarFactory extends BarFactory {
 		return Orientation.HORIZONTAL;
 	}
 
-	private static void doToggleTrayDialog( Button button, Popup popup ) {
+	private static void doToggleTrayDialog( Button button, Popup popup, ToolBar tray ) {
 		if( !popup.isShowing() ) {
-			Point2D anchor = button.localToScreen( new Point2D( 0, button.getHeight() ) );
-			popup.show( button, anchor.getX(), anchor.getY() );
+			// Initially show the tray off screen so it can be laid out before the tray offset is calculated
+			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
+
+			// Calculate offset after the tray is shown so the tray
+			double offset = FxUtil.localToParent( tray.getItems().get( 0 ), button ).getMinX();
+			Point2D anchor = button.localToScreen( new Point2D( -offset, button.getHeight() ) );
+
+			// Move the popup to the correct location
+			popup.setX( anchor.getX() );
+			popup.setY( anchor.getY() );
 		} else {
 			popup.hide();
 		}
 	}
 
 	private static Button createToolBarButton( Program program, Token token ) {
-		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ), null );
+		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ) );
 	}
 
 	private static Button createToolBarButton( Program program, ActionProxy action ) {
-		return createToolBarButton( program, action, null );
-	}
-
-	private static Button createToolBarButton( Program program, Token token, Popup popup ) {
-		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ), popup );
-	}
-
-	private static Button createToolBarButton( Program program, ActionProxy action, Popup popup ) {
 		Button button = new Button();
-		button.setOnAction( e -> {
-			if( popup != null ) Fx.run( popup::hide );
-			action.handle( e );
-		} );
+		button.setOnAction( action );
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 

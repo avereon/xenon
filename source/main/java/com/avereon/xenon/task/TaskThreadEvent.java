@@ -12,7 +12,7 @@ public class TaskThreadEvent extends TaskManagerEvent {
 
 	public static final EventType<TaskThreadEvent> FINISH = new EventType<>( TASK_THREAD, "FINISH" );
 
-	private Thread thread;
+	private final Thread thread;
 
 	public TaskThreadEvent( Object source, EventType<? extends TaskThreadEvent> type, Thread thread ) {
 		super( source, type );

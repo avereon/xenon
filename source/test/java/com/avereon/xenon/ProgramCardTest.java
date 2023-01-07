@@ -14,9 +14,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProgramCardTest extends ProgramTestCase {
 
@@ -45,30 +43,27 @@ public class ProgramCardTest extends ProgramTestCase {
 
 		String timestampRegex = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]";
 
-		assertThat( metadata.getGroup(), is( groupId ) );
-		assertThat( metadata.getArtifact(), is( artifactId ) );
-		assertThat( metadata.getVersion(), is( version ) );
-		assertTrue( metadata.getTimestamp().matches( timestampRegex ), "Incorrect timestamp format: " + metadata.getTimestamp() );
+		assertThat( metadata.getGroup() ).isEqualTo( groupId );
+		assertThat( metadata.getArtifact() ).isEqualTo( artifactId );
+		assertThat( metadata.getVersion() ).isEqualTo( version );
+		assertThat( metadata.getTimestamp().matches( timestampRegex ) ).withFailMessage( "Incorrect timestamp format: " + metadata.getTimestamp() ).isTrue();
 
-		assertThat( metadata.getName(), is( name ) );
-		//assertThat( metadata.getIconUri(), is( "program" ) );
-		assertThat( metadata.getProvider(), is( "Avereon" ) );
-		assertThat( metadata.getInception(), is( inception ) );
+		assertThat( metadata.getName() ).isEqualTo( name );
+		//assertThat( metadata.getIconUri()).isEqualTo( "program" ) ;
+		assertThat( metadata.getProvider() ).isEqualTo( "Avereon" );
+		assertThat( metadata.getInception() ).isEqualTo( inception );
 
-		assertThat( metadata.getSummary(), is( "Modular application platform" ) );
-		assertThat( metadata.getDescription(), is( description ) );
-		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved" ) );
-		assertThat(
-			metadata.getLicenseSummary(),
-			is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." )
-		);
+		assertThat( metadata.getSummary() ).isEqualTo( "Modular application platform" );
+		assertThat( metadata.getDescription() ).isEqualTo( description );
+		assertThat( metadata.getCopyrightSummary() ).isEqualTo( "All rights reserved" );
+		assertThat( metadata.getLicenseSummary() ).isEqualTo( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." );
 	}
 
 	@Test
 	void testProgramDataFolder() {
 		String suffix = "-" + Profile.TEST;
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertThat( program.getDataFolder(), is( programDataFolder ) );
+		assertThat( program.getDataFolder() ).isEqualTo( programDataFolder );
 	}
 
 }

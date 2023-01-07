@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -15,13 +14,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import lombok.CustomLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class PaintSettingEditor extends SettingEditor {
-
-	private static final System.Logger log = Log.get();
 
 	private final Label label;
 
@@ -29,26 +28,26 @@ public class PaintSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public PaintSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public PaintSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 		label = new Label();
 		paintPicker = new PaintPicker();
 		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
 		paintPicker.getOptions().addAll( setting.getOptions().stream().map( o -> switch( o.getKey() ) {
-			case "none" -> PaintPickerPane.PaintMode.NONE;
 			case "solid" -> PaintPickerPane.PaintMode.SOLID;
 			case "linear" -> PaintPickerPane.PaintMode.LINEAR;
 			case "radial" -> PaintPickerPane.PaintMode.RADIAL;
+			case "none" -> PaintPickerPane.PaintMode.NONE;
 			default -> new PaintPickerPane.PaintMode( o.getKey(), o.getName() );
 		} ).collect( Collectors.toList() ) );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label.setText( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label.setText( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		paintPicker.setId( rbKey );

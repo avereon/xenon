@@ -33,13 +33,15 @@ public class MenuBarFactory extends BarFactory {
 	public static Menu createMenu( Program program, Token token, boolean submenu ) {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
+		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
+
 		Menu menu = new Menu();
 		menu.setId( MENU_ID_PREFIX + action.getId() );
 		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
-		menu.setText( action.getMnemonicName() );
+		menu.setText( action.getNameWithMnemonic() );
 		if( submenu ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
-		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
+		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
@@ -65,24 +67,21 @@ public class MenuBarFactory extends BarFactory {
 		if( type == null ) type = "normal";
 
 		MenuItem item;
+		//noinspection SwitchStatementWithTooFewBranches
 		switch( type ) {
-			case "checkbox": {
-				item = new CheckMenuItem();
-				break;
-			}
-			default: {
-				item = new MenuItem();
-				break;
-			}
+			case "checkbox" -> item = new CheckMenuItem();
+			default -> item = new MenuItem();
 		}
 
 		item.setId( "menuitem-" + action.getId() );
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setDisable( !action.isEnabled() );
-		item.setText( action.getMnemonicName() );
+		item.setText( action.getNameWithMnemonic() );
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
+
+		if( action.getCommand() != null ) item.setText( action.getNameWithMnemonic() + " [" + action.getCommand() + "]");
 
 		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
@@ -120,26 +119,11 @@ public class MenuBarFactory extends BarFactory {
 		int index = 0;
 		for( char modifierLetter : modifiers.toCharArray() ) {
 			switch( modifierLetter ) {
-				case 'C': {
-					modifierList[ index ] = KeyCombination.CONTROL_DOWN;
-					break;
-				}
-				case 'A': {
-					modifierList[ index ] = KeyCombination.ALT_DOWN;
-					break;
-				}
-				case 'S': {
-					modifierList[ index ] = KeyCombination.SHIFT_DOWN;
-					break;
-				}
-				case 'M': {
-					modifierList[ index ] = KeyCombination.META_DOWN;
-					break;
-				}
-				case 'T': {
-					modifierList[ index ] = KeyCombination.SHORTCUT_DOWN;
-					break;
-				}
+				case 'C' -> modifierList[ index ] = KeyCombination.CONTROL_DOWN;
+				case 'A' -> modifierList[ index ] = KeyCombination.ALT_DOWN;
+				case 'S' -> modifierList[ index ] = KeyCombination.SHIFT_DOWN;
+				case 'M' -> modifierList[ index ] = KeyCombination.META_DOWN;
+				case 'T' -> modifierList[ index ] = KeyCombination.SHORTCUT_DOWN;
 			}
 			index++;
 		}

@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.util.OperatingSystem;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
@@ -19,18 +18,35 @@ public class UpdateManager {
 
 	private StageUpdaterTask stageUpdaterTask;
 
-	UpdateManager( Program program ) throws IOException {
+	public UpdateManager( Program program ) {
 		this.program = program;
-		this.prefix = program.getCard().getArtifact() + "-updater-";
+		this.prefix = program.getCard().getArtifact() + "-updater";
 
-		if( Profile.DEV.equals( program.getProfile() ) ) {
-			String updaterTarget = "target/" + program.getCard().getArtifact() + "-updater";
-			this.updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
-			this.updaterLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
+		updaterLauncher = calcUpdaterLauncher( program.getHomeFolder(), program.getProductManager().getUpdatesFolder(), prefix, program.getProfile() );
+		updaterFolder = updaterLauncher.getParent().getParent();
+	}
+
+	public static Path calcUpdaterLauncher( Path home, Path updatesFolder, String prefix, String profile ) {
+		// The pre-17 implementation expected java launcher to be a sub-folder of
+		// the java home folder. Java home is now in a different location which
+		// makes this strategy incorrect. The new strategy should be to relativize
+		// the java launcher path against the program home folder.
+
+		final Path updaterLauncher;
+
+		Path javaLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
+		if( Profile.DEV.equals( profile ) ) {
+			String updaterTarget = "target/" + prefix;
+			Path updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
+			updaterLauncher = updaterFolder.resolve( OperatingSystem.getJavaLauncherName() );
+		} else if( home.getRoot().equals( javaLauncher.getRoot() ) ) {
+			Path updaterFolder = updatesFolder.resolve( "updater" );
+			updaterLauncher = updaterFolder.resolve( home.relativize( javaLauncher ) );
 		} else {
-			this.updaterFolder = program.getProductManager().getUpdatesFolder().resolve( "updater" );
-			this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( Paths.get( OperatingSystem.getJavaLauncherPath() ) ) );
+			updaterLauncher = javaLauncher;
 		}
+
+		return updaterLauncher;
 	}
 
 	public Program getProgram() {

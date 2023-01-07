@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.product.RepoStateComparator;
 import com.avereon.xenon.task.Task;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 
 import java.util.ArrayList;
 import java.util.List;

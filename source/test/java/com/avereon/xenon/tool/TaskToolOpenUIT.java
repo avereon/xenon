@@ -4,20 +4,19 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskToolOpenUIT extends TaskToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
 		openTaskMenu();
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
-		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 	}
 

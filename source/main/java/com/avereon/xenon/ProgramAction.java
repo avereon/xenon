@@ -1,13 +1,12 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Log;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
-
-public abstract class Action implements EventHandler<ActionEvent> {
+@CustomLog
+public abstract class ProgramAction implements EventHandler<ActionEvent> {
 
 	public static final String NAME_SUFFIX = ".name";
 
@@ -23,15 +22,15 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	public static final String DESCRIPTION_SUFFIX = ".description";
 
-	private static final ActionProxy NONE = new ActionProxy();
+	public static final String TAGS_SUFFIX = ".tags";
 
-	private static final Logger log = Log.get();
+	private static final ActionProxy NONE = new ActionProxy();
 
 	private final Program program;
 
 	private ActionProxy proxy = NONE;
 
-	protected Action( Program program ) {
+	protected ProgramAction( Program program ) {
 		if( program == null ) throw new NullPointerException( "Program cannot be null" );
 		this.program = program;
 	}
@@ -52,7 +51,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	public Action updateEnabled() {
+	public ProgramAction updateEnabled() {
 		if( proxy != null ) proxy.setEnabled( isEnabled() );
 		return this;
 	}

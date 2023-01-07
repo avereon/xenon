@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class SettingData extends SettingDependant {
 
 	public static final String ID = "id";
@@ -19,15 +20,15 @@ public class SettingData extends SettingDependant {
 
 	public static final String VALUE = "value";
 
-	public static final String EDITOR = "editor";
+	static final String EDITOR = "editor";
 
-	private static final String OPAQUE = "opaque";
+	static final String OPAQUE = "opaque";
+
+	static final String ROWS = "rows";
+
+	static final String PROVIDER = "provider";
 
 	private static final String OPTIONS = "options";
-
-	private static final String OPTION_PROVIDER = "option-provider";
-
-	private static final System.Logger log = Log.get();
 
 	private final SettingGroup group;
 
@@ -59,22 +60,6 @@ public class SettingData extends SettingDependant {
 		setValue( KEY, key );
 	}
 
-//	public String getRbKey() {
-//		return getValue( RBKEY );
-//	}
-//
-//	public void setRbKey( String key ) {
-//		setValue( RBKEY, key );
-//	}
-
-	public String getSettingValue() {
-		return getValue( VALUE );
-	}
-
-	public void setSettingValue( String value ) {
-		setValue( VALUE, value );
-	}
-
 	public String getEditor() {
 		return getValue( EDITOR );
 	}
@@ -94,12 +79,20 @@ public class SettingData extends SettingDependant {
 		setValue( OPAQUE, opaque );
 	}
 
+	public int getRows() {
+		return getValue( ROWS );
+	}
+
+	public void setRows( int rows ) {
+		setValue( ROWS, rows );
+	}
+
 	public String getProvider() {
-		return getValue( OPTION_PROVIDER );
+		return getValue( PROVIDER );
 	}
 
 	public SettingData setProvider( String provider ) {
-		setValue( OPTION_PROVIDER, provider );
+		setValue( PROVIDER, provider );
 		return this;
 	}
 
@@ -136,8 +129,8 @@ public class SettingData extends SettingDependant {
 		return getGroup().getSettings();
 	}
 
-	public String getBundleKey() {
-		return getBundleKey( getId(), getKey() );
+	public String getRbKey() {
+		return getRbKey( getId(), getKey() );
 	}
 
 	@Override
@@ -155,7 +148,7 @@ public class SettingData extends SettingDependant {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String id, String key ) {
+	private static String getRbKey( String id, String key ) {
 		String localKey = key;
 		if( localKey == null ) localKey = id;
 		if( localKey == null ) return null;

@@ -1,5 +1,6 @@
 package com.avereon.xenon.ui.util;
 
+import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.xenon.ActionLibrary;
 import com.avereon.xenon.FxPlatformTestCase;
@@ -17,6 +18,7 @@ public class BaseUiFactoryTest extends FxPlatformTestCase {
 	@BeforeEach
 	void setup() {
 		program = Mockito.mock( Program.class );
+		when( program.getCard() ).thenReturn( new ProductCard().setArtifact( "mock" ).setName( "Mock" ) );
 		Rb.init( program );
 
 		ActionLibrary actionLibrary = new ActionLibrary( program );

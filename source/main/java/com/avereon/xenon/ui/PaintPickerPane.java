@@ -2,11 +2,11 @@ package com.avereon.xenon.ui;
 
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
-import com.avereon.zerra.color.Colors;
-import com.avereon.zerra.color.PaintSwatch;
-import com.avereon.zerra.color.Paints;
+import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.color.PaintSwatch;
+import com.avereon.zarra.color.Paints;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -46,7 +46,7 @@ public class PaintPickerPane extends VBox {
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
-		mode.getItems().addAll( PaintMode.NONE, PaintMode.SOLID );
+		mode.getItems().addAll( PaintMode.SOLID, PaintMode.NONE );
 
 		// The paint stop editor
 		//RangeSlider paintStopEditor = new RangeSlider();
@@ -97,9 +97,9 @@ public class PaintPickerPane extends VBox {
 	}
 
 	public void setPaint( String paint ) {
-		doSetPaint( paint );
-		updateMode( paint );
+		// Do not call doSetPaint() here, changing the paintField will do that if needed
 		paintField.setText( paint );
+		updateMode( paint );
 	}
 
 	private void doSetPaint( String paint ) {
@@ -159,41 +159,29 @@ public class PaintPickerPane extends VBox {
 
 		public static final PaintMode NONE;
 
+		public static final PaintMode LAYER;
+
 		public static final PaintMode SOLID;
 
 		public static final PaintMode LINEAR;
 
 		public static final PaintMode RADIAL;
 
-		public static final PaintMode OTHER;
-
 		private final String key;
 
 		private final String label;
 
-		private String value;
-
 		static {
-			NONE = new PaintMode( "none", Rb.text( BundleKey.LABEL, "none" ) );
-			SOLID = new PaintMode( "solid", Rb.text( BundleKey.LABEL, "solid" ) );
-			LINEAR = new PaintMode( "linear", Rb.text( BundleKey.LABEL, "linear" ) );
-			RADIAL = new PaintMode( "radial", Rb.text( BundleKey.LABEL, "radial" ) );
-			OTHER = new PaintMode( "other", Rb.text( BundleKey.LABEL, "other" ) );
+			NONE = new PaintMode( "none", Rb.text( RbKey.LABEL, "none" ) );
+			LAYER = new PaintMode( "layer", Rb.text( RbKey.LABEL, "layer" ) );
+			SOLID = new PaintMode( "solid", Rb.text( RbKey.LABEL, "solid" ) );
+			LINEAR = new PaintMode( "linear", Rb.text( RbKey.LABEL, "linear" ) );
+			RADIAL = new PaintMode( "radial", Rb.text( RbKey.LABEL, "radial" ) );
 		}
 
 		public PaintMode( String key, String label ) {
-			this( key, label, null );
-		}
-
-		public PaintMode( String key, String label, String value ) {
 			this.key = key;
 			this.label = label;
-			//this.value = value;
-
-			//		String none = product.rb().textOr( BundleKey.LABEL, "none", "None" );
-			//		String solid = product.rb().textOr( BundleKey.LABEL, "solid", "Solid Color" );
-			//		String linear = product.rb().textOr( BundleKey.LABEL, "linear-gradient", "Linear Gradient" );
-			//		String radial = product.rb().textOr( BundleKey.LABEL, "radial-gradient", "Radial Gradient" );
 		}
 
 		public String getKey() {
@@ -207,22 +195,16 @@ public class PaintPickerPane extends VBox {
 		public static PaintMode getPaintMode( String paint ) {
 			if( TextUtil.isEmpty( paint ) ) return PaintMode.NONE;
 
+			if( PaintMode.LAYER.getKey().equals( paint ) ) return PaintMode.LAYER;
+			if( paint.startsWith( "0x" )) return PaintMode.SOLID;
+
 			return switch( paint.charAt( 0 ) ) {
 				case '#' -> PaintMode.SOLID;
 				case '[' -> PaintMode.LINEAR;
 				case '(' -> PaintMode.RADIAL;
-				default -> PaintMode.OTHER;
-				//default -> throw new IllegalStateException( "Unexpected value: " + paint );
+				default -> throw new IllegalStateException( "Unexpected paint mode: " + paint );
 			};
 		}
-
-		//	public String getValue() {
-		//		return value;
-		//	}
-		//
-		//	public void setValue( String value ) {
-		//		this.value = value;
-		//	}
 
 		@Override
 		public String toString() {

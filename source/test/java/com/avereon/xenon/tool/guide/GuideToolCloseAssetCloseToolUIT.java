@@ -8,23 +8,22 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramGuideType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		assertThat( pane.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( pane, 1 );
 
-		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		assertToolCount( pane, 0 );
 	}
 

@@ -1,6 +1,5 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.Log;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,8 +13,8 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +23,10 @@ import java.util.List;
  * The ToolPane class provides a custom tab pane component for the program
  * allowing for extended and custom capabilities.
  */
+@CustomLog
 public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
-
-	private static final Logger log = Log.get();
 
 	private final ObservableList<ToolTab> tabs;
 
@@ -134,7 +132,7 @@ public class ToolTabPane extends Control {
 				uris
 			) );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error handling tool drop", exception );
+			log.atError( exception).log( "Error handling tool drop" );
 		} finally {
 			event.setDropCompleted( true );
 			event.consume();

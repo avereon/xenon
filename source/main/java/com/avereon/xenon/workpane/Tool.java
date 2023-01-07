@@ -1,10 +1,10 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
-import com.avereon.util.Log;
+import com.avereon.log.LazyEval;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,15 +14,13 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
-
-import java.lang.System.Logger;
+import lombok.CustomLog;
 
 /**
  * The Tool class is a pane that "works on" an asset.
  */
+@CustomLog
 public abstract class Tool extends StackPane {
-
-	private static final Logger log = Log.get();
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 
@@ -74,7 +72,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Fx.run( () -> getWorkpane().setActiveTool( this ) ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e ->  getWorkpane().setActiveTool( this ) );
 	}
 
 	public final Asset getAsset() {
@@ -252,7 +250,7 @@ public abstract class Tool extends StackPane {
 		try {
 			tool = getClass().getConstructor().newInstance();
 		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error cloning tool: " + getClass().getName(), exception );
+			log.atError( exception ).log( "Error cloning tool: %s", LazyEval.of( () -> getClass().getName() ) );
 		}
 
 		return tool;
@@ -335,7 +333,7 @@ public abstract class Tool extends StackPane {
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error allocating tool", exception );
+			log.atError( exception ).log( "Error allocating tool" );
 		}
 	}
 
@@ -351,7 +349,7 @@ public abstract class Tool extends StackPane {
 			displayed = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error displaying tool", exception );
+			log.atError( exception ).log( "Error displaying tool" );
 		}
 	}
 
@@ -366,7 +364,7 @@ public abstract class Tool extends StackPane {
 			activate();
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error activating tool", exception );
+			log.atError( exception ).log( "Error activating tool" );
 		}
 	}
 
@@ -381,7 +379,7 @@ public abstract class Tool extends StackPane {
 			deactivate();
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error deactivating tool", exception );
+			log.atError( exception ).log( "Error deactivating tool" );
 		}
 	}
 
@@ -397,7 +395,7 @@ public abstract class Tool extends StackPane {
 			displayed = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error concealing tool", exception );
+			log.atError( exception ).log( "Error concealing tool" );
 		}
 	}
 
@@ -414,7 +412,7 @@ public abstract class Tool extends StackPane {
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
 			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error deallocating tool", exception );
+			log.atError( exception ).log( "Error deallocating tool" );
 		}
 	}
 

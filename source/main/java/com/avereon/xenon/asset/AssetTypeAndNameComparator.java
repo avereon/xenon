@@ -1,10 +1,10 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
+@CustomLog
 public class AssetTypeAndNameComparator extends AssetNameComparator {
 
-	private static final System.Logger log = Log.get();
 
 	@Override
 	public int compare( Asset o1, Asset o2 ) {
@@ -17,7 +17,7 @@ public class AssetTypeAndNameComparator extends AssetNameComparator {
 				return 1;
 			}
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR, exception );
+			log.atSevere().withCause( exception ).log();
 		}
 		return super.compare( o1, o2 );
 	}

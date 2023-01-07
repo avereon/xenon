@@ -3,7 +3,6 @@ package com.avereon.xenon.workpane;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -12,14 +11,13 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
+import lombok.CustomLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CustomLog
 public class WorkpaneView extends BorderPane implements WritableIdentity {
-
-	@SuppressWarnings( "unused" )
-	private static final System.Logger log = Log.get();
 
 	private final ToolTabPane tools;
 

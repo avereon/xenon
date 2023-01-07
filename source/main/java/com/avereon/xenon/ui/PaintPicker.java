@@ -1,7 +1,9 @@
 package com.avereon.xenon.ui;
 
-import com.avereon.zerra.color.PaintSwatch;
-import com.avereon.zerra.color.Paints;
+import com.avereon.product.Rb;
+import com.avereon.xenon.RbKey;
+import com.avereon.zarra.color.PaintSwatch;
+import com.avereon.zarra.color.Paints;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -82,10 +84,10 @@ public class PaintPicker extends Button {
 		pickerPane.setPaint( paint );
 		//swatch.setPaint( calcPaint() );
 		//doUpdateText(paint);
-//		if( priorNotSet ) {
-//			prior = paint;
-//			priorNotSet = false;
-//		}
+		//		if( priorNotSet ) {
+		//			prior = paint;
+		//			priorNotSet = false;
+		//		}
 	}
 
 	public void setPrior( String paint ) {
@@ -117,7 +119,12 @@ public class PaintPicker extends Button {
 	}
 
 	private void doUpdateText( String paint ) {
-		setText( paint == null ? "None" : paint.trim() );
+		String text = paint == null ? PaintPickerPane.PaintMode.NONE.getKey() : paint.trim();
+
+		if( PaintPickerPane.PaintMode.LAYER.getKey().equals( text ) ) text = Rb.text( RbKey.LABEL, "layer" ).toLowerCase();
+		if( PaintPickerPane.PaintMode.NONE.getKey().equals( text ) ) text = Rb.text( RbKey.LABEL, "none" ).toLowerCase();
+
+		setText( text );
 	}
 
 	private void doTogglePaintDialog() {

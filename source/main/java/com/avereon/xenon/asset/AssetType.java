@@ -2,13 +2,14 @@ package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.xenon.tool.settings.SettingsPage;
+import com.avereon.zarra.javafx.Fx;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,9 +55,10 @@ import java.util.stream.Collectors;
  *
  * @author ecco
  */
+@CustomLog
 public abstract class AssetType implements Comparable<AssetType> {
 
-	private static final Logger log = Log.get();
+	protected static final String BASE_MEDIA_TYPE = "application/vnd.avereon.xenon.program";
 
 	private final String key = getClass().getName();
 
@@ -67,6 +69,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 	private final Set<Codec> codecs;
 
 	private Codec defaultCodec;
+
+	private Map<String,SettingsPage> settingsPages;
 
 	public AssetType( ProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
@@ -179,6 +183,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		Fx.run( () -> {
 			synchronized( lock ) {
 				try {
+					log.atTrace().log( "Calling assetNew()..." );
 					result.set( assetNew( program, asset ) );
 				} catch( AssetException exception ) {
 					resultException.set( exception );
@@ -195,6 +200,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 				exception.printStackTrace();
 			}
 		}
+
+		log.atDebug().log( "Done waiting for assetNew()." );
 
 		if( resultException.get() != null ) throw resultException.get();
 		return result.get();
@@ -238,6 +245,14 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	public Set<Codec> getSupportedCodecs( Codec.Pattern type, String value ) {
 		return codecs.stream().filter( c -> c.isSupported( type, value ) ).collect( Collectors.toSet() );
+	}
+
+	public Map<String, SettingsPage> getSettingsPages() {
+		return settingsPages;
+	}
+
+	public void setSettingsPages(Map<String,SettingsPage> pages) {
+		this.settingsPages = pages;
 	}
 
 }

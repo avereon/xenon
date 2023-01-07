@@ -3,19 +3,21 @@ package com.avereon.xenon;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import java.util.Collection;
 
-public abstract class BaseToolUIT extends FxProgramUIT {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public abstract class BaseToolUIT extends BaseXenonUiTestCase {
 
 	protected void assertToolCount( Workpane pane, int count ) {
-		int actual = pane.getTools().size();
-		if( actual != count ) {
-			for( Tool tool : pane.getTools() ) {
-				System.out.println( "Tool: " + tool );
-			}
+		Collection<Tool> tools = pane.getTools();
+
+		try {
+			assertThat( tools.size() ).isEqualTo( count );
+		} catch( AssertionError error ) {
+			tools.forEach( t -> System.out.println( "Tool: " + t ) );
+			throw error;
 		}
-		assertThat( actual , is( count ) );
 	}
 
 }

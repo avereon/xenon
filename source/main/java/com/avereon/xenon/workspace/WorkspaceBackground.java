@@ -2,24 +2,23 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
-import com.avereon.zerra.color.Colors;
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.javafx.FxUtil;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class WorkspaceBackground extends StackPane {
-
-	private static final System.Logger log = Log.get();
 
 	private final Pane backPane;
 
@@ -64,7 +63,7 @@ public class WorkspaceBackground extends StackPane {
 				result.add( entry );
 			}
 		} catch( DirectoryIteratorException exception ) {
-			log.log( Log.ERROR, "Error listing image files", exception );
+			log.atSevere().withCause( exception ).log( "Error listing image files" );
 		}
 		return result;
 	}
@@ -134,7 +133,7 @@ public class WorkspaceBackground extends StackPane {
 		style = settings.get( "workspace-scenery-image-style", "fill" );
 		align = settings.get( "workspace-scenery-image-align", "center" );
 
-		log.log( Log.DEBUG, "Images: count={0} index={1} path={2}", images.size(), imageIndex, imagePath );
+		log.atFine().log( "Images: count=%s index=%s path=%s", images.size(), imageIndex, imagePath );
 
 		BackgroundImage background = null;
 		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );

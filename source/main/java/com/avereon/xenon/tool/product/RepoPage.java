@@ -1,29 +1,27 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CustomLog
 class RepoPage extends ProductToolPage {
 
-	private static final Logger log = Log.get();
+	private final Program program;
 
-	private Program program;
-
-	private ProductTool productTool;
+	private final ProductTool productTool;
 
 	RepoPage( Program program, ProductTool productTool ) {
 		this.program = program;
 		this.productTool = productTool;
-		setTitle( Rb.text( BundleKey.TOOL, "product-" + ProductTool.SOURCES ) );
+		setTitle( Rb.text( RbKey.TOOL, "product-" + ProductTool.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
 		addButton.setOnMousePressed( ( e ) -> newRepo() );
@@ -34,7 +32,6 @@ class RepoPage extends ProductToolPage {
 		showUpdating();
 	}
 
-
 	@Override
 	protected void showUpdating() {
 		getChildren().clear();
@@ -43,7 +40,7 @@ class RepoPage extends ProductToolPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.log( Log.DEBUG,  "Update product repos" );
+		log.atFine().log( "Update product repos" );
 		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool, false ) );
 	}
 

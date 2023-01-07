@@ -4,9 +4,9 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
@@ -14,7 +14,8 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
+import lombok.CustomLog;
 
 import java.net.URI;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
@@ -95,13 +97,12 @@ import java.util.concurrent.TimeUnit;
  *   <li>Constructor</li>
  * </ul>
  */
+@CustomLog
 public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	public static final int ASSET_READY_TIMEOUT = 10;
 
 	public static final int TOOL_READY_TIMEOUT = 2;
-
-	private static final System.Logger log = Log.get();
 
 	private final ProgramProduct product;
 
@@ -134,7 +135,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	public Settings getAssetSettings() {
-		return getAsset().getSettings();
+		return getProgram().getSettingsManager().getAssetSettings( getAsset() );
 	}
 
 	public Settings getSettings() {
@@ -224,12 +225,12 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
 	}
 
-	protected ProgramTool pushAction( String key, Action action ) {
+	protected ProgramTool pushAction( String key, ProgramAction action ) {
 		getProgram().getActionLibrary().getAction( key ).pushAction( action );
 		return this;
 	}
 
-	protected ProgramTool pullAction( String key, Action action ) {
+	protected ProgramTool pullAction( String key, ProgramAction action ) {
 		getProgram().getActionLibrary().getAction( key ).pullAction( action );
 		return this;
 	}
@@ -247,45 +248,49 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		this.setActiveWhenReady = true;
 	}
 
-	void waitForReady( OpenAssetRequest request ) {
+	static void waitForReady( OpenAssetRequest request, ProgramTool tool ) {
 		TaskChain.of( "wait for ready", () -> {
-			waitForTool();
+			waitForTool( tool);
 			return null;
 		} ).link( () -> {
-			waitForAsset( getAsset() );
+			waitForAsset( request.getAsset() );
 			return null;
 		} ).link( () -> {
-			callToolReady( request );
+			tool.callToolReady( request );
 			return null;
-		} ).run( getProgram() );
+		} ).run( tool.getProgram() );
 	}
 
-	private void waitForTool() throws InterruptedException {
+	private static void waitForTool( ProgramTool tool ) throws TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
-		javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
+		javafx.event.EventHandler<ToolEvent> handler = e -> latch.countDown();
 
 		try {
-			addEventFilter( ToolEvent.ADDED, h );
-			if( getToolView() == null ) {
+			tool.addEventFilter( ToolEvent.ADDED, handler );
+			if( tool.getToolView() == null ) {
 				boolean timeout = !latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-				if( timeout ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + this );
+				//if( timeout ) log.atWarning().log( "Timeout waiting for tool to be allocated: %s", tool );
+				if( timeout ) throw new TimeoutException( "Timeout waiting for tool to be created: " + tool );
 			}
 		} finally {
-			removeEventFilter( ToolEvent.ADDED, h );
+			tool.removeEventFilter( ToolEvent.ADDED, handler );
 		}
 	}
 
-	private void waitForAsset( Asset asset ) throws InterruptedException {
+	private static void waitForAsset( Asset asset ) throws AssetException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
-		EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
-		asset.register( AssetEvent.LOADED, assetLoadedHandler );
+		EventHandler<AssetEvent> handler = e -> latch.countDown();
+		asset.register( AssetEvent.LOADED, handler );
 		try {
-			if( !asset.isLoaded() ) {
-				latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-				if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
+			if( asset.exists() && !asset.isLoaded() ) {
+				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( timeout ) {
+					//log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
+					throw new TimeoutException( "Timeout waiting for asset to load: " + asset );
+				}
 			}
 		} finally {
-			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
+			asset.unregister( AssetEvent.LOADED, handler );
 		}
 	}
 
@@ -300,7 +305,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 				ready( request );
 				open( request );
 			} catch( ToolException exception ) {
-				log.log( Log.ERROR, exception );
+				log.atSevere().withCause( exception ).log();
 			}
 		} );
 	}

@@ -1,24 +1,25 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.zenna.icon.*;
-import com.avereon.zerra.image.*;
 import com.avereon.xenon.task.Task;
+import com.avereon.zenna.icon.*;
+import com.avereon.zarra.image.BrokenIcon;
+import com.avereon.zarra.image.ImageIcon;
+import com.avereon.zarra.image.Images;
+import com.avereon.zarra.image.VectorImage;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import lombok.CustomLog;
 
-import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class IconLibrary {
-
-	private static final Logger log = Log.get();
 
 	private static final int DEFAULT_SIZE = 16;
 
@@ -41,8 +42,11 @@ public class IconLibrary {
 		register( "asset-new", new DocumentIcon() );
 		register( "asset-open", new FolderIcon() );
 		register( "asset-save", new SaveIcon() );
+		register( "asset-save-all", new SaveIcon() );
+		register( "asset-rename", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
-		register( "properties", new HamburgerIcon() );
+		register( "properties", new PropertiesIcon() );
+		register( "print", new PrinterIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
@@ -64,18 +68,20 @@ public class IconLibrary {
 		register( "fault", new FaultIcon() );
 		register( "terminal", new TerminalIcon() );
 
-		register( "welcome", new WelcomeIcon() );
+		register( "about", new ExclamationIcon() );
+		register( "help", new QuestionIcon() );
 		register( "help-content", new QuestionIcon() );
+		register( "search", new MagnifierIcon() );
 		register( "notice", new NoticeIcon() );
 		register( "notice-error", new NoticeIcon( Color.RED ) );
 		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
 		register( "notice-info", new NoticeIcon( Color.GREEN.brighter() ) );
 		register( "notice-norm", new NoticeIcon( Color.web( "#40a0c0" ) ) );
 		register( "notice-none", new NoticeIcon() );
-		register( "task", new TaskQueueIcon() );
 		register( "product", new ProductIcon() );
+		register( "task", new TaskQueueIcon() );
 		register( "update", new DownloadIcon() );
-		register( "about", new ExclamationIcon() );
+		register( "welcome", new WelcomeIcon() );
 
 		register( "workspace", new FrameIcon() );
 		register( "workspace-new", new FrameIcon() );
@@ -95,12 +101,15 @@ public class IconLibrary {
 
 		register( "add", new PlusIcon() );
 		register( "refresh", new RefreshIcon() );
+		register( "reload", new RefreshIcon() );
 		register( "download", new DownloadIcon() );
 		register( "market", new MarketIcon() );
 		register( "module", new ModuleIcon() );
 		register( "enable", new LightningIcon() );
 		register( "disable", new DisableIcon() );
 		register( "remove", new CloseIcon() );
+		register( "tag", new TagIcon() );
+		register( "title", new TitleIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );
@@ -157,9 +166,10 @@ public class IconLibrary {
 			if( icon == null ) icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
+		if( icon != null ) icon = icon.copy();
 		if( icon == null ) icon = new BrokenIcon();
 
-		return icon.copy().resize( size );
+		return icon.resize( size );
 	}
 
 	public Node getIcon( List<String> ids, String backupId, double size ) {
@@ -175,7 +185,7 @@ public class IconLibrary {
 	private VectorImage getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 		ImageIcon icon = new ImageIcon( url ).resize( size );
-		String taskName = Rb.text( BundleKey.PROMPT, "load-icon", url );
+		String taskName = Rb.text( RbKey.PROMPT, "load-icon", url );
 		program.getTaskManager().submit( Task.of( taskName, icon.getPreloadRunner() ) );
 		return icon;
 	}

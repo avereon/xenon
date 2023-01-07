@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.settings.Settings;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.workspace.WorkspaceBackground;
 
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 
-public abstract class WallpaperFileAction extends Action {
+public abstract class WallpaperFileAction extends ProgramAction {
 
 	protected WallpaperFileAction( Program program ) {
 		super( program );

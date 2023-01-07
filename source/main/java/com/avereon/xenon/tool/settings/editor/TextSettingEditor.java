@@ -26,23 +26,21 @@ public abstract class TextSettingEditor extends SettingEditor {
 
 	private final Type type;
 
-	private Label label;
-
 	private TextInputControl text;
 
 	private List<Node> nodes;
 
-	TextSettingEditor( ProgramProduct product, String bundleKey, SettingData setting, Type type ) {
-		super( product, bundleKey, setting );
+	TextSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Type type ) {
+		super( product, rbKey, setting );
 		this.type = type;
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		Label label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		switch( type ) {
@@ -52,6 +50,10 @@ public abstract class TextSettingEditor extends SettingEditor {
 		}
 		text.setText( value );
 		text.setId( rbKey );
+
+		if( type == Type.AREA ) {
+			text.setStyle( "-fx-pref-row-count: " + getSetting().getRows() );
+		}
 
 		nodes = List.of( label, text );
 

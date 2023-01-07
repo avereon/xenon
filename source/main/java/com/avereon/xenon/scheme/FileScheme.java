@@ -1,24 +1,24 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.*;
+import lombok.CustomLog;
 
 import java.io.*;
-import java.lang.System.Logger;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CustomLog
 public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
 
-	private static final Logger log = Log.get();
+	private static final String FILE = "file";
 
 	private List<Asset> roots;
 
@@ -67,16 +67,51 @@ public class FileScheme extends BaseScheme {
 	public void save( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 
-		File file = getFile( asset );
-		try( OutputStream stream = new FileOutputStream( file ) ) {
-			codec.save( asset, stream );
-		} catch( MalformedURLException exception ) {
-			throw new AssetException( asset, exception );
+		Path file = getFile( asset ).toPath();
+		Path temp = null;
+
+		try {
+			// Step one - move current file out of the way
+			Path tempFolder = Files.createDirectories( getProgram().getTempFolder() );
+			temp = Files.createTempFile( tempFolder, "asset.", null );
+			Files.deleteIfExists( temp );
+			Files.move( file, temp );
+
+			// Step two - save asset to file
+			try( OutputStream stream = new FileOutputStream( file.toFile() ) ) {
+				codec.save( asset, stream );
+				if( !Files.exists( file ) ) throw new IOException( "File lost: " + file );
+				asset.setLastSaved( System.currentTimeMillis() );
+			}
 		} catch( IOException exception ) {
+			if( temp != null ) {
+				try {
+					Files.move( temp, file );
+				} catch( IOException restoreException ) {
+					log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
+				}
+			}
 			throw new AssetException( asset, exception );
 		} finally {
-			asset.setLastSaved( System.currentTimeMillis() );
+			if( temp != null ) {
+				try {
+					Files.deleteIfExists( temp );
+				} catch( IOException cleanupException ) {
+					log.atWarn().withCause( cleanupException ).log( "Unable to cleanup temp file: " + temp );
+				}
+			}
 		}
+
+		// Step two - save asset to file
+		//		try( OutputStream stream = new FileOutputStream( file ) ) {
+		//			codec.save( asset, stream );
+		//			if( temp != null && temp.exists() && !temp.delete() ) log.atWarn().log( "Unable to cleanup temp file: " + temp );
+		//		} catch( Exception exception ) {
+		//			if( temp != null && temp.exists() && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
+		//			throw new AssetException( asset, exception );
+		//		} finally {
+		//			asset.setLastSaved( System.currentTimeMillis() );
+		//		}
 	}
 
 	@Override
@@ -100,24 +135,31 @@ public class FileScheme extends BaseScheme {
 	}
 
 	@Override
-	public void saveAs( Asset asset, Asset target ) throws AssetException {
-		// Change the URI.
-		asset.setUri( target.getUri() );
+	public void saveAs( Asset source, Asset target ) throws AssetException {
+		// NOTE This method should not modify the source asset
 
-		// Save the asset.
-		asset.getScheme().save( asset, asset.getCodec() );
+		// Set the target model to the same as the source
+		target.setModel( source.getModel() );
+
+		log.atConfig().log( "Saving %s to %s", source, target );
+
+		// Save the asset
+		try {
+			target.getScheme().save( target, target.getCodec() );
+		} catch( Throwable throwable ) {
+			throw new AssetException( source, throwable );
+		}
 	}
 
 	@Override
-	public boolean rename( Asset asset, Asset target ) throws AssetException {
-		// Change the URI.
-		asset.setUri( target.getUri() );
+	public boolean rename( Asset source, Asset target ) throws AssetException {
+		// NOTE This method should not modify the source asset
 
-		// Rename the file.
+		// Rename the file
 		try {
-			return getFile( asset ).renameTo( getFile( target ) );
-		} catch( Exception exception ) {
-			throw new AssetException( asset, exception );
+			return getFile( source ).renameTo( getFile( target ) );
+		} catch( Throwable throwable ) {
+			throw new AssetException( source, throwable );
 		}
 	}
 
@@ -151,7 +193,7 @@ public class FileScheme extends BaseScheme {
 			//			}
 		}
 
-		return new ArrayList<Asset>( roots );
+		return new ArrayList<>( roots );
 	}
 
 	@Override
@@ -189,7 +231,7 @@ public class FileScheme extends BaseScheme {
 			File file = getFile( asset );
 			return Files.probeContentType( file.toPath() );
 		} catch( IOException | AssetException exception ) {
-			log.log( Log.WARN, "Error determining media type for asset", exception );
+			log.atWarning().withCause( exception ).log( "Error determining media type for asset" );
 			return StandardMediaTypes.APPLICATION_OCTET_STREAM;
 		}
 	}
@@ -199,7 +241,8 @@ public class FileScheme extends BaseScheme {
 		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
 			return readFirstLine( input, asset.getEncoding() );
 		} catch( IOException | AssetException exception ) {
-			log.log( Log.WARN, "Error determining first line for asset", exception );
+			log.atWarning().log( "Error determining first line for asset" );
+			log.atTrace().withCause( exception ).log();
 			return TextUtil.EMPTY;
 		}
 	}
@@ -216,11 +259,11 @@ public class FileScheme extends BaseScheme {
 	 * Get the file.
 	 */
 	private File getFile( Asset asset ) throws AssetException {
-		File file = asset.getFile();
+		File file = asset.getValue( FILE );
 
 		if( file == null ) {
 			try {
-				asset.setFile( file = new File( asset.getUri() ).getCanonicalFile() );
+				asset.setValue( FILE, file = new File( asset.getUri() ).getCanonicalFile() );
 			} catch( IOException exception ) {
 				throw new AssetException( asset, exception );
 			}

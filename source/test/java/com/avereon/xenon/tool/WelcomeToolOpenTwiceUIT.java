@@ -4,29 +4,27 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 	}
 

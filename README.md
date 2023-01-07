@@ -19,13 +19,15 @@ The framework provides the following basic features:
 ### Product Roadmap
 
 #### Version 2.0
-| Release | Feature Goals | Status |
-|---|---|---:|
-|[1.5](https://github.com/avereon/xenon/milestone/7)| | Planning |
-|[1.4](https://github.com/avereon/xenon/milestone/6)|SVG Icons, [Cartesia Mod](https://github.com/avereon/carta)|In Progress|
-|[1.3](https://github.com/avereon/xenon/milestone/5)|Java 14, Java FX 14, flat icons, jpackage installers|03 Jul 2020|
-|[1.2](https://github.com/avereon/xenon/milestone/4)|Theme modification, more dark and light themes|03 May 2020|
-|[1.1](https://github.com/avereon/xenon/milestone/3)|Example Mod (Mazer)|22 Feb 2020|
+| Release | Feature Goals                                                                 | Status |
+|---|-------------------------------------------------------------------------------|---:|
+|[1.7](https://github.com/avereon/xenon/milestone/9)|                                                                               | Planning |
+|[1.6](https://github.com/avereon/xenon/milestone/8)| Java 17, Java FX 17, [Acorn Mod](https://github.com/avereon/acorn), bug fixes | In Progress |
+|[1.5](https://github.com/avereon/xenon/milestone/7)| Two-step save, asset reload, bug fixes                                        |09 Oct 2021|
+|[1.4](https://github.com/avereon/xenon/milestone/6)| SVG Icons, [Cartesia Mod](https://github.com/avereon/carta)                   |28 May 2021|
+|[1.3](https://github.com/avereon/xenon/milestone/5)| Java 14, Java FX 14, flat icons, jpackage installers                          |03 Jul 2020|
+|[1.2](https://github.com/avereon/xenon/milestone/4)| Theme modification, more dark and light themes                                |03 May 2020|
+|[1.1](https://github.com/avereon/xenon/milestone/3)| Example Mod (Mazer)                                                           |22 Feb 2020|
 
 #### Version 1.0
 | Release | Feature Goals | Status |

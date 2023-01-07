@@ -4,28 +4,31 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		Fx.waitForWithExceptions( TIMEOUT );
+		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 
-		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
+		Fx.waitForWithExceptions( TIMEOUT );
 		assertToolCount( pane, 1 );
 	}
 

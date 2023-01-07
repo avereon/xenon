@@ -2,7 +2,6 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.ProgramProduct;
@@ -13,7 +12,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -24,14 +23,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import lombok.CustomLog;
 
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@CustomLog
 public class TaskTool extends ProgramTool {
-
-	private static final System.Logger log = Log.get();
 
 	// The delay between progress checks ~ 1000ms / 120hz;
 	private static final long DELAY = 1000 / 120;

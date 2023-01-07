@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramWelcomeType extends AssetType {
 
-	private static final String uriPattern = "program:welcome";
+	private static final String uriPattern = "program:/welcome";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

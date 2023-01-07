@@ -1,9 +1,10 @@
 package com.avereon.xenon;
 
 import com.avereon.util.Parameters;
+import com.avereon.xenon.test.ProgramTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 
-public class ProgramTestCase extends BaseTestCase {
+public class ProgramTestCase extends BaseXenonTestCase {
 
 	protected Program program;
 

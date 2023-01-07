@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramGuideType extends AssetType {
 
-	private static final String uriPattern = "program:guide";
+	private static final String uriPattern = "program:/guide";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

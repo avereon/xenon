@@ -1,10 +1,10 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
+import lombok.CustomLog;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -12,14 +12,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.System.Logger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CustomLog
 public class SettingsPageParser {
-
-	private static final Logger log = Log.get();
 
 	private static final String PAGES = "pages";
 
@@ -28,8 +26,6 @@ public class SettingsPageParser {
 	private static final String GROUP = "group";
 
 	private static final String SETTING = "setting";
-
-	private static final String PROVIDER = "provider";
 
 	private static final String OPTION = "option";
 
@@ -43,21 +39,11 @@ public class SettingsPageParser {
 
 	private static final String KEY = "key";
 
-	private static final String RBKEY = "rbkey";
-
 	private static final String VALUE = "value";
 
 	private static final String ICON = "icon";
 
 	private static final String TITLE = "title";
-
-	private static final String EDITOR = "editor";
-
-	private static final String DISABLE = "disable";
-
-	//private static final String EDITABLE = "editable";
-
-	private static final String OPAQUE = "opaque";
 
 	private static final String PRODUCT_ICON = "product";
 
@@ -74,27 +60,27 @@ public class SettingsPageParser {
 	}
 
 	public static Map<String, SettingsPage> parse( ProgramProduct product, String path ) throws IOException {
-		return parse( product, path, BundleKey.SETTINGS );
+		return parse( product, path, RbKey.SETTINGS );
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String bundleKey ) throws IOException {
-		return new SettingsPageParser( product ).parse( path, bundleKey );
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String rbKey ) throws IOException {
+		return new SettingsPageParser( product ).parse( path, rbKey );
 	}
 
-	private Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
+	private Map<String, SettingsPage> parse( String path, String rbKey ) throws IOException {
 		InputStream input = product.getClass().getResourceAsStream( path );
-		if( input == null ) log.log( Log.WARN, "Settings page input stream is null: " + path );
-		return parse( input, bundleKey );
+		if( input == null ) log.atWarn().log( "Settings page input stream is null: %s", path );
+		return parse( input, rbKey );
 	}
 
-	private Map<String, SettingsPage> parse( InputStream input, String bundleKey ) throws IOException {
+	private Map<String, SettingsPage> parse( InputStream input, String rbKey ) throws IOException {
 		if( input == null ) return null;
 
 		Map<String, SettingsPage> pages = new HashMap<>();
 		XMLStreamReader reader;
 		try( input ) {
 			reader = xmlInputFactory.createXMLStreamReader( input );
-			parse( reader, bundleKey, pages );
+			parse( reader, rbKey, pages );
 			reader.close();
 		} catch( XMLStreamException exception ) {
 			throw new IOException( exception );
@@ -103,7 +89,7 @@ public class SettingsPageParser {
 		return pages;
 	}
 
-	private void parse( XMLStreamReader reader, String bundleKey, Map<String, SettingsPage> pages ) throws XMLStreamException {
+	private void parse( XMLStreamReader reader, String rbKey, Map<String, SettingsPage> pages ) throws XMLStreamException {
 		if( !reader.hasNext() ) return;
 
 		reader.next();
@@ -116,14 +102,14 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					SettingsPage page = parsePage( reader, bundleKey, null );
+					SettingsPage page = parsePage( reader, rbKey, null );
 					pages.put( page.getId(), page );
 				}
 			}
 		}
 	}
 
-	private SettingsPage parsePage( XMLStreamReader reader, String bundleKey, SettingsPage parent ) throws XMLStreamException {
+	private SettingsPage parsePage( XMLStreamReader reader, String rbKey, SettingsPage parent ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 		String id = attributes.get( ID );
@@ -139,14 +125,14 @@ public class SettingsPageParser {
 		}
 
 		// Special handling of empty titles
-		if( TextUtil.isEmpty( title ) ) title = Rb.textOr( product, bundleKey, id, id );
+		if( TextUtil.isEmpty( title ) ) title = Rb.textOr( product, rbKey, id, id );
 
 		SettingsPage page = new SettingsPage( parent );
 		page.setProduct( product );
 		page.setId( id );
 		page.setIcon( icon );
 		page.setTitle( title );
-		page.setBundleKey( bundleKey );
+		page.setRbKey( rbKey );
 
 		SettingGroup group = null;
 		while( reader.hasNext() ) {
@@ -156,16 +142,16 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					page.addPage( parsePage( reader, bundleKey, page ) );
+					page.addPage( parsePage( reader, rbKey, page ) );
 				} else if( GROUP.equals( tagName ) ) {
 					if( group != null ) {
 						page.addGroup( group );
 						group = null;
 					}
-					page.addGroup( parseGroup( reader, bundleKey, page ) );
+					page.addGroup( parseGroup( reader, rbKey, page ) );
 				} else if( SETTING.equals( tagName ) ) {
 					if( group == null ) group = new SettingGroup( page );
-					group.addSetting( parseSetting( reader, bundleKey, group ) );
+					group.addSetting( parseSetting( reader, rbKey, group ) );
 				}
 			}
 		}
@@ -175,7 +161,7 @@ public class SettingsPageParser {
 		return page;
 	}
 
-	private SettingGroup parseGroup( XMLStreamReader reader, String bundleKey, SettingsPage page ) throws XMLStreamException {
+	private SettingGroup parseGroup( XMLStreamReader reader, String rbKey, SettingsPage page ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -193,7 +179,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( SETTING.equals( tagName ) ) {
-					group.addSetting( parseSetting( reader, bundleKey, group ) );
+					group.addSetting( parseSetting( reader, rbKey, group ) );
 				} else if( DEPENDENCY.equals( tagName ) ) {
 					group.addDependency( parseDependency( reader ) );
 				}
@@ -203,7 +189,7 @@ public class SettingsPageParser {
 		return group;
 	}
 
-	private SettingData parseSetting( XMLStreamReader reader, String bundleKey, SettingGroup group ) throws XMLStreamException {
+	private SettingData parseSetting( XMLStreamReader reader, String rbKey, SettingGroup group ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -211,15 +197,14 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		// The setting key
 		String key = attributes.get( KEY );
-		//String rbkey = attributes.get( RBKEY );
-//		if( rbkey == null ) rbkey = key;
-//		if( rbkey == null ) rbkey = id;
-		String editor = attributes.get( EDITOR );
-		String disable = attributes.get( DISABLE );
+		String editor = attributes.get( SettingData.EDITOR );
+		String disable = attributes.get( SettingData.DISABLE );
 		if( disable == null ) disable = String.valueOf( false );
-		String opaque = attributes.get( OPAQUE );
+		String opaque = attributes.get( SettingData.OPAQUE );
 		if( opaque == null ) opaque = String.valueOf( false );
-		String provider = attributes.get( PROVIDER );
+		String rows = attributes.get( SettingData.ROWS );
+		if( rows == null ) rows = String.valueOf( 10 );
+		String provider = attributes.get( SettingData.PROVIDER );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingData setting = new SettingData( group );
@@ -228,6 +213,7 @@ public class SettingsPageParser {
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
+		setting.setRows( Integer.parseInt( rows ) );
 		setting.setProvider( provider );
 		setting.setFailDependencyAction( failDependencyAction );
 
@@ -238,7 +224,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( OPTION.equals( tagName ) ) {
-					setting.addOption( parseOption( reader, bundleKey, setting ) );
+					setting.addOption( parseOption( reader, rbKey, setting ) );
 				} else if( DEPENDENCY.equals( tagName ) ) {
 					setting.addDependency( parseDependency( reader ) );
 				}
@@ -248,7 +234,7 @@ public class SettingsPageParser {
 		return setting;
 	}
 
-	private SettingOption parseOption( XMLStreamReader reader, String bundleKey, SettingData setting ) throws XMLStreamException {
+	private SettingOption parseOption( XMLStreamReader reader, String rbKey, SettingData setting ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -270,8 +256,8 @@ public class SettingsPageParser {
 
 		// Determine the option name
 		String optionName = text;
-		String nameRbKey = toBundleKey( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = Rb.text( product, bundleKey, nameRbKey );
+		String nameRbKey = toRbKey( setting.getKey() ) + "-" + key;
+		if( optionName == null ) optionName = Rb.text( product, rbKey, nameRbKey );
 
 		// Determine the option value
 		String optionValue = attributes.get( VALUE );
@@ -314,7 +300,7 @@ public class SettingsPageParser {
 		return dependency;
 	}
 
-	private static String toBundleKey( String key ) {
+	private static String toRbKey( String key ) {
 		if( key == null ) return null;
 		if( key.startsWith( "/" ) ) key = key.substring( 1 );
 		return key.replace( '/', '-' );
@@ -329,9 +315,5 @@ public class SettingsPageParser {
 		}
 		return attributes;
 	}
-
-	//	private void printTag() {
-	//		Log.write( "Tag: " + reader.getEventType() + " > " + reader.getLocalName() );
-	//	}
 
 }

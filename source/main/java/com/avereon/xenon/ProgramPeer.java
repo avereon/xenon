@@ -1,27 +1,26 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Controllable;
-import com.avereon.util.Log;
+import com.avereon.log.LazyEval;
+import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.System.Logger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
+@CustomLog
 public class ProgramPeer implements Controllable<ProgramPeer> {
 
-	private static final Logger log = Log.get();
+	private final Program program;
 
-	private Program program;
-
-	private int port;
+	private final int port;
 
 	private Socket socket;
 
@@ -33,10 +32,10 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 	@Override
 	public ProgramPeer start() {
 		// Running as a peer
-		if( log.isLoggable( Log.DEBUG ) ) {
-			log.log( Log.DEBUG,  "Program already running on port {0}", port );
+		if( log.atFine().isEnabled() ) {
+			log.atFine().log( "Program already running on port %s", port );
 		} else {
-			log.log( Log.INFO,  "Program already running" );
+			log.atInfo().log( "Program already running" );
 		}
 
 		try {
@@ -44,7 +43,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 			sendCommands( socket );
 			readMessages( socket );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR,  "Error reading commands to program", exception );
+			log.atSevere().withCause( exception ).log( "Error reading commands to program" );
 		}
 		return this;
 	}
@@ -59,7 +58,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 		try {
 			socket.close();
 		} catch( IOException exception ) {
-			log.log( Log.WARN,  "Error closing peer socket", exception );
+			log.atWarning().withCause( exception ).log( "Error closing peer socket" );
 		}
 
 		return this;
@@ -69,12 +68,12 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 		try {
 			List<String> commandList = program.getProgramParameters().getOriginalCommands();
 			String[] commands = commandList.toArray( new String[ 0 ] );
-			log.log( Log.INFO,  TextUtil.toString( commands, " " ) );
+			log.atInfo().log( "%s", LazyEval.of( () -> TextUtil.toString( commands, " " ) ) );
 			ObjectOutputStream commandStream = new ObjectOutputStream( socket.getOutputStream() );
 			commandStream.writeObject( commands );
 			commandStream.flush();
 		} catch( IOException exception ) {
-			log.log( Log.ERROR,  "Error sending commands to host", exception );
+			log.atSevere().withCause( exception ).log( "Error sending commands to host" );
 		}
 	}
 
@@ -87,9 +86,9 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 			}
 			socket.close();
 		} catch( IOException exception ) {
-			log.log( Log.DEBUG,  "Host is done sending messages" );
+			log.atFine().log( "Host is done sending messages" );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error reading commands from host", exception );
+			log.atSevere().withCause( exception ).log( "Error reading commands from host" );
 		}
 	}
 
@@ -98,9 +97,10 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 		Object object = objectInput.readObject();
 		if( object == null ) return;
 		if( object instanceof LogRecord ) {
+			// NOTE This goes around the logging API to get to the logging implementation
 			LogManager.getLogManager().getLogger( "" ).log( (LogRecord)object );
 		} else {
-			log.log( Log.INFO,  String.valueOf( object ) );
+			log.atInfo().log( "%s", object );
 		}
 	}
 
@@ -111,7 +111,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 			if( object instanceof LogRecord ) {
 				LogManager.getLogManager().getLogger( "" ).log( (LogRecord)object );
 			} else {
-				log.log( Log.INFO, String.valueOf( object ) );
+				log.atInfo().log( "%s", object );
 			}
 		}
 	}

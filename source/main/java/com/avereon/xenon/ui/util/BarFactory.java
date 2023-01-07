@@ -34,7 +34,7 @@ public abstract class BarFactory {
 	 * @param descriptor The bar descriptor
 	 * @return The bar tokens
 	 */
-	static List<Token> parseDescriptor( String descriptor ) {
+	public static List<Token> parseDescriptor( String descriptor ) {
 		List<String> sTokens = StreamSupport
 			.stream( Spliterators.spliteratorUnknownSize( new StringTokenizer( descriptor, DELIMITERS, true ).asIterator(), Spliterator.ORDERED ), false )
 			.map( String::valueOf )
@@ -73,7 +73,7 @@ public abstract class BarFactory {
 		return token;
 	}
 
-	protected static class Token {
+	public static class Token {
 
 		private final String id;
 

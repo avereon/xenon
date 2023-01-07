@@ -1,15 +1,14 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Log;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
+import lombok.CustomLog;
 
+@CustomLog
 public class ProgramTaskManager extends TaskManager {
 
-	private static final System.Logger log = Log.get();
-
-	private Program program;
+	private final Program program;
 
 	public ProgramTaskManager( Program program ) {
 		this.program = program;
@@ -41,7 +40,7 @@ public class ProgramTaskManager extends TaskManager {
 	@Override
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
 		if( getProgram() == null ) return;
-		log.log( Log.ERROR, throwable );
+		log.atSevere().withCause( throwable ).log();
 	}
 
 }

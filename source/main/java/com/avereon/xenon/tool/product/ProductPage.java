@@ -2,12 +2,12 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.zerra.javafx.Fx;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -37,10 +37,10 @@ abstract class ProductPage extends ProductToolPage {
 		this.program = program;
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
-		setTitle( Rb.text( BundleKey.TOOL, "product-" + productType ) );
+		setTitle( Rb.text( RbKey.TOOL, "product-" + productType ) );
 
-		this.refreshMessage = Rb.text( BundleKey.TOOL, "product-" + productType + "-refresh" );
-		this.missingMessage = Rb.text( BundleKey.TOOL, "product-" + productType + "-missing" );
+		this.refreshMessage = Rb.text( RbKey.TOOL, "product-" + productType + "-refresh" );
+		this.missingMessage = Rb.text( RbKey.TOOL, "product-" + productType + "-missing" );
 
 		message = new Label();
 		message.setPrefWidth( Double.MAX_VALUE );
