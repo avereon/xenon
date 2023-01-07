@@ -22,6 +22,8 @@ public abstract class ProgramAction implements EventHandler<ActionEvent> {
 
 	public static final String DESCRIPTION_SUFFIX = ".description";
 
+	public static final String TAGS_SUFFIX = ".tags";
+
 	private static final ActionProxy NONE = new ActionProxy();
 
 	private final Program program;

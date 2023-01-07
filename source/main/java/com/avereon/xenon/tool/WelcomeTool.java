@@ -37,12 +37,12 @@ public class WelcomeTool extends ProgramTool {
 		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
 		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
 
-		String documentButtonTitle = Rb.text( BundleKey.LABEL, "documentation" );
-		String documentButtonDescription = Rb.text( BundleKey.LABEL, "documentation-desc" );
-		String documentButtonUrl = Rb.text( BundleKey.LABEL, "documentation-url" );
-		String modsButtonTitle = Rb.text( BundleKey.LABEL, "mods" );
-		String modsButtonDescription = Rb.text( BundleKey.LABEL, "mods-desc" );
-		String modsButtonUrl = Rb.text( BundleKey.LABEL, "mods-url" );
+		String documentButtonTitle = Rb.text( RbKey.LABEL, "documentation" );
+		String documentButtonDescription = Rb.text( RbKey.LABEL, "documentation-desc" );
+		String documentButtonUrl = Rb.text( RbKey.LABEL, "documentation-url" );
+		String modsButtonTitle = Rb.text( RbKey.LABEL, "mods" );
+		String modsButtonDescription = Rb.text( RbKey.LABEL, "mods-desc" );
+		String modsButtonUrl = Rb.text( RbKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -75,7 +75,7 @@ public class WelcomeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( Rb.text( BundleKey.TOOL, "welcome-name" ) );
+		setTitle( Rb.text( RbKey.TOOL, "welcome-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 

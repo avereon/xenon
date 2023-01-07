@@ -217,4 +217,8 @@ public interface Scheme {
 		return getName().equals( asset.getUri().getScheme() );
 	}
 
+	default boolean isPersistentConnection() {
+		return false;
+	}
+
 }

@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AboutToolGetRequiredAssetsUIT extends AboutToolUIT {
 
@@ -19,7 +18,7 @@ class AboutToolGetRequiredAssetsUIT extends AboutToolUIT {
 		Asset asset = new Asset( ProgramAboutType.URI );
 		AboutTool tool = new AboutTool( getProgram(), asset );
 		Set<URI> assets = tool.getAssetDependencies();
-		assertThat( assets, containsInAnyOrder( ProgramGuideType.URI ) );
+		assertThat( assets ).contains( ProgramGuideType.URI );
 	}
 
 }

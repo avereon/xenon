@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import lombok.CustomLog;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,6 +62,7 @@ public class ActionLibrary {
 
 		register( product, "help" );
 		register( product, "help-content" );
+		register( product, "search" );
 		register( product, "welcome" );
 		register( product, "notice" );
 		register( product, "product" );
@@ -118,13 +120,18 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.ICON_SUFFIX, "" );
-		String name = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.NAME_SUFFIX, id );
-		String type = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.TYPE_SUFFIX, null );
-		String mnemonic = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.MNEMONIC_SUFFIX, null );
-		String shortcut = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.SHORTCUT_SUFFIX, null );
-		String command = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.COMMAND_SUFFIX, null );
-		String description = Rb.textOr( product, BundleKey.ACTION, id + ProgramAction.DESCRIPTION_SUFFIX, null );
+		String icon = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.ICON_SUFFIX, "" );
+		String name = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.NAME_SUFFIX, id );
+		String type = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.TYPE_SUFFIX, null );
+		String mnemonic = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.MNEMONIC_SUFFIX, null );
+		String shortcut = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.SHORTCUT_SUFFIX, null );
+		String command = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.COMMAND_SUFFIX, null );
+		String description = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.DESCRIPTION_SUFFIX, null );
+		String[] tags = Rb.textOr( product, RbKey.ACTION, id + ProgramAction.TAGS_SUFFIX, "" ).split( "," );
+
+		for( int index = 0; index < tags.length; index++ ) {
+			tags[index] = tags[index].trim().toLowerCase();
+		}
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
@@ -133,7 +140,8 @@ public class ActionLibrary {
 		proxy.setMnemonic( mnemonic );
 		proxy.setShortcut( shortcut );
 		proxy.setCommand( command );
-		if( command != null ) proxy.setName( name + " (" + command + ")" );
+		proxy.setTags( Arrays.asList( tags ) );
+		//if( command != null ) proxy.setName( "[" + command + "] " + name );
 		proxy.setDescription( description );
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
 
@@ -161,10 +169,10 @@ public class ActionLibrary {
 	}
 
 	private void addStates( Product product, String id, ActionProxy proxy ) {
-		String[] states = Rb.textOr( product, BundleKey.ACTION, id + ".states", "" ).split( "," );
+		String[] states = Rb.textOr( product, RbKey.ACTION, id + ".states", "" ).split( "," );
 		for( String state : states ) {
-			String stateName = Rb.textOr( product, BundleKey.ACTION, id + "." + state + ".name", "" );
-			String stateIcon = Rb.textOr( product, BundleKey.ACTION, id + "." + state + ".icon", "" );
+			String stateName = Rb.textOr( product, RbKey.ACTION, id + "." + state + ".name", "" );
+			String stateIcon = Rb.textOr( product, RbKey.ACTION, id + "." + state + ".icon", "" );
 			proxy.addState( state, stateName, stateIcon );
 		}
 	}

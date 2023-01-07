@@ -1,29 +1,34 @@
+/*
+Derived from modena.css
+ */
 .root {
-    -ex-background-text: rgba(236, 236, 236, 0.2);
-    -ex-background-tabs: rgba(236, 236, 236, 0.4);
-    -ex-background-tags: rgba(236, 236, 236, 0.6);
-    -ex-background-note: rgba(236, 236, 236, 0.8);
+	-ex-background-text: rgba(236, 236, 236, 0.2);
+	-ex-background-tabs: rgba(236, 236, 236, 0.4);
+	-ex-background-tags: rgba(236, 236, 236, 0.6);
+	-ex-background-note: rgba(236, 236, 236, 0.8);
 
-    -ex-workspace-tint-color: #c0c0c040;
-    -ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
+	-ex-background-subdue: rgba(20, 20, 20, 0.6);
 
-    -ex-background-error: CHART_COLOR_7_TRANS_20;
+	-ex-workspace-tint-color: #c0c0c040;
+	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 
-    -status-monitor-background: ladder(-fx-color, derive(-fx-color, 10%) 50%, derive(-fx-color, -10%) 50%);
-    -status-monitor-primary: ladder(-fx-color, derive(-status-monitor-background, 20%) 50%, derive(-fx-color, -20%) 50%);
-    -status-monitor-secondary: ladder(#505050, -status-monitor-primary 0%, -fx-accent 100%);
+	-ex-background-error: CHART_COLOR_7_TRANS_20;
+
+	-status-monitor-background: ladder(-fx-color, derive(-fx-color, 10%) 50%, derive(-fx-color, -10%) 50%);
+	-status-monitor-primary: ladder(-fx-color, derive(-status-monitor-background, 20%) 50%, derive(-fx-color, -20%) 50%);
+	-status-monitor-secondary: ladder(#505050, -status-monitor-primary 0%, -fx-accent 100%);
 }
 
 .debug {
-    -fx-background-color: #80800080;
+	-fx-background-color: #80800080;
 }
 
 .prompt {
-    -fx-padding: 0 1mm 0 0;
+	-fx-padding: 0 0.5em 0 0;
 }
 
 .padded {
-    -fx-padding: 1.5mm;
+	-fx-padding: 0.5em;
 }
 
 /*******************************************************************************
@@ -31,103 +36,103 @@
  ******************************************************************************/
 .scroll-bar > .increment-button > .increment-arrow,
 .scroll-bar > .decrement-button > .decrement-arrow {
-    -fx-background-color: -fx-mark-highlight-color, ladder(
-            -fx-base,
-            derive(-fx-base, 45%) 50%,
-            derive(-fx-base, -45%) 50%
-    );
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 45%) 50%,
+		derive(-fx-base, -45%) 50%
+	);
 }
 
 .scroll-bar > .increment-button:hover > .increment-arrow,
 .scroll-bar > .decrement-button:hover > .decrement-arrow {
-    -fx-background-color: -fx-mark-highlight-color, ladder(
-            -fx-base,
-            derive(-fx-base, 50%) 50%,
-            derive(-fx-base, -50%) 50%
-    );
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 50%) 50%,
+		derive(-fx-base, -50%) 50%
+	);
 }
 
 .scroll-bar > .increment-button:pressed > .increment-arrow,
 .scroll-bar > .decrement-button:pressed > .decrement-arrow {
-    -fx-background-color: -fx-mark-highlight-color, ladder(
-            -fx-base,
-            derive(-fx-base, 55%) 50%,
-            derive(-fx-base, -55%) 50%
-    );
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 55%) 50%,
+		derive(-fx-base, -55%) 50%
+	);
 }
 
 .text-input {
-    -fx-prompt-text-fill: ladder(
-            -fx-base,
-            derive(-fx-control-inner-background, 50%) 50%,
-            derive(-fx-control-inner-background, -30%) 50%
-    );
+	-fx-prompt-text-fill: ladder(
+		-fx-base,
+		derive(-fx-control-inner-background, 50%) 50%,
+		derive(-fx-control-inner-background, -30%) 50%
+	);
 }
 
 /* Keep prompt invisible when focused (above color fix overrides it) */
 .text-input:focused {
-    -fx-prompt-text-fill: transparent;
+	-fx-prompt-text-fill: transparent;
 }
 
 .tree-cell > .tree-disclosure-node > .arrow,
 .tree-table-row-cell > .tree-disclosure-node > .arrow {
-    -fx-padding: 0.3em 0.3em 0.3em 0.05em;
-    -fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
+	-fx-padding: 0.3em 0.3em 0.3em 0.05em;
+	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
 }
 
 /*******************************************************************************
  * Icons
  ******************************************************************************/
 .xe-icon {
-    -fx-stroke: -fx-text-base-color;
-    -fx-primary: -fx-accent;
+	-fx-stroke: -fx-text-base-color;
+	-fx-primary: -fx-accent;
 }
 
 .menu-item:hover .xe-icon, .menu-item:focused .xe-icon {
-    -fx-stroke: -fx-focused-text-base-color;
+	-fx-stroke: -fx-focused-text-base-color;
 }
 
 /*******************************************************************************
  * Splash Screen
  ******************************************************************************/
 .splashscreen {
-    /*-fx-background-color: linear-gradient(to bottom, rgb(48, 48, 48), rgb(53, 146, 196));*/
-    /*-fx-background-color:  linear-gradient( to bottom, #202038, #9c809c );*/
-    -fx-background-color: rgb(96, 96, 96);
+	/*-fx-background-color: linear-gradient(to bottom, rgb(48, 48, 48), rgb(53, 146, 196));*/
+	/*-fx-background-color:  linear-gradient( to bottom, #202038, #9c809c );*/
+	-fx-background-color: rgb(96, 96, 96);
 }
 
 .splashscreen .tint {
-    -fx-fill: rgb(32, 32, 32);
-    -fx-opacity: 0.7;
+	-fx-fill: rgb(32, 32, 32);
+	-fx-opacity: 0.7;
 }
 
 .splashscreen .title {
-    -fx-fill: #c0c0c0;
+	-fx-fill: #c0c0c0;
 }
 
 .splashscreen .accent {
-    -fx-fill: -fx-accent;
-    -fx-opacity: 0.4;
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.4;
 }
 
 .splashscreen .progress {
-    -fx-arc-height: 10;
-    -fx-arc-width: 5;
+	-fx-arc-height: 10;
+	-fx-arc-width: 5;
 }
 
 .splashscreen .progress-tray {
-    -fx-fill: gray;
-    -fx-opacity: 0.2;
+	-fx-fill: gray;
+	-fx-opacity: 0.2;
 }
 
 .splashscreen .progress-incomplete {
-    -fx-fill: -fx-accent;
-    -fx-opacity: 0.4;
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.4;
 }
 
 .splashscreen .progress-complete {
-    -fx-fill: -fx-accent;
-    -fx-opacity: 0.8;
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.8;
 }
 
 /*******************************************************************************
@@ -135,15 +140,15 @@
  ******************************************************************************/
 /* Not sure why the class selector does not work but the id selector does */
 #menu-development {
-    -fx-background-color: #ffff0030;
+	-fx-background-color: #ffff0030;
 }
 
 #menu-development > .label {
-    -fx-text-fill: -fx-text-background-color;
+	-fx-text-fill: -fx-text-background-color;
 }
 
 #menu-development:hover {
-    -fx-background-color: #ffff0040;
+	-fx-background-color: #ffff0040;
 }
 
 /*#menu-development:hover > .label {*/
@@ -154,123 +159,134 @@
  * Workspace
  ******************************************************************************/
 .workspace {
-    /* Will override the user preference background */
-    /*-fx-background-color: #80a0c0ff;*/
+	/* Will override the user preference background */
+	/*-fx-background-color: #80a0c0ff;*/
 }
 
 .workspace-tint {
-    -fx-background-color: -ex-workspace-tint-color;
+	-fx-background-color: -ex-workspace-tint-color;
+}
+
+.workspace-search {
+	-fx-pref-width: 15em;
 }
 
 /*******************************************************************************
  * Workarea
  ******************************************************************************/
 .workarea-menu-bar {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-    -fx-border: none;
+	-fx-background-color: transparent;
+	-fx-padding: 0;
+	-fx-border: none;
+}
+
+/*******************************************************************************
+ * Workpane List View
+ ******************************************************************************/
+.workpane .list-view {
+	-fx-background-color: transparent;
 }
 
 /*******************************************************************************
  * Workpane Scroll Pane
  ******************************************************************************/
 .workpane .scroll-pane {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .workpane .scroll-pane .viewport {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 /*******************************************************************************
  * Workpane Table View
  ******************************************************************************/
 .workpane .table-view {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .workpane .table-row-cell {
-    /* This sets the variable -fx-background */
-    -fx-background: -ex-background-text;
-    -fx-background-color: -fx-background;
-    -fx-padding: 0;
-    -fx-text-fill: -fx-text-background-color;
+	/* This sets the variable -fx-background */
+	-fx-background: -ex-background-text;
+	-fx-background-color: -fx-background;
+	-fx-padding: 0;
+	-fx-text-fill: -fx-text-background-color;
 }
 
 .workpane .table-row-cell:odd {
-    -fx-background: -ex-background-tags;
+	-fx-background: -ex-background-tags;
 }
 
 .workpane .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
-    -fx-background: -fx-selection-bar;
-    -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
 }
 
 .workpane .table-row-cell:filled:selected {
-    -fx-background: -fx-selection-bar-non-focused;
-    -fx-table-cell-border-color: derive(-fx-selection-bar-non-focused, 20%);
+	-fx-background: -fx-selection-bar-non-focused;
+	-fx-table-cell-border-color: derive(-fx-selection-bar-non-focused, 20%);
 }
 
 /*******************************************************************************
  * Workpane
  ******************************************************************************/
 .workpane {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .workpane-view {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .workpane-edge {
-    -fx-focus-traversable: false;
-    -fx-background-color: -ex-background-tabs
+	-fx-focus-traversable: false;
+	-fx-background-color: -ex-background-tabs
 }
 
 .workpane-edge:horizontal {
-    -fx-cursor: v-resize;
+	-fx-cursor: v-resize;
 }
 
 .workpane-edge:vertical {
-    -fx-cursor: h-resize;
+	-fx-cursor: h-resize;
 }
 
 .workpane .content {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .workpane .tab-pane .tab-header-background {
-    -fx-background-color: -ex-background-tabs
+	-fx-background-color: -ex-background-tabs
 }
 
 /*******************************************************************************
  * Tool
  ******************************************************************************/
 .tool {
-    -fx-background-color: -ex-background-text
+	-fx-background-color: -ex-background-text
 }
 
 .tool .tree-view {
-    /*-fx-background-color: -ex-background-text;*/
-    -fx-background-color: transparent;
+	/*-fx-background-color: -ex-background-text;*/
+	-fx-background-color: transparent;
 }
 
 .tool .tree-cell {
-    -fx-indent: 1em;
-    -fx-background-color: transparent;
-}
-
-.tool .tree-view:focused .tree-cell:filled:selected {
-    -fx-background: -fx-selection-bar;
-    -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+	-fx-indent: 1em;
+	-fx-background-color: transparent;
 }
 
 .tool .tree-cell:filled:selected {
-    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+}
+
+.tool .tree-view:focused .tree-cell:filled:selected {
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
 }
 
 .tool .tree-view:focused .tree-cell:focused {
-    -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
 /*
@@ -286,130 +302,175 @@
 */
 
 .accent {
-    -fx-fill: -fx-background;
-    -fx-opacity: 0.3;
+	-fx-fill: -fx-background;
+	-fx-opacity: 0.3;
 }
 
 /*******************************************************************************
  * Status Bar
  ******************************************************************************/
 .status-bar {
-    -fx-padding: 1mm 1mm 1mm 1mm;
-    -fx-font-weight: normal;
+	-fx-padding: 0.5em 0.5em 0.5em 0.5em;
+	-fx-font-weight: normal;
 }
 
 .status-bar > .box {
-    -fx-spacing: 1mm;
+	-fx-spacing: 0.5em;
 }
 
 .status-bar .label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 .status-bar .text-field {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+/*******************************************************************************
+ * Flyout
+ ******************************************************************************/
+.flyout {
+	-fx-pref-width: 20em;
+	/*-fx-background-color: -ex-background-subdue;*/
+	-fx-background-color: transparent;
+	/*-fx-background-radius: 0.5em 0 0 0.5em;*/
+	/*-fx-background-insets: 0.5em 0 0.5em 0.5em;*/
+	/*-fx-padding: 0.5em;*/
+}
+
+/*******************************************************************************
+ * Search Hit
+ ******************************************************************************/
+.hit {
+	-fx-background-color: -ex-background-note;
+	-fx-background-insets: 0.5em;
+	-fx-padding: 1em;
+}
+
+.hit-flyout {
+	-fx-background-color: -ex-background-note;
+	-fx-background-radius: 0.5em 0 0 0.5em;
+	-fx-background-insets: 0.5em 0 0.5em 0.5em;
+	-fx-padding: 1em;
+}
+
+.hit-title {
+	-fx-font-weight: bold;
+}
+
+.hit-message {
+	-fx-font-weight: normal;
 }
 
 /*******************************************************************************
  * Notice
  ******************************************************************************/
 .notice {
-    -fx-background-color: -ex-background-text;
-    -fx-background-insets: 1.5mm;
-    -fx-padding: 3mm;
+	-fx-background-color: -ex-background-note;
+	-fx-background-insets: 0.5em;
+	-fx-padding: 1em;
 }
 
 .notice-flyout {
-    -fx-background-color: -ex-background-note;
-    -fx-pref-width: 6cm;
-    -fx-background-radius: 1.5mm 0 0 1.5mm;
-    -fx-background-insets: 1.5mm 0 1.5mm 1.5mm;
-    -fx-padding: 3mm;
+	-fx-background-color: -ex-background-note;
+	-fx-background-radius: 0.5em 0 0 0.5em;
+	-fx-background-insets: 0.5em 0 0.5em 0.5em;
+	-fx-padding: 1em;
 }
 
 .notice-title {
-    -fx-font-weight: bold;
+	-fx-font-weight: bold;
 }
 
 .notice-message {
-    -fx-font-weight: normal;
+	-fx-font-weight: normal;
 }
 
 /*******************************************************************************
  * Paint Picker
  ******************************************************************************/
 .paint-swatch {
-    -fx-stroke: -fx-box-border;
-    -fx-min-width: 1em;
-    -fx-min-height: 1em;
-    -fx-pref-width: 1em;
-    -fx-pref-height: 1em;
-    -fx-max-width: 1em;
-    -fx-max-height: 1em;
-    -fx-border-color: -fx-box-border;
-    -fx-border-width: 1px;
+	-fx-stroke: -fx-box-border;
+	-fx-min-width: 1em;
+	-fx-min-height: 1em;
+	-fx-pref-width: 1em;
+	-fx-pref-height: 1em;
+	-fx-max-width: 1em;
+	-fx-max-height: 1em;
+	-fx-border-color: -fx-box-border;
+	-fx-border-width: 1px;
 }
 
 .paint-picker {
-    -fx-alignment: BASELINE_LEFT;
+	-fx-alignment: BASELINE_LEFT;
 }
 
 .paint-picker-pane {
-    -fx-spacing: 0.5em;
+	-fx-spacing: 0.5em;
 }
 
 .paint-picker-pane .paint-swatch {
-    -fx-min-width: 1.5em;
-    -fx-min-height: 1.5em;
-    -fx-pref-width: 1.5em;
-    -fx-pref-height: 1.5em;
-    -fx-max-width: 1.5em;
-    -fx-max-height: 1.5em;
-    -fx-border-width: 1px;
+	-fx-min-width: 1.5em;
+	-fx-min-height: 1.5em;
+	-fx-pref-width: 1.5em;
+	-fx-pref-height: 1.5em;
+	-fx-max-width: 1.5em;
+	-fx-max-height: 1.5em;
+	-fx-border-width: 1px;
 }
 
 .paint-picker-pane .paint-swatch:hover {
-    -fx-background-color: -fx-faint-focus-color, white;
-    -fx-background-insets: -3, -1;
-    -fx-background-radius: 2, 0;
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
-    -fx-border-color: -fx-focus-color;
-    -fx-border-insets: -1, -1;
+	-fx-background-color: -fx-faint-focus-color, white;
+	-fx-background-insets: -3, -1;
+	-fx-background-radius: 2, 0;
+	-fx-scale-x: 1.1;
+	-fx-scale-y: 1.1;
+	-fx-border-color: -fx-focus-color;
+	-fx-border-insets: -1, -1;
 }
 
 /*******************************************************************************
  * Memory Monitor
  ******************************************************************************/
 .memory-monitor {
-    -fx-background-color: -status-monitor-background;
+	-fx-background-color: -status-monitor-background;
 }
 
 .memory-monitor-allocated {
-    -fx-fill: -status-monitor-primary;
+	-fx-fill: -status-monitor-primary;
 }
 
 .memory-monitor-used {
-    -fx-fill: -fx-accent;
-    /*-fx-fill: ladder(*/
-    /*	-fx-color,*/
-    /*	derive(-fx-color, 50%) 50%,*/
-    /*	derive(-fx-color, -30%) 50%*/
-    /*);*/
+	-fx-fill: -fx-accent;
+	/*-fx-fill: ladder(*/
+	/*	-fx-color,*/
+	/*	derive(-fx-color, 50%) 50%,*/
+	/*	derive(-fx-color, -30%) 50%*/
+	/*);*/
 }
 
 .memory-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
  * Settings
  ******************************************************************************/
 .settings-infoarea {
-    -fx-wrap-text: true
+	-fx-wrap-text: true
 }
+
 .settings-infoline {
-    -fx-wrap-text: false
+	-fx-wrap-text: false
+}
+
+/*******************************************************************************
+ * Toolbar Tray
+ ******************************************************************************/
+.toolbar-tray-popup {
+}
+
+.toolbar-tray {
 }
 
 /*******************************************************************************
@@ -425,244 +486,288 @@
  * Task Monitor
  ******************************************************************************/
 .task-monitor {
-    -fx-background-color: -status-monitor-background;
+	-fx-background-color: -status-monitor-background;
 }
 
 .task-monitor-threads {
-    -fx-fill: -status-monitor-primary;
+	-fx-fill: -status-monitor-primary;
 }
 
 .task-monitor-tasks {
-    -fx-fill: -status-monitor-secondary;
+	-fx-fill: -status-monitor-secondary;
 }
 
 .task-monitor-progress {
-    -fx-fill: -fx-accent;
+	-fx-fill: -fx-accent;
 }
 
 .task-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
  * FPS Monitor
  ******************************************************************************/
 .fps-monitor {
-    -fx-background-color: -status-monitor-background;
+	-fx-background-color: -status-monitor-background;
 }
 
 .fps-monitor-label {
-    -fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
 /*******************************************************************************
  * About Tool
  ******************************************************************************/
 #tool-about .text-area {
-    -fx-background-color: transparent;
-}
-
-#tool-about .label {
-    -fx-padding: -0.25em;
+	-fx-background-color: transparent;
 }
 
 #tool-about .tool-about-title {
-    -fx-font-size: 5em;
+	-fx-font-size: 5em;
 }
 
 #tool-about .tool-about-header {
-    -fx-font-size: 2em;
+	-fx-font-size: 2em;
 }
 
 #tool-about .tool-about-name {
-    -fx-font-size: 1em;
+	-fx-font-size: 1em;
 }
 
 #tool-about .tool-about-provider {
-    -fx-font-size: 1em;
+	-fx-font-size: 1em;
 }
 
 #tool-about .tool-about-version {
-    -fx-font-size: 1em;
+	-fx-font-size: 1em;
 }
 
 #tool-about-details {
-    -fx-font: 1em monospaced;
+	-fx-font: 1em monospaced;
 }
 
 #tool-about-mods {
-    -fx-font: 1em monospaced;
+	-fx-font: 1em monospaced;
 }
 
 /*******************************************************************************
  * New Asset Tool
  ******************************************************************************/
 #tool-asset-new .asset-type-tile {
-    -fx-min-width: 250px;
-    -fx-min-height: 200px;
-    -fx-max-width: 250px;
-    -fx-max-height: 200px;
-    -fx-background-color: -ex-background-text;
-    -fx-background-insets: 10px;
+	-fx-min-width: 250px;
+	-fx-min-height: 200px;
+	-fx-max-width: 250px;
+	-fx-max-height: 200px;
+	-fx-background-color: -ex-background-text;
+	-fx-background-insets: 10px;
 
-    -fx-border-color: -ex-background-tabs;
-    -fx-border-style: solid;
-    -fx-border-insets: 5px;
-    -fx-border-width: 5px;
+	-fx-border-color: -ex-background-tabs;
+	-fx-border-style: solid;
+	-fx-border-insets: 5px;
+	-fx-border-width: 5px;
 }
 
 #tool-asset #user-notice {
-    -fx-background-color: -ex-background-error;
+	-fx-background-color: -ex-background-error;
 }
 
 /*******************************************************************************
  * Fault Tool
  ******************************************************************************/
 #tool-fault .text-area {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 #tool-fault-text {
-    -fx-font: 1em monospaced;
+	-fx-font: 1em monospaced;
+}
+
+/*******************************************************************************
+ * Fault Tool
+ ******************************************************************************/
+#tool-guide {
+}
+
+/*******************************************************************************
+ * Index Search Tool
+ ******************************************************************************/
+/*#tool-search {*/
+/*    -fx-spacing: 1em;*/
+/*    -fx-padding: 1em;*/
+/*}*/
+
+#tool-search VBox {
+	-fx-spacing: 0.5em;
+	-fx-padding: 0.5em 0 0 0;
+}
+
+#tool-search .list-view {
+	-fx-background-color: transparent;
+}
+
+#tool-search .list-cell {
+	-fx-indent: 1em;
+	-fx-background-color: transparent;
+}
+
+#tool-search .list-cell:filled:selected {
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+}
+
+#tool-search .list-view:focused .list-cell:filled:selected {
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+
+#tool-search .list-view:focused .list-cell:focused {
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
 /*******************************************************************************
  * Product Tool
  ******************************************************************************/
 #tool-product-page-header {
-    -fx-background-insets: 0 0 1mm 0;
-    -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm 1mm 2mm 1mm;
+	-fx-background-insets: 0 0 0.5em 0;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em 0.5em 1em 0.5em;
 }
 
 #tool-product-page-title {
-    -fx-font-size: 2em;
+	-fx-font-size: 2em;
 }
 
 #tool-product-page-header-buttons {
-    -fx-spacing: 1mm;
+	-fx-spacing: 0.5em;
 }
 
 #tool-product-artifact {
-    -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em;
 }
 
 #tool-product-artifact-name {
-    -fx-font-weight: bold;
+	-fx-font-weight: bold;
 }
 
 #tool-product-market {
-    -fx-background-color: -ex-background-text;
-    -fx-padding: 1mm;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em;
 }
 
 #tool-product-market-name {
-    -fx-font-weight: bold;
+	-fx-font-weight: bold;
 }
 
 #tool-product-page-footer {
-    -fx-background-insets: 1mm 0 0 0;
-    -fx-background-color: -ex-background-text;
-    -fx-padding: 2mm 1mm 1mm 1mm;
+	-fx-background-insets: 0.5em 0 0 0;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 1em 0.5em 0.5em 0.5em;
 }
 
 .tool-product-message {
-    -fx-background-color: -ex-background-text;
-    -fx-padding: 5mm;
-    -fx-alignment: center;
-    -fx-font-size: 2em;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 2em;
+	-fx-alignment: center;
+	-fx-font-size: 2em;
 }
 
 /*******************************************************************************
  * Welcome Tool
  ******************************************************************************/
 #tool-welcome {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 #tool-welcome .tool-welcome-title {
-    -fx-font-size: 5em;
+	-fx-font-size: 5em;
 }
 
 #tool-welcome .buttons {
-    -fx-padding: 3em;
-    -fx-hgap: 3em;
-    -fx-vgap: 3em;
+	-fx-padding: 3em;
+	-fx-hgap: 3em;
+	-fx-vgap: 3em;
 }
 
 #tool-welcome .button .title {
-    -fx-font-size: 2.5em;
+	-fx-font-size: 2.5em;
 }
 
 #tool-welcome .button .description {
-    -fx-font-size: 1em;
+	-fx-font-size: 1em;
 }
 
 /*******************************************************************************
  * Tool Pane
  ******************************************************************************/
 .tool-pane {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .tool-pane-header-area {
-    -fx-background-color: -ex-background-tabs;
-    -fx-spacing: 0.5mm;
+	-fx-background-color: -ex-background-tabs;
+	-fx-spacing: 0.2em;
 }
 
 .tool-pane-header-area .box {
-    -fx-spacing: 0;
+	-fx-spacing: 0;
 }
 
 .tool-pane-content-area {
-    -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
 /*******************************************************************************
  * Tool Tab
  ******************************************************************************/
 .tool-pane .tool-tab {
-    -fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-    -fx-background-color: -ex-background-text;
+	-fx-padding: 0.2em 0.2em 0.2em 0.2em;
+	-fx-background-color: -ex-background-text;
 }
 
 .tool-pane .tool-tab:hover {
-    -fx-background-color: -ex-background-tags;
+	-fx-background-color: -ex-background-tags;
 }
 
 .tool-pane .tool-tab .tool-tab-icon {
-    -fx-padding: 0 1mm 0 0;
+	-fx-padding: 0 0.5em 0 0;
 }
 
 .tool-pane .tool-tab .tool-tab-label {
-    -fx-text-fill: -fx-text-base-color;
+	-fx-text-fill: -fx-text-base-color;
 }
 
 .tool-pane .tool-tab .tool-tab-context-icon {
-    -fx-padding: 0 0 0 1mm;
+	-fx-padding: 0 0 0 0.5em;
 }
 
 .tool-pane .tool-tab .tool-tab-close {
-    -fx-background-color: transparent;
-    -fx-padding: 0 0 0 1mm;
+	-fx-background-color: transparent;
+	-fx-padding: 0 0 0 0.5em;
+}
+
+.tool-pane .tool-tab:selected {
+	-fx-padding: 0.2em 0.2em 0 0.2em;
+	-fx-border-width: 0 0 0.2em 0;
+	-fx-border-color: -fx-faint-focus-color;
+	-fx-background-color: -ex-background-note;
 }
 
 .tool-pane:active .tool-tab:selected {
-    -fx-padding: 0.5mm 0.5mm 0 0.5mm;
-    -fx-border-width: 0 0 0.5mm 0;
-    -fx-border-color: derive(-fx-focus-color, 20%);
-    -fx-background-color: -ex-background-note;
+	-fx-padding: 0.2em 0.2em 0 0.2em;
+	-fx-border-width: 0 0 0.2em 0;
+	-fx-border-color: derive(-fx-focus-color, 20%);
+	-fx-background-color: -ex-background-note;
 }
 
 .tool-pane:active .tool-tab:selected:hover {
-    -fx-border-color: derive(-fx-focus-color, 40%);
-    -fx-background-color: -ex-background-note;
+	-fx-border-color: derive(-fx-focus-color, 40%);
+	-fx-background-color: -ex-background-note;
 }
 
 /*******************************************************************************
  * Work Pane
  ******************************************************************************/
 .workpane .drop-hint {
-    -fx-fill: -ex-workspace-drop-hint;
+	-fx-fill: -ex-workspace-drop-hint;
 }

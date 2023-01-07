@@ -218,10 +218,10 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	public void startup() throws Exception {}
 
 	/**
-	 * Called by the program to shutdown a mod instance. This method is typically
+	 * Called by the program to shut down a mod instance. This method is typically
 	 * called before the program frame and workspaces are destroyed. This allows
 	 * the mod to perform any work needed before the UI is destroyed. This method
-	 * is also called as part of the mod uninstall process before the
+	 * is also called as part of the mod uninstallation process before the
 	 * {@link #unregister} method is called. This method is also called when a mod
 	 * is disabled from the product tool.
 	 */

@@ -488,17 +488,13 @@ public class GuideTool extends ProgramTool {
 
 		GuideTreeCell() {
 			treeItemProperty().addListener( observable -> doInvalidated() );
-			iconListener = o -> doUpdateItem( getItem(), isEmpty() );
+			iconListener = o -> updateItem( getItem(), isEmpty() );
 			doInvalidated();
 		}
 
 		@Override
 		public void updateItem( GuideNode item, boolean empty ) {
 			super.updateItem( item, empty );
-			doUpdateItem( item, empty );
-		}
-
-		private void doUpdateItem( GuideNode item, boolean empty ) {
 			setGraphic( empty ? null : getProgram().getIconLibrary().getIcon( item.getIcon() ) );
 			setText( empty ? null : item.toString() );
 		}

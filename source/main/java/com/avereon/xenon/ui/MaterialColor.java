@@ -1,4 +1,4 @@
-package com.avereon.xenon;
+package com.avereon.xenon.ui;
 
 import javafx.scene.paint.Color;
 

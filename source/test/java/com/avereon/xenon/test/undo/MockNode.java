@@ -12,7 +12,7 @@ public class MockNode extends IdNode {
 		super();
 	}
 
-	public MockNode(String id) {
+	public MockNode( String id ) {
 		super();
 		setId( id );
 	}

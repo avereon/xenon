@@ -23,6 +23,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -102,7 +104,7 @@ public class Workspace implements WritableIdentity {
 
 	private final Pane workpaneContainer;
 
-	private final VBox noticeContainer;
+	private final VBox noticeBox;
 
 	private ComboBox<Workarea> workareaSelector;
 
@@ -139,25 +141,29 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
+		BorderPane menubarPane = new BorderPane( menubar, null, getWorkareaTools(), null, null );
+		BorderPane toolbarPane = new BorderPane( toolbar, null, getProgramTools(), null, null );
+
 		statusBar = createStatusBar( program );
 
-		noticeContainer = new VBox();
-		noticeContainer.getStyleClass().add( "notice-container" );
-		noticeContainer.setPickOnBounds( false );
+		noticeBox = new VBox();
+		noticeBox.getStyleClass().addAll( "flyout" );
+		noticeBox.setPickOnBounds( false );
+		noticeBox.setVisible( false );
 
-		BorderPane noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
-		noticeLayout.setPickOnBounds( false );
+		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+		noticePane.setPickOnBounds( false );
 
-		// Workpane Container
+		// Workpane container
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		StackPane workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		StackPane workspaceStack = new StackPane( workpaneContainer, noticePane );
 		workspaceStack.setPickOnBounds( false );
 
 		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( new VBox( menubar, toolbar ) );
+		workareaLayout.setTop( new VBox( menubarPane, toolbarPane ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
@@ -203,7 +209,7 @@ public class Workspace implements WritableIdentity {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close,exit]";
+		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close|restart,exit]";
 		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
 		String help = "help[help-content,welcome|update|about]";
@@ -218,13 +224,7 @@ public class Workspace implements WritableIdentity {
 		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
 
 		// Build the menubar
-		MenuBar menubar = MenuBarFactory.createMenuBar( program, descriptor.toString() );
-
-		// FIXME This does not work if there are two menu bars (like this program uses)
-		// This generally affects MacOS users
-		menubar.setUseSystemMenuBar( true );
-
-		return menubar;
+		return MenuBarFactory.createMenuBar( program, descriptor.toString() );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
@@ -232,17 +232,43 @@ public class Workspace implements WritableIdentity {
 
 		String descriptor = "new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
+		toolbar.getItems().add( toolbarToolEnd );
+
+		return toolbar;
+	}
+
+	private HBox getWorkareaTools() {
+		HBox box = new HBox();
+		box.setAlignment( Pos.CENTER_RIGHT );
+		box.getStyleClass().addAll( "menu-bar" );
+
+		return box;
+	}
+
+	private HBox getProgramTools() {
+		HBox box = new HBox();
+		box.getStyleClass().addAll( "tool-bar" );
+		box.setPadding( Insets.EMPTY );
 
 		// Add the workarea menu and selector
-		toolbar.getItems().add( toolbarToolEnd );
+		box.getChildren().add( createWorkareaMenu( program ) );
+		box.getChildren().add( workareaSelector = createWorkareaSelector() );
+
+		// Add the notice button
+		box.getChildren().add( ToolBarFactory.createPad() );
+		box.getChildren().add( createNoticeToolbarButton() );
+
+		return box;
+	}
+
+	private void addProgramTools( ToolBar toolbar ) {
+		// Add the workarea menu and selector
 		toolbar.getItems().add( createWorkareaMenu( program ) );
 		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
 
 		// Add the notice button
 		toolbar.getItems().add( ToolBarFactory.createPad() );
 		toolbar.getItems().add( createNoticeToolbarButton() );
-
-		return toolbar;
 	}
 
 	private Button createNoticeToolbarButton() {
@@ -263,8 +289,8 @@ public class Workspace implements WritableIdentity {
 		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		workareaMenuBar.getMenus().add( MenuBarFactory.createMenu( program, descriptor, true ) );
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		return workareaMenuBar;
 	}
 
@@ -421,31 +447,39 @@ public class Workspace implements WritableIdentity {
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		NoticePane pane = new NoticePane( program, notice, true );
-		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
-		noticeContainer.getChildren().add( 0, pane );
+		noticeBox.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
+		noticeBox.getChildren().add( 0, pane );
 
 		pane.setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
-			noticeContainer.getChildren().remove( pane );
+			noticeBox.getChildren().remove( pane );
+			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
-			noticeContainer.getChildren().remove( pane );
+			noticeBox.getChildren().remove( pane );
+			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
 			event.consume();
 		} );
 
 		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
-			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
+			TimerUtil.fxTask( () -> {
+				noticeBox.getChildren().remove( pane );
+				if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
+			}, balloonTimeout );
 		}
+
+		noticeBox.setVisible( true );
 	}
 
 	public void hideNotices() {
-		noticeContainer.getChildren().clear();
+		noticeBox.getChildren().clear();
+		noticeBox.setVisible( false );
 	}
 
 	public StatusBar getStatusBar() {
@@ -661,8 +695,11 @@ public class Workspace implements WritableIdentity {
 		@Override
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
-			textProperty().unbind();
-			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
+			if( item == null || empty ) {
+				textProperty().unbind();
+			} else {
+				textProperty().bind( item.nameProperty() );
+			}
 		}
 
 	}

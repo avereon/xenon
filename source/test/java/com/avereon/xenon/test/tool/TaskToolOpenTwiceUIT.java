@@ -1,12 +1,10 @@
-package com.avereon.xenon.test.tool;
+package com.avereon.xenon.tool;
 
-import com.avereon.xenon.tool.TaskTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskToolOpenTwiceUIT extends TaskToolUIT {
 
@@ -17,13 +15,13 @@ class TaskToolOpenTwiceUIT extends TaskToolUIT {
 
 		openTaskMenu();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 		openTaskMenu();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
-		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 	}
 

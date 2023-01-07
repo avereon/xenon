@@ -1,33 +1,29 @@
-package com.avereon.xenon.test.product;
+package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
-import com.avereon.xenon.test.ProgramTestCase;
-import com.avereon.xenon.product.ProductManagerLogic;
-import com.avereon.xenon.product.RepoState;
+import com.avereon.xenon.ProgramTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static com.avereon.xenon.test.product.ProductMatcher.matches;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProductManagerLogicTest extends ProgramTestCase {
 
-	private String group = "eg.provider";
+	private final String group = "eg.provider";
 
-	private String timestamp = "2018-06-11 06:30:07";
+	private final String timestamp = "2018-06-11 06:30:07";
+
+	private final RepoState stable = new RepoState().setUrl( "a" );
+
+	private final RepoState preview = new RepoState().setUrl( "b" );
+
+	private final RepoState nightly = new RepoState().setUrl( "c" );
 
 	private ProductManagerLogic logic;
 
 	private Map<RepoState, Set<ProductCard>> repos;
-
-	private RepoState stable = new RepoState().setUrl( "a" );
-
-	private RepoState preview = new RepoState().setUrl( "b" );
-
-	private RepoState nightly = new RepoState().setUrl( "c" );
 
 	@BeforeEach
 	public void setup() {
@@ -43,7 +39,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	@Test
 	void testDetermineAvailableProductsWithAllDisabledRepos() {
 		Set<ProductCard> updates = logic.determineAvailableProducts( repos );
-		assertThat( updates.size(), is( 0 ) );
+		assertThat( updates.size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -53,21 +49,21 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 		stable.setEnabled( true );
 		Map<String, ProductCard> cards = getProductMap( logic.determineAvailableProducts( repos ) );
-		assertThat( cards.get( a.getProductKey() ), matches( a.setVersion( "0.5" ) ) );
-		assertThat( cards.get( b.getProductKey() ), matches( b.setVersion( "0.2" ) ) );
-		assertThat( cards.size(), is( 2 ) );
+		ProductCardAssert.assertThat( cards.get( a.getProductKey() ) ).matches( a.setVersion( "0.5" ) );
+		ProductCardAssert.assertThat( cards.get( b.getProductKey() ) ).matches( b.setVersion( "0.2" ) );
+		assertThat( cards.size() ).isEqualTo( 2 );
 
 		preview.setEnabled( true );
 		cards = getProductMap( logic.determineAvailableProducts( repos ) );
-		assertThat( cards.get( a.getProductKey() ), matches( a.setVersion( "0.6b7" ) ) );
-		assertThat( cards.get( b.getProductKey() ), matches( b.setVersion( "0.3b19" ) ) );
-		assertThat( cards.size(), is( 2 ) );
+		ProductCardAssert.assertThat( cards.get( a.getProductKey() ) ).matches( a.setVersion( "0.6b7" ) );
+		ProductCardAssert.assertThat( cards.get( b.getProductKey() ) ).matches( b.setVersion( "0.3b19" ) );
+		assertThat( cards.size() ).isEqualTo( 2 );
 
 		nightly.setEnabled( true );
 		cards = getProductMap( logic.determineAvailableProducts( repos ) );
-		assertThat( cards.get( a.getProductKey() ), matches( a.setVersion( "0.7-SNAPSHOT" ) ) );
-		assertThat( cards.get( b.getProductKey() ), matches( b.setVersion( "0.4-SNAPSHOT" ) ) );
-		assertThat( cards.size(), is( 2 ) );
+		ProductCardAssert.assertThat( cards.get( a.getProductKey() ) ).matches( a.setVersion( "0.7-SNAPSHOT" ) );
+		ProductCardAssert.assertThat( cards.get( b.getProductKey() ) ).matches( b.setVersion( "0.4-SNAPSHOT" ) );
+		assertThat( cards.size() ).isEqualTo( 2 );
 	}
 
 	@Test
@@ -86,8 +82,8 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 		ProductCard b = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4-SNAPSHOT" ).setTimestamp( timestamp );
 
-		assertThat( cards.get( b.getProductKey() ), matches( b ) );
-		assertThat( updates.size(), is( 1 ) );
+		ProductCardAssert.assertThat( cards.get( b.getProductKey() ) ).matches( b );
+		assertThat( updates.size() ).isEqualTo( 1 );
 	}
 
 	@Test
@@ -103,7 +99,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		Map<String, ProductCard> installedProducts = Map.of( installedA.getProductKey(), installedA, installedB.getProductKey(), installedB );
 		Set<ProductCard> updates = logic.determineUpdatableProducts( repos, installedProducts );
 
-		assertThat( updates.size(), is( 0 ) );
+		assertThat( updates.size() ).isEqualTo( 0 );
 	}
 
 	@Test
@@ -120,7 +116,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		Map<String, ProductCard> installedProducts = Map.of( installed.getProductKey(), installed );
 
 		Set<ProductCard> updates = logic.determineUpdatableProducts( repos, installedProducts );
-		assertThat( updates.size(), is( 0 ) );
+		assertThat( updates.size() ).isEqualTo( 0 );
 	}
 
 	private void generateRepoProductMap() {

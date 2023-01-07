@@ -51,10 +51,10 @@ public class SettingsPanel extends VBox {
 		this.page = page;
 		this.optionProviders = page.getOptionProviders();
 
-		//		String fontPlain = product.getResourceBundle().getString( bundleKey, "font-plain" );
-		//		String fontBold = product.getResourceBundle().getString( bundleKey, "font-bold" );
-		//		String fontItalic = product.getResourceBundle().getString( bundleKey, "font-italic" );
-		//		String fontBoldItalic = product.getResourceBundle().getString( bundleKey, "font-bold-italic" );
+		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );
+		//		String fontBold = product.getResourceBundle().getString( rbKey, "font-bold" );
+		//		String fontItalic = product.getResourceBundle().getString( rbKey, "font-italic" );
+		//		String fontBoldItalic = product.getResourceBundle().getString( rbKey, "font-bold-italic" );
 		//
 		//		List<String> fontFamilies = Font.getFamilies();
 		//		fontNames = fontFamilies.toArray( new String[ fontFamilies.size() ] );
@@ -78,12 +78,12 @@ public class SettingsPanel extends VBox {
 		}
 
 		ProgramProduct product = page.getProduct();
-		String bundleKey = page.getBundleKey();
+		String rbKey = page.getRbKey();
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
-			String name = Rb.text( product, bundleKey, group.getId() );
-			Control pane = createGroupPane( product, bundleKey, page, name, group );
+			String name = Rb.text( product, rbKey, group.getId() );
+			Control pane = createGroupPane( product, rbKey, page, name, group );
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );
 		}
@@ -101,8 +101,8 @@ public class SettingsPanel extends VBox {
 		pane.getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( ProgramProduct product, String bundleKey, SettingsPage page, String name, SettingGroup group ) {
-		Pane pane = createSettingsPane( product, bundleKey, page, group );
+	private Control createGroupPane( ProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
+		Pane pane = createSettingsPane( product, rbKey, page, group );
 
 		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
 
@@ -122,7 +122,7 @@ public class SettingsPanel extends VBox {
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( ProgramProduct product, String bundleKey, SettingsPage page, SettingGroup group ) {
+	private Pane createSettingsPane( ProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
 		GridPane grid = new GridPane();
 		grid.setHgap( UiFactory.PAD );
 		grid.setVgap( UiFactory.PAD );
@@ -152,7 +152,7 @@ public class SettingsPanel extends VBox {
 			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
 
 			// Create the editor
-			SettingEditor editor = createSettingEditor( product, bundleKey, setting, editorClass );
+			SettingEditor editor = createSettingEditor( product, rbKey, setting, editorClass );
 			if( editor != null ) editor.addComponents( grid, row++ );
 			if( editor == null ) log.atDebug().log( "Editor not created: %s", LazyEval.of( editorClass::getName ) );
 
@@ -171,13 +171,13 @@ public class SettingsPanel extends VBox {
 		return grid;
 	}
 
-	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
 			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
-			editor = constructor.newInstance( product, bundleKey, setting );
+			editor = constructor.newInstance( product, rbKey, setting );
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error creating setting editor: %s", LazyEval.of( editorClass::getName ) );
 		}

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
-import com.avereon.skill.Configurable;
+import com.avereon.xenon.Configurable;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

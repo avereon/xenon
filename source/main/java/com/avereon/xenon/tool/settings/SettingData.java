@@ -129,8 +129,8 @@ public class SettingData extends SettingDependant {
 		return getGroup().getSettings();
 	}
 
-	public String getBundleKey() {
-		return getBundleKey( getId(), getKey() );
+	public String getRbKey() {
+		return getRbKey( getId(), getKey() );
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class SettingData extends SettingDependant {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String id, String key ) {
+	private static String getRbKey( String id, String key ) {
 		String localKey = key;
 		if( localKey == null ) localKey = id;
 		if( localKey == null ) return null;

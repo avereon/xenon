@@ -21,16 +21,16 @@ public class ComboBoxSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public ComboBoxSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public ComboBoxSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey() );
 
-		Label label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		Label label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		List<SettingOption> options = setting.getOptions();

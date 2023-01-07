@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.ProductManager;
@@ -208,7 +208,7 @@ class ProductPane extends GridPane {
 		if( inProgress ) {
 			stateContainer.getChildren().add( progress );
 		} else {
-			stateLabel.setText( Rb.text( BundleKey.LABEL, stateLabelKey ) );
+			stateLabel.setText( Rb.text( RbKey.LABEL, stateLabelKey ) );
 			stateContainer.getChildren().add( stateLabel );
 		}
 
@@ -268,9 +268,9 @@ class ProductPane extends GridPane {
 	private void requestRemoveProduct() {
 		String modName = getSource().getName();
 
-		String title = Rb.text( BundleKey.PRODUCT, "products" );
-		String header = Rb.text( BundleKey.PRODUCT, "product-remove-header", modName );
-		String message = Rb.text( BundleKey.PRODUCT, "product-remove-message" );
+		String title = Rb.text( RbKey.PRODUCT, "products" );
+		String header = Rb.text( RbKey.PRODUCT, "product-remove-header", modName );
+		String message = Rb.text( RbKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );

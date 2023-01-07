@@ -29,7 +29,6 @@ public class FaultTool extends ProgramTool {
 		text.setEditable( false );
 
 		getChildren().addAll( text );
-
 	}
 
 	@Override

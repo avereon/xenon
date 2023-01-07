@@ -7,7 +7,7 @@
     <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.avereon.xenon.*" />
+        <option name="PATTERN" value="com.avereon.xenon.ui.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

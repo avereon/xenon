@@ -112,13 +112,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return currentThemeId;
 	}
 
+	public ThemeMetadata getThemeMetadata() {
+		return getProgram().getThemeManager().getMetadata( getTheme() );
+	}
+
 	public void setTheme( String id ) {
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
 		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
 
 		this.currentThemeId = id;
 		final ThemeMetadata finalTheme = theme;
-		workspaces.forEach( w -> w.setTheme( finalTheme.getStylesheet() ) );
+		workspaces.forEach( w -> w.setTheme( finalTheme.getUrl() ) );
 	}
 
 	public Set<Workspace> getWorkspaces() {
@@ -133,7 +137,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Workspace workspace = new Workspace( program );
 		workspace.setUid( id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
-		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
 		workspace.getEventBus().parent( program.getFxEventHub() );
 
 		return workspace;
@@ -219,9 +223,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( Rb.text( BundleKey.PROGRAM, "asset-modified" ) );
-		alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "asset-modified-message" ) );
-		alert.setContentText( Rb.text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
+		alert.setTitle( Rb.text( RbKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( Rb.text( RbKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( Rb.text( RbKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();

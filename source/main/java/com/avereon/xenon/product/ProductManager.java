@@ -9,7 +9,7 @@ import com.avereon.product.Rb;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.skill.Configurable;
+import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
@@ -267,6 +267,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return productKey == null ? getProgram() : products.get( productKey );
 	}
 
+	public Set<String> getModKeys() {
+		return modules.keySet();
+	}
+
 	public Mod getMod( String productKey ) {
 		return modules.get( productKey );
 	}
@@ -477,14 +481,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public String getLastUpdateCheckText() {
 		long lastUpdateCheck = getLastUpdateCheck();
-		String unknown = Rb.text( BundleKey.UPDATE, "unknown" );
+		String unknown = Rb.text( RbKey.UPDATE, "unknown" );
 		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	public String getNextUpdateCheckText() {
 		long nextUpdateCheck = getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
-		String notScheduled = Rb.text( BundleKey.UPDATE, "not-scheduled" );
+		String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
 		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 

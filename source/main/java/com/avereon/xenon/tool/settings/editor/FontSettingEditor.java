@@ -13,8 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import lombok.CustomLog;
+import org.controlsfx.dialog.FontSelectorDialog;
 
 import java.util.List;
+import java.util.Optional;
 
 @CustomLog
 public class FontSettingEditor extends SettingEditor {
@@ -25,16 +27,16 @@ public class FontSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FontSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
-		super( product, bundleKey, setting );
+	public FontSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		String rbKey = setting.getBundleKey();
+		String rbKey = setting.getRbKey();
 		String value = setting.getSettings().get( getKey(), "SansSerif|12" );
 
-		label = new Label( Rb.text( getProduct(), getBundleKey(), rbKey ) );
+		label = new Label( Rb.text( getProduct(), getRbKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		button = new Button();
@@ -63,17 +65,17 @@ public class FontSettingEditor extends SettingEditor {
 
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
-		log.atFine().log(  "Setting font updated: %s", font );
+		log.atFine().log( "Setting font updated: %s", font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
-//		button.setOnAction( ( event ) -> {
-//			FontSelectorDialog dialog = new FontSelectorDialog( font );
-//			Optional<Font> optional = dialog.showAndWait();
-//			optional.ifPresent( font1 -> {
-//				log.log( Log.DEBUG,  "Setting font selected: " + font1 );
-//				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
-//			} );
-//		} );
+		button.setOnAction( ( event ) -> {
+			FontSelectorDialog dialog = new FontSelectorDialog( font );
+			Optional<Font> optional = dialog.showAndWait();
+			optional.ifPresent( selected -> {
+				log.atDebug().log( "Setting font selected: " + selected );
+				setting.getSettings().set( setting.getKey(), FontUtil.encode( selected ) );
+			} );
+		} );
 	}
 
 }

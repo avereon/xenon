@@ -20,7 +20,7 @@ public class NoticePane extends GridPane {
 	public NoticePane( Program program, Notice notice, boolean flyout ) {
 		this.program = program;
 		this.notice = notice;
-		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice", "padded" );
+		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice" );
 
 		Node noticeIcon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
 		Label title = new Label( String.valueOf( notice.getTitle() ) );

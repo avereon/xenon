@@ -8,6 +8,7 @@ import lombok.CustomLog;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,27 +67,51 @@ public class FileScheme extends BaseScheme {
 	public void save( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 
-		File file = getFile( asset );
+		Path file = getFile( asset ).toPath();
+		Path temp = null;
 
-		// Step one - move current file out of the way
-		File temp = null;
 		try {
-			temp = File.createTempFile( "asset", null );
-			if( !file.renameTo( temp ) ) throw new IOException( "Unable to move " + file + " > " + temp );
+			// Step one - move current file out of the way
+			Path tempFolder = Files.createDirectories( getProgram().getTempFolder() );
+			temp = Files.createTempFile( tempFolder, "asset.", null );
+			Files.deleteIfExists( temp );
+			Files.move( file, temp );
+
+			// Step two - save asset to file
+			try( OutputStream stream = new FileOutputStream( file.toFile() ) ) {
+				codec.save( asset, stream );
+				if( !Files.exists( file ) ) throw new IOException( "File lost: " + file );
+				asset.setLastSaved( System.currentTimeMillis() );
+			}
 		} catch( IOException exception ) {
-			if( temp != null && !temp.delete() ) log.atWarn().log( "Unable to remove temp file: " + temp );
+			if( temp != null ) {
+				try {
+					Files.move( temp, file );
+				} catch( IOException restoreException ) {
+					log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
+				}
+			}
+			throw new AssetException( asset, exception );
+		} finally {
+			if( temp != null ) {
+				try {
+					Files.deleteIfExists( temp );
+				} catch( IOException cleanupException ) {
+					log.atWarn().withCause( cleanupException ).log( "Unable to cleanup temp file: " + temp );
+				}
+			}
 		}
 
 		// Step two - save asset to file
-		try( OutputStream stream = new FileOutputStream( file ) ) {
-			codec.save( asset, stream );
-			if( temp != null && !temp.delete() ) log.atWarn().log( "Unable to remove temp file: " + temp );
-		} catch( IOException exception ) {
-			if( temp != null && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
-			throw new AssetException( asset, exception );
-		} finally {
-			asset.setLastSaved( System.currentTimeMillis() );
-		}
+		//		try( OutputStream stream = new FileOutputStream( file ) ) {
+		//			codec.save( asset, stream );
+		//			if( temp != null && temp.exists() && !temp.delete() ) log.atWarn().log( "Unable to cleanup temp file: " + temp );
+		//		} catch( Exception exception ) {
+		//			if( temp != null && temp.exists() && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
+		//			throw new AssetException( asset, exception );
+		//		} finally {
+		//			asset.setLastSaved( System.currentTimeMillis() );
+		//		}
 	}
 
 	@Override

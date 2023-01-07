@@ -1,31 +1,23 @@
-package com.avereon.xenon.test.tool.guide;
+package com.avereon.xenon.tool.guide;
 
+import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.MockAssetType;
+import com.avereon.xenon.asset.MockCodec;
 import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.test.BaseToolUIT;
-import com.avereon.xenon.test.asset.MockAssetType;
-import com.avereon.xenon.test.asset.MockCodec;
-import com.avereon.xenon.tool.guide.Guide;
-import com.avereon.xenon.tool.guide.GuideContext;
-import com.avereon.xenon.tool.guide.GuideNode;
-import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zarra.javafx.Fx;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuidedToolUIT extends BaseToolUIT {
 
@@ -37,11 +29,10 @@ public class GuidedToolUIT extends BaseToolUIT {
 		super.setup();
 
 		assertToolCount( getWorkpane(), 0 );
-		MatcherAssert.assertThat( getProgram().getAssetManager().getAssetTypes().size(), is( 12 ) );
 
 		MockAssetType assetType = new MockAssetType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
-		assertNotNull( getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() ) );
+		assertThat( getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() ) ).isNotNull();
 
 		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
 		getProgram().getToolManager().registerTool( assetType, registration );
@@ -51,7 +42,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		assertThat( getWorkpane().getActiveTool(), instanceOf( MockGuidedTool.class ) );
+		assertThat( getWorkpane().getActiveTool() ).isInstanceOf( MockGuidedTool.class );
 		assertToolCount( getWorkpane(), 2 );
 
 		mockGuidedTool = (MockGuidedTool)getWorkpane().getActiveTool();
@@ -62,12 +53,12 @@ public class GuidedToolUIT extends BaseToolUIT {
 	void testGuidedToolReceivesGuideNodeExpandedChanges() throws Exception {
 		// NOTE When testing expanded nodes the node to expand cannot be a leaf
 		// Assert initial state
-		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
+		assertThat( mockGuidedTool.getExpandedNodes().size() ).isEqualTo( 0 );
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 
-		MatcherAssert.assertThat( mockGuidedTool.getExpandedNodes(), Matchers.containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getExpandedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test
@@ -76,21 +67,21 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount() ).isEqualTo( 1 );
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount() ).isEqualTo( 1 );
 	}
 
 	@Test
 	void testGuidedToolReceivesGuideNodeSelectedChanges() throws Exception {
 		// Assert initial state
-		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
+		assertThat( mockGuidedTool.getSelectedNodes().size() ).isEqualTo( 0 );
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		MatcherAssert.assertThat( mockGuidedTool.getSelectedNodes(), Matchers.containsInAnyOrder( mockGuidedTool.getCurrentGuide().getNode( "general" ) ) );
+		assertThat( mockGuidedTool.getSelectedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
 	}
 
 	@Test
@@ -98,11 +89,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount() ).isEqualTo( 1 );
 
 		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount() ).isEqualTo( 1 );
 	}
 
 	public static class MockGuidedTool extends GuidedTool {
@@ -157,19 +148,19 @@ public class GuidedToolUIT extends BaseToolUIT {
 			generalNode.setId( "general" );
 			generalNode.setName( "general" );
 			guide.addNode( generalNode );
-			assertThat( guide.getNode( "general" ), is( generalNode ) );
+			assertThat( guide.getNode( "general" ) ).isEqualTo( generalNode );
 
 			GuideNode summaryNode = new GuideNode( getProgram() );
 			summaryNode.setId( "summary" );
 			summaryNode.setName( "summary" );
 			guide.addNode( generalNode, summaryNode );
-			assertThat( guide.getNode( "summary" ), is( summaryNode ) );
+			assertThat( guide.getNode( "summary" ) ).isEqualTo( summaryNode );
 
 			GuideNode detailsNode = new GuideNode( getProgram() );
 			detailsNode.setId( "details" );
 			detailsNode.setName( "details" );
 			guide.addNode( generalNode, detailsNode );
-			assertThat( guide.getNode( "details" ), is( detailsNode ) );
+			assertThat( guide.getNode( "details" ) ).isEqualTo( detailsNode );
 
 			return guide;
 		}

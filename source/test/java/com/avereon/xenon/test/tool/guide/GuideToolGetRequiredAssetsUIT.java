@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GuideToolGetRequiredAssetsUIT extends GuideToolUIT {
 
@@ -19,7 +18,7 @@ class GuideToolGetRequiredAssetsUIT extends GuideToolUIT {
 		GuideTool tool = new GuideTool( getProgram(), asset );
 
 		Set<URI> assets = tool.getAssetDependencies();
-		assertThat( assets.size(), is( 0 ) );
+		assertThat( assets.size() ).isEqualTo( 0 );
 	}
 
 }

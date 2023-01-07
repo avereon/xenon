@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Xenon with Cartesia (Low Memory)" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
+    <module name="carta" />
+    <option name="PROGRAM_PARAMETERS" value="--noupdate --profile dev --log-level config --enable-mod com.avereon.carta" />
+    <option name="VM_PARAMETERS" value="-Xmx64m -Duser.language=es -Dprism.forceGPU=true" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../carta" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

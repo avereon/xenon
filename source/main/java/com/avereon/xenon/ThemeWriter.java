@@ -36,6 +36,8 @@ public class ThemeWriter {
 		printer.println( "/*" );
 		printer.println( " * id=" + id );
 		printer.println( " * name=" + name );
+		printer.println( " * dark=" + isDark );
+		printer.println( " * light=" + !isDark );
 		printer.println( " * base=" + format( base ) );
 		printer.println( " * accent=" + format( accent ) );
 		printer.println( " * focus=" + format( focus ) );

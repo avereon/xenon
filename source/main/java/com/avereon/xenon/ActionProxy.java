@@ -41,6 +41,8 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	private String command;
 
+	private List<String> tags;
+
 	private final List<String> states;
 
 	private final Map<String, ActionState> stateMap;
@@ -94,7 +96,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 	/**
 	 * Set the action name. This name should not have the mnemonic character.
 	 *
-	 * @param name The human readable name of the action
+	 * @param name The human-readable name of the action
 	 */
 	public void setName( String name ) {
 		this.name = name;
@@ -106,7 +108,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 	 *
 	 * @return The action name with the mnemonic character
 	 */
-	public String getMnemonicName() {
+	public String getNameWithMnemonic() {
 		return mnemonicName.get();
 	}
 
@@ -172,6 +174,14 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	public void setCommand( String command ) {
 		this.command = command;
+	}
+
+	public List<String> getTags() {
+		return tags == null ? List.of() : tags;
+	}
+
+	public void setTags( List<String> tags ) {
+		this.tags = tags;
 	}
 
 	public boolean isEnabled() {

@@ -59,7 +59,7 @@ public class ThemeTool extends GuidedTool {
 
 	private void setSampleTheme( ThemeMetadata theme ) {
 		sample.getStylesheets().clear();
-		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getStylesheet() );
+		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getUrl() );
 
 		refreshThemeOptions( theme );
 	}
@@ -101,7 +101,7 @@ public class ThemeTool extends GuidedTool {
 		// -fx-base
 		// ...
 		try {
-			List<Rule> rules = new CssParser().parse( new URL( theme.getStylesheet() ) ).getRules();
+			List<Rule> rules = new CssParser().parse( new URL( theme.getUrl() ) ).getRules();
 			Map<String, Rule> ruleSelectors = new HashMap<>();
 			for( Rule rule : rules ) {
 

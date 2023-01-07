@@ -1,15 +1,15 @@
-package com.avereon.xenon.test.tool;
+package com.avereon.xenon.tool;
 
+import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.test.BaseToolUIT;
 import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SingletonRaceConditionUIT extends BaseToolUIT {
 
@@ -22,7 +22,7 @@ public class SingletonRaceConditionUIT extends BaseToolUIT {
 		Fx.waitForWithExceptions( TIMEOUT );
 		Workpane pane = getWorkpane();
 
-		assertThat( pane.getTools( GuideTool.class ).size(), Matchers.is( 1 ) );
+		assertThat( pane.getTools( GuideTool.class ).size() ).isEqualTo( 1 );
 	}
 
 }

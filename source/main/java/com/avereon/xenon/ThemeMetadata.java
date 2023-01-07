@@ -12,14 +12,17 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
 	private final String name;
 
-	private final String stylesheet;
+	private final boolean dark;
+
+	private final String url;
 
 	private String style;
 
-	public ThemeMetadata( String id, String name, String stylesheet ) {
+	public ThemeMetadata( String id, String name, boolean dark, String url ) {
 		this.id = id;
 		this.name = name;
-		this.stylesheet = stylesheet;
+		this.dark = dark;
+		this.url = url;
 	}
 
 	public String getId() {
@@ -30,12 +33,16 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 		return name;
 	}
 
-	public String getStylesheet() {
-		return stylesheet;
+	public boolean isDark() {
+		return dark;
+	}
+
+	public String getUrl() {
+		return url;
 	}
 
 	public String getStyle() throws IOException {
-		if( style == null ) style = FileUtil.load( Paths.get( URI.create( stylesheet ).getPath() ) );
+		if( style == null ) style = FileUtil.load( Paths.get( URI.create( url ).getPath() ) );
 		return style;
 	}
 

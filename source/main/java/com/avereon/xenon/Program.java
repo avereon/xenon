@@ -4,6 +4,7 @@ import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
+import com.avereon.index.Document;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
@@ -11,10 +12,14 @@ import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.type.*;
+import com.avereon.xenon.tool.HelpTool;
+import com.avereon.xenon.asset.type.ProgramHelpType;
+import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
@@ -42,10 +47,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -96,6 +98,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programLogFolder;
 
+	private Path programTempFolder;
+
 	private UpdateManager updateManager;
 
 	private Settings programSettings;
@@ -122,6 +126,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private NoticeManager noticeManager;
 
+	private IndexService indexService;
+
 	private ProgramEventWatcher watcher;
 
 	private FxEventHub fxEventHub;
@@ -143,6 +149,8 @@ public class Program extends Application implements ProgramProduct {
 	private WelcomeAction welcomeAction;
 
 	private NoticeAction noticeAction;
+
+	private SearchAction searchAction;
 
 	private ProductAction productAction;
 
@@ -207,7 +215,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "print-header" );
 
 		// Determine the program data folder, depends on program parameters
-		programDataFolder = configureDataFolder();
+		configureDataFolder();
 		time( "configure-data-folder" );
 
 		// Configure logging, depends on parameters and program data folder
@@ -388,8 +396,8 @@ public class Program extends Application implements ProgramProduct {
 		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 6;
-		int steps = managerCount + uiRegenerator.getToolCount();
+		int service = 7;
+		int steps = service + uiRegenerator.getToolCount();
 		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
@@ -406,6 +414,12 @@ public class Program extends Application implements ProgramProduct {
 		assetManager.start();
 		Fx.run( () -> splashScreen.update() );
 		log.atFine().log( "Asset manager started." );
+
+		// Start the index service
+		log.atFiner().log( "Starting index service..." );
+		indexService = new IndexService( Program.this ).start();
+		Fx.run( () -> splashScreen.update() );
+		log.atFine().log( "Index service started." );
 
 		// Load the settings pages
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
@@ -486,21 +500,32 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartSuccess() {
+		// Program started event should be fired after the window is shown
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
+		time( "program started" );
+
 		// Check for staged updates
 		getProductManager().checkForStagedUpdatesAtStart();
 
 		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
 		getProductManager().scheduleUpdateCheck( true );
 
-		// TODO Show user notifications
 		// Check to see if the application was updated
 		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
+
+		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
 		new ProgramChecks( this );
 
-		// Program started event should be fired after the window is shown
-		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
-		time( "program started" );
+		// Index program documents
+		indexProgramDocuments();
+	}
+
+	private void indexProgramDocuments() {
+		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
+		String icon = "about";
+		String name = Rb.text( RbKey.TOOL, "about-name" );
+		getIndexService().submit( new Document( ProgramAboutType.URI, icon, name, about.getIndexContent() ) );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -588,6 +613,13 @@ public class Program extends Application implements ProgramProduct {
 
 		// NOTE Do not try to remove the settings pages during shutdown
 
+		// Stop the index service
+		if( indexService != null ) {
+			log.atFiner().log( "Stopping index service..." );
+			indexService.stop();
+			log.atFine().log( "Index service stopped." );
+		}
+
 		// Stop the asset manager
 		if( assetManager != null ) {
 			log.atFiner().log( "Stopping asset manager..." );
@@ -668,9 +700,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( Rb.text( BundleKey.PROGRAM, "program.close.title" ) );
-			alert.setHeaderText( Rb.text( BundleKey.PROGRAM, "program.close.message" ) );
-			alert.setContentText( Rb.text( BundleKey.PROGRAM, "program.close.prompt" ) );
+			alert.setTitle( Rb.text( RbKey.PROGRAM, "program.close.title" ) );
+			alert.setHeaderText( Rb.text( RbKey.PROGRAM, "program.close.message" ) );
+			alert.setContentText( Rb.text( RbKey.PROGRAM, "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -750,6 +782,10 @@ public class Program extends Application implements ProgramProduct {
 		return programLogFolder;
 	}
 
+	public Path getTempFolder() {
+		return programTempFolder;
+	}
+
 	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
@@ -801,6 +837,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public NoticeManager getNoticeManager() {
 		return noticeManager;
+	}
+
+	public IndexService getIndexService() {
+		return indexService;
 	}
 
 	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {
@@ -1021,9 +1061,10 @@ public class Program extends Application implements ProgramProduct {
 		return profile == null ? "" : "-" + profile;
 	}
 
-	private Path configureDataFolder() {
+	private void configureDataFolder() {
 		String suffix = getProfileSuffix();
-		return OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		programTempFolder = programDataFolder.resolve( "temp" );
 	}
 
 	private void configureLogging() {
@@ -1047,16 +1088,16 @@ public class Program extends Application implements ProgramProduct {
 			// Check the launcher path
 			if( programHomeFolder == null ) programHomeFolder = getHomeFromLauncherPath();
 
-			// When running as a linked (jlink) program, there is not a jdk.module.path system property.
-			// The java home can be used as the program home when running as a linked application.
+			// When running as a linked (jlink) program, there is not a jdk.module.path system property
+			// The java home can be used as the program home when running as a linked application
 			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
 				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 			}
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
+			if( Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
 
-			// Use the user directory as a last resort (usually for unit tests)
+			// Use the user folder as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path
@@ -1077,14 +1118,14 @@ public class Program extends Application implements ProgramProduct {
 		log.atFine().log( "Program data: %s", getDataFolder() );
 	}
 
-	private Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath( System.getProperty( "java.launcher.path" ) );
+	public Path getHomeFromLauncherPath() {
+		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath() );
 	}
 
 	private Path getHomeFromLauncherPath( String launcherPath ) {
 		if( launcherPath == null ) return null;
 
-		Path path = Paths.get( launcherPath );
+		Path path = Paths.get( launcherPath ).getParent();
 		if( OperatingSystem.isWindows() ) {
 			return path;
 		} else if( OperatingSystem.isLinux() ) {
@@ -1107,6 +1148,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
+		getActionLibrary().getAction( "search" ).pushAction( searchAction = new SearchAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
@@ -1139,6 +1181,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
+		getActionLibrary().getAction( "search" ).pullAction( searchAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
@@ -1152,6 +1195,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
 		manager.addScheme( new ProgramScheme( this ) );
+		//manager.addScheme( new ProgramHelpScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new HttpsScheme( this ) );
 		manager.addScheme( new HttpScheme( this ) );
@@ -1161,6 +1205,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.removeScheme( HttpScheme.ID );
 		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
+		//manager.removeScheme( ProgramHelpScheme.ID );
 		manager.removeScheme( ProgramScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( NewScheme.ID );
@@ -1172,6 +1217,8 @@ public class Program extends Application implements ProgramProduct {
 		manager.addAssetType( new ProgramSettingsType( this ) );
 		manager.addAssetType( new ProgramWelcomeType( this ) );
 		manager.addAssetType( new ProgramNoticeType( this ) );
+		manager.addAssetType( new ProgramSearchType( this ) );
+		manager.addAssetType( new ProgramHelpType( this ) );
 		manager.addAssetType( new ProgramProductType( this ) );
 		manager.addAssetType( new ProgramTaskType( this ) );
 		manager.addAssetType( new ProgramAssetNewType( this ) );
@@ -1189,6 +1236,8 @@ public class Program extends Application implements ProgramProduct {
 		manager.removeAssetType( new ProgramAssetNewType( this ) );
 		manager.removeAssetType( new ProgramTaskType( this ) );
 		manager.removeAssetType( new ProgramProductType( this ) );
+		manager.removeAssetType( new ProgramHelpType( this ) );
+		manager.removeAssetType( new ProgramSearchType( this ) );
 		manager.removeAssetType( new ProgramNoticeType( this ) );
 		manager.removeAssetType( new ProgramWelcomeType( this ) );
 		manager.removeAssetType( new ProgramSettingsType( this ) );
@@ -1200,6 +1249,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAboutType( this ), AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
+		registerTool( manager, new ProgramSearchType( this ), SearchTool.class, ToolInstanceMode.SINGLETON, "search", "search" );
 		registerTool( manager, new ProgramProductType( this ), ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, new ProgramSettingsType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
@@ -1208,8 +1258,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
-
-		// This is intended to be used with the asset properties
+		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.UNLIMITED, "help", "help" );
 		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
@@ -1220,12 +1269,14 @@ public class Program extends Application implements ProgramProduct {
 
 	private void unregisterTools( ToolManager manager ) {
 		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
+		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
 		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
 		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );
 		unregisterTool( manager, new ProgramProductType( this ), ProductTool.class );
 		unregisterTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class );
+		unregisterTool( manager, new ProgramSearchType( this ), SearchTool.class );
 		unregisterTool( manager, new ProgramNoticeType( this ), NoticeTool.class );
 		unregisterTool( manager, new ProgramSettingsType( this ), SettingsTool.class );
 		unregisterTool( manager, new ProgramAboutType( this ), AboutTool.class );
@@ -1292,7 +1343,7 @@ public class Program extends Application implements ProgramProduct {
 	//		}
 	//
 	//		// The progress window title
-	//		String updatingProgramText = Rb.textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+	//		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
 	//
 	//		// Force the location of the updater log file
 	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
@@ -1318,8 +1369,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = Rb.text( BundleKey.UPDATE, "updates" );
-		String message = Rb.text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
+		String title = Rb.text( RbKey.UPDATE, "updates" );
+		String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 

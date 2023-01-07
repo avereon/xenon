@@ -7,6 +7,7 @@ import lombok.CustomLog;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 /**
  * This task makes a copy of the program in a temporary location to be used to
@@ -40,9 +41,9 @@ public class StageUpdaterTask extends Task<Void> {
 		// Create the updater home folders
 		Files.createDirectories( updaterHome );
 
-		// Copy all the modules needed for the updater
+		// Copy everything needed for the updater
 		log.atFine().log( "Copy %s to %s", program.getHomeFolder(), updaterHome );
-		FileUtil.copy( program.getHomeFolder(), updaterHome );
+		if( !FileUtil.copy( program.getHomeFolder(), updaterHome ) ) log.atWarn().log( "Failed to stage updater at: %s", updaterHome );
 
 		// NOTE Do not mark the updater files to be deleted on exit
 		// because they need to exist for the updater to start after the JVM exits
@@ -67,14 +68,16 @@ public class StageUpdaterTask extends Task<Void> {
 	private void removePriorFolders( UpdateManager manager ) throws IOException {
 		String prefix = manager.getPrefix();
 		if( !Files.exists( manager.getUpdaterFolder() ) ) return;
-		Files.list( manager.getUpdaterFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
-			log.atFine().log( "Delete prior updater: %s", p.getFileName() );
-			try {
-				FileUtil.delete( p );
-			} catch( IOException exception ) {
-				log.atSevere().withCause( exception ).log( "Unable to cleanup prior updater files" );
-			}
-		} );
+		try( Stream<Path> paths = Files.list( manager.getUpdaterFolder() ) ) {
+			paths.filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
+				log.atFine().log( "Delete prior updater file: %s", p.getFileName() );
+				try {
+					FileUtil.delete( p );
+				} catch( IOException exception ) {
+					log.atSevere().withCause( exception ).log( "Unable to cleanup prior updater files" );
+				}
+			} );
+		}
 	}
 
 }

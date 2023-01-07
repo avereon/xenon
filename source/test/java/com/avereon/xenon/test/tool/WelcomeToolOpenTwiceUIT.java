@@ -1,13 +1,10 @@
-package com.avereon.xenon.test.tool;
+package com.avereon.xenon.tool;
 
-import com.avereon.xenon.tool.WelcomeTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 
@@ -19,15 +16,15 @@ class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
-		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ) );
+		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
+		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 	}
 

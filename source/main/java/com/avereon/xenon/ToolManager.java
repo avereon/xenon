@@ -308,7 +308,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
-		String taskName = Rb.text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
 			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
@@ -344,17 +344,17 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
 		return (ProgramTool)pane.getTools( type ).stream().findAny().orElse( null );
-		//return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
 	}
 
 	/**
-	 * This method creates a task that waits for the asset to be ready then calls the tool assetReady() method.
+	 * This method creates a task that waits for both the tool to be added
+	 * and asset to be loaded then calls the tool ready() method.
 	 *
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
 	private void scheduleWaitForReady( OpenAssetRequest request, ProgramTool tool ) {
-		tool.waitForReady( request );
+		ProgramTool.waitForReady( request, tool );
 	}
 
 }

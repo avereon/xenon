@@ -1,10 +1,9 @@
 package com.avereon.xenon.demo;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
@@ -23,6 +22,9 @@ public class DndDemo extends Application {
 		Group root = new Group();
 		Scene scene = new Scene( root, 400, 200 );
 
+		Platform.requestNextPulse();
+
+
 		final Label source = new Label( "DRAG ME" );
 		source.setCursor( Cursor.HAND );
 		source.relocate( 50, 100 );
@@ -39,13 +41,14 @@ public class DndDemo extends Application {
 		source.setOnDragDetected( ( event ) -> {
 			System.out.println( "onDragDetected" );
 
-			Dragboard db = source.startDragAndDrop( TransferMode.MOVE );
+			Dragboard db = source.startDragAndDrop( TransferMode.ANY );
 			ClipboardContent content = new ClipboardContent();
 			content.putString( "DRAGGED CONTENT" );
 			db.setContent( content );
 
-			// FIXME Using setDragView() breaks DnD on OpenJFK 13
-			Image image = source.snapshot( null, null );
+			SnapshotParameters parameters = new SnapshotParameters();
+			parameters.setTransform( source.getLocalToSceneTransform() );
+			Image image = source.snapshot( parameters, null );
 			db.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
 			event.consume();
@@ -60,10 +63,12 @@ public class DndDemo extends Application {
 		} );
 
 		target.setOnDragOver( ( event ) -> {
-			System.out.println( "onDragOver" );
+			System.out.println( "onDragOver: " + event.getTransferMode() );
+
+			event.getDragboard().getTransferModes();
 
 			if( event.getGestureSource() != target && event.getDragboard().hasString() ) {
-				event.acceptTransferModes( TransferMode.MOVE );
+				event.acceptTransferModes( TransferMode.ANY );
 			}
 
 			event.consume();

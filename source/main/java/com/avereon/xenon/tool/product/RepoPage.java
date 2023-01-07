@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
@@ -21,7 +21,7 @@ class RepoPage extends ProductToolPage {
 	RepoPage( Program program, ProductTool productTool ) {
 		this.program = program;
 		this.productTool = productTool;
-		setTitle( Rb.text( BundleKey.TOOL, "product-" + ProductTool.SOURCES ) );
+		setTitle( Rb.text( RbKey.TOOL, "product-" + ProductTool.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
 		addButton.setOnMousePressed( ( e ) -> newRepo() );
