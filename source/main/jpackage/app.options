@@ -1,5 +1,5 @@
 --verbose
---app-version "1.6"
+--app-version "1.7"
 --name "${project.name}"
 --description "${project.description}"
 --vendor "${project.organization.name}"

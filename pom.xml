@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.6</version>
+	<version>1.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
