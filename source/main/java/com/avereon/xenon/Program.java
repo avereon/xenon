@@ -132,6 +132,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private FxEventHub fxEventHub;
 
+	private AppAction appAction;
+
 	private CloseWorkspaceAction closeAction;
 
 	private ExitAction exitAction;
@@ -1139,6 +1141,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerActionHandlers() {
+		getActionLibrary().getAction( "program" ).pushAction( appAction = new AppAction(this ) );
 		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction = new CloseWorkspaceAction( this ) );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
