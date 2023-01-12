@@ -15,6 +15,8 @@ public class MenuFactory extends NavFactory {
 
 	public static final String MENU_ID_PREFIX = "menu-";
 
+	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
+
 	public static ContextMenu createContextMenu( Program program, String descriptor ) {
 		ContextMenu menu = new ContextMenu();
 		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t ) ) );
@@ -74,7 +76,7 @@ public class MenuFactory extends NavFactory {
 			default -> item = new MenuItem();
 		}
 
-		item.setId( "menuitem-" + action.getId() );
+		item.setId( MENU_ITEM_ID_PREFIX + action.getId() );
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setDisable( !action.isEnabled() );

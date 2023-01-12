@@ -15,6 +15,7 @@ class WelcomeToolOpenUIT extends WelcomeToolUIT {
 		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
+		clickOn( "#toolitem-program" );
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );

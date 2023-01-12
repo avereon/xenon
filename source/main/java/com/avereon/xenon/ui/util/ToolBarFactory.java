@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 
 public class ToolBarFactory extends NavFactory {
 
+	public static final String TOOL_ITEM_ID_PREFIX = "toolitem-";
+
 	public static ToolBar createToolBar( Program program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
@@ -102,6 +104,7 @@ public class ToolBarFactory extends NavFactory {
 
 	private static Button createToolBarButton( Program program, ActionProxy action ) {
 		Button button = new Button();
+		button.setId( TOOL_ITEM_ID_PREFIX + action.getId() );
 		button.setOnAction( action );
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
