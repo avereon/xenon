@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public abstract class BarFactory {
+public abstract class NavFactory {
 
 	public static final String SEPARATOR = "|";
 

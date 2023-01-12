@@ -18,7 +18,7 @@ import javafx.stage.Popup;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ToolBarFactory extends BarFactory {
+public class ToolBarFactory extends NavFactory {
 
 	public static ToolBar createToolBar( Program program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();

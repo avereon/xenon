@@ -210,11 +210,11 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	protected void pushMenus( String descriptor ) {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenuActions( descriptor );
 	}
 
 	protected void pullMenus() {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
+		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenuActions();
 	}
 
 	protected void pushTools( String descriptor ) {

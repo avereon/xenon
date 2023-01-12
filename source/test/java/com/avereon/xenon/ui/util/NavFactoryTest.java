@@ -6,12 +6,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BarFactoryTest {
+public class NavFactoryTest {
 
 	@Test
 	void testParseTokensWithSimpleMenu() {
 		String descriptor = "file[new,open,save,close,exit]";
-		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
+		List<NavFactory.Token> tokens = NavFactory.parseDescriptor( descriptor );
 		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
 		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
@@ -25,7 +25,7 @@ public class BarFactoryTest {
 	@Test
 	void testParseTokensWithSimpleMenuAndSeparator() {
 		String descriptor = "file[new,open,save,close|exit]";
-		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
+		List<NavFactory.Token> tokens = NavFactory.parseDescriptor( descriptor );
 		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
 		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
@@ -41,7 +41,7 @@ public class BarFactoryTest {
 	@Test
 	void testParseTokensWithSimpleMenuAndCommaSeparatedSeparator() {
 		String descriptor = "file[new,open,save,close,|,exit]";
-		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
+		List<NavFactory.Token> tokens = NavFactory.parseDescriptor( descriptor );
 		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
 		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
@@ -57,7 +57,7 @@ public class BarFactoryTest {
 	@Test
 	void testParseTokensWithMultipleMenus() {
 		String descriptor = "file[new,open,save,close|exit],edit[undo,redo|cut,copy,paste]";
-		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
+		List<NavFactory.Token> tokens = NavFactory.parseDescriptor( descriptor );
 		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
 		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
@@ -82,7 +82,7 @@ public class BarFactoryTest {
 	@Test
 	void testParseTokensWithNestedMenu() {
 		String descriptor = "file[new,open,save,close,|,settings[program,project],|,exit]";
-		List<BarFactory.Token> tokens = BarFactory.parseDescriptor( descriptor );
+		List<NavFactory.Token> tokens = NavFactory.parseDescriptor( descriptor );
 		assertThat( tokens.get( 0 ).getId() ).isEqualTo( "file" );
 		assertThat( tokens.get( 0 ).getChildren().get( 0 ).getId() ).isEqualTo( "new" );
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );

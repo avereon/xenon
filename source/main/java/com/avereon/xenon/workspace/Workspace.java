@@ -11,7 +11,7 @@ import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.ui.util.MenuBarFactory;
+import com.avereon.xenon.ui.util.MenuFactory;
 import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -23,8 +23,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -70,15 +72,15 @@ public class Workspace implements WritableIdentity {
 
 	private final BorderPane workareaLayout;
 
-	private final MenuBar menubar;
+	private final ContextMenu programMenu;
 
 	// This menu is used to mark the beginning of the space where tools can push
 	// their own actions as well as be a standard menu.
-	private final Menu menubarToolStart;
+	private final MenuItem programMenuToolStart;
 
 	// This menu is used to mark the end of the space where tools can push their
 	// own actions as well as be a standard menu.
-	private final Menu menubarToolEnd;
+	private final MenuItem programMenuToolEnd;
 
 	private final ToolBar toolbar;
 
@@ -133,15 +135,14 @@ public class Workspace implements WritableIdentity {
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
-		menubar = createMenuBar( program );
-		menubarToolStart = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		menubarToolEnd = FxUtil.findMenuItemById( menubar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		programMenu = createProgramMenu( program );
+		programMenuToolStart = FxUtil.findMenuItemById( programMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		programMenuToolEnd = FxUtil.findMenuItemById( programMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
-		BorderPane menubarPane = new BorderPane( menubar, null, getWorkareaTools(), null, null );
 		BorderPane toolbarPane = new BorderPane( toolbar, null, getProgramTools(), null, null );
 
 		statusBar = createStatusBar( program );
@@ -163,7 +164,7 @@ public class Workspace implements WritableIdentity {
 
 		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( new VBox( menubarPane, toolbarPane ) );
+		workareaLayout.setTop( toolbarPane );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
@@ -186,7 +187,7 @@ public class Workspace implements WritableIdentity {
 		//} );
 
 		// This worked, just not the way I expected. The UI was rendered at a lower
-		// resolution, but then just scaled back up so it looked fuzzy.
+		// resolution, but then just scaled back up, so it looked fuzzy.
 		//stage.renderScaleXProperty().bind( stage.outputScaleXProperty().multiply( 0.5 ) );
 		//stage.renderScaleYProperty().bind( stage.outputScaleYProperty().multiply( 0.5 ) );
 
@@ -205,26 +206,27 @@ public class Workspace implements WritableIdentity {
 		return eventBus;
 	}
 
-	private MenuBar createMenuBar( Program program ) {
+	private ContextMenu createProgramMenu( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
 
 		// The menu definitions
-		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close|restart,exit]";
+		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
 		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
 		String help = "help[help-content,welcome|update|about]";
 		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 
-		// Construct the menubar descriptor
+		// Construct the program menu descriptor
 		StringBuilder descriptor = new StringBuilder();
 		descriptor.append( file );
 		descriptor.append( "," ).append( edit );
 		descriptor.append( "," ).append( view );
 		descriptor.append( "," ).append( help );
 		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
+		descriptor.append( "," ).append( "|restart,exit" );
 
-		// Build the menubar
-		return MenuBarFactory.createMenuBar( program, descriptor.toString() );
+		// Build the program menu
+		return MenuFactory.createContextMenu( program, descriptor.toString() );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
@@ -237,6 +239,7 @@ public class Workspace implements WritableIdentity {
 		return toolbar;
 	}
 
+	@Deprecated( since = "1.7", forRemoval = true )
 	private HBox getWorkareaTools() {
 		HBox box = new HBox();
 		box.setAlignment( Pos.CENTER_RIGHT );
@@ -289,7 +292,7 @@ public class Workspace implements WritableIdentity {
 		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getMenus().add( MenuBarFactory.createMenu( program, descriptor, true ) );
+		workareaMenuBar.getMenus().add( MenuFactory.createMenu( program, descriptor, true ) );
 		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		return workareaMenuBar;
 	}
@@ -324,23 +327,27 @@ public class Workspace implements WritableIdentity {
 		return statusBar;
 	}
 
-	public void pushMenubarActions( String descriptor ) {
-		pullMenubarActions();
-		descriptor = "tool[" + descriptor + "]";
-		int index = menubar.getMenus().indexOf( menubarToolEnd );
-		//menubar.getMenus().add( index++, menubarToolStart );
-		menubar.getMenus().addAll( index, MenuBarFactory.createMenuBar( getProgram(), descriptor ).getMenus() );
+	public void showProgramMenu( ActionEvent event ) {
+		programMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
 	}
 
-	public void pullMenubarActions() {
-		int index = menubar.getMenus().indexOf( menubarToolStart );
+	public void pushMenuActions( String descriptor ) {
+		pullMenuActions();
+		descriptor = "tool[" + descriptor + "]";
+		int index = programMenu.getItems().indexOf( programMenuToolEnd );
+		//programMenu.getItems().add( index++, programMenuToolStart );
+		programMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor ) );
+	}
+
+	public void pullMenuActions() {
+		int index = programMenu.getItems().indexOf( programMenuToolStart );
 		if( index < 0 ) return;
 		index++;
 
-		Menu node = menubar.getMenus().get( index );
-		while( node != menubarToolEnd ) {
-			menubar.getMenus().remove( index );
-			node = menubar.getMenus().get( index );
+		MenuItem node = programMenu.getItems().get( index );
+		while( node != programMenuToolEnd ) {
+			programMenu.getItems().remove( index );
+			node = programMenu.getItems().get( index );
 		}
 	}
 
@@ -413,7 +420,7 @@ public class Workspace implements WritableIdentity {
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
-			// TODO Remove the menu bar
+			// TODO Remove the program menu
 			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( false );
@@ -429,7 +436,7 @@ public class Workspace implements WritableIdentity {
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( true );
-			// TODO Set the menu bar
+			// TODO Set the program menu
 			// TODO Set the tool bar
 			activeWorkarea.setActive( true );
 			activeWorkarea.nameProperty().addListener( workareaNameWatcher );

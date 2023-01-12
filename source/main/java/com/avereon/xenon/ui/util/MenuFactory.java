@@ -9,25 +9,24 @@ import javafx.scene.input.KeyCombination;
 
 import java.util.List;
 
-public class MenuBarFactory extends BarFactory {
+public class MenuFactory extends NavFactory {
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
 	public static final String MENU_ID_PREFIX = "menu-";
 
-	public static MenuBar createMenuBar( Program program, String descriptor ) {
-		List<Token> tokens = parseDescriptor( descriptor );
+	public static ContextMenu createContextMenu( Program program, String descriptor ) {
+		ContextMenu menu = new ContextMenu();
+		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t ) ) );
+		return menu;
+	}
 
-		MenuBar menubar = new MenuBar();
-		for( Token token : tokens ) {
-			menubar.getMenus().add( createMenu( program, token, false ) );
-		}
-
-		return menubar;
+	public static List<Menu> createMenus( Program program, String descriptor ) {
+		return parseDescriptor( descriptor ).stream().map( t -> createMenu(program,t,false) ).toList();
 	}
 
 	public static Menu createMenu( Program program, String descriptor, boolean submenu ) {
-		return createMenu( program, parseDescriptor( descriptor ).get(0), submenu );
+		return createMenu( program, parseDescriptor( descriptor ).get( 0 ), submenu );
 	}
 
 	public static Menu createMenu( Program program, Token token, boolean submenu ) {
@@ -54,7 +53,9 @@ public class MenuBarFactory extends BarFactory {
 
 	private static MenuItem createMenuItem( Program program, Token item ) {
 		if( item.isSeparator() ) {
-			return new SeparatorMenuItem();
+			MenuItem separator = new SeparatorMenuItem();
+			separator.setId( "separator" );
+			return separator;
 		} else if( item.getChildren().isEmpty() ) {
 			return createMenuItem( program, program.getActionLibrary().getAction( item.getId() ) );
 		} else {
@@ -81,7 +82,7 @@ public class MenuBarFactory extends BarFactory {
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		if( action.getCommand() != null ) item.setText( action.getNameWithMnemonic() + " [" + action.getCommand() + "]");
+		if( action.getCommand() != null ) item.setText( action.getNameWithMnemonic() + " [" + action.getCommand() + "]" );
 
 		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
