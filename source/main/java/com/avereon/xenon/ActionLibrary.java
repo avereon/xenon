@@ -89,6 +89,7 @@ public class ActionLibrary {
 		register( product, "wallpaper-toggle" );
 		register( product, "wallpaper-prior" );
 		register( product, "wallpaper-next" );
+		register( product, "wallpaper-tint-toggle" );
 
 		register( product, "reset" );
 		register( product, "runpause" );
