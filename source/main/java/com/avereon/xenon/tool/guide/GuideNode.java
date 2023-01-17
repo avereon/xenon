@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.IdNode;
 import com.avereon.data.Node;
+import com.avereon.xenon.NodeOrderNameComparator;
 import com.avereon.xenon.Program;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.TreeItem;
@@ -94,9 +95,7 @@ public class GuideNode extends IdNode {
 
 	@Override
 	public <T extends Node> Comparator<T> getComparator() {
-		Comparator<T> byOrder = Comparator.comparingInt( o -> o.getValue( ORDER ) );
-		Comparator<T> byName = Comparator.comparing( o -> o.getValue( NAME ) );
-		return byOrder.thenComparing( byName );
+		return new NodeOrderNameComparator<>();
 	}
 
 	@Override
