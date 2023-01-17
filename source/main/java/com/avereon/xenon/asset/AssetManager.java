@@ -92,6 +92,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
 
+		// FIXME This is pretty dangerous for a couple of reasons
+		// 1. It saves all assets, not just the current one
+		// 2. In the even there was an error loading an asset, it can save the asset in a bad state
+		// ?. Maybe this should be changed to save assets that submit themselves for autosave?
 		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
 		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
 		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
