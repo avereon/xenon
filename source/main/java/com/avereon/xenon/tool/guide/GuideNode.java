@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.IdNode;
 import com.avereon.data.Node;
-import com.avereon.data.NodeComparator;
 import com.avereon.xenon.Program;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.TreeItem;
@@ -58,11 +57,13 @@ public class GuideNode extends IdNode {
 
 	public GuideNode setName( String name ) {
 		setValue( NAME, name );
-		if( exists( TREE_ITEM ) ) Fx.run( () -> {
-			// This seems to be simplest way to update the name on the tree item
-			getTreeItem().setValue( null );
-			getTreeItem().setValue( this );
-		} );
+		if( exists( TREE_ITEM ) ) {
+			Fx.run( () -> {
+				// This seems to be the simplest way to update the name on the tree item
+				getTreeItem().setValue( null );
+				getTreeItem().setValue( this );
+			} );
+		}
 		return this;
 	}
 
@@ -93,7 +94,9 @@ public class GuideNode extends IdNode {
 
 	@Override
 	public <T extends Node> Comparator<T> getComparator() {
-		return new NodeComparator<>( ORDER, NAME );
+		Comparator<T> byOrder = Comparator.comparingInt( o -> o.getValue( ORDER ) );
+		Comparator<T> byName = Comparator.comparing( o -> o.getValue( NAME ) );
+		return byOrder.thenComparing( byName );
 	}
 
 	@Override
@@ -102,7 +105,7 @@ public class GuideNode extends IdNode {
 	}
 
 	public TreeItem<GuideNode> getTreeItem() {
-		return computeIfAbsent( TREE_ITEM, (k) -> new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
+		return computeIfAbsent( TREE_ITEM, ( k ) -> new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 	}
 
 }
