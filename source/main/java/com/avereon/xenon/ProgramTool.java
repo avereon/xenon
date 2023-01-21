@@ -185,6 +185,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	/**
 	 * The tool and asset are ready.
 	 */
+	// THREAD JavaFX Application Thread
 	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
