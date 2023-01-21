@@ -233,13 +233,13 @@ public class Asset extends Node {
 		setValue( LAST_SAVED_KEY, timestamp );
 	}
 
-//	public File getFile() {
-//		return getValue( FILE );
-//	}
-//
-//	public void setFile( File file ) {
-//		setValue( FILE, file );
-//	}
+	//	public File getFile() {
+	//		return getValue( FILE );
+	//	}
+	//
+	//	public void setFile( File file ) {
+	//		setValue( FILE, file );
+	//	}
 
 	public <M> M getModel() {
 		return getValue( MODEL );
@@ -273,6 +273,10 @@ public class Asset extends Node {
 
 	public synchronized final boolean isNewOrModified() {
 		return isNew() || isModified();
+	}
+
+	public synchronized final boolean isSafeToSave() {
+		return isNew() || (isLoaded() && isModified());
 	}
 
 	public synchronized final boolean isOpen() {

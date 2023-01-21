@@ -1140,7 +1140,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private boolean doSaveAsset( Asset asset ) throws AssetException {
-		if( asset == null || !isManagedAssetOpen( asset ) ) return false;
+		if( asset == null || !isManagedAssetOpen( asset ) || !asset.isSafeToSave() ) return false;
 
 		if( !asset.getScheme().canSave( asset ) ) return false;
 
