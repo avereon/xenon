@@ -31,10 +31,7 @@ public class SearchTool extends ProgramTool {
 
 	private final TextField search;
 
-	@Deprecated
-	private final ListView<Hit> hitList;
-
-	// NOTE This should eventually be a tree
+	// TODO This should eventually be a tree
 	private final ListView<Document> docList;
 
 	public SearchTool( ProgramProduct product, Asset asset ) {
@@ -43,11 +40,6 @@ public class SearchTool extends ProgramTool {
 
 		search = new TextField();
 		search.setPromptText( Rb.text( RbKey.PROMPT, "search" ) );
-
-		hitList = new ListView<>();
-		hitList.setCellFactory( new HitListCellFactory() );
-		hitList.setPlaceholder( new Label( Rb.text( RbKey.WORKSPACE, "search-no-results" ) ) );
-		VBox.setVgrow( hitList, Priority.ALWAYS );
 
 		docList = new ListView<>();
 		docList.setCellFactory( new DocListCellFactory() );
@@ -70,7 +62,6 @@ public class SearchTool extends ProgramTool {
 				case DOWN -> selectNextDoc();
 			}
 		} );
-		hitList.setOnMousePressed( e -> openHit() );
 		docList.setOnMousePressed( e -> openDoc() );
 	}
 
@@ -108,22 +99,8 @@ public class SearchTool extends ProgramTool {
 		reset();
 	}
 
-	public Optional<Hit> getSelectedHit() {
-		return Optional.ofNullable( hitList.getSelectionModel().getSelectedItem() );
-	}
-
 	public Optional<Document> getSelectedDoc() {
 		return Optional.ofNullable( docList.getSelectionModel().getSelectedItem() );
-	}
-
-	public void selectPreviousHit() {
-		if( hitList.getItems().isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitList.getItems().get( 0 ) ) return;
-		hitList.getSelectionModel().selectPrevious();
-	}
-
-	public void selectNextHit() {
-		if( hitList.getItems().isEmpty() || hitList.getSelectionModel().getSelectedItem() == hitList.getItems().get( hitList.getItems().size() - 1 ) ) return;
-		hitList.getSelectionModel().selectNext();
 	}
 
 	public void selectPreviousDoc() {
@@ -136,23 +113,11 @@ public class SearchTool extends ProgramTool {
 		docList.getSelectionModel().selectNext();
 	}
 
-	private void openHit() {
-		this.getSelectedHit().ifPresent( this::open );
-	}
-
 	private void openDoc() {
 		this.getSelectedDoc().ifPresent( this::open );
 	}
 
 	private void doSearchAll( String text ) {
-		if( TextUtil.isEmpty( text ) ) {
-			this.hideHits();
-		} else {
-			String query = text.toLowerCase();
-			List<String> terms = Terms.split( query );
-			getProgram().getIndexService().searchAll( query, terms ).ifPresentOrElse( this::showHits, this::hideHits );
-		}
-
 		if( TextUtil.isEmpty( text ) ) {
 			this.hideDocs();
 		} else {
@@ -160,15 +125,6 @@ public class SearchTool extends ProgramTool {
 			List<String> terms = Terms.split( query );
 			getProgram().getIndexService().searchAll( query, terms ).ifPresentOrElse( this::showDocs, this::hideDocs );
 		}
-	}
-
-	private void showHits( List<Hit> hits ) {
-		hitList.getItems().setAll( hits );
-		hitList.getSelectionModel().selectFirst();
-	}
-
-	private void hideHits() {
-		hitList.getItems().clear();
 	}
 
 	private void showDocs( List<Hit> hits ) {
@@ -184,6 +140,7 @@ public class SearchTool extends ProgramTool {
 		docList.getItems().clear();
 	}
 
+	// TODO Use to render tree cells
 	private class HitListCellFactory implements Callback<ListView<Hit>, ListCell<Hit>> {
 
 		@Override
@@ -265,16 +222,8 @@ public class SearchTool extends ProgramTool {
 						category.setGraphic( null );
 						category.setText( null );
 					} else {
-//						String icon = switch( item.priority() ) {
-//							case Hit.TAG_PRIORITY -> "tag";
-//							case Hit.TITLE_PRIORITY -> "title";
-//							default -> "document";
-//						};
-						String icon = "document";
 						label.setGraphic( getProgram().getIconLibrary().getIcon( item.icon() ) );
 						label.setText( item.title() );
-//						category.setGraphic( getProgram().getIconLibrary().getIcon( icon ) );
-//						category.setText( item.word() );
 					}
 				}
 			};
