@@ -144,6 +144,15 @@ public class AssetManagerTest extends ProgramTestCase {
 		watcher.waitForEvent( AssetEvent.OPENED );
 		assertThat( asset.isOpen() ).isTrue();
 
+		// Asset must be loaded to be saved
+		manager.loadAssets( asset );
+		watcher.waitForEvent( AssetEvent.LOADED );
+		assertThat( asset.isLoaded() ).isTrue();
+
+		// And an asset must be modified to be saved
+		asset.setModified( true );
+		assertThat( asset.isSafeToSave() ).isTrue();
+
 		manager.saveAssets( asset );
 		watcher.waitForEvent( AssetEvent.SAVED );
 		assertThat( asset.isSaved() ).isTrue();
@@ -160,6 +169,15 @@ public class AssetManagerTest extends ProgramTestCase {
 		// Asset must be open to be saved
 		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
 		assertThat( asset.isOpen() ).isTrue();
+
+		// Asset must be loaded to be saved
+		manager.loadAssets( asset );
+		watcher.waitForEvent( AssetEvent.LOADED );
+		assertThat( asset.isLoaded() ).isTrue();
+
+		// And an asset must be modified to be saved
+		asset.setModified( true );
+		assertThat( asset.isSafeToSave() ).isTrue();
 
 		manager.saveAssetsAndWait( asset );
 		assertThat( asset.isSaved() ).isTrue();
