@@ -85,8 +85,6 @@ public class SearchTool extends ProgramTool {
 		super.ready( request );
 		setTitle( Rb.text( RbKey.TOOL, "search-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "search" ) );
-
-		// FIXME Why is there a race condition here?
 		requestFocus();
 	}
 
