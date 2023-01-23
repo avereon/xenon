@@ -1706,7 +1706,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			autosave.update();
+			autosave.request();
 		}
 
 	}
