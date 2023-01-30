@@ -241,7 +241,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public void requestCloseWorkspace( Workspace workspace ) {
 		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
-		log.atWarning().log( "Number of visible workspaces: %s", visibleWorkspaces );
 		boolean closeProgram = visibleWorkspaces == 1;
 		boolean shutdownVerify = getProgram().getSettings().get( "shutdown-verify", Boolean.class, true );
 
