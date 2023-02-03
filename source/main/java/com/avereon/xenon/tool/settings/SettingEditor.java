@@ -6,6 +6,7 @@ import com.avereon.xenon.tool.settings.editor.*;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public abstract class SettingEditor {
 	/**
 	 * Register a new setting editor.
 	 *
-	 * @param key    The editor key
+	 * @param key The editor key
 	 * @param editor The setting editor
 	 */
 	public static void addType( String key, Class<? extends SettingEditor> editor ) {
@@ -78,11 +79,40 @@ public abstract class SettingEditor {
 		return editors.get( key );
 	}
 
+	/**
+	 * <p>
+	 * Add components to the editor. This is done by adding a row to the specified
+	 * pane with the components for this editor. Components include the label and
+	 * other components like text fields, comboboxes, checkboxes, etc.
+	 * </p>
+	 * <p>
+	 * Example:
+	 * </p>
+	 * <pre>
+	 * pane.addRow( row, label, field );
+	 * </pre>
+	 *
+	 * @param pane The pane to add components to
+	 * @param row The row that is being configured
+	 */
 	public abstract void addComponents( GridPane pane, int row );
 
-	public abstract List<Node> getComponents();
+	/**
+	 * Get the components in the editor. This should return the set of all
+	 * components for the editor including the label and any other components.
+	 * This method is used to manage visibility states for the editor.
+	 *
+	 * @return All the components for this editor
+	 */
+	protected abstract Collection<Node> getComponents();
 
-	protected abstract void doSettingValueChanged(SettingsEvent event);
+	/**
+	 * Called with the setting value changes. Use this method to change editor
+	 * values when the setting value changes.
+	 *
+	 * @param event The setting change event
+	 */
+	protected abstract void doSettingValueChanged( SettingsEvent event );
 
 	public void setDisable( boolean disable ) {
 		getComponents().forEach( n -> n.setDisable( disable ) );
@@ -94,10 +124,11 @@ public abstract class SettingEditor {
 			n.setManaged( visible );
 		} );
 	}
+
 	// Setting listener
 
-	public void handle( SettingsEvent event ) {
-		doSettingValueChanged(event);
+	final void handle( SettingsEvent event ) {
+		doSettingValueChanged( event );
 	}
 
 }

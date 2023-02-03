@@ -10,6 +10,7 @@ import com.avereon.util.PathUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
+import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
@@ -79,6 +80,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static String getSettingsPath( ProductCard card ) {
 		return ProgramSettings.PRODUCT + card.getProductKey();
+	}
+
+	public void putSettingEditor( String id, Class<? extends SettingEditor> clazz ) {
+		SettingEditor.addType("asset-type", clazz);
 	}
 
 	public Map<String, SettingOptionProvider> getOptionProviders() {

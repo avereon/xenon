@@ -16,6 +16,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.AssetTypeSettingEditor;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.tool.HelpTool;
 import com.avereon.xenon.asset.type.ProgramHelpType;
@@ -428,7 +429,7 @@ public class Program extends Application implements ProgramProduct {
 		log.atFine().log( "Index service started." );
 
 		// Load the settings pages
-		//getSettingsManager().putSettingEditor( "asset-type", AssetTypeEditor.class );
+		getSettingsManager().putSettingEditor( "asset-type", AssetTypeSettingEditor.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 
 		// Start the tool manager

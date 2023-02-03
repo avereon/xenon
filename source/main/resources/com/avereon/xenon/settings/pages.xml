@@ -248,7 +248,7 @@
 		<page id="asset-types">
 			<group id="asset-type">
 				<setting key="program-current-asset-type" editor="combobox" provider="program-asset-type-provider"/>
-				<setting key="program-current-asset-type" editor="asset-type"/>
+				<setting key="asset-type" editor="asset-type"/>
 				<!-- the list of resource types -->
 				<!-- resource type attributes -->
 			</group>
