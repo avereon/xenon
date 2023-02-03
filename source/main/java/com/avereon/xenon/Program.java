@@ -416,6 +416,8 @@ public class Program extends Application implements ProgramProduct {
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
 		assetManager.start();
+		//program-asset-type-provider
+		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
 		Fx.run( () -> splashScreen.update() );
 		log.atFine().log( "Asset manager started." );
 
@@ -426,6 +428,7 @@ public class Program extends Application implements ProgramProduct {
 		log.atFine().log( "Index service started." );
 
 		// Load the settings pages
+		//getSettingsManager().putSettingEditor( "asset-type", AssetTypeEditor.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 
 		// Start the tool manager
