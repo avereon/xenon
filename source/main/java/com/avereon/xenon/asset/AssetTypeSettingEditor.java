@@ -14,8 +14,24 @@ public class AssetTypeSettingEditor extends SettingEditor {
 
 	private final Label label = new Label( "Asset Type Setting Editor" );
 
+	private final Label key;
+
+	private final Label name;
+
 	public AssetTypeSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
+
+		key = new Label();
+		name = new Label();
+
+		doUpdateFields(setting.getSettings().get( getKey(), String.class, "" ));
+	}
+
+	private void doUpdateFields( String typeKey ) {
+		AssetType type = getProduct().getProgram().getAssetManager().getAssetType( typeKey );
+		key.setText( type == null ? "" : type.getKey() );
+		name.setText( type == null ? "" : type.getName() );
+
 	}
 
 	/**
@@ -23,16 +39,23 @@ public class AssetTypeSettingEditor extends SettingEditor {
 	 */
 	@Override
 	public void addComponents( GridPane pane, int row ) {
-		pane.addRow( row, label );
+		GridPane grid = new GridPane();
+
+		int index = 0;
+		grid.addRow( index++, label, key, name );
+
+		GridPane.setColumnSpan( grid, GridPane.REMAINING );
+
+		pane.addRow( row, grid );
 	}
 
 	@Override
 	protected Set<Node> getComponents() {
-		return Set.of( label );
+		return Set.of( label, key, name );
 	}
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-
+		doUpdateFields( String.valueOf( event.getNewValue() ) );
 	}
 }
