@@ -247,9 +247,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		return new ArrayList<>( assetTypeToolClasses.get( assetType ) );
 	}
 
+	public Class<? extends ProgramTool> getDefaultTool( AssetType assetType ) {
+		return determineToolClassForAssetType( assetType );
+	}
+
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
@@ -262,6 +267,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
+
 		return toolClass;
 	}
 
