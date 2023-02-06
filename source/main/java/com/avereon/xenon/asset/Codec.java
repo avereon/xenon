@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,6 +99,18 @@ public abstract class Codec implements Predicate<Asset> {
 		return Collections.unmodifiableSet( supportedMatches.getOrDefault( type, Set.of() ) );
 	}
 
+	public final Set<Association> getAssociations() {
+		Set<Association> associations = new HashSet<>();
+
+		for( Pattern pattern : Pattern.values() ) {
+			for( String value : getSupported( pattern ) ) {
+				associations.add( new Association( pattern, value ) );
+			}
+		}
+
+		return associations;
+	}
+
 	public final boolean isSupported( Pattern type, String value ) {
 		if( TextUtil.isEmpty( value ) ) return false;
 		return supportedMatches.getOrDefault( type, Set.of() ).stream().anyMatch( p -> type.accept( p, value ) );
@@ -132,5 +145,7 @@ public abstract class Codec implements Predicate<Asset> {
 	public String toString() {
 		return getName();
 	}
+
+	public record Association(Pattern pattern, String value) {}
 
 }

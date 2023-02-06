@@ -154,6 +154,10 @@ public abstract class AssetType implements Comparable<AssetType> {
 		}
 	}
 
+	public Set<Codec.Association> getAssociations() {
+		return getCodecs().stream().flatMap( c -> c.getAssociations().stream() ).collect( Collectors.toSet());
+	}
+
 	/**
 	 * This method is called when a new asset is requested to be opened. This
 	 * method is valuable if the asset requires user interaction when creating new
