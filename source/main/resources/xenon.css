@@ -207,15 +207,14 @@ Derived from modena.css
 }
 
 .workpane .table-row-cell {
-	/* This sets the variable -fx-background */
-	-fx-background: -ex-background-text;
-	-fx-background-color: -fx-background;
+	/*-fx-background: -ex-background-tabs;*/
+	-fx-background-color: transparent;
 	-fx-padding: 0;
 	-fx-text-fill: -fx-text-background-color;
 }
 
 .workpane .table-row-cell:odd {
-	-fx-background: -ex-background-tags;
+	-fx-background-color: -ex-background-tool;
 }
 
 .workpane .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
