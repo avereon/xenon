@@ -30,14 +30,14 @@ public class SettingsPage extends Node {
 
 	private static final String SETTINGS = "settings";
 
-	private final SettingsPage page;
+	private final SettingsPage parent;
 
 	private String rbKey = RbKey.SETTINGS;
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	SettingsPage( SettingsPage page ) {
-		this.page = page;
+	SettingsPage( SettingsPage parent ) {
+		this.parent = parent;
 
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
 		setValue( PAGES, new ConcurrentHashMap<>() );
@@ -46,6 +46,11 @@ public class SettingsPage extends Node {
 		defineNaturalKey( TITLE );
 
 		setModified( false );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public SettingsPage getParent() {
+		return parent;
 	}
 
 	public String getId() {
@@ -106,7 +111,7 @@ public class SettingsPage extends Node {
 	}
 
 	public Settings getSettings() {
-		if( page != null ) return page.getSettings();
+		if( parent != null ) return parent.getSettings();
 		return getValue( SETTINGS );
 	}
 

@@ -33,6 +33,9 @@ import com.avereon.xenon.throwable.ProgramUncaughtExceptionHandler;
 import com.avereon.xenon.tool.*;
 import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
+import com.avereon.xenon.tool.settings.SettingData;
+import com.avereon.xenon.tool.settings.SettingGroup;
+import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zarra.event.FxEventHub;
@@ -50,6 +53,7 @@ import lombok.CustomLog;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -533,7 +537,40 @@ public class Program extends Application implements ProgramProduct {
 		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
 		String icon = "about";
 		String name = Rb.text( RbKey.TOOL, "about-name" );
-		getIndexService().submit( new Document( ProgramAboutType.URI, icon, name, about.getIndexContent() ) );
+		getIndexService().submit( "about", new Document( ProgramAboutType.URI, icon, name, about.getIndexContent() ) );
+
+		// TODO Index Help documents
+
+		indexSettings();
+	}
+
+	private void indexSettings() {
+		for( String id : getSettingsManager().getPageIds() ) {
+			SettingsPage page = getSettingsManager().getSettingsPage( id );
+
+			StringBuilder content = new StringBuilder();
+			for( SettingGroup group : page.getGroups() ) {
+				for( SettingData data : group.getSettingsList() ) {
+					String label = Rb.text( page.getProduct(), RbKey.SETTINGS, data.getRbKey() );
+					content.append( label ).append( "\n" );
+
+					// TODO Don't forget settings tags
+				}
+			}
+
+			StringBuilder path = new StringBuilder();
+			SettingsPage p = page;
+			while( p != null ) {
+				path.insert( 0, p.getId() );
+				path.insert( 0, "/" );
+				p = p.getParent();
+			}
+			URI uri = URI.create( ProgramSettingsType.URI + path.toString() );
+
+			log.atConfig().log( "page uri=%s", uri );
+
+			getIndexService().submit( "settings", new Document( uri, page.getIcon(), page.getTitle(), content.toString() ) );
+		}
 	}
 
 	// THREAD JavaFX Application Thread
@@ -1147,7 +1184,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "program" ).pushAction( appAction = new AppAction(this ) );
+		getActionLibrary().getAction( "program" ).pushAction( appAction = new AppAction( this ) );
 		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction = new CloseWorkspaceAction( this ) );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
