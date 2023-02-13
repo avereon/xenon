@@ -69,21 +69,21 @@ public class IndexService implements Controllable<IndexService> {
 	 * @return The resulting hit list
 	 */
 	public Result<List<Hit>> searchAll( String text, List<String> terms ) {
-		Collection<Index> indexes = indexer.allIndexes();
+//		Collection<Index> indexes = indexer.allIndexes();
 
-		Search exactSearch = new FuzzySearch( 100 );
-		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
-		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
+//		Search exactSearch = new FuzzySearch( 100 );
+//		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
+//		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
 
 		Search fuzzySearch = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
 		IndexQuery fuzzyQuery = IndexQuery.builder().terms( terms ).build();
 		List<Hit> fuzzyHits = Indexer.search( fuzzySearch, fuzzyQuery, indexer.allIndexes() ).get();
 
-		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
-		allHits.addAll( exactHits );
-		allHits.addAll( fuzzyHits );
+//		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
+//		allHits.addAll( exactHits );
+//		allHits.addAll( fuzzyHits );
 
-		return Result.of( allHits );
+		return Result.of( fuzzyHits );
 	}
 
 	/**

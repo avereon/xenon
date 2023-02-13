@@ -21,10 +21,7 @@ import javafx.util.Callback;
 import lombok.CustomLog;
 import lombok.NonNull;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @CustomLog
 public class SearchTool extends ProgramTool {
@@ -50,7 +47,7 @@ public class SearchTool extends ProgramTool {
 		scroller.setFitToHeight( true );
 		getChildren().add( scroller );
 
-		VBox listContainer = new VBox(UiFactory.PAD, search, scroller );
+		VBox listContainer = new VBox( UiFactory.PAD, search, scroller );
 		getChildren().add( listContainer );
 
 		search.textProperty().addListener( ( p, o, n ) -> doSearchAll( n ) );
@@ -128,9 +125,20 @@ public class SearchTool extends ProgramTool {
 	}
 
 	private void showDocs( List<Hit> hits ) {
+		Map<Document, List<Hit>> maps = new HashMap<>();
+		hits.forEach( h -> {
+			List<Hit> docHits = maps.computeIfAbsent( h.document(), ( v ) -> new ArrayList<>() );
+			docHits.add( h );
+		} );
 
-		Set<Document> docs = new HashSet<>();
-		hits.forEach( h -> docs.add( h.document() ) );
+		List<Document> docs = new ArrayList<>(maps.keySet());
+		// FIXME This did not sort as expected
+		docs.sort( (o1, o2) -> {
+			int p1 = maps.get(o1).get(0).points();
+			int p2 = maps.get(o2).get(0).points();
+			System.out.printf( "p1=%s p2=%s%n", p1, p2 );
+			return p1-p2;
+		} );
 
 		docList.getItems().setAll( docs );
 		docList.getSelectionModel().selectFirst();
