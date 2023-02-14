@@ -131,13 +131,20 @@ public class SearchTool extends ProgramTool {
 			docHits.add( h );
 		} );
 
-		List<Document> docs = new ArrayList<>(maps.keySet());
+		List<Document> docs = new ArrayList<>( maps.keySet() );
+
 		// FIXME This did not sort as expected
-		docs.sort( (o1, o2) -> {
-			int p1 = maps.get(o1).get(0).points();
-			int p2 = maps.get(o2).get(0).points();
-			System.out.printf( "p1=%s p2=%s%n", p1, p2 );
-			return p1-p2;
+		// The reason being that almost all hits had 100 points
+		docs.sort( ( o1, o2 ) -> {
+			String t1 = maps.get( o1 ).get( 0 ).document().title();
+			String t2 = maps.get( o2 ).get( 0 ).document().title();
+
+//			int p1 = maps.get( o1 ).get( 0 ).points();
+//			int p2 = maps.get( o2 ).get( 0 ).points();
+//			System.out.printf( "p1=%s p2=%s%n", p1, p2 );
+
+			return t1.compareTo( t2 );
+			//return p1 - p2;
 		} );
 
 		docList.getItems().setAll( docs );
