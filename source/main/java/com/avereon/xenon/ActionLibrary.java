@@ -20,6 +20,7 @@ public class ActionLibrary {
 
 		// Create default actions
 		register( product, "program" );
+		register( product, "menu" );
 		register( product, "file" );
 		register( product, "new" );
 		register( product, "open" );

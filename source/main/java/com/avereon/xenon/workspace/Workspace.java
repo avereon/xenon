@@ -232,7 +232,7 @@ public class Workspace implements WritableIdentity {
 	private ToolBar createProgramToolBar( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
 
-		String descriptor = "program|new,open,save,properties,print|undo,redo|cut,copy,paste";
+		String descriptor = "menu|new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 		toolbar.getItems().add( toolbarToolEnd );
 

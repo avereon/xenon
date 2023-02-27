@@ -33,6 +33,7 @@ public class IconLibrary {
 
 		register( "provider", new WingDiscLargeIcon() );
 		register( "program", new XRingLargeIcon() );
+		register( "menu", new Hamburger4Icon() );
 		register( "context", new ContextIcon() );
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );

@@ -1184,7 +1184,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "program" ).pushAction( appAction = new AppAction( this ) );
+		getActionLibrary().getAction( "menu" ).pushAction( appAction = new AppAction( this ) );
 		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction = new CloseWorkspaceAction( this ) );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
@@ -1219,6 +1219,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterActionHandlers() {
+		getActionLibrary().getAction( "menu" ).pullAction( appAction );
 		getActionLibrary().getAction( "workspace-close" ).pullAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
