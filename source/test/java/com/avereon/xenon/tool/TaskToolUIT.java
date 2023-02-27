@@ -8,7 +8,7 @@ import org.testfx.robot.Motion;
 abstract class TaskToolUIT extends BaseToolUIT {
 
 	void openTaskTool() throws Exception {
-		clickOn( "#toolitem-program" );
+		clickOn( "#toolitem-menu" );
 		clickOn( "#menu-view" );
 		clickOn( "#menuitem-task", Motion.HORIZONTAL_FIRST );
 		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );

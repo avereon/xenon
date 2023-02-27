@@ -8,7 +8,7 @@ import org.testfx.robot.Motion;
 abstract class WelcomeToolUIT extends BaseToolUIT {
 
 	protected void openWelcomeTool() throws Exception {
-		clickOn( "#toolitem-program" );
+		clickOn( "#toolitem-menu" );
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome", Motion.HORIZONTAL_FIRST );
 		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );

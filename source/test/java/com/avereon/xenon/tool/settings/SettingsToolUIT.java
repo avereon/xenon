@@ -8,7 +8,7 @@ import org.testfx.robot.Motion;
 abstract class SettingsToolUIT extends BaseToolUIT {
 
 	void openSettingsTool() throws Exception {
-		clickOn( "#toolitem-program" );
+		clickOn( "#toolitem-menu" );
 		clickOn( "#menu-edit" );
 		clickOn( "#menuitem-settings", Motion.HORIZONTAL_FIRST );
 		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
