@@ -71,7 +71,7 @@
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 		<weave.version>[1.3,)</weave.version>
-		<zenna.version>[0.7,)</zenna.version>
+		<zenna.version>[0.9-SNAPSHOT,)</zenna.version>
 		<zarra.version>[0.7,)</zarra.version>
 		<zevra.version>[0.9-SNAPSHOT,)</zevra.version>
 
