@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
+import com.avereon.zarra.style.Motif;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,6 +32,10 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
 	public String getName() {
 		return name;
+	}
+
+	public Motif getMotif() {
+		return dark ? Motif.DARK : Motif.LIGHT;
 	}
 
 	public boolean isDark() {
