@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.3.4</version>
+		<version>3.5.0</version>
 		<relativePath/>
 	</parent>
 
@@ -70,7 +70,7 @@
 		<!-- Runtime dependencies -->
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
-		<weave.version>[1.3,)</weave.version>
+		<weave.version>[1.4-SNAPSHOT,)</weave.version>
 		<zenna.version>[0.9-SNAPSHOT,)</zenna.version>
 		<zarra.version>[0.9-SNAPSHOT,)</zarra.version>
 		<zevra.version>[0.9-SNAPSHOT,)</zevra.version>
@@ -85,8 +85,8 @@
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build plugin versions -->
-		<cameo.version>2.9</cameo.version>
-		<curex.version>1.3</curex.version>
+		<cameo.version>2.10</cameo.version>
+		<curex.version>1.4</curex.version>
 	</properties>
 
 	<dependencies>
