@@ -49,6 +49,7 @@ public class IconLibrary {
 		register( "properties", new PropertiesIcon() );
 		register( "print", new PrinterIcon() );
 
+		register( "edit", new PencilIcon() );
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
 		register( "cut", new CutIcon() );
