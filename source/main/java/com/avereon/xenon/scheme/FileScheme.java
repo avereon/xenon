@@ -20,6 +20,8 @@ public class FileScheme extends BaseScheme {
 
 	private static final String FILE = "file";
 
+	private static final String TEMP_EXTENSION = ".xenonsave";
+
 	private List<Asset> roots;
 
 	//private FileAssetWatcher assetWatcher;
@@ -70,12 +72,17 @@ public class FileScheme extends BaseScheme {
 		Path file = getFile( asset ).toPath();
 		Path temp = null;
 
+		// NOTE The two-step strategy needs to keep the temp file and real file on
+		// the same file system because the move operation does not work across file
+		// systems (two Unix mount points or two Windows drives). Network files
+		// systems are also considered separate from local file systems.
+
 		try {
 			// Step one - move current file out of the way
-			Path tempFolder = Files.createDirectories( getProgram().getTempFolder() );
-			temp = Files.createTempFile( tempFolder, "asset.", null );
+			String tempFileName = file.getFileName() + TEMP_EXTENSION;
+			temp = file.getParent().resolve( tempFileName );
 			Files.deleteIfExists( temp );
-			Files.move( file, temp );
+			if( Files.exists( file ) ) Files.move( file, temp );
 
 			// Step two - save asset to file
 			try( OutputStream stream = new FileOutputStream( file.toFile() ) ) {
@@ -84,15 +91,15 @@ public class FileScheme extends BaseScheme {
 				asset.setLastSaved( System.currentTimeMillis() );
 			}
 		} catch( IOException exception ) {
-			if( temp != null ) {
-				try {
-					Files.move( temp, file );
-				} catch( IOException restoreException ) {
-					log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
-				}
+			// Error recovery - move temp file back to real file
+			try {
+				Files.move( temp, file );
+			} catch( IOException restoreException ) {
+				log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
 			}
 			throw new AssetException( asset, exception );
 		} finally {
+			// Cleanup - remove the temp file regardless of the outcome
 			if( temp != null ) {
 				try {
 					Files.deleteIfExists( temp );
@@ -101,17 +108,6 @@ public class FileScheme extends BaseScheme {
 				}
 			}
 		}
-
-		// Step two - save asset to file
-		//		try( OutputStream stream = new FileOutputStream( file ) ) {
-		//			codec.save( asset, stream );
-		//			if( temp != null && temp.exists() && !temp.delete() ) log.atWarn().log( "Unable to cleanup temp file: " + temp );
-		//		} catch( Exception exception ) {
-		//			if( temp != null && temp.exists() && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
-		//			throw new AssetException( asset, exception );
-		//		} finally {
-		//			asset.setLastSaved( System.currentTimeMillis() );
-		//		}
 	}
 
 	@Override
