@@ -61,6 +61,7 @@ public class IconLibrary {
 		register( "play", new PlayIcon() );
 		register( "pause", new PauseIcon() );
 
+		register( "view", new EyeIcon() );
 		register( "setting", new SettingIcon() );
 		register( "settings", new GearIcon() );
 		register( "themes", new ThemeIcon() );
