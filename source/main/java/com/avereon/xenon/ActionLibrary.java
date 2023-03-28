@@ -59,6 +59,7 @@ public class ActionLibrary {
 		register( product, "statusbar-show" );
 		register( product, "settings" );
 
+		register( product, "tool" );
 		register( product, "tools" );
 
 		register( product, "help" );

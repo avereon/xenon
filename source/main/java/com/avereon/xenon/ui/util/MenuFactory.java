@@ -17,14 +17,14 @@ public class MenuFactory extends NavFactory {
 
 	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
 
-	public static ContextMenu createContextMenu( Program program, String descriptor ) {
+	public static ContextMenu createContextMenu( Program program, String descriptor, boolean submenu ) {
 		ContextMenu menu = new ContextMenu();
-		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t ) ) );
+		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, submenu ) ) );
 		return menu;
 	}
 
-	public static List<Menu> createMenus( Program program, String descriptor ) {
-		return parseDescriptor( descriptor ).stream().map( t -> createMenu(program,t,false) ).toList();
+	public static List<Menu> createMenus( Program program, String descriptor, boolean submenu ) {
+		return parseDescriptor( descriptor ).stream().map( t -> createMenu(program,t,submenu) ).toList();
 	}
 
 	public static Menu createMenu( Program program, String descriptor, boolean submenu ) {
@@ -47,13 +47,13 @@ public class MenuFactory extends NavFactory {
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
 		for( Token child : token.getChildren() ) {
-			menu.getItems().add( createMenuItem( program, child ) );
+			menu.getItems().add( createMenuItem( program, child, submenu ) );
 		}
 
 		return menu;
 	}
 
-	private static MenuItem createMenuItem( Program program, Token item ) {
+	private static MenuItem createMenuItem( Program program, Token item, boolean submenu ) {
 		if( item.isSeparator() ) {
 			MenuItem separator = new SeparatorMenuItem();
 			separator.setId( "separator" );
@@ -61,7 +61,7 @@ public class MenuFactory extends NavFactory {
 		} else if( item.getChildren().isEmpty() ) {
 			return createMenuItem( program, program.getActionLibrary().getAction( item.getId() ) );
 		} else {
-			return createMenu( program, item, true );
+			return createMenu( program, item, submenu );
 		}
 	}
 

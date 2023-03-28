@@ -12,7 +12,7 @@ public class MenuFactoryTest extends BaseUiFactoryTest {
 
 	@Test
 	void testContextMenu() {
-		ContextMenu bar = MenuFactory.createContextMenu( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]|exit" );
+		ContextMenu bar = MenuFactory.createContextMenu( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]|exit", false );
 		assertThat( bar.getItems().get( 0 ).getId() ).isEqualTo( "menu-file" );
 		assertThat( bar.getItems().get( 1 ).getId() ).isEqualTo( "menu-edit" );
 		assertThat( bar.getItems().get( 2 ).getId() ).isEqualTo( "menu-help" );
@@ -23,7 +23,7 @@ public class MenuFactoryTest extends BaseUiFactoryTest {
 
 	@Test
 	void testCreateMenus() {
-		List<Menu> menus = MenuFactory.createMenus( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]" );
+		List<Menu> menus = MenuFactory.createMenus( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]", false );
 		assertThat( menus.get( 0 ).getId() ).isEqualTo( "menu-file" );
 		assertThat( menus.get( 1 ).getId() ).isEqualTo( "menu-edit" );
 		assertThat( menus.get( 2 ).getId() ).isEqualTo( "menu-help" );

@@ -60,6 +60,11 @@ public class Workspace implements WritableIdentity {
 
 	public static final String VIEW_ACTION = "view";
 
+	/**
+	 * Should the program menu be shown as a compact menu in the toolbar.
+	 */
+	private static final boolean COMPACT_MENU = true;
+
 	private final Program program;
 
 	private final Stage stage;
@@ -226,7 +231,7 @@ public class Workspace implements WritableIdentity {
 		descriptor.append( "," ).append( "|restart,exit" );
 
 		// Build the program menu
-		return MenuFactory.createContextMenu( program, descriptor.toString() );
+		return MenuFactory.createContextMenu( program, descriptor.toString(), COMPACT_MENU );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
@@ -292,7 +297,7 @@ public class Workspace implements WritableIdentity {
 		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getMenus().add( MenuFactory.createMenu( program, descriptor, true ) );
+		workareaMenuBar.getMenus().add( MenuFactory.createMenu( program, descriptor, COMPACT_MENU ) );
 		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		return workareaMenuBar;
 	}
@@ -336,7 +341,7 @@ public class Workspace implements WritableIdentity {
 		descriptor = "tool[" + descriptor + "]";
 		int index = programMenu.getItems().indexOf( programMenuToolEnd );
 		//programMenu.getItems().add( index++, programMenuToolStart );
-		programMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor ) );
+		programMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
 	}
 
 	public void pullMenuActions() {
