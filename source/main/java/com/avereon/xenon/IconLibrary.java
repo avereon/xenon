@@ -35,6 +35,9 @@ public class IconLibrary {
 		register( "program", new XRingLargeIcon() );
 		register( "menu", new Hamburger4Icon() );
 		register( "context", new ContextIcon() );
+		register( "settings", new GearIcon() );
+		register( "maintenance", new WrenchIcon() );
+		register( "restart", new RefreshIcon() );
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 
@@ -65,7 +68,6 @@ public class IconLibrary {
 
 		register( "view", new EyeIcon() );
 		register( "setting", new SettingIcon() );
-		register( "settings", new GearIcon() );
 		register( "themes", new ThemeIcon() );
 		register( "options", new PreferencesIcon() );
 

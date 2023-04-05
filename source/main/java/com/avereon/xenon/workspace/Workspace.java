@@ -220,6 +220,7 @@ public class Workspace implements WritableIdentity {
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
 		String help = "help[help-content,welcome|update|about]";
 		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String main = "settings|maintenance[restart]|exit";
 
 		// Construct the program menu descriptor
 		StringBuilder descriptor = new StringBuilder();
@@ -228,7 +229,7 @@ public class Workspace implements WritableIdentity {
 		descriptor.append( "," ).append( view );
 		descriptor.append( "," ).append( help );
 		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
-		descriptor.append( "," ).append( "|restart,exit" );
+		descriptor.append( "|" ).append( main );
 
 		// Build the program menu
 		return MenuFactory.createContextMenu( program, descriptor.toString(), COMPACT_MENU );
