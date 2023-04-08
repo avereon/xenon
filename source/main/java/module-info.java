@@ -6,6 +6,15 @@ module com.avereon.xenon {
 	requires static lombok;
 
 	// Both compile-time and run-time
+	requires transitive com.avereon.zenna;
+	requires transitive com.avereon.zarra;
+	requires transitive com.avereon.zevra;
+	requires transitive javafx.controls;
+	requires transitive javafx.graphics;
+	requires transitive javafx.fxml;
+	requires transitive javafx.swing;
+	requires transitive javafx.web;
+	requires transitive org.fxmisc.undo;
 	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
@@ -17,15 +26,16 @@ module com.avereon.xenon {
 	requires jdk.crypto.ec;
 	requires org.controlsfx.controls;
 	requires reactfx;
-	requires transitive com.avereon.zenna;
-	requires transitive com.avereon.zarra;
-	requires transitive com.avereon.zevra;
-	requires transitive javafx.controls;
-	requires transitive javafx.graphics;
-	requires transitive javafx.fxml;
-	requires transitive javafx.swing;
-	requires transitive javafx.web;
-	requires transitive org.fxmisc.undo;
+
+	// This is to provide some base classes for testing the program and mods
+	//requires org.junit.jupiter;
+	//requires org.junit.jupiter.api;
+	//requires org.junit.jupiter.engine;
+	//requires org.junit.jupiter.params;
+	//requires org.junit.platform.commons;
+	//requires org.junit.platform.engine;
+	requires static org.testfx.junit5;
+	//requires static org.assertj.core;
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
