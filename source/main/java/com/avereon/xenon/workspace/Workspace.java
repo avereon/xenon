@@ -216,7 +216,7 @@ public class Workspace implements WritableIdentity {
 
 		// The menu definitions
 		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
-		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent|settings]";
+		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent]";
 		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
 		String help = "help[help-content,welcome|update|about]";
 		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
