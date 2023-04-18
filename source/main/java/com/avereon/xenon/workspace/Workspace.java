@@ -213,7 +213,7 @@ public class Workspace implements WritableIdentity {
 
 	private ContextMenu createProgramMenu( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
-		String desc = getSettings().get( "workspace-menubar" );
+		//String desc = getSettings().get( "workspace-menubar" );
 
 		// The menu definitions
 		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
