@@ -129,9 +129,22 @@ public class Workspace implements WritableIdentity {
 
 	private Workarea activeWorkarea;
 
-	public Workspace( final Program program ) {
+	public Workspace( final Program program, final String id ) {
 		this.program = program;
 		this.eventBus = new FxEventHub();
+
+		// Create the stage
+		stage = new Stage();
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+		stage.setOnCloseRequest( event -> {
+			program.getWorkspaceManager().requestCloseWorkspace( this );
+			event.consume();
+		} );
+		stage.focusedProperty().addListener( ( p, o, n ) -> {
+			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
+		} );
+
+		setUid( id );
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
@@ -148,7 +161,7 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
-		BorderPane toolbarPane = new BorderPane( toolbar, null, getProgramTools(), null, null );
+		BorderPane toolbarPane = new BorderPane( toolbar, null, createToolbarRightArea(), null, null );
 
 		statusBar = createStatusBar( program );
 
@@ -173,29 +186,6 @@ public class Workspace implements WritableIdentity {
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
-		// Create the stage
-		stage = new Stage();
-		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-		stage.setOnCloseRequest( event -> {
-			program.getWorkspaceManager().requestCloseWorkspace( this );
-			event.consume();
-		} );
-		stage.focusedProperty().addListener( ( p, o, n ) -> {
-			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
-		} );
-
-		//stage.outputScaleXProperty().addListener( (p,o,n) -> {
-		//	log.log( Log.WARN, "The window output scale X changed to " + n );
-		//} );
-		//stage.outputScaleYProperty().addListener( (p,o,n) -> {
-		//	log.log( Log.WARN, "The window output scale Y changed to " + n );
-		//} );
-
-		// This worked, just not the way I expected. The UI was rendered at a lower
-		// resolution, but then just scaled back up, so it looked fuzzy.
-		//stage.renderScaleXProperty().bind( stage.outputScaleXProperty().multiply( 0.5 ) );
-		//stage.renderScaleYProperty().bind( stage.outputScaleYProperty().multiply( 0.5 ) );
-
 		memoryMonitor.start();
 		taskMonitor.start();
 		fpsMonitor.start();
@@ -213,7 +203,7 @@ public class Workspace implements WritableIdentity {
 
 	private ContextMenu createProgramMenu( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
-		//String desc = getSettings().get( "workspace-menubar" );
+		String desc = getSettings().get( "workspace-menubar" );
 
 		// The menu definitions
 		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
@@ -255,7 +245,7 @@ public class Workspace implements WritableIdentity {
 		return box;
 	}
 
-	private HBox getProgramTools() {
+	private HBox createToolbarRightArea() {
 		HBox box = new HBox();
 		box.getStyleClass().addAll( "tool-bar" );
 		box.setPadding( Insets.EMPTY );

@@ -134,8 +134,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace newWorkspace( String id ) {
-		Workspace workspace = new Workspace( program );
-		workspace.setUid( id );
+		Workspace workspace = new Workspace( program, id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
 		workspace.getEventBus().parent( program.getFxEventHub() );
