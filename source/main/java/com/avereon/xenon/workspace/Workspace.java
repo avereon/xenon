@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -204,6 +205,7 @@ public class Workspace implements WritableIdentity {
 	private ContextMenu createProgramMenu( Program program ) {
 		// FIXME Should this default setup be defined in config files or something else?
 		String desc = getSettings().get( "workspace-menubar" );
+		log.atConfig().log( "desc=%s", desc );
 
 		// The menu definitions
 		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
@@ -501,7 +503,9 @@ public class Workspace implements WritableIdentity {
 	}
 
 	Settings getSettings() {
-		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
+		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
+		settings.setDefaultValues( Map.of() );
+		return settings;
 	}
 
 	@SuppressWarnings( "CommentedOutCode" )

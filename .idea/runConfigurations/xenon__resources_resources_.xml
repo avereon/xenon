@@ -23,12 +23,9 @@
       </option>
     </MavenSettings>
     <method v="2">
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../zenna/pom.xml" goal="resources:resources" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../recon/pom.xml" goal="resources:resources" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../mazer/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../aveon/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../carta/pom.xml" goal="resources:resources" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../weave/pom.xml" goal="resources:resources" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="resources:resources" />
     </method>
   </configuration>
 </component>
