@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -203,29 +202,20 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private ContextMenu createProgramMenu( Program program ) {
-		// FIXME Should this default setup be defined in config files or something else?
-		String desc = getSettings().get( "workspace-menubar" );
-		log.atConfig().log( "desc=%s", desc );
-
-		// The menu definitions
-		String file = "file[new|open,reload|save,save-as,save-all,rename|properties,print|close]";
-		String edit = EDIT_ACTION + "[undo,redo|cut,copy,paste,delete|indent,unindent]";
-		String view = VIEW_ACTION + "[workspace-new,workspace-close|statusbar-show|task,product]";
-		String help = "help[help-content,welcome|update|about]";
-		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
-		String main = "settings|maintenance[restart]|exit";
-
-		// Construct the program menu descriptor
-		StringBuilder descriptor = new StringBuilder();
-		descriptor.append( file );
-		descriptor.append( "," ).append( edit );
-		descriptor.append( "," ).append( view );
-		descriptor.append( "," ).append( help );
-		if( Profile.DEV.equals( program.getProfile() ) ) descriptor.append( "," ).append( development );
-		descriptor.append( "|" ).append( main );
+		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
+		String descriptor = getSettings().get( "workspace-menubar", defaultDescriptor );
 
 		// Build the program menu
-		return MenuFactory.createContextMenu( program, descriptor.toString(), COMPACT_MENU );
+		ContextMenu menu = MenuFactory.createContextMenu( program, descriptor, COMPACT_MENU );
+		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( menu );
+		return menu;
+	}
+
+	private void insertDevMenu(ContextMenu menu) {
+		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		Menu devMenu = MenuFactory.createMenu( program, development, true );
+		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
+		if( index >= 0 ) menu.getItems().add( index, devMenu );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
@@ -503,9 +493,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	Settings getSettings() {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
-		settings.setDefaultValues( Map.of() );
-		return settings;
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
 	@SuppressWarnings( "CommentedOutCode" )
