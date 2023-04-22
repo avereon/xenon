@@ -203,25 +203,28 @@ public class Workspace implements WritableIdentity {
 
 	private ContextMenu createProgramMenu( Program program ) {
 		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
-		String descriptor = getSettings().get( "workspace-menubar", defaultDescriptor );
+		String descriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
 		ContextMenu menu = MenuFactory.createContextMenu( program, descriptor, COMPACT_MENU );
-		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( menu );
+		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
 		return menu;
 	}
 
-	private void insertDevMenu(ContextMenu menu) {
-		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
-		Menu devMenu = MenuFactory.createMenu( program, development, true );
+	private void insertDevMenu( Program program, ContextMenu menu ) {
 		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
-		if( index >= 0 ) menu.getItems().add( index, devMenu );
+		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
+	}
+
+	private Menu generateDevMenu( Program program ) {
+		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		return MenuFactory.createMenu( program, development, true );
 	}
 
 	private ToolBar createProgramToolBar( Program program ) {
-		// FIXME Should this default setup be defined in config files or something else?
+		String defaultDescriptor = program.getSettings().get( "workspace-toolbar" );
+		String descriptor = getSettings().get( "toolbar", defaultDescriptor );
 
-		String descriptor = "menu|new,open,save,properties,print|undo,redo|cut,copy,paste";
 		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 		toolbar.getItems().add( toolbarToolEnd );
 
