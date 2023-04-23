@@ -81,7 +81,7 @@ public class ActionLibrary {
 		register( product, "test-action-5" );
 		register( product, "mock-update" );
 		register( product, "restart" );
-		register( product, "reset" );
+		register( product, "uireset" );
 
 		register( product, "workarea" );
 		register( product, "workarea-new" );
@@ -95,8 +95,8 @@ public class ActionLibrary {
 		register( product, "wallpaper-next" );
 		register( product, "wallpaper-tint-toggle" );
 
-		register( product, "reset" );
 		register( product, "runpause" );
+		register( product, "reset" );
 
 		register( product, "refresh" );
 		register( product, "enable" );

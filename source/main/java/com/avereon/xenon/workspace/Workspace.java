@@ -217,7 +217,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private Menu generateDevMenu( Program program ) {
-		String development = "development[mock-update,restart|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String development = "development[restart,uireset,mock-update|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 		return MenuFactory.createMenu( program, development, true );
 	}
 

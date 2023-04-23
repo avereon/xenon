@@ -147,6 +147,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private RestartAction restartAction;
 
+	private UiResetAction uiResetAction;
+
 	private SettingsAction settingsAction;
 
 	private PropertiesAction propertiesAction;
@@ -1199,6 +1201,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
+		getActionLibrary().getAction( "uireset" ).pushAction( uiResetAction = new UiResetAction( this ) );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
 		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
@@ -1233,6 +1236,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
+		getActionLibrary().getAction( "uireset" ).pullAction( uiResetAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pullAction( wallpaperToggleAction );
 		getActionLibrary().getAction( "wallpaper-prior" ).pullAction( wallpaperPriorAction );
