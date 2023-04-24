@@ -4,7 +4,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
 import javafx.geometry.HPos;
-import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -63,6 +63,7 @@ public class NoticePane extends GridPane {
 		GridPane.setConstraints( message, 2, 2 );
 		GridPane.setHgrow( message, Priority.ALWAYS );
 		GridPane.setConstraints( when, 3, 2 );
+		GridPane.setValignment( when, VPos.TOP );
 
 		this.setHgap( UiFactory.PAD );
 		this.setVgap( UiFactory.PAD );
