@@ -49,8 +49,6 @@ public class NoticePane extends GridPane {
 		Label when = new Label( timestamp );
 		when.setMinWidth( Region.USE_PREF_SIZE );
 
-		//noticeIcon.getStyleClass().addAll( "padded" );
-		//closeIcon.getStyleClass().addAll( "padded" );
 		title.getStyleClass().addAll( "notice-title" );
 		message.getStyleClass().addAll( "notice-message" );
 		when.getStyleClass().addAll( "notice-when" );
