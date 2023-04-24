@@ -1466,7 +1466,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return saveAs || canSaveAsset( getCurrentAsset() );
+			return (saveAs && getCurrentAsset() != null) || canSaveAsset( getCurrentAsset() );
 		}
 
 		@Override
