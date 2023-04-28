@@ -95,8 +95,8 @@ public class NoticeTool extends ProgramTool {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
 				noticePane.setOnMouseClicked( ( event ) -> {
 					noticePane.executeNoticeAction();
-					event.consume();
-					this.close();
+					//event.consume();
+					//this.close();
 				} );
 				noticePane.getCloseButton().setOnMouseClicked( ( event ) -> {
 					getProgram().getNoticeManager().removeNotice( notice );
