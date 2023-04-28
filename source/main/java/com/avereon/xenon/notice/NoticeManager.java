@@ -161,6 +161,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateUnreadCount() {
+		// FIXME Update the action icon
 		unreadCount.setValue( getUnreadNotices().size() );
 	}
 
