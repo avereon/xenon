@@ -4,7 +4,6 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
 import javafx.geometry.HPos;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -56,12 +55,13 @@ public class NoticePane extends GridPane {
 		GridPane.setConstraints( noticeIcon, 1, 1 );
 		GridPane.setConstraints( title, 2, 1 );
 		GridPane.setHgrow( title, Priority.ALWAYS );
-		GridPane.setConstraints( closeIcon, 3, 1 );
-		GridPane.setHalignment( closeIcon, HPos.RIGHT );
-		GridPane.setConstraints( when, 2, 2 );
-		GridPane.setColumnSpan( when, 2 );
+		// FIXME How to close the standalone notice pane?
+//		GridPane.setConstraints( closeIcon, 3, 1 );
+//		GridPane.setHalignment( closeIcon, HPos.RIGHT );
+		GridPane.setConstraints( when, 3, 1 );
+//		GridPane.setColumnSpan( when, 2 );
 		GridPane.setHalignment( when, HPos.RIGHT );
-		GridPane.setValignment( when, VPos.TOP );
+//		GridPane.setValignment( when, VPos.TOP );
 		GridPane.setConstraints( message, 1, 3 );
 		GridPane.setColumnSpan( message, 3 );
 		GridPane.setHgrow( message, Priority.ALWAYS );
@@ -69,7 +69,7 @@ public class NoticePane extends GridPane {
 		this.setHgap( UiFactory.PAD );
 		this.setVgap( UiFactory.PAD );
 
-		getChildren().addAll( noticeIcon, title, closeIcon, message, when );
+		getChildren().addAll( noticeIcon, title, when, message );
 	}
 
 	public Notice getNotice() {
