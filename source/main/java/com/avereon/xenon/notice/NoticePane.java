@@ -58,10 +58,13 @@ public class NoticePane extends GridPane {
 		GridPane.setHgrow( title, Priority.ALWAYS );
 		GridPane.setConstraints( closeIcon, 3, 1 );
 		GridPane.setHalignment( closeIcon, HPos.RIGHT );
-		GridPane.setConstraints( message, 2, 2 );
-		GridPane.setHgrow( message, Priority.ALWAYS );
-		GridPane.setConstraints( when, 3, 2 );
+		GridPane.setConstraints( when, 2, 2 );
+		GridPane.setColumnSpan( when, 2 );
+		GridPane.setHalignment( when, HPos.RIGHT );
 		GridPane.setValignment( when, VPos.TOP );
+		GridPane.setConstraints( message, 1, 3 );
+		GridPane.setColumnSpan( message, 3 );
+		GridPane.setHgrow( message, Priority.ALWAYS );
 
 		this.setHgap( UiFactory.PAD );
 		this.setVgap( UiFactory.PAD );
