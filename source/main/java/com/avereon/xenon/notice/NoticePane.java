@@ -30,9 +30,17 @@ public class NoticePane extends GridPane {
 		this.notice = notice;
 		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice" );
 
-		Node noticeIcon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
+		Node icon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
 		Label title = new Label( String.valueOf( notice.getTitle() ) );
 		closeIcon = program.getIconLibrary().getIcon( "close" );
+
+		// When
+		DateFormat formatter = new SimpleDateFormat( "h:mm a" );
+		formatter.setTimeZone( TimeZone.getDefault() );
+		String timestamp = formatter.format( new Date( notice.getTimestamp() ) );
+		Label when = new Label( timestamp );
+
+		// Message
 		Node message;
 		if( notice.getMessage() instanceof Node ) {
 			message = (Node)notice.getMessage();
@@ -42,34 +50,28 @@ public class NoticePane extends GridPane {
 			message = label;
 		}
 
-		DateFormat formatter = new SimpleDateFormat( "h:mm a" );
-		formatter.setTimeZone( TimeZone.getDefault() );
-		String timestamp = formatter.format( new Date( notice.getTimestamp() ) );
-		Label when = new Label( timestamp );
-		when.setMinWidth( Region.USE_PREF_SIZE );
-
 		title.getStyleClass().addAll( "notice-title" );
+		//title.setMinWidth( Region.USE_PREF_SIZE );
 		message.getStyleClass().addAll( "notice-message" );
 		when.getStyleClass().addAll( "notice-when" );
+		//when.setMinWidth( Region.USE_PREF_SIZE );
 
-		GridPane.setConstraints( noticeIcon, 1, 1 );
+		GridPane.setConstraints( icon, 1, 1 );
 		GridPane.setConstraints( title, 2, 1 );
 		GridPane.setHgrow( title, Priority.ALWAYS );
-		// FIXME How to close the standalone notice pane?
-//		GridPane.setConstraints( closeIcon, 3, 1 );
-//		GridPane.setHalignment( closeIcon, HPos.RIGHT );
 		GridPane.setConstraints( when, 3, 1 );
-//		GridPane.setColumnSpan( when, 2 );
 		GridPane.setHalignment( when, HPos.RIGHT );
-//		GridPane.setValignment( when, VPos.TOP );
+		GridPane.setHgrow( when, Priority.SOMETIMES );
+		GridPane.setConstraints( closeIcon, 4, 1 );
+		GridPane.setHalignment( closeIcon, HPos.RIGHT );
 		GridPane.setConstraints( message, 1, 3 );
-		GridPane.setColumnSpan( message, 3 );
+		GridPane.setColumnSpan( message, GridPane.REMAINING );
 		GridPane.setHgrow( message, Priority.ALWAYS );
 
 		this.setHgap( UiFactory.PAD );
 		this.setVgap( UiFactory.PAD );
 
-		getChildren().addAll( noticeIcon, title, when, message );
+		getChildren().addAll( icon, title, when, closeIcon, message );
 	}
 
 	public Notice getNotice() {
