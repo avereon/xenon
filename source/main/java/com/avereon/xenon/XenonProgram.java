@@ -20,12 +20,6 @@ import java.nio.file.Path;
 
 public interface XenonProgram extends Program, ProgramProduct, XenonProgramProduct {
 
-	// THREAD main
-	// EXCEPTIONS Handled by the FX framework
-	static void launch( String[] commands ) {
-		Application.launch( commands );
-	}
-
 	// THREAD JavaFX-Launcher
 	// EXCEPTIONS Handled by the FX framework
 	void init() throws Exception;

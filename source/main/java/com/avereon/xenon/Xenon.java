@@ -197,6 +197,12 @@ public class Xenon extends Application implements XenonProgram {
 		time( "implicit-exit-false" );
 	}
 
+	// THREAD main
+	// EXCEPTIONS Handled by the FX framework
+	static void doLaunch( String[] commands ) {
+		Application.launch( commands );
+	}
+
 	// THREAD JavaFX-Launcher
 	// EXCEPTIONS Handled by the FX framework
 	@Override

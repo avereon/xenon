@@ -21,7 +21,7 @@ public class Launcher {
 			new com.avereon.weave.Program().start( commands );
 		} else {
 			// Launch a program instance
-			XenonProgram.launch( commands );
+			Xenon.doLaunch( commands );
 		}
 	}
 
