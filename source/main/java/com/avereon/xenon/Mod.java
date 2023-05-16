@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @SuppressWarnings( "UnusedReturnValue" )
 @CustomLog
-public abstract class Mod implements ProgramProduct, Comparable<Mod> {
+public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
@@ -55,7 +55,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	@Override
-	public Product getParent() {
+	public final Product getParent() {
 		return parent;
 	}
 
@@ -152,7 +152,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param toolClass The tool class
 	 * @return The tool registration
 	 */
-	protected ToolRegistration registerTool( ProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+	protected ToolRegistration registerTool( XenonProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
 		ToolRegistration registration = new ToolRegistration( product, toolClass );
 		getProgram().getToolManager().registerTool( assetType, registration );
 		return registration;

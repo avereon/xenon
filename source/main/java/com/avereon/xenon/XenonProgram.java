@@ -5,6 +5,8 @@ import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Program;
+import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.index.IndexService;
@@ -16,7 +18,7 @@ import javafx.stage.Stage;
 
 import java.nio.file.Path;
 
-public interface Program extends ProgramProduct {
+public interface XenonProgram extends Program, ProgramProduct, XenonProgramProduct {
 
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
@@ -76,6 +78,9 @@ public interface Program extends ProgramProduct {
 	@Override
 	ProductCard getCard();
 
+	@Override
+	Settings getSettings();
+
 	Path getDataFolder();
 
 	Path getLogFolder();
@@ -91,9 +96,6 @@ public interface Program extends ProgramProduct {
 	ActionLibrary getActionLibrary();
 
 	SettingsManager getSettingsManager();
-
-	@Override
-	Settings getSettings();
 
 	ToolManager getToolManager();
 

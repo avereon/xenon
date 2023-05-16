@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
@@ -11,7 +11,7 @@ public class ProgramTaskType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramTaskType( ProgramProduct product ) {
+	public ProgramTaskType( XenonProgramProduct product ) {
 		super( product, "task" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

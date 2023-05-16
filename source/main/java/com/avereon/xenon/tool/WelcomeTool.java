@@ -29,7 +29,7 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double SLOPE_RADIUS = 5000;
 
-	public WelcomeTool( ProgramProduct product, Asset asset ) {
+	public WelcomeTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-welcome" );
 

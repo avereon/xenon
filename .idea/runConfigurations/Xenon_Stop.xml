@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Xenon Stop" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
-    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.XenonProgram" />
     <module name="xenon" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --stop" />
     <option name="VM_PARAMETERS" value="-Xmx256m " />

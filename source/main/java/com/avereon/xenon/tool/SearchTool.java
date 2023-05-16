@@ -5,7 +5,7 @@ import com.avereon.index.Hit;
 import com.avereon.index.Terms;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
@@ -31,7 +31,7 @@ public class SearchTool extends ProgramTool {
 	// TODO This should eventually be a tree
 	private final ListView<Document> docList;
 
-	public SearchTool( ProgramProduct product, Asset asset ) {
+	public SearchTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-search" );
 

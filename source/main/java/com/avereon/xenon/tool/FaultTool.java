@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.xenon.ProgramEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -20,7 +20,7 @@ public class FaultTool extends ProgramTool {
 
 	private EventHandler<ProgramEvent> closingHandler;
 
-	public FaultTool( ProgramProduct product, Asset asset ) {
+	public FaultTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-fault" );
 

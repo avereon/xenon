@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.ui.PaintPicker;
@@ -28,7 +28,7 @@ public class PaintSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public PaintSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public PaintSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 		label = new Label();
 		paintPicker = new PaintPicker();

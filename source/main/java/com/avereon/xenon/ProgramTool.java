@@ -104,13 +104,13 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	public static final int TOOL_READY_TIMEOUT = 2;
 
-	private final ProgramProduct product;
+	private final XenonProgramProduct product;
 
 	private boolean isReady;
 
 	private boolean setActiveWhenReady;
 
-	public ProgramTool( ProgramProduct product, Asset asset ) {
+	public ProgramTool( XenonProgramProduct product, Asset asset ) {
 		super( asset );
 		this.product = product;
 		setTitle( asset.getName() );
@@ -118,7 +118,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
-	public final ProgramProduct getProduct() {
+	public final XenonProgramProduct getProduct() {
 		return product;
 	}
 

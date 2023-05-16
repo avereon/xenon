@@ -309,7 +309,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProgramTool getToolInstance( OpenAssetRequest request ) throws Exception {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
-		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
+		XenonProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
@@ -317,7 +317,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
-			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
+			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
 			ProgramTool tool = constructor.newInstance( product, asset );
 
 			// Set the id before using settings

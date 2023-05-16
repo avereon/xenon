@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
@@ -25,7 +25,7 @@ public class SettingsTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public SettingsTool( ProgramProduct product, Asset asset ) {
+	public SettingsTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-settings" );
 

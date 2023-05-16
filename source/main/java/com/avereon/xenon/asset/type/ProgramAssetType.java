@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
@@ -17,7 +17,7 @@ public class ProgramAssetType extends AssetType {
 
 	public static final java.net.URI SAVE_URI = java.net.URI.create( URI + SAVE_FRAGMENT );
 
-	public ProgramAssetType( ProgramProduct product ) {
+	public ProgramAssetType( XenonProgramProduct product ) {
 		super( product, "asset-open" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
@@ -21,7 +21,7 @@ public class ComboBoxSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public ComboBoxSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public ComboBoxSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 

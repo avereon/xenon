@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 
 import java.util.Collections;
 import java.util.List;
@@ -102,11 +102,11 @@ public class SettingsPage extends Node {
 		pages.put( page.getId(), page );
 	}
 
-	public ProgramProduct getProduct() {
+	public XenonProgramProduct getProduct() {
 		return getValue( PRODUCT );
 	}
 
-	public void setProduct( ProgramProduct product ) {
+	public void setProduct( XenonProgramProduct product ) {
 		setValue( PRODUCT, product );
 	}
 

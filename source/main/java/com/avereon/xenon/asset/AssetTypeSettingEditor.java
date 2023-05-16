@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -25,7 +25,7 @@ public class AssetTypeSettingEditor extends SettingEditor {
 
 	private final GridPane assetTypeGrid;
 
-	public AssetTypeSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public AssetTypeSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 
 		key = new Label();

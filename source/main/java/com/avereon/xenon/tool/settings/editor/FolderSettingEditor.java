@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings.editor;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.FileUtil;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -29,7 +29,7 @@ public class FolderSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FolderSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public FolderSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
@@ -13,7 +13,7 @@ public class ProgramAboutType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramAboutType( ProgramProduct product ) {
+	public ProgramAboutType( XenonProgramProduct product ) {
 		super( product, "about" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

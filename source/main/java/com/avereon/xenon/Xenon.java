@@ -67,7 +67,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 @CustomLog
-public class Xenon extends Application implements Program {
+public class Xenon extends Application implements XenonProgram {
 
 	public static final String STYLESHEET = "xenon.css";
 

@@ -9,7 +9,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -68,7 +68,7 @@ public class AboutTool extends GuidedTool {
 
 	private EventHandler<ModEvent> modEnabledWatcher;
 
-	public AboutTool( ProgramProduct product, Asset asset ) {
+	public AboutTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-about" );
 

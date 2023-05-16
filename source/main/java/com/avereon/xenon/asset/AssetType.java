@@ -3,7 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
@@ -62,7 +62,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private final String key = getClass().getName();
 
-	private final ProgramProduct product;
+	private final XenonProgramProduct product;
 
 	private final String rbKey;
 
@@ -72,7 +72,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private Map<String,SettingsPage> settingsPages;
 
-	public AssetType( ProgramProduct product, String rbKey ) {
+	public AssetType( XenonProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( rbKey == null ) throw new NullPointerException( "Resource bundle key cannot be null" );
 		this.product = product;

@@ -6,7 +6,7 @@ import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
@@ -77,7 +77,7 @@ public class SettingsPanel extends VBox {
 			addBlankLine( this );
 		}
 
-		ProgramProduct product = page.getProduct();
+		XenonProgramProduct product = page.getProduct();
 		String rbKey = page.getRbKey();
 
 		// Add the groups
@@ -101,7 +101,7 @@ public class SettingsPanel extends VBox {
 		pane.getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( ProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
+	private Control createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
 		Pane pane = createSettingsPane( product, rbKey, page, group );
 
 		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
@@ -122,7 +122,7 @@ public class SettingsPanel extends VBox {
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( ProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+	private Pane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
 		GridPane grid = new GridPane();
 		grid.setHgap( UiFactory.PAD );
 		grid.setVgap( UiFactory.PAD );
@@ -171,12 +171,12 @@ public class SettingsPanel extends VBox {
 		return grid;
 	}
 
-	private SettingEditor createSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( XenonProgramProduct.class, String.class, SettingData.class );
 			editor = constructor.newInstance( product, rbKey, setting );
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error creating setting editor: %s", LazyEval.of( editorClass::getName ) );

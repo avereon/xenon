@@ -1,21 +1,20 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class SettingEditor {
 
 	private static final Map<String, Class<? extends SettingEditor>> editors;
 
-	protected final ProgramProduct product;
+	protected final XenonProgramProduct product;
 
 	protected final SettingData setting;
 
@@ -41,7 +40,7 @@ public abstract class SettingEditor {
 		addType( "update-checks", UpdateSettingViewer.class );
 	}
 
-	public SettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public SettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
@@ -49,7 +48,7 @@ public abstract class SettingEditor {
 		this.setting = setting;
 	}
 
-	protected ProgramProduct getProduct() {
+	protected XenonProgramProduct getProduct() {
 		return product;
 	}
 

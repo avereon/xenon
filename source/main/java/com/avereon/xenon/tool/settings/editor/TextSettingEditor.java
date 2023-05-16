@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings.editor;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ObservableValue;
@@ -30,7 +30,7 @@ public abstract class TextSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	TextSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Type type ) {
+	TextSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Type type ) {
 		super( product, rbKey, setting );
 		this.type = type;
 	}

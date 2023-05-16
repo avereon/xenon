@@ -86,7 +86,7 @@ public class AssetTool extends GuidedTool {
 
 	private Consumer<Asset> saveActionConsumer;
 
-	public AssetTool( ProgramProduct product, Asset asset ) {
+	public AssetTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-asset" );
 

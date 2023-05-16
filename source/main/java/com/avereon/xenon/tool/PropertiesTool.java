@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
 import com.avereon.xenon.RbKey;
@@ -33,7 +33,7 @@ public class PropertiesTool extends ProgramTool {
 
 	private final EventHandler<PropertiesToolEvent> hideHandler;
 
-	public PropertiesTool( ProgramProduct product, Asset asset ) {
+	public PropertiesTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-properties" );
 

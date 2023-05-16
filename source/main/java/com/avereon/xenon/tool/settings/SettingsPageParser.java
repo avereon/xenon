@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import lombok.CustomLog;
 
 import javax.xml.stream.XMLInputFactory;
@@ -53,17 +53,17 @@ public class SettingsPageParser {
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-	private final ProgramProduct product;
+	private final XenonProgramProduct product;
 
-	private SettingsPageParser( ProgramProduct product ) {
+	private SettingsPageParser( XenonProgramProduct product ) {
 		this.product = product;
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path ) throws IOException {
+	public static Map<String, SettingsPage> parse( XenonProgramProduct product, String path ) throws IOException {
 		return parse( product, path, RbKey.SETTINGS );
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String rbKey ) throws IOException {
+	public static Map<String, SettingsPage> parse( XenonProgramProduct product, String path, String rbKey ) throws IOException {
 		return new SettingsPageParser( product ).parse( path, rbKey );
 	}
 

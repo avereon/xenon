@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.xenon.BaseToolUIT;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.asset.Asset;
@@ -106,7 +106,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		private int guideNodesSelectedEventCount;
 
-		public MockGuidedTool( ProgramProduct product, Asset asset ) {
+		public MockGuidedTool( XenonProgramProduct product, Asset asset ) {
 			super( product, asset );
 			Guide guide = createGuide();
 			getGuideContext().getGuides().add( guide );

@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.BaseXenonTestCase;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.mod.MockMod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssetTypeTest extends BaseXenonTestCase {
 
-	private ProgramProduct product;
+	private XenonProgramProduct product;
 
 	@BeforeEach
 	@Override

@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +18,7 @@ public class CheckBoxSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public CheckBoxSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public CheckBoxSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 

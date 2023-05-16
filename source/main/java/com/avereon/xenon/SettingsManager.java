@@ -98,7 +98,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		optionProviders.put( id, provider );
 	}
 
-	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
+	public Map<String, SettingsPage> addSettingsPages( XenonProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
 			pages = SettingsPageParser.parse( product, path );

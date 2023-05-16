@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zarra.font.FontUtil;
@@ -27,7 +27,7 @@ public class FontSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FontSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public FontSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 

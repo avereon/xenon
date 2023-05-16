@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
@@ -47,7 +47,7 @@ public class ProductTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public ProductTool( ProgramProduct product, Asset asset ) {
+	public ProductTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-product" );
 

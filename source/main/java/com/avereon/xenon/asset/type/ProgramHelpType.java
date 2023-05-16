@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.ContentCodec;
@@ -9,7 +9,7 @@ public class ProgramHelpType extends AssetType {
 
 	public static final String SCHEME = "program:help";
 
-	public ProgramHelpType( ProgramProduct product ) {
+	public ProgramHelpType( XenonProgramProduct product ) {
 		super( product, "help" );
 
 		Codec codec = new ContentCodec();
