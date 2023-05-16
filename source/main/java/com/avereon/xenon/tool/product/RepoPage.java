@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 @CustomLog
 class RepoPage extends ProductToolPage {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final ProductTool productTool;
 
-	RepoPage( Program program, ProductTool productTool ) {
+	RepoPage( Xenon program, ProductTool productTool ) {
 		this.program = program;
 		this.productTool = productTool;
 		setTitle( Rb.text( RbKey.TOOL, "product-" + ProductTool.SOURCES ) );

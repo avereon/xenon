@@ -2,7 +2,7 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.*;
 import lombok.CustomLog;
 
@@ -26,7 +26,7 @@ public class FileScheme extends BaseScheme {
 
 	//private FileAssetWatcher assetWatcher;
 
-	public FileScheme( Program program ) {
+	public FileScheme( Xenon program ) {
 		super( program, ID );
 		//assetWatcher = new FileAssetWatcher();
 

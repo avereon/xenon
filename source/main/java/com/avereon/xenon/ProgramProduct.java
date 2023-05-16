@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 
 public interface ProgramProduct extends Product {
 
-	Program getProgram();
+	Xenon getProgram();
 
 	default <T> void task( String name, Callable<T> callable ) {
 		getProgram().getTaskManager().submit( Task.of( name, callable ) );

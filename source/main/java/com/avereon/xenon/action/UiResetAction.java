@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.RestartHook;
@@ -10,7 +10,7 @@ import lombok.CustomLog;
 @CustomLog
 public class UiResetAction extends ProgramAction {
 
-  public UiResetAction( Program program ) {
+  public UiResetAction( Xenon program ) {
     super( program );
   }
 

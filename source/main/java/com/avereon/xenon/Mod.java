@@ -32,7 +32,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
-	private Program program;
+	private Xenon program;
 
 	private Product parent;
 
@@ -45,7 +45,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	@Override
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 
@@ -192,7 +192,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param program The program reference
 	 * @param card The Mod product card
 	 */
-	public final void init( Program program, ProductCard card ) {
+	public final void init( Xenon program, ProductCard card ) {
 		if( this.program != null ) return;
 		this.program = program;
 		this.card = card;

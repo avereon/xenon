@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.data.NodeSettings;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.PropertiesToolEvent;
 import com.avereon.xenon.asset.Asset;
@@ -16,7 +16,7 @@ import lombok.CustomLog;
 @CustomLog
 public class PropertiesAction extends ProgramAction {
 
-	public PropertiesAction( Program program ) {
+	public PropertiesAction( Xenon program ) {
 		super( program );
 	}
 

@@ -1,14 +1,14 @@
 package com.avereon.xenon.action;
 
 import com.avereon.settings.Settings;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramSettings;
 import javafx.event.ActionEvent;
 
 public class WallpaperTintToggleAction extends ProgramAction {
 
-	public WallpaperTintToggleAction( Program program ) {
+	public WallpaperTintToggleAction( Xenon program ) {
 		super( program );
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.util.DialogUtil;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @CustomLog
 public class NewWorkareaAction extends ProgramAction {
 
-	public NewWorkareaAction( Program program ) {
+	public NewWorkareaAction( Xenon program ) {
 		super( program );
 	}
 
@@ -27,7 +27,7 @@ public class NewWorkareaAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		Program program = getProgram();
+		Xenon program = getProgram();
 
 		TextInputDialog dialog = new TextInputDialog();
 		dialog.setTitle( Rb.text( "workarea", "workarea-new-title" ) );

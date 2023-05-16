@@ -8,7 +8,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
@@ -137,8 +137,8 @@ public class AboutTool extends GuidedTool {
 	private void updatePages() {
 		ProductCard metadata = getProgram().getCard();
 		summaryPane.update( metadata );
-		modsText.setText( getModsText( (Program)getProduct() ) );
-		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+		modsText.setText( getModsText( (Xenon)getProduct() ) );
+		detailsText.setText( getDetailsText( (Xenon)getProduct() ) );
 	}
 
 	private Guide createGuide() {
@@ -345,7 +345,7 @@ public class AboutTool extends GuidedTool {
 		return label;
 	}
 
-	private String getModsText( Program program ) {
+	private String getModsText( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		program
@@ -359,7 +359,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@SuppressWarnings( "StringBufferReplaceableByString" )
-	private String getDetailsText( Program program ) {
+	private String getDetailsText( Xenon program ) {
 		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
 
@@ -459,7 +459,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@SuppressWarnings( "StringBufferReplaceableByString" )
-	private String getProgramDetails( Program program ) {
+	private String getProgramDetails( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
@@ -493,7 +493,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getRuntimeDetail( Program program ) {
+	private String getRuntimeDetail( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		// CPU Information
@@ -578,7 +578,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getExecutionDetail( Program program ) {
+	private String getExecutionDetail( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();

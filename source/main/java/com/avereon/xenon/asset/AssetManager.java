@@ -40,7 +40,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
 
-	private final Program program;
+	private final Xenon program;
 
 	private volatile Asset currentAsset;
 
@@ -84,7 +84,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean running;
 
-	public AssetManager( Program program ) {
+	public AssetManager( Xenon program ) {
 		this.program = program;
 		openAssets = new CopyOnWriteArraySet<>();
 		identifiedAssets = new ConcurrentHashMap<>();
@@ -114,7 +114,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		closeAllActionHandler = new CloseAllActionHandler( program );
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return program;
 	}
 
@@ -1388,7 +1388,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class NewActionHandler extends ProgramAction {
 
-		private NewActionHandler( Program program ) {
+		private NewActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1414,7 +1414,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private boolean isHandling;
 
-		private OpenActionHandler( Program program ) {
+		private OpenActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1439,7 +1439,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class ReloadActionHandler extends ProgramAction {
 
-		protected ReloadActionHandler( Program program ) {
+		protected ReloadActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1459,7 +1459,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private final boolean saveAs;
 
-		private SaveActionHandler( Program program, boolean saveAs ) {
+		private SaveActionHandler( Xenon program, boolean saveAs ) {
 			super( program );
 			this.saveAs = saveAs;
 		}
@@ -1478,7 +1478,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveAllActionHandler extends ProgramAction {
 
-		private SaveAllActionHandler( Program program ) {
+		private SaveAllActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1500,7 +1500,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class RenameActionHandler extends ProgramAction {
 
-		private RenameActionHandler( Program program ) {
+		private RenameActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1518,7 +1518,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class CloseActionHandler extends ProgramAction {
 
-		private CloseActionHandler( Program program ) {
+		private CloseActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1540,7 +1540,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class CloseAllActionHandler extends ProgramAction {
 
-		private CloseAllActionHandler( Program program ) {
+		private CloseAllActionHandler( Xenon program ) {
 			super( program );
 		}
 

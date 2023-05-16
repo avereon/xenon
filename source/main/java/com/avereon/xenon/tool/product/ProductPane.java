@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
@@ -34,7 +34,7 @@ class ProductPane extends GridPane {
 
 	private final ProductTool tool;
 
-	private final Program program;
+	private final Xenon program;
 
 	private final ProductManager manager;
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.xenon.ProgramAction;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class NoticeAction extends ProgramAction {
 
-	public NoticeAction( Program program ) {
+	public NoticeAction( Xenon program ) {
 		super( program );
 	}
 

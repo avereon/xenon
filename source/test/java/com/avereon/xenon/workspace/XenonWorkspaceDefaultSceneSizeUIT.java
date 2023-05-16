@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ProgramWorkspaceDefaultSceneSizeUIT extends ProgramWorkspaceUIT {
+class XenonWorkspaceDefaultSceneSizeUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() {

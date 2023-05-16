@@ -6,7 +6,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import lombok.CustomLog;
 
 import java.io.InputStream;
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @CustomLog
 public class V2RepoClient implements RepoClient {
 
-	private final Program program;
+	private final Xenon program;
 
-	public V2RepoClient( Program program ) {
+	public V2RepoClient( Xenon program ) {
 		this.program = program;
 	}
 

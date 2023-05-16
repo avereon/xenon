@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
@@ -32,7 +32,7 @@ public class ProgramAboutType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Asset asset ) {
 		// Arguably "the program" is the asset model for the about data type. But
 		// that is a pretty big model. Not only that but the about tool needs to
 		// watch for changes in several things as well as things that do not

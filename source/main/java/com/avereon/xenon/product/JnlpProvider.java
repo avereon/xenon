@@ -1,7 +1,7 @@
 package com.avereon.xenon.product;
 
 import com.avereon.util.XmlDescriptor;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import org.w3c.dom.Node;
 
 import java.net.URI;
@@ -12,13 +12,13 @@ import java.util.concurrent.Future;
 
 public class JnlpProvider implements ProductResourceProvider {
 
-	private Program program;
+	private Xenon program;
 
 	private XmlDescriptor descriptor;
 
 	private URI codebase;
 
-	public JnlpProvider( XmlDescriptor descriptor, Program program, URI codebase ) {
+	public JnlpProvider( XmlDescriptor descriptor, Xenon program, URI codebase ) {
 		this.program = program;
 		this.descriptor = descriptor;
 	}

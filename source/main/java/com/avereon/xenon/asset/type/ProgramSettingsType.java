@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.*;
@@ -30,7 +30,7 @@ public class ProgramSettingsType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Asset asset ) {
 		asset.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		return true;
 	}

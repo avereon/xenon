@@ -109,7 +109,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private static final int NO_CHECK = -1;
 
-	private Program program;
+	private Xenon program;
 
 	private Settings settings;
 
@@ -167,7 +167,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private boolean productReposRegistered;
 
-	public ProductManager( Program program ) {
+	public ProductManager( Xenon program ) {
 		this.program = program;
 
 		repos = new ConcurrentHashMap<>();
@@ -187,7 +187,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		includedProducts.add( new com.avereon.weave.Program().getCard() );
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
 
@@ -297,7 +297,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productStates.put( productKey, new ProductState() );
 	}
 
-	public void registerProgram( Program program ) {
+	public void registerProgram( Xenon program ) {
 		registerProduct( program );
 		ProductCard card = program.getCard();
 
@@ -325,7 +325,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productStates.remove( productKey );
 	}
 
-	public void unregisterProgram( Program program ) {
+	public void unregisterProgram( Xenon program ) {
 		unregisterProduct( program );
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.ui.util;
 
 import com.avereon.xenon.ActionProxy;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.UiFactory;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
@@ -22,14 +22,14 @@ public class ToolBarFactory extends NavFactory {
 
 	public static final String TOOL_ITEM_ID_PREFIX = "toolitem-";
 
-	public static ToolBar createToolBar( Program program, String descriptor ) {
+	public static ToolBar createToolBar( Xenon program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
 		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).collect( Collectors.toList() ) );
 		return toolbar;
 	}
 
-	public static Button createToolBarButton( Program program, String id ) {
+	public static Button createToolBarButton( Xenon program, String id ) {
 		return createToolBarButton( program, program.getActionLibrary().getAction( id ) );
 	}
 
@@ -45,7 +45,7 @@ public class ToolBarFactory extends NavFactory {
 		return pad;
 	}
 
-	private static Node createToolBarItem( Program program, Node parent, Token item ) {
+	private static Node createToolBarItem( Xenon program, Node parent, Token item ) {
 		if( item.isSeparator() ) {
 			return new Separator();
 		} else if( item.getChildren().isEmpty() ) {
@@ -55,7 +55,7 @@ public class ToolBarFactory extends NavFactory {
 		}
 	}
 
-	private static Button createToolTray( Program program, Node parent, Token item ) {
+	private static Button createToolTray( Xenon program, Node parent, Token item ) {
 		Popup popup = new Popup();
 		popup.setAutoFix( true );
 		popup.setAutoHide( true );
@@ -98,11 +98,11 @@ public class ToolBarFactory extends NavFactory {
 		}
 	}
 
-	private static Button createToolBarButton( Program program, Token token ) {
+	private static Button createToolBarButton( Xenon program, Token token ) {
 		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ) );
 	}
 
-	private static Button createToolBarButton( Program program, ActionProxy action ) {
+	private static Button createToolBarButton( Xenon program, ActionProxy action ) {
 		Button button = new Button();
 		button.setId( TOOL_ITEM_ID_PREFIX + action.getId() );
 		button.setOnAction( action );

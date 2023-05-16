@@ -15,7 +15,7 @@ public class ActionLibrary {
 
 	private final Map<String, ActionProxy> actionsById;
 
-	public ActionLibrary( Program product ) {
+	public ActionLibrary( Xenon product ) {
 		this.actionsById = new ConcurrentHashMap<>();
 
 		// Create default actions

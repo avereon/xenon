@@ -38,7 +38,7 @@ abstract class Screenshots {
 
 	private Path screenshots;
 
-	private Program program;
+	private Xenon program;
 
 	private Workspace workspace;
 
@@ -147,7 +147,7 @@ abstract class Screenshots {
 			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE );
 			FileUtil.delete( config );
 
-			program = new Program();
+			program = new Xenon();
 			String[] parameters = new String[]{ ProgramFlag.PROFILE, PROFILE, ProgramFlag.NOUPDATE, ProgramFlag.LOG_LEVEL, ProgramFlag.DEBUG };
 			program.setProgramParameters( com.avereon.util.Parameters.parse( parameters ) );
 			program.init();

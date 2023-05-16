@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ThemeMetadata;
 import com.avereon.xenon.UiFactory;
@@ -59,7 +59,7 @@ public class ThemeTool extends GuidedTool {
 
 	private void setSampleTheme( ThemeMetadata theme ) {
 		sample.getStylesheets().clear();
-		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getUrl() );
+		sample.getStylesheets().addAll( Xenon.STYLESHEET, theme.getUrl() );
 
 		refreshThemeOptions( theme );
 	}

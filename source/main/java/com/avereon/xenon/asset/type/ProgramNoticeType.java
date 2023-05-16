@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
@@ -28,7 +28,7 @@ public class ProgramNoticeType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
 		asset.setModel( new NoticeModel() );
 		return true;
 	}

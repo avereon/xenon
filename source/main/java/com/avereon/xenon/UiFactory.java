@@ -36,9 +36,9 @@ public class UiFactory {
 
 	private static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
 
-	private final Program program;
+	private final Xenon program;
 
-	public UiFactory( Program program ) {
+	public UiFactory( Xenon program ) {
 		this.program = program;
 	}
 

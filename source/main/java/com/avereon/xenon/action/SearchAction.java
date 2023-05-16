@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.asset.type.ProgramSearchType;
 import com.avereon.xenon.tool.SearchTool;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class SearchAction extends ProgramAction {
 
-	public SearchAction( Program program ) {
+	public SearchAction( Xenon program ) {
 		super( program );
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.skill.Controllable;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
 
@@ -176,9 +176,9 @@ public class TaskManager implements Controllable<TaskManager> {
 		executorP2 = shutdown( executorP2 );
 		executorP1 = shutdown( executorP1 );
 		try {
-			if( executorP3 != null ) executorP3.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP3 != null ) executorP3.awaitTermination( Xenon.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP2 != null ) executorP2.awaitTermination( Xenon.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP1 != null ) executorP1.awaitTermination( Xenon.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
 			log.atError( exception ).log( "Error waiting for executor termination" );
 		}

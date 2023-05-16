@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
@@ -172,7 +172,7 @@ public class Workarea implements WritableIdentity {
 			}
 		}
 
-		private Program getProgram() {
+		private Xenon getProgram() {
 			return workarea.getWorkspace().getProgram();
 		}
 

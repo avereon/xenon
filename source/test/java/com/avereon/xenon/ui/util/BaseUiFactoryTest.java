@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.ActionLibrary;
 import com.avereon.xenon.FxPlatformTestCase;
 import com.avereon.xenon.IconLibrary;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 
 public class BaseUiFactoryTest extends FxPlatformTestCase {
 
-	private Program program;
+	private Xenon program;
 
 	@BeforeEach
 	void setup() {
-		program = Mockito.mock( Program.class );
+		program = Mockito.mock( Xenon.class );
 		when( program.getCard() ).thenReturn( new ProductCard().setArtifact( "mock" ).setName( "Mock" ) );
 		Rb.init( program );
 
@@ -29,7 +29,7 @@ public class BaseUiFactoryTest extends FxPlatformTestCase {
 		when( program.getParent() ).thenReturn( null );
 	}
 
-	protected Program getProgram() {
+	protected Xenon getProgram() {
 		return program;
 	}
 

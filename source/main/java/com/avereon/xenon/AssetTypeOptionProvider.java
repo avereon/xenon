@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public class AssetTypeOptionProvider implements SettingOptionProvider {
 
-	private final Program program;
+	private final Xenon program;
 
-	public AssetTypeOptionProvider( Program program ) {
+	public AssetTypeOptionProvider( Xenon program ) {
 		this.program = program;
 	}
 

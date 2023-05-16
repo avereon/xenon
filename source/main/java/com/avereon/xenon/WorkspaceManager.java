@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Set<Workspace> workspaces;
 
@@ -35,7 +35,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private boolean uiReady;
 
-	WorkspaceManager( Program program ) {
+	WorkspaceManager( Xenon program ) {
 		this.program = program;
 		this.workspaces = new CopyOnWriteArraySet<>();
 
@@ -44,7 +44,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		} );
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

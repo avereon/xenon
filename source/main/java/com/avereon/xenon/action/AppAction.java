@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import javafx.event.ActionEvent;
 import lombok.CustomLog;
@@ -8,7 +8,7 @@ import lombok.CustomLog;
 @CustomLog
 public class AppAction extends ProgramAction {
 
-	public AppAction( Program program ) {
+	public AppAction( Xenon program ) {
 		super( program );
 	}
 

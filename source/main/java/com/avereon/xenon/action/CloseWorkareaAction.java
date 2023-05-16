@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.ProgramAction;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramScope;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class CloseWorkareaAction extends ProgramAction {
 
-	public CloseWorkareaAction( Program program ) {
+	public CloseWorkareaAction( Xenon program ) {
 		super( program );
 	}
 

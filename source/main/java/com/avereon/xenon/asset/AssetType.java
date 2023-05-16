@@ -2,7 +2,7 @@ package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zarra.javafx.Fx;
@@ -80,7 +80,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		this.codecs = new CopyOnWriteArraySet<>();
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return product.getProgram();
 	}
 
@@ -163,7 +163,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * method is valuable if the asset requires user interaction when creating new
 	 * assets.
 	 * <p>
-	 * Unlike the {@link #assetOpen(Program, Asset)} method this method is
+	 * Unlike the {@link #assetOpen(Xenon, Asset)} method this method is
 	 * only called for new assets. If the asset is not new this method will not
 	 * be called unlike the process for opening or restoring existing assets.
 	 * <p>
@@ -175,11 +175,11 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @return True if the asset was opened, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
 	 * @throws AssetException if the asset failed to be opened.
 	 */
-	public boolean assetNew( Program program, Asset asset ) throws AssetException {
+	public boolean assetNew( Xenon program, Asset asset ) throws AssetException {
 		return true;
 	}
 
-	boolean callAssetNew( Program program, Asset asset ) throws AssetException {
+	boolean callAssetNew( Xenon program, Asset asset ) throws AssetException {
 		Object lock = new Object();
 		AtomicBoolean result = new AtomicBoolean();
 		AtomicReference<AssetException> resultException = new AtomicReference<>();
@@ -216,10 +216,10 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * method can provide the specified asset with an initial state prior to being
 	 * loaded or used in a tool.
 	 * <p>
-	 * Unlike the {@link #assetNew(Program, Asset)} method this method is
+	 * Unlike the {@link #assetNew(Xenon, Asset)} method this method is
 	 * always called whenever an asset is opened, new or otherwise. This method
 	 * should not be used for user interaction. User interaction should be
-	 * implemented in the {@link #assetNew(Program, Asset)} method.
+	 * implemented in the {@link #assetNew(Xenon, Asset)} method.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components. <br>
@@ -229,11 +229,11 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
 	 * @throws AssetException if the asset failed to be initialized.
 	 */
-	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
 		return true;
 	}
 
-	boolean callAssetOpen( Program program, Asset asset ) throws AssetException {
+	boolean callAssetOpen( Xenon program, Asset asset ) throws AssetException {
 		return assetOpen( program, asset );
 	}
 

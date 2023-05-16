@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
@@ -17,7 +17,7 @@ public class RenameWorkareaAction extends ProgramAction {
 
 	private Workarea workarea;
 
-	public RenameWorkareaAction( Program program ) {
+	public RenameWorkareaAction( Xenon program ) {
 		super( program );
 	}
 
@@ -28,7 +28,7 @@ public class RenameWorkareaAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		Program program = getProgram();
+		Xenon program = getProgram();
 		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		TextInputDialog dialog = new TextInputDialog( workarea.getName() );

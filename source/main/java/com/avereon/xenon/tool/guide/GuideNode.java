@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.data.IdNode;
 import com.avereon.data.Node;
 import com.avereon.xenon.NodeOrderNameComparator;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.TreeItem;
 
@@ -19,21 +19,21 @@ public class GuideNode extends IdNode {
 
 	private static final String TREE_ITEM = "tree-item";
 
-	private final Program program;
+	private final Xenon program;
 
-	public GuideNode( Program program ) {
+	public GuideNode( Xenon program ) {
 		this( program, null, null, null );
 	}
 
-	public GuideNode( Program program, String id, String name ) {
+	public GuideNode( Xenon program, String id, String name ) {
 		this( program, id, name, null );
 	}
 
-	public GuideNode( Program program, String id, String name, String icon ) {
+	public GuideNode( Xenon program, String id, String name, String icon ) {
 		this( program, id, name, icon, -1 );
 	}
 
-	public GuideNode( Program program, String id, String name, String icon, int order ) {
+	public GuideNode( Xenon program, String id, String name, String icon, int order ) {
 		this.program = program;
 		defineNaturalKey( NAME );
 		if( id != null ) setId( id );

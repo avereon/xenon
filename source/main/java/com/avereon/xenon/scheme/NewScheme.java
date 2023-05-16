@@ -1,6 +1,6 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 
@@ -8,7 +8,7 @@ public class NewScheme extends BaseScheme {
 
 	public static final String ID = "new";
 
-	public NewScheme( Program program ) {
+	public NewScheme( Xenon program ) {
 		super( program, ID );
 	}
 

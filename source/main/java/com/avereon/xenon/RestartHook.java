@@ -34,7 +34,7 @@ public class RestartHook extends Thread {
 
 	private static final String DELETE_SUFFIX = "delete";
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Mode mode;
 
@@ -46,7 +46,7 @@ public class RestartHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
-	RestartHook( Program program, Mode mode, String... additionalParameters ) {
+	RestartHook( Xenon program, Mode mode, String... additionalParameters ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 		this.mode = mode;

@@ -1,6 +1,6 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
 import javafx.geometry.HPos;
@@ -8,7 +8,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import lombok.CustomLog;
 
 import java.text.DateFormat;
@@ -19,13 +18,13 @@ import java.util.TimeZone;
 @CustomLog
 public class NoticePane extends GridPane {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Notice notice;
 
 	private final Node closeIcon;
 
-	public NoticePane( Program program, Notice notice, boolean flyout ) {
+	public NoticePane( Xenon program, Notice notice, boolean flyout ) {
 		this.program = program;
 		this.notice = notice;
 		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice" );

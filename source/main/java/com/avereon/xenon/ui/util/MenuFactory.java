@@ -1,7 +1,7 @@
 package com.avereon.xenon.ui.util;
 
 import com.avereon.xenon.ActionProxy;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -17,21 +17,21 @@ public class MenuFactory extends NavFactory {
 
 	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
 
-	public static ContextMenu createContextMenu( Program program, String descriptor, boolean submenu ) {
+	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean submenu ) {
 		ContextMenu menu = new ContextMenu();
 		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, submenu ) ) );
 		return menu;
 	}
 
-	public static List<Menu> createMenus( Program program, String descriptor, boolean submenu ) {
+	public static List<Menu> createMenus( Xenon program, String descriptor, boolean submenu ) {
 		return parseDescriptor( descriptor ).stream().map( t -> createMenu(program,t,submenu) ).toList();
 	}
 
-	public static Menu createMenu( Program program, String descriptor, boolean submenu ) {
+	public static Menu createMenu( Xenon program, String descriptor, boolean submenu ) {
 		return createMenu( program, parseDescriptor( descriptor ).get( 0 ), submenu );
 	}
 
-	public static Menu createMenu( Program program, Token token, boolean submenu ) {
+	public static Menu createMenu( Xenon program, Token token, boolean submenu ) {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
 		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
@@ -53,7 +53,7 @@ public class MenuFactory extends NavFactory {
 		return menu;
 	}
 
-	private static MenuItem createMenuItem( Program program, Token item, boolean submenu ) {
+	private static MenuItem createMenuItem( Xenon program, Token item, boolean submenu ) {
 		if( item.isSeparator() ) {
 			MenuItem separator = new SeparatorMenuItem();
 			separator.setId( "separator" );
@@ -65,7 +65,7 @@ public class MenuFactory extends NavFactory {
 		}
 	}
 
-	private static MenuItem createMenuItem( Program program, ActionProxy action ) {
+	private static MenuItem createMenuItem( Xenon program, ActionProxy action ) {
 		String type = action.getType();
 		if( type == null ) type = "normal";
 

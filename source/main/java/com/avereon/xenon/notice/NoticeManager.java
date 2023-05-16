@@ -3,7 +3,7 @@ package com.avereon.xenon.notice;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.xenon.ManagerSettings;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class NoticeManager implements Controllable<NoticeManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final List<Notice> startupNotices;
 
@@ -35,7 +35,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private Asset asset;
 
-	public NoticeManager( Program program ) {
+	public NoticeManager( Xenon program ) {
 		this.program = program;
 		this.startupNotices = new CopyOnWriteArrayList<>();
 		this.unreadCount = new SimpleIntegerProperty();
@@ -110,7 +110,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		updateUnreadCount();
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return this.program;
 	}
 

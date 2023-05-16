@@ -5,14 +5,19 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ProgramForceCloseUIT extends ProgramWorkspaceUIT {
+class XenonCloseUIT extends ProgramWorkspaceUIT {
 
 	@Test
 	void execute() throws Exception {
 		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing() ).isTrue();
 
-		closeProgram( true );
+		closeProgram();
+		clickOn( "No" );
+		assertThat( stage.isShowing() ).isTrue();
+
+		closeProgram();
+		clickOn( "Yes" );
 		assertThat( stage.isShowing() ).isFalse();
 	}
 

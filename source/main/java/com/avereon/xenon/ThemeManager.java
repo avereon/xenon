@@ -21,19 +21,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Map<String, ThemeMetadata> themes;
 
 	private final Path profileThemeFolder;
 
-	public ThemeManager( Program program ) {
+	public ThemeManager( Xenon program ) {
 		this.program = program;
 		this.themes = new ConcurrentHashMap<>();
 		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

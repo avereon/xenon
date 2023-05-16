@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @CustomLog
 class UiRegenerator {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final UiFactory factory;
 
@@ -58,12 +58,12 @@ class UiRegenerator {
 
 	private boolean restored;
 
-	UiRegenerator( Program program ) {
+	UiRegenerator( Xenon program ) {
 		this.program = program;
 		this.factory = new UiFactory( program );
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
 

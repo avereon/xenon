@@ -474,9 +474,9 @@ public class AssetTool extends GuidedTool {
 	 */
 	private static class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
 
-		private final Program program;
+		private final Xenon program;
 
-		public NameValueFactory( Program program ) {
+		public NameValueFactory( Xenon program ) {
 			this.program = program;
 		}
 
@@ -526,7 +526,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class PriorAction extends ProgramAction {
 
-		protected PriorAction( Program program ) {
+		protected PriorAction( Xenon program ) {
 			super( program );
 		}
 
@@ -545,7 +545,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class NextAction extends ProgramAction {
 
-		protected NextAction( Program program ) {
+		protected NextAction( Xenon program ) {
 			super( program );
 		}
 
@@ -564,7 +564,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class ParentAction extends ProgramAction {
 
-		protected ParentAction( Program program ) {
+		protected ParentAction( Xenon program ) {
 			super( program );
 		}
 

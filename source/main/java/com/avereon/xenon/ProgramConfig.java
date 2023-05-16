@@ -8,7 +8,7 @@ class ProgramConfig {
 	private static ProductCard card;
 
 	static ProductCard loadProductInfo() {
-		if( card == null ) card = ProductCard.info( Program.class );
+		if( card == null ) card = ProductCard.info( Xenon.class );
 		return card;
 	}
 

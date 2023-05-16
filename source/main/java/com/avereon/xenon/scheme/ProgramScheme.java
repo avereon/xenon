@@ -3,7 +3,7 @@ package com.avereon.xenon.scheme;
 import com.avereon.index.Document;
 import com.avereon.product.Rb;
 import com.avereon.util.IoUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.Codec;
@@ -19,7 +19,7 @@ public class ProgramScheme extends ProductScheme {
 
 	public static final String ID = "program";
 
-	public ProgramScheme( Program program ) {
+	public ProgramScheme( Xenon program ) {
 		super( program, ID );
 	}
 

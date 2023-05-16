@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -51,7 +51,7 @@ public class ProductTool extends GuidedTool {
 		super( product, asset );
 		setId( "tool-product" );
 
-		Program program = getProgram();
+		Xenon program = getProgram();
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
 		updatesPage = new UpdatesPage( program, this );

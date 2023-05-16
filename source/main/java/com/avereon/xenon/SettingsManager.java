@@ -32,7 +32,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final String GENERAL = "general";
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Guide guide;
 
@@ -46,7 +46,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private final Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsManager( Program program ) {
+	public SettingsManager( Xenon program ) {
 		this.program = program;
 		this.guide = new Guide();
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );

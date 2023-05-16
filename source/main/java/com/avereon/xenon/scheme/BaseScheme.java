@@ -2,7 +2,7 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.LimitedInputStream;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Scheme;
 
 import java.io.ByteArrayOutputStream;
@@ -15,16 +15,16 @@ public abstract class BaseScheme implements Scheme {
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
 
-	protected final Program program;
+	protected final Xenon program;
 
 	private final String id;
 
-	public BaseScheme( Program program, String id ) {
+	public BaseScheme( Xenon program, String id ) {
 		this.program = program;
 		this.id = id;
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

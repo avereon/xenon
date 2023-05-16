@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class BaseXenonUiTestCase extends ApplicationTest {
 
-	private Program program;
+	private Xenon program;
 
 	private EventWatcher programWatcher;
 
@@ -53,7 +53,7 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 	protected void setup() throws Exception {
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
-		ProductCard metadata = ProductCard.info( Program.class );
+		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 
@@ -63,7 +63,7 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
-		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
+		program = (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
@@ -120,7 +120,7 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
-	protected Program getProgram() {
+	protected Xenon getProgram() {
 		return program;
 	}
 

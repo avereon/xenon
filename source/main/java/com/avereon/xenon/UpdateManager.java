@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UpdateManager {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final String prefix;
 
@@ -18,7 +18,7 @@ public class UpdateManager {
 
 	private StageUpdaterTask stageUpdaterTask;
 
-	public UpdateManager( Program program ) {
+	public UpdateManager( Xenon program ) {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater";
 
@@ -49,7 +49,7 @@ public class UpdateManager {
 		return updaterLauncher;
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

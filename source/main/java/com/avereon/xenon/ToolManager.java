@@ -32,7 +32,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private static final TimeUnit WORK_TIME_UNIT = TimeUnit.SECONDS;
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Map<String, String> aliases;
 
@@ -42,14 +42,14 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private final Set<Class<?>> singletonLocks = new CopyOnWriteArraySet<>();
 
-	public ToolManager( Program program ) {
+	public ToolManager( Xenon program ) {
 		this.program = program;
 		toolClassMetadata = new ConcurrentHashMap<>();
 		assetTypeToolClasses = new ConcurrentHashMap<>();
 		aliases = new ConcurrentHashMap<>();
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

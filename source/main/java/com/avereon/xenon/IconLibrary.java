@@ -23,11 +23,11 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Map<String, VectorImage> icons;
 
-	public IconLibrary( Program program ) {
+	public IconLibrary( Xenon program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
 
@@ -129,12 +129,12 @@ public class IconLibrary {
 		register( "toggle-disabled", new ToggleIcon( false ) );
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return program;
 	}
 
 	public void register( String id, VectorImage icon ) {
-		icon.getProperties().put( "stylesheet", Program.STYLESHEET );
+		icon.getProperties().put( "stylesheet", Xenon.STYLESHEET );
 		icons.put( id, icon );
 	}
 

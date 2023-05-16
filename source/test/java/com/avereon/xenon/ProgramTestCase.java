@@ -5,17 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class ProgramTestCase extends BaseXenonTestCase {
 
-	protected Program program;
+	protected Xenon program;
 
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
-		program = new Program();
+		program = new Xenon();
 		program.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
 		program.init();
 	}
 
-	protected Program getProgram() {
+	protected Xenon getProgram() {
 		return program;
 	}
 

@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 
 public class MockAssetType extends AssetType {
@@ -37,7 +37,7 @@ public class MockAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Asset asset ) {
 		return true;
 	}
 

@@ -6,7 +6,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.Profile;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.notice.Notice;
@@ -65,7 +65,7 @@ public class Workspace implements WritableIdentity {
 	 */
 	private static final boolean COMPACT_MENU = true;
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Stage stage;
 
@@ -129,7 +129,7 @@ public class Workspace implements WritableIdentity {
 
 	private Workarea activeWorkarea;
 
-	public Workspace( final Program program, final String id ) {
+	public Workspace( final Xenon program, final String id ) {
 		this.program = program;
 		this.eventBus = new FxEventHub();
 
@@ -193,7 +193,7 @@ public class Workspace implements WritableIdentity {
 
 	public void setTheme( String url ) {
 		scene.getStylesheets().clear();
-		scene.getStylesheets().add( Program.STYLESHEET );
+		scene.getStylesheets().add( Xenon.STYLESHEET );
 		if( url != null ) scene.getStylesheets().add( url );
 	}
 
@@ -201,7 +201,7 @@ public class Workspace implements WritableIdentity {
 		return eventBus;
 	}
 
-	private ContextMenu createProgramMenu( Program program ) {
+	private ContextMenu createProgramMenu( Xenon program ) {
 		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
 		String descriptor = getSettings().get( "menubar", defaultDescriptor );
 
@@ -211,17 +211,17 @@ public class Workspace implements WritableIdentity {
 		return menu;
 	}
 
-	private void insertDevMenu( Program program, ContextMenu menu ) {
+	private void insertDevMenu( Xenon program, ContextMenu menu ) {
 		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
 		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
 	}
 
-	private Menu generateDevMenu( Program program ) {
+	private Menu generateDevMenu( Xenon program ) {
 		String development = "development[restart,uireset,mock-update|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
 		return MenuFactory.createMenu( program, development, true );
 	}
 
-	private ToolBar createProgramToolBar( Program program ) {
+	private ToolBar createProgramToolBar( Xenon program ) {
 		String defaultDescriptor = program.getSettings().get( "workspace-toolbar" );
 		String descriptor = getSettings().get( "toolbar", defaultDescriptor );
 
@@ -280,7 +280,7 @@ public class Workspace implements WritableIdentity {
 		return noticeButton;
 	}
 
-	private static MenuBar createWorkareaMenu( Program program ) {
+	private static MenuBar createWorkareaMenu( Xenon program ) {
 		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
 
 		MenuBar workareaMenuBar = new MenuBar();
@@ -297,7 +297,7 @@ public class Workspace implements WritableIdentity {
 		return selector;
 	}
 
-	private StatusBar createStatusBar( Program program ) {
+	private StatusBar createStatusBar( Xenon program ) {
 		StatusBar statusBar = new StatusBar();
 
 		// Task Monitor
@@ -361,7 +361,7 @@ public class Workspace implements WritableIdentity {
 		}
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.RepoCard;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.Task;
@@ -61,7 +61,7 @@ class RepoPane extends GridPane {
 
 		setId( "tool-product-market" );
 
-		Program program = productTool.getProgram();
+		Xenon program = productTool.getProgram();
 		Node marketIcon = program.getIconLibrary().getIcon( source.getIcons(), "market", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, marketIcon );

@@ -1,6 +1,6 @@
 package com.avereon.xenon.task;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.util.Asynchronous;
 
 public class TaskChain<RESULT> {
@@ -67,7 +67,7 @@ public class TaskChain<RESULT> {
 	}
 
 	@Asynchronous
-	public Task<RESULT> run( Program program ) {
+	public Task<RESULT> run( Xenon program ) {
 		// Start the first task
 		program.getTaskManager().submit( first );
 

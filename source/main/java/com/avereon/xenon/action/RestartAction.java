@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.RestartHook;
 import javafx.event.ActionEvent;
@@ -9,7 +9,7 @@ import lombok.CustomLog;
 @CustomLog
 public class RestartAction extends ProgramAction {
 
-	public RestartAction( Program program ) {
+	public RestartAction( Xenon program ) {
 		super( program );
 	}
 

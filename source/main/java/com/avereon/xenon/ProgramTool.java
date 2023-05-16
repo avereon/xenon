@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
- * {@link Program}.
+ * {@link Xenon}.
  *
  * <h2>ProgramTool Lifecycle</h2>
  * There are several steps in the tool lifecycle. Some are called only once and
@@ -122,7 +122,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		return product;
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return product.getProgram();
 	}
 

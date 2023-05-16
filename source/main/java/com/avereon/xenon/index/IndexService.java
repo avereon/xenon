@@ -4,7 +4,7 @@ import com.avereon.index.*;
 import com.avereon.result.Result;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IoUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import lombok.CustomLog;
 
 import java.io.FileWriter;
@@ -21,13 +21,13 @@ public class IndexService implements Controllable<IndexService> {
 	private static final int FUZZY_SEARCH_THRESHOLD = 80;
 
 	@SuppressWarnings( { "FieldCanBeLocal", "unused" } )
-	private final Program program;
+	private final Xenon program;
 
 	private final Indexer indexer;
 
 	private final Path contentPath;
 
-	public IndexService( Program program ) {
+	public IndexService( Xenon program ) {
 		this.program = program;
 
 		Path indexPath = program.getDataFolder().resolve( "index" );
