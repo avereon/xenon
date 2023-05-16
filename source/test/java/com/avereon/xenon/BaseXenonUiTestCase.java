@@ -4,7 +4,6 @@ import com.avereon.event.EventWatcher;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
-import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
@@ -22,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

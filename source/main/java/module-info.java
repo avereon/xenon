@@ -1,5 +1,6 @@
 import com.avereon.xenon.Mod;
 
+@SuppressWarnings( "requires-transitive-automatic" )
 module com.avereon.xenon {
 
 	// Compile-time only
@@ -26,16 +27,15 @@ module com.avereon.xenon {
 	requires jdk.crypto.ec;
 	requires org.controlsfx.controls;
 	requires reactfx;
-
-	// This is to provide some base classes for testing the program and mods
-	//requires org.junit.jupiter;
-	//requires org.junit.jupiter.api;
-	//requires org.junit.jupiter.engine;
-	//requires org.junit.jupiter.params;
-	//requires org.junit.platform.commons;
-	//requires org.junit.platform.engine;
 	requires static org.testfx.junit5;
-	//requires static org.assertj.core;
+
+	// NOTE Multiple attempts have been made to consolidate test classes into this
+	// module without success. There are several reasons this has not worked:
+	// 1. JUnit does not like to be both a test-time library and a compile-time library.
+	// 2. Trying to expose base test classes for mods did not work due to previous reason.
+	// 3. Trying to extract base test classes to a separate library caused a circular reference.
+	// Base test classes for the program have been created in the xenon-junit5 library.
+	// Base test classes for program mods have been created in the xenon-mod-junit5 library.
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
@@ -47,7 +47,6 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
-	exports com.avereon.xenon.test;
 	exports com.avereon.xenon.throwable;
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
@@ -66,5 +65,4 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.undo;
 
 	uses Mod;
-
 }

@@ -1,7 +1,4 @@
-package com.avereon.xenon.test;
-
-import com.avereon.xenon.Profile;
-import com.avereon.xenon.ProgramFlag;
+package com.avereon.xenon;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.xenon.BaseToolUIT;
-import com.avereon.xenon.test.ProgramTestConfig;
+import com.avereon.xenon.ProgramTestConfig;
 import com.avereon.zarra.javafx.Fx;
 import org.testfx.robot.Motion;
 
