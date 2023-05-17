@@ -79,7 +79,7 @@
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
 		<controlsfx.version>[11.1,)</controlsfx.version>
-		<openjfx.version>[20.0]</openjfx.version>
+		<openjfx.version>[20,21-ea]</openjfx.version>
 
 		<!-- Test dependencies -->
 		<xenon-junit5.version>[0.9-SNAPSHOT,)</xenon-junit5.version>
@@ -188,17 +188,17 @@
 		<!-- This need to stay in the provided scope so that the classes provided by
 		Xenon can be compiled and distributed. However, junit is not part of Xenon
 		and therefore is marked "provided". -->
-<!--		<dependency>-->
-<!--			<groupId>org.junit.jupiter</groupId>-->
-<!--			<artifactId>junit-jupiter-api</artifactId>-->
-<!--			<version>${junit.version}</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.junit.jupiter</groupId>-->
+		<!--			<artifactId>junit-jupiter-api</artifactId>-->
+		<!--			<version>${junit.version}</version>-->
+		<!--		</dependency>-->
 
-<!--		<dependency>-->
-<!--			<groupId>org.junit.jupiter</groupId>-->
-<!--			<artifactId>junit-jupiter-engine</artifactId>-->
-<!--			<version>${junit.version}</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.junit.jupiter</groupId>-->
+		<!--			<artifactId>junit-jupiter-engine</artifactId>-->
+		<!--			<version>${junit.version}</version>-->
+		<!--		</dependency>-->
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -214,12 +214,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.junit.jupiter</groupId>-->
-<!--			<artifactId>junit-jupiter-api</artifactId>-->
-<!--			<version>${junit.version}</version>-->
-<!--			<scope>provided</scope>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.junit.jupiter</groupId>-->
+		<!--			<artifactId>junit-jupiter-api</artifactId>-->
+		<!--			<version>${junit.version}</version>-->
+		<!--			<scope>provided</scope>-->
+		<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.testfx</groupId>
