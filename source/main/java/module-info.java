@@ -17,14 +17,14 @@ module com.avereon.xenon {
 	requires transitive javafx.web;
 	requires transitive org.fxmisc.undo;
 	requires com.avereon.weave;
-	requires com.fasterxml.jackson.core;
-	requires com.fasterxml.jackson.databind;
-	requires com.fasterxml.jackson.annotation;
 	requires java.net.http;
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
 	requires jdk.crypto.ec;
+	requires com.fasterxml.jackson.core;
+	requires com.fasterxml.jackson.databind;
+	requires com.fasterxml.jackson.annotation;
 	requires org.controlsfx.controls;
 	requires reactfx;
 	requires static org.testfx.junit5;
