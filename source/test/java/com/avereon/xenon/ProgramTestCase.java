@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.Parameters;
+import com.avereon.xenon.junit5.ProgramTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 
 public class ProgramTestCase extends BaseXenonTestCase {
