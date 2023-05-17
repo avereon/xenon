@@ -3,18 +3,18 @@ package com.avereon.xenon;
 import com.avereon.event.EventWatcher;
 import com.avereon.log.Log;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Profile;
 import com.avereon.util.*;
+import com.avereon.xenon.junit5.BaseProgramUiTestCase;
 import com.avereon.xenon.junit5.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
-import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.opentest4j.AssertionFailedError;
 import org.testfx.api.FxToolkit;
-import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.IOException;
@@ -32,9 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
-public abstract class BaseXenonUiTestCase extends ApplicationTest {
-
-	private Xenon program;
+public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
 
 	private EventWatcher programWatcher;
 
@@ -44,14 +42,13 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 
 	private long finalMemoryUse;
 
-	@Override
-	public void start( Stage stage ) {}
-
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
 	@BeforeEach
 	protected void setup() throws Exception {
+		super.setup();
+
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
@@ -64,8 +61,8 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
-		program = (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() );
-		program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
+		setProgram( (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() ) );
+		getProgram().register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
 		Thread.yield();
@@ -77,17 +74,17 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
 		long limit = System.currentTimeMillis() + TIMEOUT;
-		while( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
+		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
 			ThreadUtil.pause( 100 );
 		}
 
-		assertThat( program ).withFailMessage( "Program is null" ).isNotNull();
-		assertThat( program.getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
-		assertThat( program.getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
+		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
+		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
+		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
+		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
+		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
 
-		Workpane workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
 		initialMemoryUse = getMemoryUse();
@@ -98,11 +95,11 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupApplication( program );
+		FxToolkit.cleanupApplication( getProgram() );
 		FxToolkit.cleanupStages();
 
 		programWatcher.waitForEvent( ProgramEvent.STOPPED );
-		program.unregister( ProgramEvent.ANY, programWatcher );
+		getProgram().unregister( ProgramEvent.ANY, programWatcher );
 		Log.reset();
 
 		// Pause to let things wind down
@@ -117,12 +114,12 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 	}
 
 	protected void closeProgram( boolean force ) throws Exception {
-		Fx.run( () -> program.requestExit( force ) );
+		Fx.run( () -> getProgram().requestExit( force ) );
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
 	protected Xenon getProgram() {
-		return program;
+		return (Xenon)super.getProgram();
 	}
 
 	protected EventWatcher getProgramEventWatcher() {
@@ -130,7 +127,7 @@ public abstract class BaseXenonUiTestCase extends ApplicationTest {
 	}
 
 	protected Workpane getWorkpane() {
-		return program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
 	protected FxEventWatcher getWorkpaneEventWatcher() {

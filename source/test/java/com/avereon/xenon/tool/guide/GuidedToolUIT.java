@@ -1,9 +1,9 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.xenon.BaseToolUIT;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.avereon.xenon.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.junit5.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuidedToolUIT extends BaseToolUIT {

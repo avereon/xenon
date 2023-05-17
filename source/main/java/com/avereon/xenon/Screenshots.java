@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.event.EventWatcher;
+import com.avereon.product.ProgramFlag;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;

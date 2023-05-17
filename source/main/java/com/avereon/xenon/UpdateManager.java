@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Profile;
 import com.avereon.util.OperatingSystem;
 
 import java.nio.file.Path;

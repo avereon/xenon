@@ -5,7 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.Profile;
+import com.avereon.product.Profile;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;

@@ -3,17 +3,18 @@ package com.avereon.xenon.tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
+import org.testfx.api.FxRobot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolOpenUIT extends WelcomeToolUIT {
 
 	@Test
-	void execute() throws Exception {
+	void execute( FxRobot robot ) throws Exception {
 		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		openWelcomeTool();
+		openWelcomeTool( robot );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );

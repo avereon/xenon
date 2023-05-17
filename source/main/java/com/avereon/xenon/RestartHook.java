@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.log.Log;
+import com.avereon.product.ProgramFlag;
 import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.weave.UpdateCommandBuilder;

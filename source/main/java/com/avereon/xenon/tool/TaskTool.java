@@ -3,7 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.util.ThreadUtil;
-import com.avereon.xenon.Profile;
+import com.avereon.product.Profile;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
