@@ -212,8 +212,10 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private void insertDevMenu( Xenon program, ContextMenu menu ) {
-		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
-		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
+//		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
+//		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
+
+		menu.getItems().add( generateDevMenu( program ) );
 	}
 
 	private Menu generateDevMenu( Xenon program ) {
