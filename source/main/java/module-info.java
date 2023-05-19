@@ -37,6 +37,7 @@ module com.avereon.xenon {
 	// Base test classes for the program have been created in the xenon-junit5 library.
 	// Base test classes for program mods have been created in the xenon-mod-junit5 library.
 
+	// General exports
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
 	exports com.avereon.xenon.asset;
@@ -57,6 +58,9 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.ui.util;
 	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
+
+	// Specific exports
+	exports com.avereon.xenon.test to com.avereon.zerra;
 
 	opens com.avereon.xenon;
 	opens com.avereon.xenon.bundles;
