@@ -14,13 +14,12 @@ import com.avereon.zarra.javafx.Fx;
 import javafx.application.Application;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opentest4j.AssertionFailedError;
 import org.testfx.api.FxToolkit;
+import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
@@ -33,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
+@ExtendWith( ApplicationExtension.class )
 public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 
 	private EventWatcher programWatcher;
