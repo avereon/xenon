@@ -72,6 +72,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.tool.guide to org.testfx.junit5;
 	opens com.avereon.xenon.tool.product to org.testfx.junit5;
 	opens com.avereon.xenon.tool.settings to org.testfx.junit5;
+	opens com.avereon.xenon.ui.util to org.testfx.junit5;
 	opens com.avereon.xenon.workspace to org.testfx.junit5;
 
 	uses Mod;

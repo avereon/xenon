@@ -20,6 +20,14 @@ public class CommonProgramTestBase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
+		// Run in headless mode
+		//System.setProperty( "java.awt.headless", "true" );
+		System.setProperty( "glass.platform", "Monocle" );
+		System.setProperty( "monocle.platform", "Headless" );
+		//System.setProperty( "prism.order", "sw" );
+		System.setProperty( "testfx.headless", "true" );
+		System.setProperty( "testfx.robot", "glass" );
+
 		// Be sure that the OperatingSystem class is properly set
 		OperatingSystem.reset();
 
@@ -32,17 +40,5 @@ public class CommonProgramTestBase {
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( FileUtil.delete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 	}
-
-//	private boolean aggressiveDelete( Path path ) throws IOException {
-//		long limit = System.currentTimeMillis() + TIMEOUT;
-//		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
-//			try {
-//				FileUtil.delete( path );
-//			} catch( IOException exception ) {
-//				ThreadUtil.pause( 100 );
-//			}
-//		}
-//		return FileUtil.delete( path );
-//	}
 
 }

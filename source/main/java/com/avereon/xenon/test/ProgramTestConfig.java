@@ -19,6 +19,16 @@ public interface ProgramTestConfig {
 	 */
 	int TIMEOUT = 30000;
 
+	static String[] getPartProgramParameterValues() {
+		List<String> values = new ArrayList<>();
+		values.add( ProgramFlag.PROFILE );
+		values.add( Profile.TEST );
+		values.add( ProgramFlag.LOG_LEVEL );
+		values.add( ProgramFlag.CONFIG );
+		values.add( ProgramFlag.NOSPLASH );
+		return values.toArray( new String[ 0 ] );
+	}
+
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
 		values.add( ProgramFlag.PROFILE );

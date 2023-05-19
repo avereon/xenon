@@ -24,6 +24,8 @@ public class WorkpaneTestCase extends FxPlatformTestCase {
 
 	@BeforeEach
 	public void setup() throws Exception {
+		super.setup();
+
 		workpane = new Workpane();
 		view = workpane.getActiveView();
 

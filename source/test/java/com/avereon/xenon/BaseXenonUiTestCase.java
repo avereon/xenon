@@ -11,7 +11,6 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
-import javafx.application.Application;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +92,7 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupApplication( (Application)getProgram() );
+		FxToolkit.cleanupApplication( getProgram() );
 		FxToolkit.cleanupStages();
 
 		programWatcher.waitForEvent( ProgramEvent.STOPPED );
