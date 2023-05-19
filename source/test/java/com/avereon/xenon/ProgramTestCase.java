@@ -1,23 +1,15 @@
 package com.avereon.xenon;
 
-import com.avereon.util.Parameters;
-import com.avereon.xenon.junit5.ProgramTestConfig;
+import com.avereon.xenon.test.annotation.PartProgramTest;
 import org.junit.jupiter.api.BeforeEach;
 
+@PartProgramTest
 public class ProgramTestCase extends BaseXenonTestCase {
-
-	protected Xenon program;
 
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
-		program = new Xenon();
-		program.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
-		program.init();
-	}
-
-	protected Xenon getProgram() {
-		return program;
+		getProgram().init();
 	}
 
 }

@@ -4,7 +4,7 @@ import com.avereon.xenon.BaseXenonUiTestCase;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
-import static com.avereon.xenon.junit5.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuideUIT extends BaseXenonUiTestCase {

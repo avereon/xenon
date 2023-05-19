@@ -795,8 +795,9 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	@Override
-	public void setProgramParameters( com.avereon.util.Parameters parameters ) {
+	public Xenon setProgramParameters( com.avereon.util.Parameters parameters ) {
 		this.parameters = parameters;
+		return this;
 	}
 
 	@Override

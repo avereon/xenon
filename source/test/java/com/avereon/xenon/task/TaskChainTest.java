@@ -17,7 +17,7 @@ class TaskChainTest extends ProgramTestCase {
 		TaskChain<Integer> chain = TaskChain.of( () -> value );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( value );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -29,7 +29,7 @@ class TaskChainTest extends ProgramTestCase {
 		TaskChain<Integer> chain = TaskChain.of( ( v ) -> inc( value ) );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( value + 1 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -46,7 +46,7 @@ class TaskChainTest extends ProgramTestCase {
 		} );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 1 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -56,7 +56,7 @@ class TaskChainTest extends ProgramTestCase {
 		TaskChain<Integer> chain = TaskChain.of( () -> 0 ).link( () -> 1 ).link( () -> 2 );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 2 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -66,7 +66,7 @@ class TaskChainTest extends ProgramTestCase {
 		TaskChain<Integer> chain = TaskChain.of( () -> 0 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 5 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -83,7 +83,7 @@ class TaskChainTest extends ProgramTestCase {
 		} );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 3 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -91,7 +91,7 @@ class TaskChainTest extends ProgramTestCase {
 	@Test
 	void testLinkWithDifferentTypes() throws Exception {
 		TaskChain<Integer> chain = TaskChain.of( () -> "0" ).link( Integer::parseInt ).link( i -> i + 1 );
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 1 );
 	}
 
@@ -100,7 +100,7 @@ class TaskChainTest extends ProgramTestCase {
 		TaskChain<Integer> chain = TaskChain.of( this::count ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 );
 		assertThat( chain.build().getState() ).isEqualTo( Task.State.READY );
 
-		Task<Integer> task = chain.run( program );
+		Task<Integer> task = chain.run( getProgram() );
 		assertThat( task.get() ).isEqualTo( 10 );
 		assertThat( task.getState() ).isEqualTo( Task.State.SUCCESS );
 	}
@@ -112,7 +112,7 @@ class TaskChainTest extends ProgramTestCase {
 		Task<Integer> task = TaskChain.of( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
 			if( i != 0 ) throw expected;
 			return 0;
-		} ).link( this::inc ).link( this::inc ).run( program );
+		} ).link( this::inc ).link( this::inc ).run( getProgram() );
 
 		try {
 			assertThat( task.get() ).isEqualTo( 5 );
@@ -129,7 +129,7 @@ class TaskChainTest extends ProgramTestCase {
 	}
 
 	private Integer count() throws ExecutionException, InterruptedException {
-		return TaskChain.of( () -> 0 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).run( program ).get();
+		return TaskChain.of( () -> 0 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).link( ( i ) -> i + 1 ).run( getProgram() ).get();
 	}
 
 }

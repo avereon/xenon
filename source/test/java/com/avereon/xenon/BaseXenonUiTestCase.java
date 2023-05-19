@@ -2,15 +2,16 @@ package com.avereon.xenon;
 
 import com.avereon.event.EventWatcher;
 import com.avereon.log.Log;
-import com.avereon.product.ProductCard;
-import com.avereon.product.Profile;
-import com.avereon.util.*;
-import com.avereon.xenon.junit5.BaseProgramUiTestCase;
-import com.avereon.xenon.junit5.ProgramTestConfig;
+import com.avereon.util.FileUtil;
+import com.avereon.util.SizeUnitBase10;
+import com.avereon.util.SizeUnitBase2;
+import com.avereon.util.ThreadUtil;
+import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
+import javafx.application.Application;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.opentest4j.AssertionFailedError;
@@ -22,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-import static com.avereon.xenon.junit5.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
-public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
+public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 
 	private EventWatcher programWatcher;
 
@@ -49,19 +50,16 @@ public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
 	protected void setup() throws Exception {
 		super.setup();
 
-		// Remove the existing program data folder
-		String suffix = "-" + Profile.TEST;
-		ProductCard metadata = ProductCard.info( Xenon.class );
-		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
-
-		// For the parameters to be available using Java 9, the following needs to be added
-		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
-		// is not exposed, nor is there a "proper" way to access it:
+		// For the parameters to be available using Java 9 or later, the following
+		// needs to be added to the test JVM command line parameters because
+		// com.sun.javafx.application.ParametersImpl is not exposed, nor is there
+		// a "proper" way to access it:
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
+		// NOTE This starts the application so all setup needs to be done by this point
 		setProgram( (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() ) );
+
 		getProgram().register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 		Fx.waitForWithExceptions( TIMEOUT );
 		// NOTE Thread.yield() is helpful but not consistent
@@ -95,7 +93,7 @@ public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupApplication( getProgram() );
+		FxToolkit.cleanupApplication( (Application)getProgram() );
 		FxToolkit.cleanupStages();
 
 		programWatcher.waitForEvent( ProgramEvent.STOPPED );
@@ -118,7 +116,7 @@ public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
-	protected Xenon getProgram() {
+	public Xenon getProgram() {
 		return (Xenon)super.getProgram();
 	}
 
@@ -167,18 +165,6 @@ public abstract class BaseXenonUiTestCase extends BaseProgramUiTestCase {
 				increasePercent * 100
 			) );
 		}
-	}
-
-	private boolean aggressiveDelete( Path path ) throws IOException {
-		long limit = System.currentTimeMillis() + TIMEOUT;
-		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
-			try {
-				FileUtil.delete( path );
-			} catch( IOException exception ) {
-				ThreadUtil.pause( 100 );
-			}
-		}
-		return FileUtil.delete( path );
 	}
 
 }

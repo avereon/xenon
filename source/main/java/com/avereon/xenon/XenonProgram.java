@@ -13,7 +13,6 @@ import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.task.TaskManager;
-import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
@@ -52,7 +51,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	com.avereon.util.Parameters getProgramParameters();
 
-	void setProgramParameters( com.avereon.util.Parameters parameters );
+	Xenon setProgramParameters( com.avereon.util.Parameters parameters );
 
 	@Override
 	Xenon getProgram();

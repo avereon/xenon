@@ -19,10 +19,10 @@ public class AssetManagerTest extends ProgramTestCase {
 	@Override
 	protected void setup() throws Exception {
 		super.setup();
-		manager = new AssetManager( program );
-		manager.addScheme( new MockScheme( program ) );
-		manager.addScheme( new NewScheme( program ) );
-		manager.addAssetType( new MockAssetType( program ) );
+		manager = new AssetManager( getProgram() );
+		manager.addScheme( new MockScheme( getProgram() ) );
+		manager.addScheme( new NewScheme( getProgram() ) );
+		manager.addAssetType( new MockAssetType( getProgram() ) );
 	}
 
 	@Test
@@ -224,7 +224,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( new MockAssetType( program ).getKey() );
+		AssetType type = manager.getAssetType( new MockAssetType( getProgram() ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );
