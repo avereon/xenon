@@ -21,6 +21,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.avereon.xenon.test.ProgramTestConfig.QUICK_TIMEOUT;
 import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith( ApplicationExtension.class )
 public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
+
+	private static final long minInitialMemory = 8 * SizeUnitBase2.MiB.getSize();
 
 	private EventWatcher programWatcher;
 
@@ -70,9 +73,9 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
-		long limit = System.currentTimeMillis() + TIMEOUT;
-		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < limit ) {
-			ThreadUtil.pause( 100 );
+		long activeWorkareaTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
+		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < activeWorkareaTimeLimit ) {
+			ThreadUtil.pause( 10 );
 		}
 
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
@@ -85,8 +88,9 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
 		initialMemoryUse = getMemoryUse();
-		while( initialMemoryUse < (8 * SizeUnitBase2.MiB.getSize() )) {
-			ThreadUtil.pause( 100 );
+		long initialMemoryUseTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
+		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
+			ThreadUtil.pause( 10 );
 			initialMemoryUse = getMemoryUse();
 		}
 	}

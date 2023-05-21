@@ -19,6 +19,8 @@ public interface ProgramTestConfig {
 	 */
 	int TIMEOUT = 30000;
 
+	int QUICK_TIMEOUT = 5000;
+
 	static String[] getPartProgramParameterValues() {
 		List<String> values = new ArrayList<>();
 		values.add( ProgramFlag.PROFILE );
