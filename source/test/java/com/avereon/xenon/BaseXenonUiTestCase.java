@@ -85,6 +85,10 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
 		initialMemoryUse = getMemoryUse();
+		while( initialMemoryUse < (8 * SizeUnitBase2.MiB.getSize() )) {
+			ThreadUtil.pause( 100 );
+			initialMemoryUse = getMemoryUse();
+		}
 	}
 
 	/**
