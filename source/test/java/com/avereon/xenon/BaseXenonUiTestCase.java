@@ -59,23 +59,34 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
+		long start = System.currentTimeMillis();
+		System.out.println( "time=" + start );
+
 		// NOTE This starts the application so all setup needs to be done by this point
 		setProgram( (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() ) );
 
 		getProgram().register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 		Fx.waitForWithExceptions( TIMEOUT );
-		// NOTE Thread.yield() is helpful but not consistent
-		Thread.yield();
 		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
 		Fx.waitForWithExceptions( TIMEOUT );
-		// NOTE Thread.yield() is helpful but not consistent
-		Thread.yield();
+
+		long end = System.currentTimeMillis();
+		System.out.println( "stop=" + end );
+		System.out.println( "duration=" + (end - start) );
+
+		// Get initial memory use after program is started
+		initialMemoryUse = getMemoryUse();
+		long initialMemoryUseTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
+		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
+			ThreadUtil.pause( 100 );
+			initialMemoryUse = getMemoryUse();
+		}
 
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
 		long activeWorkareaTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
 		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < activeWorkareaTimeLimit ) {
-			ThreadUtil.pause( 10 );
+			ThreadUtil.pause( 100 );
 		}
 
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
@@ -86,13 +97,6 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
-
-		initialMemoryUse = getMemoryUse();
-		long initialMemoryUseTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
-		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
-			ThreadUtil.pause( 10 );
-			initialMemoryUse = getMemoryUse();
-		}
 	}
 
 	/**

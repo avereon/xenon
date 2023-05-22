@@ -40,7 +40,7 @@ public class ProgramTaskManager extends TaskManager {
 	@Override
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
 		if( getProgram() == null ) return;
-		log.atSevere().withCause( throwable ).log();
+		super.taskFailed( task, throwable );
 	}
 
 }

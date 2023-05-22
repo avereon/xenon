@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class TaskChainTest extends ProgramTestCase {
 
@@ -106,22 +106,20 @@ class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	@SuppressWarnings( "ResultOfMethodCallIgnored" )
-	void testExceptionCascade() throws Exception {
+	void testExceptionCascade() {
 		RuntimeException expected = new RuntimeException();
 		Task<Integer> task = TaskChain.of( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
 			if( i != 0 ) throw expected;
 			return 0;
 		} ).link( this::inc ).link( this::inc ).run( getProgram() );
 
-		try {
-			assertThat( task.get() ).isEqualTo( 5 );
-			fail( "The get() method should throw an ExecutionException" );
-		} catch( ExecutionException exception ) {
-			assertThat( exception.getCause() ).isInstanceOf( TaskException.class );
-			assertThat( exception.getCause().getCause() ).isEqualTo( expected );
-			assertThat( exception.getCause().getCause().getCause() ).isNull();
-		}
+		Throwable thrown = catchThrowable( task::get );
+
+		assertThat( thrown ).isInstanceOf( ExecutionException.class );
+		assertThat( thrown.getCause() ).isInstanceOf( TaskException.class );
+		assertThat( thrown.getCause().getCause() ).isInstanceOf( RuntimeException.class );
+		assertThat( thrown.getCause().getCause() ).isEqualTo( expected );
+		assertThat( thrown.getCause().getCause().getCause() ).isNull();
 	}
 
 	private Integer inc( Integer value ) {

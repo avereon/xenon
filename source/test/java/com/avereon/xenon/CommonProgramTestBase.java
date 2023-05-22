@@ -24,13 +24,7 @@ public class CommonProgramTestBase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
-		// Run in headless mode
-		//System.setProperty( "java.awt.headless", "true" );
-		System.setProperty( "glass.platform", "Monocle" );
-		System.setProperty( "monocle.platform", "Headless" );
-		//System.setProperty( "prism.order", "sw" );
-		System.setProperty( "testfx.headless", "true" );
-		System.setProperty( "testfx.robot", "glass" );
+		runHeadless();
 
 		// Be sure that the OperatingSystem class is properly set
 		OperatingSystem.reset();
@@ -45,15 +39,51 @@ public class CommonProgramTestBase {
 		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 	}
 
-		private boolean aggressiveDelete( Path path ) throws IOException {
-			long limit = System.currentTimeMillis() + TIMEOUT;
-			while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
-				try {
-					FileUtil.delete( path );
-				} catch( IOException exception ) {
-					ThreadUtil.pause( 100 );
-				}
+	private void runHeadless() {
+		// Set java.awt.headless to true when running tests in headless mode
+		// This is not needed if using Monocle, but just to be safe
+		System.setProperty( "java.awt.headless", "true" );
+
+		// Use Monocle to run UI tests
+		// <!-- https://wiki.openjdk.java.net/display/OpenJFX/Monocle -->
+		System.setProperty( "glass.platform", "Monocle" );
+
+		// When running the desktop build of JavaFX Monocle,
+		// then the only Monocle platform option is Headless
+		System.setProperty( "monocle.platform", "Headless" );
+
+		// Set prism.order to sw when running tests in headless mode
+		//System.setProperty( "prism.order", "sw" );
+
+		// Not sure what this setting does, but it's in all the examples found
+		//System.setProperty( "prism.text", "t2k" );
+
+		// Set testfx.setup.timeout to a reasonable time
+		// 5000 - GitHub Actions, Mintbox Mini
+		//  | Slower computers
+		//  |
+		//  | Faster computers
+		// 1000 - AMD Threadripper, Intel i9</pre>
+		System.setProperty( "testfx.setup.timeout", "5000" );
+
+		// When using Monocle, TestFX should also run in headless mode
+		System.setProperty( "testfx.headless", "true" );
+
+		// When using Monocle, use the Glass robot
+		System.setProperty( "testfx.robot", "glass" );
+
+	}
+
+	private boolean aggressiveDelete( Path path ) throws IOException {
+		long limit = System.currentTimeMillis() + TIMEOUT;
+		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
+			try {
+				FileUtil.delete( path );
+			} catch( IOException exception ) {
+				ThreadUtil.pause( 100 );
 			}
-			return FileUtil.delete( path );
 		}
+		return FileUtil.delete( path );
+	}
+
 }

@@ -568,7 +568,7 @@ public class Xenon extends Application implements XenonProgram {
 			}
 			URI uri = URI.create( ProgramSettingsType.URI + path.toString() );
 
-			log.atConfig().log( "page uri=%s", uri );
+			//log.atConfig().log( "page uri=%s", uri );
 
 			getIndexService().submit( "settings", new Document( uri, page.getIcon(), page.getTitle(), content.toString() ) );
 		}

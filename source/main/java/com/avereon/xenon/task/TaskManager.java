@@ -186,7 +186,7 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		log.atError( throwable ).log( "Task failed" );
+		log.atWarn( throwable ).log( "Task failed" );
 	}
 
 	public int getP1ThreadCount() {

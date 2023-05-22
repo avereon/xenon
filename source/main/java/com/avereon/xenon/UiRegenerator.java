@@ -93,8 +93,8 @@ class UiRegenerator {
 			}
 
 			// Ensure there is an active workarea
-			if( getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
-				Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
+			Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
+			if( !workspace.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
 				workspace.setActiveWorkarea( workspace.getWorkareas().iterator().next() );
 			}
 

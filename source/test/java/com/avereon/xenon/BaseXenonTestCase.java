@@ -17,8 +17,11 @@ public abstract class BaseXenonTestCase extends CommonProgramTestBase {
 	protected void setup() throws Exception {
 		super.setup();
 
+		Xenon xenon = new Xenon().setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
+		xenon.init();
+
 		// Create the program
-		setProgram( new Xenon().setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) ) );
+		setProgram( xenon );
 	}
 
 	public Xenon getProgram() {
