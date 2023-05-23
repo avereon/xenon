@@ -82,7 +82,6 @@
 		<openjfx.version>[20,21-ea]</openjfx.version>
 
 		<!-- Test dependencies -->
-		<xenon-junit5.version>[0.9-SNAPSHOT,)</xenon-junit5.version>
 		<testfx.version>[4.0,)</testfx.version>
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
@@ -184,42 +183,13 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Development dependencies -->
-		<!-- This need to stay in the provided scope so that the classes provided by
-		Xenon can be compiled and distributed. However, junit is not part of Xenon
-		and therefore is marked "provided". -->
-		<!--		<dependency>-->
-		<!--			<groupId>org.junit.jupiter</groupId>-->
-		<!--			<artifactId>junit-jupiter-api</artifactId>-->
-		<!--			<version>${junit.version}</version>-->
-		<!--		</dependency>-->
-
-		<!--		<dependency>-->
-		<!--			<groupId>org.junit.jupiter</groupId>-->
-		<!--			<artifactId>junit-jupiter-engine</artifactId>-->
-		<!--			<version>${junit.version}</version>-->
-		<!--		</dependency>-->
-
 		<!-- Test dependencies -->
-		<dependency>
-			<groupId>com.avereon</groupId>
-			<artifactId>xenon-junit5</artifactId>
-			<version>${xenon-junit5.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<version>${junit.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<!--		<dependency>-->
-		<!--			<groupId>org.junit.jupiter</groupId>-->
-		<!--			<artifactId>junit-jupiter-api</artifactId>-->
-		<!--			<version>${junit.version}</version>-->
-		<!--			<scope>provided</scope>-->
-		<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.testfx</groupId>

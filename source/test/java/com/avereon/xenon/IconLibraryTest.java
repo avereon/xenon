@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.test.annotation.PartProgramTest;
 import com.avereon.zarra.image.BrokenIcon;
 import com.avereon.zenna.icon.PowerIcon;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@PartProgramTest
 public class IconLibraryTest extends ProgramTestCase {
 
 	private IconLibrary library;
