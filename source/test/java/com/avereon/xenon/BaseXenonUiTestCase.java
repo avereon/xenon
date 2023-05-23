@@ -110,9 +110,6 @@ public abstract class BaseXenonUiTestCase extends CommonXenonTestCase {
 
 		Xenon program = getProgram();
 		if( program != null ) {
-			// Clean up the settings
-			program.getSettingsManager().getSettings( ProgramSettings.UI ).delete();
-
 			FxToolkit.cleanupApplication( program );
 			programWatcher.waitForEvent( ProgramEvent.STOPPED );
 			program.unregister( ProgramEvent.ANY, programWatcher );

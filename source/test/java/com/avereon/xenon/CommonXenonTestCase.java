@@ -46,7 +46,12 @@ public abstract class CommonXenonTestCase {
 	}
 
 	@AfterEach
-	protected void teardown() throws Exception {}
+	protected void teardown() throws Exception {
+		// Clean up the settings
+		// This fixes the problem where unexpected workspaces were being restored
+		// and there was not an active workarea.
+		if( program != null ) program.getSettingsManager().getSettings( ProgramSettings.BASE ).delete();
+	}
 
 	private void runHeadless() {
 		// Set java.awt.headless to true when running tests in headless mode

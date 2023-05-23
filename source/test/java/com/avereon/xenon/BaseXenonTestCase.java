@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.util.Parameters;
 import com.avereon.xenon.test.ProgramTestConfig;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 /**
@@ -23,20 +22,6 @@ public abstract class BaseXenonTestCase extends CommonXenonTestCase {
 
 		// Create the program
 		setProgram( xenon );
-	}
-
-	@AfterEach
-	protected void teardown() throws Exception {
-		Xenon program = getProgram();
-
-		// Clean up the settings
-		if( program != null ) program.getSettingsManager().getSettings( ProgramSettings.BASE ).delete();
-
-		super.teardown();
-	}
-
-	public Xenon getProgram() {
-		return (Xenon)super.getProgram();
 	}
 
 }
