@@ -1,12 +1,12 @@
 package com.avereon.xenon.ui.util;
 
-import com.avereon.xenon.BaseXenonUiTestCase;
+import com.avereon.xenon.BaseFullXenonTestCase;
 import javafx.scene.control.ContextMenu;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MenuFactoryTest extends BaseXenonUiTestCase {
+public class MenuFactoryTest extends BaseFullXenonTestCase {
 
 	@Test
 	void testContextMenu() {

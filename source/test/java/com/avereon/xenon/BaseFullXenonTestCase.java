@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * time if it is also on the module path at compile time.
  */
 @ExtendWith( ApplicationExtension.class )
-public abstract class BaseXenonUiTestCase extends CommonXenonTestCase {
+public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private static final long minInitialMemory = 8 * SizeUnitBase2.MiB.getSize();
 

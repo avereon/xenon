@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
-public class ToolManagerTest extends BaseXenonTestCase {
+public class ToolManagerTest extends BasePartXenonTestCase {
 
 	private TaskManager taskManager;
 

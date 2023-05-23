@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class BaseToolUIT extends BaseXenonUiTestCase {
+public abstract class BaseToolUIT extends BaseXenonUIT {
 
 	protected void assertToolCount( Workpane pane, int count ) {
 		Collection<Tool> tools = pane.getTools();

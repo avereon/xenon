@@ -1,6 +1,6 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.xenon.BaseXenonTestCase;
+import com.avereon.xenon.BasePartXenonTestCase;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.MockCodec;
@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FileSchemeTest extends BaseXenonTestCase {
+public class FileSchemeTest extends BasePartXenonTestCase {
 
 	@Test
 	void testSave() throws Exception {
