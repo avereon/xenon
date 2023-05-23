@@ -26,14 +26,15 @@ import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * This class is a duplicate of com.avereon.zenna.BaseXenonTestCase which is
+ * This class is a duplicate of com.avereon.zenna.BaseXenonUiTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
  * avoid a circular dependency. Attempts at making this
  * class publicly available have run in to various challenges with the most
- * recent being with Surefire not putting JUnit 5 on the module path.
+ * recent being with Surefire not putting JUnit 5 on the module path at test
+ * time if it is also on the module path at compile time.
  */
 @ExtendWith( ApplicationExtension.class )
-public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
+public abstract class BaseXenonUiTestCase extends CommonXenonTestCase {
 
 	private static final long minInitialMemory = 8 * SizeUnitBase2.MiB.getSize();
 
@@ -60,25 +61,23 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		long start = System.currentTimeMillis();
-		System.out.println( "time=" + start );
 
 		// NOTE This starts the application so all setup needs to be done by this point
 		setProgram( (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() ) );
 
 		getProgram().register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
-		Fx.waitForWithExceptions( TIMEOUT );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
 		Fx.waitForWithExceptions( TIMEOUT );
 
 		long end = System.currentTimeMillis();
-		System.out.println( "stop=" + end );
+		//		System.out.println( "time=" + start );
+		//		System.out.println( "stop=" + end );
 		System.out.println( "duration=" + (end - start) );
 
 		// Get initial memory use after program is started
 		initialMemoryUse = getMemoryUse();
 		long initialMemoryUseTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
 		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
-			ThreadUtil.pause( 100 );
 			initialMemoryUse = getMemoryUse();
 		}
 
@@ -88,6 +87,9 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < activeWorkareaTimeLimit ) {
 			ThreadUtil.pause( 100 );
 		}
+		// TODO Workareas do not have proper events yet
+		// getProgram().getWorkspaceManager().getActiveWorkspace().getStage().addEventHandler( javafx.event.Event.ANY, stageWatcher = new FxEventWatcher() );
+		// stageWatcher.waitForEvent( WorkareaSwitchedEvent.SWITCHED, QUICK_TIMEOUT );
 
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
@@ -104,11 +106,18 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupApplication( getProgram() );
 		FxToolkit.cleanupStages();
 
-		programWatcher.waitForEvent( ProgramEvent.STOPPED );
-		getProgram().unregister( ProgramEvent.ANY, programWatcher );
+		Xenon program = getProgram();
+		if( program != null ) {
+			// Clean up the settings
+			program.getSettingsManager().getSettings( ProgramSettings.UI ).delete();
+
+			FxToolkit.cleanupApplication( program );
+			programWatcher.waitForEvent( ProgramEvent.STOPPED );
+			program.unregister( ProgramEvent.ANY, programWatcher );
+		}
+
 		Log.reset();
 
 		// Pause to let things wind down
@@ -116,6 +125,8 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 
 		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
+
+		super.teardown();
 	}
 
 	protected void closeProgram() throws Exception {
@@ -152,8 +163,14 @@ public abstract class BaseXenonUiTestCase extends CommonProgramTestBase {
 	}
 
 	private long getMemoryUse() {
-		WaitForAsyncUtils.waitForFxEvents();
 		System.gc();
+
+		// Wait for the FX events to finish
+		WaitForAsyncUtils.waitForFxEvents();
+
+		// Pause a moment to let the memory use settle down
+		ThreadUtil.pause( 50 );
+
 		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 

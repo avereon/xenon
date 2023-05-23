@@ -2,11 +2,11 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
 import com.avereon.product.Profile;
-import com.avereon.product.Program;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.ThreadUtil;
 import lombok.Data;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
@@ -17,10 +17,16 @@ import java.util.logging.Level;
 import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * The common class between {@link BaseFxPlatformTestCase},
+ * {@link BaseXenonTestCase} and {@link BaseXenonUiTestCase} classes. This class
+ * should not be subclassed directly by tests, but should use one of the
+ * previous classes.
+ */
 @Data
-public class CommonProgramTestBase {
+public abstract class CommonXenonTestCase {
 
-	private Program program;
+	private Xenon program;
 
 	@BeforeEach
 	protected void setup() throws Exception {
@@ -38,6 +44,9 @@ public class CommonProgramTestBase {
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
 	}
+
+	@AfterEach
+	protected void teardown() throws Exception {}
 
 	private void runHeadless() {
 		// Set java.awt.headless to true when running tests in headless mode
@@ -71,19 +80,29 @@ public class CommonProgramTestBase {
 
 		// When using Monocle, use the Glass robot
 		System.setProperty( "testfx.robot", "glass" );
-
 	}
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
+		// NOTE It has been determined that the StoredSettings can cause problems.
+		// The StoredSettings class can put these files back due to the delayed
+		// persist nature of StoredSettings. Be sure to also delete settings in
+		// teardown methods to reduce test cross-contamination.
+
 		long limit = System.currentTimeMillis() + TIMEOUT;
+		IOException exception = null;
 		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
 			try {
 				FileUtil.delete( path );
-			} catch( IOException exception ) {
-				ThreadUtil.pause( 100 );
+			} catch( IOException deleteException ) {
+				exception = deleteException;
+				ThreadUtil.pause( 10 );
 			}
 		}
-		return FileUtil.delete( path );
+
+		// Check for a timeout
+		if( System.currentTimeMillis() >= limit && exception != null ) throw exception;
+
+		return !Files.exists( path );
 	}
 
 }

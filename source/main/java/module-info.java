@@ -48,6 +48,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
+	exports com.avereon.xenon.test;
 	exports com.avereon.xenon.throwable;
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
@@ -58,9 +59,6 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.ui.util;
 	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
-
-	// Specific exports
-	exports com.avereon.xenon.test to com.avereon.zerra;
 
 	opens com.avereon.xenon;
 	opens com.avereon.xenon.bundles;

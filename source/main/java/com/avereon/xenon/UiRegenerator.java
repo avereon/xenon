@@ -83,20 +83,29 @@ class UiRegenerator {
 	void restore( SplashScreenPane splashScreen ) {
 		Fx.checkFxThread();
 		restoreLock.lock();
+
 		try {
 			// Restore the workspaces or generate the default workspace
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			if( workspaceIds.size() == 0 ) {
+			if( workspaceIds.isEmpty() ) {
 				createDefaultWorkspace();
+				log.atConfig().log( "Created default workspace" );
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
+				log.atConfig().log( "Restored previous workspaces" );
 			}
 
 			// Ensure there is an active workarea
 			Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
-			if( !workspace.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
+			if( workspace != null && !workspace.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
 				workspace.setActiveWorkarea( workspace.getWorkareas().iterator().next() );
 			}
+
+			// Check the restored state
+			if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
+			if( workspace == null ) log.atError().log( "No active workspace" );
+			if( workspace != null && workspace.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
+			if( workspace != null && workspace.getActiveWorkarea() == null ) log.atError().log( "No active workarea" );
 
 			// Notify the workspace manager the UI is ready
 			getProgram().getWorkspaceManager().setUiReady( true );

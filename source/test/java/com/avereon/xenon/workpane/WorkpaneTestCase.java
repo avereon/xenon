@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.FxPlatformTestCase;
+import com.avereon.xenon.BaseFxPlatformTestCase;
 import com.avereon.xenon.asset.Asset;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
@@ -10,7 +10,7 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WorkpaneTestCase extends FxPlatformTestCase {
+public class WorkpaneTestCase extends BaseFxPlatformTestCase {
 
 	static double WORKPANE_WIDTH = 1000000;
 

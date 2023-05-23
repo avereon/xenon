@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.util.Parameters;
 import com.avereon.xenon.test.ProgramTestConfig;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 /**
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
  * class publicly available have run in to various challenges with the most
  * recent being with Surefire not putting JUnit 5 on the module path.
  */
-public abstract class BaseXenonTestCase extends CommonProgramTestBase {
+public abstract class BaseXenonTestCase extends CommonXenonTestCase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
@@ -22,6 +23,16 @@ public abstract class BaseXenonTestCase extends CommonProgramTestBase {
 
 		// Create the program
 		setProgram( xenon );
+	}
+
+	@AfterEach
+	protected void teardown() throws Exception {
+		Xenon program = getProgram();
+
+		// Clean up the settings
+		if( program != null ) program.getSettingsManager().getSettings( ProgramSettings.BASE ).delete();
+
+		super.teardown();
 	}
 
 	public Xenon getProgram() {

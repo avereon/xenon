@@ -10,11 +10,7 @@ import com.avereon.util.PathUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
-import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.xenon.tool.settings.SettingOptionProvider;
-import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.xenon.tool.settings.SettingsPageParser;
-import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.tool.settings.*;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
@@ -57,7 +53,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		guide.setSelectionMode( SelectionMode.MULTIPLE );
 
-		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
+		this.settings.register( SettingsEvent.ANY, eventBus::dispatch );
 	}
 
 	public Settings getSettings( String path ) {

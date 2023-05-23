@@ -422,7 +422,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
-		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = Rb.text( "program", messageKey, parameters );
+		String message = Rb.text( "program", messageKey, (Object[])parameters );
 
 		Fx.run( () -> {
 			userMessage.setText( message );
