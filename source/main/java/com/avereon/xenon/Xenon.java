@@ -278,15 +278,15 @@ public class Xenon extends Application implements XenonProgram {
 
 		// NOTE At this point this instance is a host not a peer
 
-		// If this instance is a host, process the control commands before showing the splash screen
+		// If this instance is a host, process the CLI actions before showing the splash screen
 		if( !processCliActions( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
-		time( "control-commands" );
+		time( "cli-actions" );
 
 		// Create the task manager, depends on program settings
-		// The task manager is created in the init() method so it is available during unit tests
+		// The task manager is created in the init() method, so it is available during tests
 		log.atFiner().log( "Starting task manager..." );
 		taskManager = (ProgramTaskManager)configureTaskManager( new ProgramTaskManager( this ) ).start();
 		log.atFine().log( "Task manager started." );
