@@ -16,10 +16,9 @@ import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The super class for
- * {@link BasePartXenonTestCase} and {@link BaseFullXenonTestCase} classes. This class
- * should not be subclassed directly by tests, but should use one of the
- * previous classes.
+ * The super class for {@link BasePartXenonTestCase} and {@link BaseFullXenonTestCase}
+ * classes. This class should not be subclassed directly by tests, but should
+ * use one of the previous classes.
  */
 public abstract class BaseXenonTestCase extends BaseForAllTests {
 
