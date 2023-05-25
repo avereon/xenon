@@ -390,55 +390,65 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
-		return openAsset( uri, model, null, true, true );
+		return openAsset( uri, model, null, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
+		return openAsset( uri, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( uri, null, null, openTool, setActive );
+		return openAsset( uri, null, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
-		return openAsset( uri, null, view, true, true );
+		return openAsset( uri, null, view, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
-		return openAsset( uri, null, view, true, true );
+		return openAsset( uri, null, view, null, true, true );
 	}
 
 	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
 		Set<Future<ProgramTool>> futures = new HashSet<>();
 		for( URI uri : uris ) {
-			futures.add( openAsset( uri, null, null, openTool, setActive ) );
+			futures.add( openAsset( uri, null, null, null, openTool, setActive ) );
 		}
 		return futures;
 	}
 
-	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
 		request.setModel( model );
+		request.setToolClass( toolClass );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset ) {
-		return openAsset( asset, null, null );
+		return openAsset( asset, null, null, null );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
-		return openAsset( asset, view, null );
+		return openAsset( asset, view, null, null );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side ) {
+		return openAsset( asset, view, side, null );
+	}
+
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side, Class<? extends ProgramTool> toolClass ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setAsset( asset );
 		request.setView( view );
 		request.setOpenTool( true );
 		request.setSetActive( true );
+		request.setToolClass( toolClass );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
