@@ -17,9 +17,18 @@ public interface ProgramTestConfig {
 	 *  | Faster computers
 	 * 5000 - AMD Threadripper, Intel i9</pre>
 	 */
-	int TIMEOUT = 30000;
+	int TIMEOUT = 5000;
 
-	int QUICK_TIMEOUT = 5000;
+	/**
+	 * The wait timeout for many operations. Common values are:
+	 * <pre>
+	 * 5000 - GitHub Actions, Mintbox Mini
+	 *  | Slower computers
+	 *  |
+	 *  | Faster computers
+	 * 1000 - AMD Threadripper, Intel i9</pre>
+	 */
+	int QUICK_TIMEOUT = 1000;
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
@@ -27,6 +36,7 @@ public interface ProgramTestConfig {
 		values.add( Profile.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
 		values.add( ProgramFlag.ERROR );
+		values.add( ProgramFlag.NOSPLASH );
 		return values.toArray( new String[ 0 ] );
 	}
 

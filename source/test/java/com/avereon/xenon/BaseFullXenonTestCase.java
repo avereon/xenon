@@ -2,10 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.event.EventWatcher;
 import com.avereon.log.Log;
-import com.avereon.util.FileUtil;
-import com.avereon.util.SizeUnitBase10;
-import com.avereon.util.SizeUnitBase2;
-import com.avereon.util.ThreadUtil;
+import com.avereon.util.*;
 import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
@@ -60,15 +57,19 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
-		long start = System.currentTimeMillis();
+		Xenon xenon = setProgram( new Xenon() );
+		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
+		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
 
 		// NOTE This starts the application so all setup needs to be done by this point
-		setProgram( (Xenon)FxToolkit.setupApplication( Xenon.class, ProgramTestConfig.getParameterValues() ) );
+		FxToolkit.setupApplication( () -> xenon );
 
-		getProgram().register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
+		// FIXME Program is stating too fast to catch started event :-)
 		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
 		Fx.waitForWithExceptions( TIMEOUT );
 
+		long start = System.currentTimeMillis();
+		// FIXME What's taking so long for the application to start?
 		long end = System.currentTimeMillis();
 		//		System.out.println( "time=" + start );
 		//		System.out.println( "stop=" + end );

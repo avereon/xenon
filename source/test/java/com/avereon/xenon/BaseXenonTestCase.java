@@ -28,7 +28,8 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 	protected void setup() throws Exception {
 		super.setup();
 
-		runHeadless();
+		// NOTE This does not seem to run headless
+		//runHeadless();
 
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
@@ -49,8 +50,9 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		return program;
 	}
 
-	protected void setProgram( Xenon program ) {
+	protected Xenon setProgram( Xenon program ) {
 		this.program = program;
+		return program;
 	}
 
 	private void runHeadless() {

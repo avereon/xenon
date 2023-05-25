@@ -167,7 +167,7 @@ class UiRegenerator {
 		// Create the tools
 		getUiSettingsIds( ProgramSettings.TOOL ).forEach( id -> {
 			restoreWorktool( id );
-			splashScreen.update();
+			if( splashScreen != null ) splashScreen.update();
 		} );
 
 		linkWorkareas();
