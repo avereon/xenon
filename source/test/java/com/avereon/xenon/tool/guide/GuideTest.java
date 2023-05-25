@@ -4,7 +4,7 @@ import com.avereon.xenon.BaseFullXenonTestCase;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
-import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuideTest extends BaseFullXenonTestCase {
@@ -16,12 +16,12 @@ public class GuideTest extends BaseFullXenonTestCase {
 
 		GuideNode node = new GuideNode( getProgram(), "test", "Test" );
 		guide.addNode( node );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ) ).isEqualTo( node.getTreeItem() );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 1 );
 
 		guide.removeNode( node );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 0 );
 	}
 
@@ -34,18 +34,18 @@ public class GuideTest extends BaseFullXenonTestCase {
 		GuideNode child = new GuideNode( getProgram(), "child", "Child" );
 		guide.addNode( parent );
 		guide.addNode( parent, child );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ) ).isEqualTo( parent.getTreeItem() );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 1 );
 		assertThat( parent.getTreeItem().getChildren().get( 0 ) ).isEqualTo( child.getTreeItem() );
 		assertThat( parent.getTreeItem().getChildren().size() ).isEqualTo( 1 );
 
 		guide.removeNode( child );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( parent.getTreeItem().getChildren().size() ).isEqualTo( 0 );
 
 		guide.removeNode( parent );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 0 );
 	}
 

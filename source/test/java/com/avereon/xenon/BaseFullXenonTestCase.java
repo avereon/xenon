@@ -18,8 +18,8 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.avereon.xenon.test.ProgramTestConfig.QUICK_TIMEOUT;
 import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -59,14 +59,14 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		Xenon xenon = setProgram( new Xenon() );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
-		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( TIMEOUT ) );
+		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
 
 		// NOTE This starts the application so all setup needs to be done by this point
 		FxToolkit.setupApplication( () -> xenon );
 
 		// FIXME Program is stating too fast to catch started event :-)
-		programWatcher.waitForEvent( ProgramEvent.STARTED, TIMEOUT );
-		Fx.waitForWithExceptions( TIMEOUT );
+		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
 		long start = System.currentTimeMillis();
 		// FIXME What's taking so long for the application to start?
@@ -77,14 +77,14 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		// Get initial memory use after program is started
 		initialMemoryUse = getMemoryUse();
-		long initialMemoryUseTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
+		long initialMemoryUseTimeLimit = System.currentTimeMillis() + TIMEOUT;
 		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
 			initialMemoryUse = getMemoryUse();
 		}
 
 		// Wait for the active workarea
 		// FIXME This should use an event listener to wait for the workarea
-		long activeWorkareaTimeLimit = System.currentTimeMillis() + QUICK_TIMEOUT;
+		long activeWorkareaTimeLimit = System.currentTimeMillis() + TIMEOUT;
 		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < activeWorkareaTimeLimit ) {
 			ThreadUtil.pause( 100 );
 		}

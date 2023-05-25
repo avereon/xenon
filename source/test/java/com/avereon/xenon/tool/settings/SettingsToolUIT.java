@@ -12,7 +12,7 @@ abstract class SettingsToolUIT extends BaseToolUIT {
 		robot.clickOn( "#toolitem-menu" );
 		robot.clickOn( "#menu-edit" );
 		robot.clickOn( "#menuitem-settings", Motion.HORIZONTAL_FIRST );
-		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
+		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 
 }

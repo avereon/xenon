@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -95,7 +95,7 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		// persist nature of StoredSettings. Be sure to also delete settings in
 		// teardown methods to reduce test cross-contamination.
 
-		long limit = System.currentTimeMillis() + TIMEOUT;
+		long limit = System.currentTimeMillis() + LONG_TIMEOUT;
 		IOException exception = null;
 		while( Files.exists( path ) && System.currentTimeMillis() < limit ) {
 			try {

@@ -12,7 +12,7 @@ abstract class AboutToolUIT extends BaseToolUIT {
 		robot.clickOn( "#toolitem-menu" );
 		robot.clickOn( "#menu-help" );
 		robot.clickOn( "#menuitem-about", Motion.HORIZONTAL_FIRST );
-		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
+		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 
 }

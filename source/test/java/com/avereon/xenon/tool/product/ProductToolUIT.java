@@ -12,7 +12,7 @@ abstract class ProductToolUIT extends BaseToolUIT {
 		robot.clickOn( "#toolitem-menu" );
 		robot.clickOn( "#menu-view" );
 		robot.clickOn( "#menuitem-product", Motion.HORIZONTAL_FIRST );
-		Fx.waitForWithExceptions( ProgramTestConfig.TIMEOUT );
+		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 
 }

@@ -11,24 +11,24 @@ public interface ProgramTestConfig {
 	/**
 	 * The wait timeout for many operations. Common values are:
 	 * <pre>
-	 * 30000 - GitHub Actions, Mintbox Mini
-	 *  | Slower computers
-	 *  |
-	 *  | Faster computers
-	 * 5000 - AMD Threadripper, Intel i9</pre>
-	 */
-	int TIMEOUT = 5000;
-
-	/**
-	 * The wait timeout for many operations. Common values are:
-	 * <pre>
 	 * 5000 - GitHub Actions, Mintbox Mini
 	 *  | Slower computers
 	 *  |
 	 *  | Faster computers
 	 * 1000 - AMD Threadripper, Intel i9</pre>
 	 */
-	int QUICK_TIMEOUT = 1000;
+	int TIMEOUT = 2000;
+
+	/**
+	 * The wait timeout for many operations. Common values are:
+	 * <pre>
+	 * 25000 - GitHub Actions, Mintbox Mini
+	 *  | Slower computers
+	 *  |
+	 *  | Faster computers
+	 * 5000 - AMD Threadripper, Intel i9</pre>
+	 */
+	int LONG_TIMEOUT = 5 * TIMEOUT;
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();

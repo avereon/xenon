@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
-import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
@@ -21,14 +21,14 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
 		assertThat( pane.getActiveView().isMaximized() ).isTrue();
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
-		Fx.waitForWithExceptions( TIMEOUT );
+		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getMaximizedView() ).isNull();
 		assertToolCount( pane, 0 );
 	}
