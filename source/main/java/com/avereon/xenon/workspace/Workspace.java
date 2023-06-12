@@ -271,12 +271,13 @@ public class Workspace implements WritableIdentity {
 	private Button createNoticeToolbarButton() {
 		Button noticeButton = ToolBarFactory.createToolBarButton( program, "notice" );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
-		noticeButton.setText( "0" );
+		//noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
+			String icon = count == 0 ? "notice" : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
 			Fx.run( () -> {
-				program.getActionLibrary().getAction( "notice" ).setIcon( program.getNoticeManager().getUnreadNoticeType().getIcon() );
-				noticeButton.setText( String.valueOf( count ) );
+				program.getActionLibrary().getAction( "notice" ).setIcon( icon );
+				//noticeButton.setText( String.valueOf( count ) );program.getNoticeManager().getUnreadNoticeType().getUnreadIcon()
 			} );
 		} );
 		return noticeButton;

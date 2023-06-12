@@ -85,6 +85,12 @@ public class IconLibrary {
 		register( "notice-info", new BellIcon( Color.GREEN.brighter() ) );
 		register( "notice-norm", new BellIcon( Color.web( "#40a0c0" ) ) );
 		register( "notice-none", new BellIcon() );
+		register( "notice-unread", new BellIcon( true ) );
+		register( "notice-unread-error", new BellIcon( Color.RED, true ) );
+		register( "notice-unread-warn", new BellIcon( Color.YELLOW, true ) );
+		register( "notice-unread-info", new BellIcon( Color.GREEN.brighter(), true ) );
+		register( "notice-unread-norm", new BellIcon( Color.web( "#40a0c0" ), true ) );
+		register( "notice-unread-none", new BellIcon( true ) );
 		register( "product", new ProductIcon() );
 		register( "task", new TaskQueueIcon() );
 		register( "update", new DownloadIcon() );

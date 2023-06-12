@@ -32,6 +32,10 @@ public class Notice extends IdNode {
 			return "notice-" + name().toLowerCase();
 		}
 
+		public String getUnreadIcon() {
+			return "notice-unread-" + name().toLowerCase();
+		}
+
 	}
 
 	private static final String TIMESTAMP = "timestamp";
