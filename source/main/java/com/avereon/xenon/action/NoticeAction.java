@@ -29,7 +29,7 @@ public class NoticeAction extends ProgramAction {
 			tools.forEach( Tool::close );
 		} else {
 			// Open the notice tool
-			getProgram().getNoticeManager().readAll();
+			getProgram().getNoticeManager().markAllAsRead();
 			getProgram().getAssetManager().openAsset( ProgramNoticeType.URI );
 		}
 	}

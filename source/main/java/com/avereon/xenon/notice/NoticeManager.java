@@ -75,11 +75,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		Fx.run( () -> {
 			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
-			if( tools.size() > 0 ) {
-				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
-			} else {
+
+			if( tools.isEmpty() ) {
 				getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
 				updateUnreadCount();
+			} else {
+				markAllAsRead();
 			}
 		} );
 	}
@@ -100,7 +101,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return Notice.Type.values()[ getUnreadNotices().stream().mapToInt( ( n ) -> n.getType().ordinal() ).max().orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
-	public void readAll() {
+	public void markAllAsRead() {
 		getNoticeList().getNotices().forEach( ( n ) -> n.setRead( true ) );
 		updateUnreadCount();
 	}
