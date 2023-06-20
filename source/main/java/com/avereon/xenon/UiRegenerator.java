@@ -81,7 +81,7 @@ class UiRegenerator {
 
 	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
-		Fx.checkFxThread();
+		Fx.affirmOnFxThread();
 		restoreLock.lock();
 
 		try {
