@@ -1132,7 +1132,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.atTrace().log( "Loading asset " + asset.getUri() );
 		asset.load( this );
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
-		log.atDebug().log( "Asset loaded: %s", asset );
+		log.atInfo().log( "Loaded: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1162,7 +1162,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
-		log.atDebug().log( "Asset saved: %s", asset );
+		log.atInfo().log( "Saved: %s", asset );
 
 		updateActionState();
 		return true;

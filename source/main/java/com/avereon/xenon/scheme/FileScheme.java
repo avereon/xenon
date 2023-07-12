@@ -20,7 +20,7 @@ public class FileScheme extends BaseScheme {
 
 	private static final String FILE = "file";
 
-	private static final String TEMP_EXTENSION = ".xenonsave";
+	private static final String TEMP_EXTENSION = ".xenonprior";
 
 	private List<Asset> roots;
 
@@ -77,12 +77,18 @@ public class FileScheme extends BaseScheme {
 		// systems (two Unix mount points or two Windows drives). Network files
 		// systems are also considered separate from local file systems.
 
+		// A prior two-step implementation caused problems with cloud storage products.
+		// This is presumably because the initial move step looked like a delete
+		// operation to these products. This caused a race condition between the
+		// second move step and the cloud storage product, occasionally leading to
+		// a lost file.
+
 		try {
-			// Step one - move current file out of the way
+			// Step one - copy current file as backup
 			String tempFileName = file.getFileName() + TEMP_EXTENSION;
 			temp = file.getParent().resolve( tempFileName );
 			Files.deleteIfExists( temp );
-			if( Files.exists( file ) ) Files.move( file, temp );
+			if( Files.exists( file ) ) Files.copy( file, temp );
 
 			// Step two - save asset to file
 			try( OutputStream stream = new FileOutputStream( file.toFile() ) ) {
