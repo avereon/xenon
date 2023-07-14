@@ -108,12 +108,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.uiReady = uiReady;
 	}
 
-	public String getTheme() {
+	public String getThemeId() {
 		return currentThemeId;
 	}
 
 	public ThemeMetadata getThemeMetadata() {
-		return getProgram().getThemeManager().getMetadata( getTheme() );
+		return getProgram().getThemeManager().getMetadata( getThemeId() );
 	}
 
 	public void setTheme( String id ) {
