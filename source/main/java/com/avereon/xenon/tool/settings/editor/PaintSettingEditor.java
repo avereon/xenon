@@ -19,6 +19,7 @@ import lombok.CustomLog;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Deprecated
 @CustomLog
 public class PaintSettingEditor extends SettingEditor {
 

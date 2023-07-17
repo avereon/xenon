@@ -16,6 +16,7 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Popup;
 
+@Deprecated
 public class PaintPicker extends Button {
 
 	private final PaintSwatch swatch;

@@ -23,6 +23,7 @@ import javafx.scene.paint.Paint;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class PaintPickerPane extends VBox {
 
 	private final ComboBox<PaintMode> mode;
