@@ -117,8 +117,8 @@ public class SettingsPanel extends VBox {
 		group.updateState();
 
 		TitledPane groupPane = new TitledPane( name, pane );
-		groupPane.setCollapsible( false );
-		groupPane.setExpanded( true );
+		groupPane.setCollapsible( group.isCollapsible() );
+		groupPane.setExpanded( group.isExpanded() );
 		return groupPane;
 	}
 

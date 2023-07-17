@@ -166,11 +166,15 @@ public class SettingsPageParser {
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( ID );
+		String collapsible = attributes.get( SettingData.COLLAPSIBLE );
+		String expanded = attributes.get( SettingData.EXPANDED );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingGroup group = new SettingGroup( page );
 		group.setId( id );
 		group.setFailDependencyAction( failDependencyAction );
+		group.setCollapsible( collapsible == null ? null : Boolean.parseBoolean( collapsible ) );
+		group.setExpanded( expanded == null ? null : Boolean.parseBoolean( expanded ) );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -199,9 +203,7 @@ public class SettingsPageParser {
 		String key = attributes.get( KEY );
 		String editor = attributes.get( SettingData.EDITOR );
 		String disable = attributes.get( SettingData.DISABLE );
-		if( disable == null ) disable = String.valueOf( false );
 		String opaque = attributes.get( SettingData.OPAQUE );
-		if( opaque == null ) opaque = String.valueOf( false );
 		String rows = attributes.get( SettingData.ROWS );
 		if( rows == null ) rows = String.valueOf( 10 );
 		String provider = attributes.get( SettingData.PROVIDER );
