@@ -35,7 +35,6 @@ public abstract class SettingEditor {
 		addType( "folder", FolderSettingEditor.class );
 		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );
-		addType( "paint", PaintSettingEditor.class );
 		//		//		addType( "time", TimeSettingEditor.class );
 		addType( "update-checks", UpdateSettingViewer.class );
 	}
