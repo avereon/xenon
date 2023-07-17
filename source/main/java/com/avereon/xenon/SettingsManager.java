@@ -79,7 +79,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public void putSettingEditor( String id, Class<? extends SettingEditor> clazz ) {
-		SettingEditor.addType("asset-type", clazz);
+		SettingEditor.addType( id, clazz );
 	}
 
 	public Map<String, SettingOptionProvider> getOptionProviders() {
