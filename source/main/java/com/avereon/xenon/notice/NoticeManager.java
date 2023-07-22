@@ -75,12 +75,15 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		Fx.run( () -> {
 			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
+			NoticeTool activeNoticeTool = (NoticeTool)tools.stream().filter( Tool::isActive ).findAny().orElse( null );
 
 			if( tools.isEmpty() ) {
 				getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
 				updateUnreadCount();
-			} else {
+			} else if( activeNoticeTool != null ) {
 				markAllAsRead();
+			} else {
+				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.stream().findAny().orElse( null ) );
 			}
 		} );
 	}
