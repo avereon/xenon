@@ -17,7 +17,6 @@ import javafx.scene.control.SelectionMode;
 import lombok.CustomLog;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,9 +56,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getSettings( String path ) {
-		Settings settings = this.settings.getNode( path );
-		//settings.addSettingsListener( e -> eventBus.dispatch( e ) );
-		return settings;
+		return this.settings.getNode( path );
 	}
 
 	public Settings getSettings( String root, String path ) {
@@ -147,11 +144,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getAssetSettings( Asset asset ) {
-		return getAssetSettings( asset.getUri() );
-	}
-
-	public Settings getAssetSettings( URI uri ) {
-		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( String.valueOf( asset.getUri() ) ) );
 	}
 
 	public SettingsPage getSettingsPage( String id ) {

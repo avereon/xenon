@@ -1188,8 +1188,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO Delete the asset settings?
 		// Should the settings be removed? Or left for later?
-		//		Settings settings = asset.getSettings();
-		//		if( settings != null ) settings.delete();
+		// Recommended not to delete the asset settings.
+		// Maybe have a settings cleanup task and/or user actions
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.atDebug().log( "Asset closed: %s", asset );
@@ -1291,8 +1291,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Use the scheme to rename the source to the target
 		target.getScheme().rename( source, target );
 
-		closeAssets( source );
 		openAsset( target.getUri() );
+		closeAssets( source );
 	}
 
 	private void copySettings( Asset source, Asset target, boolean delete ) {
