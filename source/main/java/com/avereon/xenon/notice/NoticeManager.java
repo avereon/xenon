@@ -6,7 +6,7 @@ import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.scheme.FaultScheme;

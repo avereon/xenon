@@ -1,4 +1,6 @@
-package com.avereon.xenon.asset;
+package com.avereon.xenon.asset.exception;
+
+import com.avereon.xenon.asset.Asset;
 
 public class AssetException extends Exception {
 

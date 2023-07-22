@@ -1,13 +1,15 @@
 package com.avereon.xenon;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.workpane.Tool;
@@ -251,7 +253,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	static void waitForReady( OpenAssetRequest request, ProgramTool tool ) {
 		TaskChain.of( "wait for ready", () -> {
-			waitForTool( tool);
+			waitForTool( tool );
 			return null;
 		} ).link( () -> {
 			waitForAsset( request.getAsset() );
@@ -296,19 +298,41 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	private void callToolReady( OpenAssetRequest request ) {
+		// Set the isReady flag to true
 		isReady = true;
+
+		// Determine if the asset is missing
+		boolean assetMissing;
+		try {
+			assetMissing = !request.getAsset().isNew() && !request.getAsset().exists();
+		} catch( AssetException exception ) {
+			assetMissing = true;
+		}
+		final boolean finalAssetMissing = assetMissing;
+
 		Fx.run( () -> {
+			// Notify the user if the asset is missing
+			if( finalAssetMissing ) {
+				String title = Rb.text(RbKey.ASSET, "asset-missing" );
+				String message = Rb.text( RbKey.ASSET, "asset-is-missing", request.getAsset().getSimpleName(), request.getAsset().getUri() );
+				Notice notice = new Notice( title, message );
+				getProgram().getNoticeManager().addNotice( notice );
+			}
+
+			// Set the tool active and call ready and open
 			try {
-				if( setActiveWhenReady ) {
-					getWorkpane().setActiveTool( this );
-					setActiveWhenReady = false;
-				}
+				if( setActiveWhenReady ) doSetActiveWhenReady();
 				ready( request );
 				open( request );
 			} catch( ToolException exception ) {
 				log.atSevere().withCause( exception ).log();
 			}
 		} );
+	}
+
+	void doSetActiveWhenReady() {
+		getWorkpane().setActiveTool( this );
+		setActiveWhenReady = false;
 	}
 
 }

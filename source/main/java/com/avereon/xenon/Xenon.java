@@ -11,6 +11,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.Notice;

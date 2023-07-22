@@ -5,6 +5,7 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;

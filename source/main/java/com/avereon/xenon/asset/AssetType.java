@@ -4,6 +4,7 @@ import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;

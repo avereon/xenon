@@ -71,6 +71,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.tool.settings to org.testfx.junit5;
 	opens com.avereon.xenon.ui.util to org.testfx.junit5;
 	opens com.avereon.xenon.workspace to org.testfx.junit5;
+    exports com.avereon.xenon.asset.exception;
 
-	uses Mod;
+    uses Mod;
 }

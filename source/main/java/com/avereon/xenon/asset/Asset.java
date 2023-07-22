@@ -6,6 +6,7 @@ import com.avereon.transaction.TxnEvent;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
@@ -186,6 +187,15 @@ public class Asset extends Node {
 	}
 
 	/**
+	 * A convenience method to get the "simple" name of the asset.
+	 *
+	 * @return The simple name of the asset.
+	 */
+	public String getSimpleName() {
+		return getFileName();
+	}
+
+	/**
 	 * A convenience method to get the file name from the URI.
 	 *
 	 * @return The file name from the URI.
@@ -196,12 +206,7 @@ public class Asset extends Node {
 		if( uri.isOpaque() ) {
 			return uri.getSchemeSpecificPart();
 		} else {
-			String path = uri.getPath();
-			//boolean isFolder = path.endsWith( "/" );
-			//if( isFolder ) path = path.substring( 0, path.length() - 1 );
 			return UriUtil.parseName( uri );
-
-			//return path.substring( uri.getPath().lastIndexOf( '/' ) + 1 );
 		}
 	}
 
@@ -251,14 +256,6 @@ public class Asset extends Node {
 	}
 
 	/**
-	 * A asset is "new" if it does not have a URI associated with it yet. This
-	 * usually occurs when the asset is created with only an asset type and
-	 * has not been saved yet. When it is saved, a URI will be associated to the
-	 * asset and it will be considered "old" from that point forward.
-	 * <p>
-	 * A asset is existing if it is created with a URI. The asset type is
-	 * determined when the asset is opened.
-	 *
 	 * @return If the asset is "new"
 	 */
 	public synchronized final boolean isNew() {
@@ -352,14 +349,8 @@ public class Asset extends Node {
 	}
 
 	public boolean exists() throws AssetException {
-		// NEXT Should the asset assume it exists if there is not a scheme to verify?
-		// TODO What about remote resources when there is NOT a connection possible?
-		// TODO What about remote resources when there IS a connection possible?
-
 		Scheme scheme = getScheme();
-		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
-		//log.atWarning().log( "NO SCHEME - Can't determine if the asset exists" );
-		return scheme == null || scheme.exists( this );
+		return scheme != null && scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {

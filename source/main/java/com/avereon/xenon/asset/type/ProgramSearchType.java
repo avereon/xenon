@@ -3,6 +3,7 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.exception.AssetException;
 
 public class ProgramSearchType extends AssetType {
 

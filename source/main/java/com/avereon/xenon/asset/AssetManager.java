@@ -6,6 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.notice.Notice;
@@ -1121,11 +1122,12 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doLoadAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
+		if( !asset.isNew() && !asset.exists() ) {
+			log.atWarn().log("Asset not found: " + asset );
+			return false;
+		}
+
 		if( !asset.isOpen() ) doOpenAsset( asset );
-
-		// It's problematic to check if an asset exists, particularly for new assets
-		//if( !asset.exists() ) return false;
-
 		if( !asset.getScheme().canLoad( asset ) ) return false;
 
 		// Load the asset
