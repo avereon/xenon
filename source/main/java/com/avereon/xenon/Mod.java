@@ -1,10 +1,9 @@
 package com.avereon.xenon;
 
-import com.avereon.product.Product;
-import com.avereon.product.ProductCard;
-import com.avereon.product.Rb;
+import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zarra.image.VectorImage;
 import lombok.CustomLog;
@@ -22,7 +21,7 @@ import java.util.Map;
  * {@link #shutdown()} and {@link #unregister()} lifecycle methods to interact
  * with the program.
  * <p/>
- * The Mod also implements ProgramProduct which provides access to the program,
+ * The Mod also implements {@link ProgramProduct} which provides access to the program,
  * the Mod class loader and the Mod resource bundles.
  */
 @SuppressWarnings( "UnusedReturnValue" )
@@ -47,29 +46,62 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 		card = ProductCard.card( this );
 	}
 
+	/**
+	 * Get the status of the mod. The status is one of the mod lifecycle
+	 * {@link ModStatus} values.
+	 *
+	 * @return The mod status
+	 */
 	public final ModStatus getStatus() {
 		return status;
 	}
 
+	/**
+	 * Set the status of the mod. This should only be called by the program
+	 * {@link ProductManager}.
+	 *
+	 * @param status The mod status
+	 */
 	public final void setStatus( ModStatus status ) {
 		this.status = status;
 	}
 
+	/**
+	 * Get the mod {@link Program} instance.
+	 *
+	 * @return The mod program
+	 */
 	@Override
 	public Xenon getProgram() {
 		return program;
 	}
 
+	/**
+	 * Get the mod {@link ProductCard}.
+	 *
+	 * @return The mod product card
+	 */
 	@Override
 	public ProductCard getCard() {
 		return card;
 	}
 
+	/**
+	 * Get the mod parent product. This could be another mod or the program.
+	 *
+	 * @return The mod parent product
+	 */
 	@Override
 	public final Product getParent() {
 		return parent;
 	}
 
+	/**
+	 * Set the mod parent product. This should only be called by the program
+	 * {@link ProductManager}.
+	 *
+	 * @param parent The mod parent product
+	 */
 	public void setParent( Product parent ) {
 		this.parent = parent;
 	}
