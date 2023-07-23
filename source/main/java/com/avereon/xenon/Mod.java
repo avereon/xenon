@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -32,6 +33,8 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
+	private ModStatus status;
+
 	private Xenon program;
 
 	private Product parent;
@@ -42,6 +45,14 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 
 	public Mod() {
 		card = ProductCard.card( this );
+	}
+
+	public final ModStatus getStatus() {
+		return status;
+	}
+
+	public final void setStatus( ModStatus status ) {
+		this.status = status;
 	}
 
 	@Override
@@ -196,22 +207,23 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 		if( this.program != null ) return;
 		this.program = program;
 		this.card = card;
+		Rb.init( this );
 	}
 
 	/**
 	 * Called by the program to register a mod instance. This method is typically
 	 * called before the program frame and workspaces are created and allows the
 	 * mod to register icons, actions, asset types, tools, etc. This method is
-	 * also called as part of the mod install process before the {@link #startup}
-	 * method is called.
+	 * also called as part of the mod installation process before the
+	 * {@link #startup} method is called.
 	 */
 	public void register() {}
 
 	/**
-	 * Called by the program to startup a mod instance. This method is typically
+	 * Called by the program to start a mod instance. This method is typically
 	 * called after the program frame and workspaces are created, but not
 	 * necessarily visible, and allows the mod to perform any work needed once the
-	 * UI is generated. This method is also called as part of the mod install
+	 * UI is generated. This method is also called as part of the mod installation
 	 * process after the {@link #register} method is called. This method is also
 	 * called when a mod is enabled from the product tool.
 	 */
@@ -231,8 +243,8 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * Called by the program to unregister a mod instance. This method is
 	 * typically called after the program frame and workspaces are destroyed and
 	 * allows the mod to unregister icons, actions, asset types, tools, etc.
-	 * This method is also called as part of the mod uninstall process after the
-	 * {@link #shutdown} method is called.
+	 * This method is also called as part of the mod uninstallation process after
+	 * the {@link #shutdown} method is called.
 	 */
 	public void unregister() {}
 

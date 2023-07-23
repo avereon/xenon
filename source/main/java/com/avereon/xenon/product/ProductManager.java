@@ -1050,6 +1050,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
+			mod.setStatus( ModStatus.REGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1060,6 +1061,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
+			mod.setStatus( ModStatus.STARTED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1070,6 +1072,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
+			mod.setStatus( ModStatus.STOPPED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1079,6 +1082,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
+			mod.setStatus( ModStatus.UNREGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1197,15 +1201,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				return;
 			}
 
+			// Configure logging for the mod
+			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+
 			// This will need to change if nested mods are to be supported
 			// Set the parent product
 			mod.setParent( getProgram() );
-
-			// Init Rb
-			Rb.init( mod );
-
-			// Configure logging for the mod
-			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
 			// Initialize the mod
 			mod.init( getProgram(), card );
