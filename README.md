@@ -57,7 +57,7 @@ The framework provides the following features:
 
 ### Product Roadmap
 
-#### Version 2.0
+#### Version 1.x
 
 | Release                                              | Feature Goals                                                                 |      Status |
 |------------------------------------------------------|-------------------------------------------------------------------------------|------------:|
@@ -69,12 +69,12 @@ The framework provides the following features:
 | [1.3](https://github.com/avereon/xenon/milestone/5)  | Java 14, Java FX 14, flat icons, jpackage installers                          | 03 Jul 2020 |
 | [1.2](https://github.com/avereon/xenon/milestone/4)  | Theme modification, more dark and light themes                                | 03 May 2020 |
 | [1.1](https://github.com/avereon/xenon/milestone/3)  | Example Mod (Mazer)                                                           | 22 Feb 2020 |
+| [1.0](https://github.com/avereon/xenon/milestone/2) | Documentation, licensing, housekeeping                      | 28 Nov 2019 |
 
-#### Version 1.0
+#### Version 0.x
 
 | Release                                             | Feature Goals                                               |      Status |
 |-----------------------------------------------------|-------------------------------------------------------------|------------:|
-| [1.0](https://github.com/avereon/xenon/milestone/2) | Documentation, licensing, housekeeping                      | 28 Nov 2019 |
 | [0.9](https://github.com/avereon/xenon/milestone/1) | Custom tool pane and tabs, CI configuration                 | 19 Sep 2019 |
 | 0.8                                                 | Mod manager, mod tool, mod updates                          | 16 Jun 2019 |
 | 0.7                                                 | Java 11, Java FX 11, status bar, memory status, task status | 24 Jan 2019 |
