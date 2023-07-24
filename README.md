@@ -1,6 +1,6 @@
 [build-status]: https://github.com/avereon/xenon/workflows/Avereon%20Xenon%20Continuous/badge.svg "Build status"
 
-# Xenon [![][build-status]](https://github.com/avereon/xenon/actions)
+# Xenon [![CI](https://github.com/avereon/xenon/actions/workflows/ci.yml/badge.svg)](https://github.com/avereon/xenon/actions)
 
 Xenon is a basic program framework that provides services common to modern
 desktop applications on which specific functionality may be implemented.
