@@ -51,6 +51,9 @@ The framework provides the following features:
 * **Tasks and Executors** - Xenon provides functionality for program tasks and two
   separate executors (execution queues) for fast running tasks and slow running
   tasks. All internal program tasks use these executors as well.
+* **Search and Index** - Xenon provides common search and index functionality. 
+  Mod developers are encouraged to provide indexed content for users to find 
+  what they need quickly. Settings and actions are indexed by default. 
 
 ### Product Roadmap
 
@@ -59,7 +62,7 @@ The framework provides the following features:
 | Release                                              | Feature Goals                                                                 |      Status |
 |------------------------------------------------------|-------------------------------------------------------------------------------|------------:|
 | [1.8](https://github.com/avereon/xenon/milestone/10) |                                                                               |    Planning |
-| [1.7](https://github.com/avereon/xenon/milestone/9)  |                                                                               | In Progress |
+| [1.7](https://github.com/avereon/xenon/milestone/9)  | General improvements and bug fixes                                            | In Progress |
 | [1.6](https://github.com/avereon/xenon/milestone/8)  | Java 17, Java FX 17, [Acorn Mod](https://github.com/avereon/acorn), bug fixes | 01 Jan 2023 |
 | [1.5](https://github.com/avereon/xenon/milestone/7)  | Two-step save, asset reload, bug fixes                                        | 09 Oct 2021 |
 | [1.4](https://github.com/avereon/xenon/milestone/6)  | SVG Icons, [Cartesia Mod](https://github.com/avereon/carta)                   | 28 May 2021 |
