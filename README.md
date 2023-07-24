@@ -85,14 +85,13 @@ The framework provides the following features:
 ### Contact Information
 
 * This project is owned by Avereon
-* Contact support@avereon.com for information
+* Contact [support@avereon.com](mailto:support@avereon.com) for information
 
 ### Dependency Licenses
 
-* Avereon Zevra (Utility Library - Non-UX)- [MIT](https://avereon.com/license/mit/)
-* Avereon Venza (Utility Library - UX- [MIT](https://avereon.com/license/mit/)
-* Avereon Rossa (Icon Library) - [MIT](https://avereon.com/license/mit/)
-* Avereon Zenna (Updater)- [MIT](https://avereon.com/license/mit/)
 * OpenJDK - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
 * OpenJFX - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
-* MigLayout - [BSD](http://www.debian.org/misc/bsd.license)
+* Avereon Zevra (Utility Library - Non-UX) - [MIT](https://avereon.com/license/mit/)
+* Avereon Zarra (Utility Library - UX) - [MIT](https://avereon.com/license/mit/)
+* Avereon Zenna (Icon Library) - [MIT](https://avereon.com/license/mit/)
+* Avereon Weave (Updater) - [MIT](https://avereon.com/license/mit/)
