@@ -55,9 +55,15 @@ public class MyTool extends ProgramTool {
 	<pre>
 public class MyMod extends Mod {
 
+	private final MyAssetType myAssetType;
+
+	public MyMod() {
+		myAssetType = new MyAssetType( this );
+	}
+
   public void startup() {
     ...
-    registerAssetType( myAssetType = new MyAssetType( this ) );
+    registerAssetType( myAssetType );
     ToolRegistration registration = new ToolRegistration( getProduct(), MyTool.class );
     // Optionally set name, icon and instance mode
     registration.setName( name ).setIcon( icon ).setInstanceMode( ToolInstanceMode.UNLIMITED );
