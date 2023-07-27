@@ -9,6 +9,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import lombok.CustomLog;
 
+import java.text.MessageFormat;
+
 @CustomLog
 public class Notice extends IdNode {
 
@@ -82,7 +84,7 @@ public class Notice extends IdNode {
 
 		this.parameters = parameters;
 
-		try( Txn ignored = Txn.create(true) ) {
+		try( Txn ignored = Txn.create( true ) ) {
 			setId( HashUtil.hash( title + getMessageStringContent( message ) ) );
 
 			setValue( TIMESTAMP, System.currentTimeMillis() );
@@ -171,12 +173,10 @@ public class Notice extends IdNode {
 			if( message instanceof TextInputControl ) {
 				// Handle text input controls
 				builder = new StringBuilder( ((TextInputControl)message).getText() );
-			} else if( message instanceof TextFlow ) {
+			} else if( message instanceof TextFlow flow ) {
 				// Handle text flow nodes
-				TextFlow flow = (TextFlow)message;
 				for( javafx.scene.Node node : flow.getChildren() ) {
-					Text text = (Text)node;
-					builder.append( text.getText() );
+					builder.append( ((Text)node).getText() );
 				}
 			} else {
 				builder = new StringBuilder( message.toString() );
@@ -185,7 +185,7 @@ public class Notice extends IdNode {
 			builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
 		}
 
-		return String.format( builder.toString(), parameters );
+		return MessageFormat.format( builder.toString(), parameters );
 	}
 
 }
