@@ -25,12 +25,11 @@ public class CheckBoxSettingEditor extends SettingEditor {
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getRbKey();
-		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
-
+		String selected = setting.getSettings().get( getKey() );
 		String label = Rb.text( getProduct(), getRbKey(), rbKey );
 
 		checkbox = new CheckBox();
-		checkbox.setSelected( selected );
+		checkbox.setSelected( Boolean.parseBoolean( selected ) );
 		checkbox.setText( label );
 		checkbox.setId( rbKey );
 
@@ -55,11 +54,11 @@ public class CheckBoxSettingEditor extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue().toString() ) );
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( String.valueOf( event.getNewValue() ) ) );
 	}
 
 	private void doCheckboxValueChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		setting.getSettings().set( getKey(), checkbox.isSelected() );
+		setting.getSettings().set( getKey(), String.valueOf( newValue ) );
 	}
 
 }
