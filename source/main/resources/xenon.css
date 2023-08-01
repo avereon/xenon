@@ -81,6 +81,17 @@ Derived from modena.css
 	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
 }
 
+.tool-bar .button {
+	-fx-background-color: transparent;
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+	-fx-padding: 0.333333em 0.41777em 0.333333em 0.41777em;  /* 4 5 4 5 */
+}
+
+.tool-bar .button:hover {
+	-fx-background-color: -fx-selection-bar;
+}
+
 /*******************************************************************************
  * Icons
  ******************************************************************************/
@@ -89,7 +100,12 @@ Derived from modena.css
 	-fx-primary: -fx-accent;
 }
 
-.menu-item:hover .xe-icon, .menu-item:focused .xe-icon {
+.menu-item:hover > .graphic-container > .xe-icon,
+.menu-item:focused > .graphic-container > .xe-icon {
+	-fx-stroke: -fx-focused-text-base-color;
+}
+
+.tool-bar .button:hover > .xe-icon {
 	-fx-stroke: -fx-focused-text-base-color;
 }
 
