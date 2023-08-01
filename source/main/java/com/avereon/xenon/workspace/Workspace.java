@@ -202,18 +202,22 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private ContextMenu createProgramMenu( Xenon program ) {
+		// Load the menu descriptors
 		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
-		String descriptor = getSettings().get( "menubar", defaultDescriptor );
+		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
-		ContextMenu menu = MenuFactory.createContextMenu( program, descriptor, COMPACT_MENU );
+		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
+
+		// Add the dev menu if using the dev profile
 		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+
 		return menu;
 	}
 
 	private void insertDevMenu( Xenon program, ContextMenu menu ) {
-//		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
-//		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
+		//		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
+		//		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
 
 		menu.getItems().add( generateDevMenu( program ) );
 	}

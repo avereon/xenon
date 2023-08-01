@@ -18,6 +18,14 @@ public class ActionLibrary {
 	public ActionLibrary( Xenon product ) {
 		this.actionsById = new ConcurrentHashMap<>();
 
+		// TODO Common action bindings
+		// Should the following be assigned?:
+		// F1 - Help - Very common across most applications
+		// F3 - Search in tool - Common in text editors and web browsers
+		// F5 - Refresh - Common in web browsers
+		// F11 - Full screen - Common in web browsers
+		// F12 - About tool
+
 		// Create default actions
 		register( product, "program" );
 		register( product, "menu" );
