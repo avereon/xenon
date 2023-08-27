@@ -1,14 +1,14 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Profile;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.product.Profile;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuFactory;
@@ -44,12 +44,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The workspace manages the menu bar, tool bar and workareas.
+ * The workspace manages the menu bar, toolbar and workareas.
  */
 @CustomLog
 public class Workspace implements WritableIdentity {
@@ -77,7 +78,9 @@ public class Workspace implements WritableIdentity {
 
 	private final BorderPane workareaLayout;
 
-	private final ContextMenu programMenu;
+	private final MenuBar programMenu;
+
+	private final ContextMenu verticalProgramMenu;
 
 	// This menu is used to mark the beginning of the space where tools can push
 	// their own actions as well as be a standard menu.
@@ -153,14 +156,16 @@ public class Workspace implements WritableIdentity {
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
-		programMenu = createProgramMenu( program );
-		programMenuToolStart = FxUtil.findMenuItemById( programMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		programMenuToolEnd = FxUtil.findMenuItemById( programMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		programMenu = createProgramMenuBar( program );
+		verticalProgramMenu = createProgramMenu( program );
+		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
+		// NEXT Rework the toolbar pane for more functionality
 		BorderPane toolbarPane = new BorderPane( toolbar, null, createToolbarRightArea(), null, null );
 
 		statusBar = createStatusBar( program );
@@ -201,9 +206,23 @@ public class Workspace implements WritableIdentity {
 		return eventBus;
 	}
 
-	private ContextMenu createProgramMenu( Xenon program ) {
+	private MenuBar createProgramMenuBar( Xenon program ) {
 		// Load the menu descriptors
 		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
+		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+
+		// Build the program menu
+		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
+
+		// Add the dev menu if using the dev profile
+		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus );
+
+		return new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+	}
+
+	private ContextMenu createProgramMenu( Xenon program ) {
+		// Load the menu descriptors
+		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
 		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
@@ -215,10 +234,12 @@ public class Workspace implements WritableIdentity {
 		return menu;
 	}
 
-	private void insertDevMenu( Xenon program, ContextMenu menu ) {
-		//		int index = menu.getItems().stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menu.getItems()::indexOf ).findFirst().orElse( -1 );
-		//		if( index >= 0 ) menu.getItems().add( index, generateDevMenu( program ) );
+	private void insertDevMenu( Xenon program, List<Menu> menus ) {
+		int index = menus.stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
+		if( index >= 0 ) menus.add( index, generateDevMenu( program ) );
+	}
 
+	private void insertDevMenu( Xenon program, ContextMenu menu ) {
 		menu.getItems().add( generateDevMenu( program ) );
 	}
 
@@ -327,26 +348,26 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void showProgramMenu( ActionEvent event ) {
-		programMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
+		verticalProgramMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
 	}
 
 	public void pushMenuActions( String descriptor ) {
 		pullMenuActions();
 		descriptor = "tool[" + descriptor + "]";
-		int index = programMenu.getItems().indexOf( programMenuToolEnd );
+		int index = verticalProgramMenu.getItems().indexOf( programMenuToolEnd );
 		//programMenu.getItems().add( index++, programMenuToolStart );
-		programMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
+		verticalProgramMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
 	}
 
 	public void pullMenuActions() {
-		int index = programMenu.getItems().indexOf( programMenuToolStart );
+		int index = verticalProgramMenu.getItems().indexOf( programMenuToolStart );
 		if( index < 0 ) return;
 		index++;
 
-		MenuItem node = programMenu.getItems().get( index );
+		MenuItem node = verticalProgramMenu.getItems().get( index );
 		while( node != programMenuToolEnd ) {
-			programMenu.getItems().remove( index );
-			node = programMenu.getItems().get( index );
+			verticalProgramMenu.getItems().remove( index );
+			node = verticalProgramMenu.getItems().get( index );
 		}
 	}
 
@@ -459,7 +480,7 @@ public class Workspace implements WritableIdentity {
 		pane.setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
 			noticeBox.getChildren().remove( pane );
-			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
+			if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
@@ -467,7 +488,7 @@ public class Workspace implements WritableIdentity {
 		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
 			getProgram().getNoticeManager().readNotice( notice );
 			noticeBox.getChildren().remove( pane );
-			if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
+			if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
 			event.consume();
 		} );
 
@@ -476,7 +497,7 @@ public class Workspace implements WritableIdentity {
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> {
 				noticeBox.getChildren().remove( pane );
-				if( noticeBox.getChildren().size() == 0 ) noticeBox.setVisible( false );
+				if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
 			}, balloonTimeout );
 		}
 
@@ -578,7 +599,7 @@ public class Workspace implements WritableIdentity {
 				Files.createDirectories( file.getParent() );
 				ImageIO.write( SwingFXUtils.fromFXImage( image, null ), "png", file.toFile() );
 			} catch( IOException exception ) {
-				exception.printStackTrace();
+				log.atWarn( exception );
 			}
 		} );
 		Fx.waitFor( 5, TimeUnit.SECONDS );
