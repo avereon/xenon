@@ -5,6 +5,7 @@ module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
+	requires static org.testfx.junit5;
 
 	// Both compile-time and run-time
 	requires transitive com.avereon.zenna;
@@ -27,7 +28,6 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.annotation;
 	requires org.controlsfx.controls;
 	requires reactfx;
-	requires static org.testfx.junit5;
 
 	// NOTE Multiple attempts have been made to consolidate test classes into this
 	// module without success. There are several reasons this has not worked:
