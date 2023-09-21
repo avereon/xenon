@@ -27,16 +27,14 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.CustomLog;
 
 import javax.imageio.ImageIO;
@@ -137,7 +135,7 @@ public class Workspace implements WritableIdentity {
 		this.eventBus = new FxEventHub();
 
 		// Create the stage
-		stage = new Stage();
+		stage = new Stage( StageStyle.UNDECORATED );
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
@@ -185,9 +183,14 @@ public class Workspace implements WritableIdentity {
 		StackPane workspaceStack = new StackPane( workpaneContainer, noticePane );
 		workspaceStack.setPickOnBounds( false );
 
+		Pane stageMover = new StageMover( stage );
+		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
+		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|exit" );
+		Pane toolPane = new BorderPane( stageMover, null, rightToolBar, null, leftToolBar );
+
 		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( toolbarPane );
+		workareaLayout.setTop( toolPane );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
@@ -536,7 +539,7 @@ public class Workspace implements WritableIdentity {
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
 		scene = new Scene( workareaLayout, w, h );
-		scene.setFill( Color.BLACK );
+		scene.setFill( Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage

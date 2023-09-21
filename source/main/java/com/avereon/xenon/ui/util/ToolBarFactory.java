@@ -1,8 +1,8 @@
 package com.avereon.xenon.ui.util;
 
 import com.avereon.xenon.ActionProxy;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -16,7 +16,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.Popup;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ToolBarFactory extends NavFactory {
 
@@ -25,7 +24,7 @@ public class ToolBarFactory extends NavFactory {
 	public static ToolBar createToolBar( Xenon program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
-		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).collect( Collectors.toList() ) );
+		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).toList() );
 		return toolbar;
 	}
 
@@ -62,7 +61,7 @@ public class ToolBarFactory extends NavFactory {
 
 		ToolBar tray = new ToolBar();
 		tray.getStyleClass().add( "toolbar-tray" );
-		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).collect( Collectors.toList() ) );
+		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).toList() );
 		tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) );
 		((ToolBar)parent).orientationProperty().addListener( ( p, o, n ) -> tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) ) );
 
@@ -83,7 +82,7 @@ public class ToolBarFactory extends NavFactory {
 
 	private static void doToggleTrayDialog( Button button, Popup popup, ToolBar tray ) {
 		if( !popup.isShowing() ) {
-			// Initially show the tray off screen so it can be laid out before the tray offset is calculated
+			// Initially show the tray off-screen, so it can be laid out before the tray offset is calculated
 			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
 
 			// Calculate offset after the tray is shown so the tray
