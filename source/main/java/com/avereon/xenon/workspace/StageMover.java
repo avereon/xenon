@@ -23,6 +23,8 @@ public class StageMover extends Pane implements javafx.event.EventHandler<MouseE
 
 	@Override
 	public void handle( MouseEvent event ) {
+		// FIXME Double-click should toggle the maximized flag
+		// FIXME When maximized, dragging should switch back to normal
 		if( event.getEventType() == MouseEvent.MOUSE_PRESSED ) {
 			anchorX = stage.getX() - event.getScreenX();
 			anchorY = stage.getY() - event.getScreenY();
