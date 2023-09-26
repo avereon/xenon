@@ -163,12 +163,11 @@ public class Workspace implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
+		workareaSelector = createWorkareaSelector();
+
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
-
-		// NEXT Rework the toolbar pane for more functionality
-		//BorderPane toolbarPane = new BorderPane( toolbar, null, createToolbarRightArea(), null, null );
 
 		statusBar = createStatusBar( program );
 
@@ -193,7 +192,13 @@ public class Workspace implements WritableIdentity {
 		Pane stageMover = new StageMover( stage );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
 		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,exit" );
-		Pane toolPane = new BorderPane( stageMover, null, rightToolBar, null, leftToolBar );
+
+		HBox leftBox = new HBox(leftToolBar, workareaSelector);
+		//leftBox.getStyleClass().addAll( "tool-bar" );
+		HBox rightBox = new HBox(rightToolBar);
+		//rightBox.getStyleClass().addAll( "tool-bar" );
+
+		Pane toolPane = new BorderPane( stageMover, null, rightBox, null, leftBox );
 
 		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
