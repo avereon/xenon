@@ -145,7 +145,10 @@ public class IconLibrary {
 	}
 
 	public void unregister( String id, VectorImage icon ) {
-		if( icons.get( id ).getClass() == icon.getClass() ) icons.remove( id );
+		if( icon == null ) return;
+		var registered = icons.get( id );
+		if( registered == null ) return;
+		if( registered.getClass() == icon.getClass() ) icons.remove( id );
 	}
 
 	public Node getIcon( String id ) {
