@@ -98,6 +98,8 @@ public class IconLibrary {
 
 		register( "workspace", new FrameIcon() );
 		register( "workspace-new", new FrameIcon() );
+		register( "minimize", new MinimizeIcon() );
+		register( "maximize", new MaximizeIcon() );
 		register( "workspace-close", new FrameIcon() );
 
 		register( "workarea", new WorkareaIcon() );
