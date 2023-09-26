@@ -191,7 +191,7 @@ public class Workspace implements WritableIdentity {
 
 		Pane stageMover = new StageMover( stage );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
-		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,exit" );
+		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
 		HBox leftBox = new HBox(leftToolBar, workareaSelector);
 		//leftBox.getStyleClass().addAll( "tool-bar" );
