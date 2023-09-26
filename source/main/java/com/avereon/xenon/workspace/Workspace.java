@@ -128,6 +128,10 @@ public class Workspace implements WritableIdentity {
 
 	private final FpsMonitorSettingsHandler fpsMonitorSettingsHandler;
 
+	private final ToggleMinimizeAction toggleMinimizeAction;
+
+	private final ToggleMaximizeAction toggleMaximizeAction;
+
 	private Workarea activeWorkarea;
 
 	public Workspace( final Xenon program, final String id ) {
@@ -164,9 +168,12 @@ public class Workspace implements WritableIdentity {
 		toolbar = createProgramToolBar( program );
 
 		// NEXT Rework the toolbar pane for more functionality
-		BorderPane toolbarPane = new BorderPane( toolbar, null, createToolbarRightArea(), null, null );
+		//BorderPane toolbarPane = new BorderPane( toolbar, null, createToolbarRightArea(), null, null );
 
 		statusBar = createStatusBar( program );
+
+		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
+		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
 		noticeBox = new VBox();
 		noticeBox.getStyleClass().addAll( "flyout" );
@@ -185,7 +192,7 @@ public class Workspace implements WritableIdentity {
 
 		Pane stageMover = new StageMover( stage );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
-		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|exit" );
+		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,exit" );
 		Pane toolPane = new BorderPane( stageMover, null, rightToolBar, null, leftToolBar );
 
 		workareaLayout = new BorderPane();
@@ -276,8 +283,9 @@ public class Workspace implements WritableIdentity {
 		box.setPadding( Insets.EMPTY );
 
 		// Add the workarea menu and selector
+		workareaSelector = createWorkareaSelector();
 		box.getChildren().add( createWorkareaMenu( program ) );
-		box.getChildren().add( workareaSelector = createWorkareaSelector() );
+		box.getChildren().add( workareaSelector );
 
 		// Add the notice button
 		box.getChildren().add( ToolBarFactory.createPad() );
@@ -405,7 +413,18 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void setActive( boolean active ) {
+		if( !active ) {
+			getProgram().getActionLibrary().getAction( "minimize" ).pullAction( toggleMinimizeAction );
+			getProgram().getActionLibrary().getAction( "maximize" ).pullAction( toggleMaximizeAction );
+		}
+
 		this.active = active;
+
+		if( active ) {
+			getProgram().getActionLibrary().getAction( "maximize" ).pushAction( toggleMaximizeAction );
+			getProgram().getActionLibrary().getAction( "minimize" ).pushAction( toggleMinimizeAction );
+		}
+
 		getSettings().set( "active", active );
 	}
 

@@ -42,6 +42,8 @@ public class ActionLibrary {
 		register( product, "print" );
 		register( product, "close" );
 		register( product, "close-all" );
+		register( product, "minimize" );
+		register( product, "maximize" );
 		register( product, "exit" );
 
 		register( product, "edit" );
