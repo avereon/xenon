@@ -82,6 +82,7 @@
 		<openjfx.version>20.0.1</openjfx.version>
 
 		<!-- Test dependencies -->
+		<!-- TestFX 4.0.17 broke the module -->
 		<testfx.version>4.0.16-alpha</testfx.version>
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
