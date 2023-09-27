@@ -158,6 +158,9 @@ public class Workspace implements WritableIdentity {
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
+		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
+		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
+
 		programMenu = createProgramMenuBar( program );
 		verticalProgramMenu = createProgramMenu( program );
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
@@ -169,12 +172,35 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
+		background = new WorkspaceBackground();
+		noticeBox = new VBox();
+		workpaneContainer = createWorkareaPane( noticeBox );
+
 		statusBar = createStatusBar( program );
 
-		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
-		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
+		workareaLayout = new BorderPane( workpaneContainer, createToolPane(), null, createStatusPane( statusBar ), null );
+		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 
-		noticeBox = new VBox();
+		memoryMonitor.start();
+		taskMonitor.start();
+		fpsMonitor.start();
+	}
+
+	private Pane createToolPane() {
+		StageMover stageMover = new StageMover( stage );
+		stageMover.getStyleClass().add( "tool-bar" );
+		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
+		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
+
+		Pane workareaSelectorPane = new BorderPane( workareaSelector );
+		workareaSelectorPane.getStyleClass().add( "tool-bar" );
+		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane );
+		HBox rightBox = new HBox( rightToolBar );
+
+		return new BorderPane( stageMover, null, rightBox, null, leftBox );
+	}
+
+	private Pane createWorkareaPane( VBox noticeBox ) {
 		noticeBox.getStyleClass().addAll( "flyout" );
 		noticeBox.setPickOnBounds( false );
 		noticeBox.setVisible( false );
@@ -182,33 +208,16 @@ public class Workspace implements WritableIdentity {
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
 		noticePane.setPickOnBounds( false );
 
-		// Workpane container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
+		StackPane workpaneContainer = new StackPane( background );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
 		StackPane workspaceStack = new StackPane( workpaneContainer, noticePane );
 		workspaceStack.setPickOnBounds( false );
+		return workspaceStack;
+	}
 
-		Pane stageMover = new StageMover( stage );
-		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
-		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
-
-		HBox leftBox = new HBox(leftToolBar, workareaSelector);
-		//leftBox.getStyleClass().addAll( "tool-bar" );
-		HBox rightBox = new HBox(rightToolBar);
-		//rightBox.getStyleClass().addAll( "tool-bar" );
-
-		Pane toolPane = new BorderPane( stageMover, null, rightBox, null, leftBox );
-
-		workareaLayout = new BorderPane();
-		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( toolPane );
-		workareaLayout.setCenter( workspaceStack );
-		workareaLayout.setBottom( statusBar );
-
-		memoryMonitor.start();
-		taskMonitor.start();
-		fpsMonitor.start();
+	private Pane createStatusPane( StatusBar statusBar ) {
+		return new BorderPane( statusBar );
 	}
 
 	public void setTheme( String url ) {
