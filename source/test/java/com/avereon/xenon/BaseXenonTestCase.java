@@ -24,12 +24,13 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 
 	private Xenon program;
 
+	static {
+		runHeadless();
+	}
+
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
-
-		// NOTE This does not seem to run headless
-		//runHeadless();
 
 		// Remove the existing program data folder
 		String suffix = "-" + Profile.TEST;
@@ -55,40 +56,6 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		return program;
 	}
 
-	private void runHeadless() {
-		// Set java.awt.headless to true when running tests in headless mode
-		// This is not needed if using Monocle, but just to be safe
-		System.setProperty( "java.awt.headless", "true" );
-
-		// Use Monocle to run UI tests
-		// <!-- https://wiki.openjdk.java.net/display/OpenJFX/Monocle -->
-		System.setProperty( "glass.platform", "Monocle" );
-
-		// When running the desktop build of JavaFX Monocle,
-		// then the only Monocle platform option is Headless
-		System.setProperty( "monocle.platform", "Headless" );
-
-		// Set prism.order to sw when running tests in headless mode
-		//System.setProperty( "prism.order", "sw" );
-
-		// Not sure what this setting does, but it's in all the examples found
-		//System.setProperty( "prism.text", "t2k" );
-
-		// Set testfx.setup.timeout to a reasonable time
-		// 5000 - GitHub Actions, Mintbox Mini
-		//  | Slower computers
-		//  |
-		//  | Faster computers
-		// 1000 - AMD Threadripper, Intel i9</pre>
-		System.setProperty( "testfx.setup.timeout", "5000" );
-
-		// When using Monocle, TestFX should also run in headless mode
-		System.setProperty( "testfx.headless", "true" );
-
-		// When using Monocle, use the Glass robot
-		System.setProperty( "testfx.robot", "glass" );
-	}
-
 	private boolean aggressiveDelete( Path path ) throws IOException {
 		// NOTE It has been determined that the StoredSettings can cause problems.
 		// The StoredSettings class can put these files back due to the delayed
@@ -110,6 +77,41 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		if( System.currentTimeMillis() >= limit && exception != null ) throw exception;
 
 		return !Files.exists( path );
+	}
+
+	private static void runHeadless() {
+		// Set java.awt.headless to true when running tests in headless mode
+		// This is not needed if using Monocle, but just to be safe
+		//System.setProperty( "java.awt.headless", "true" );
+
+		// Use Monocle to run UI tests
+		// <!-- https://wiki.openjdk.java.net/display/OpenJFX/Monocle -->
+		System.setProperty( "glass.platform", "Monocle" );
+
+		// When running the desktop build of JavaFX Monocle,
+		// then the only Monocle platform option is Headless,
+		// but it does have to be set.
+		System.setProperty( "monocle.platform", "Headless" );
+
+		// Set prism.order to sw when running tests in headless mode
+		//System.setProperty( "prism.order", "sw" );
+
+		// Not sure what this setting does, but it's in all the examples found
+		//System.setProperty( "prism.text", "t2k" );
+
+		// Set testfx.setup.timeout to a reasonable time
+		// 5000 - GitHub Actions, Mintbox Mini
+		//  | Slower computers
+		//  |
+		//  | Faster computers
+		// 1000 - AMD Threadripper, Intel i9</pre>
+		System.setProperty( "testfx.setup.timeout", "5000" );
+
+		// When using Monocle, TestFX should also run in headless mode
+		System.setProperty( "testfx.headless", "true" );
+
+		// When using Monocle, use the Glass robot
+		System.setProperty( "testfx.robot", "glass" );
 	}
 
 }
