@@ -110,7 +110,7 @@ public class Workspace implements WritableIdentity {
 
 	private final WorkspaceBackground background;
 
-	private final Pane workpaneContainer;
+	private final Pane workareaPane;
 
 	private final VBox noticeBox;
 
@@ -173,12 +173,15 @@ public class Workspace implements WritableIdentity {
 		toolbar = createProgramToolBar( program );
 
 		background = new WorkspaceBackground();
-		noticeBox = new VBox();
-		workpaneContainer = createWorkareaPane( noticeBox );
+
+		noticeBox = createNoticeBox();
+		workareaPane = createWorkareaPane( background, noticeBox );
 
 		statusBar = createStatusBar( program );
 
-		workareaLayout = new BorderPane( workpaneContainer, createToolPane(), null, createStatusPane( statusBar ), null );
+		Pane toolPane = createToolPane();
+		Pane statusPane = createStatusPane( statusBar );
+		workareaLayout = new BorderPane( workareaPane, toolPane, null, statusPane, null );
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 
 		memoryMonitor.start();
@@ -200,20 +203,20 @@ public class Workspace implements WritableIdentity {
 		return new BorderPane( stageMover, null, rightBox, null, leftBox );
 	}
 
-	private Pane createWorkareaPane( VBox noticeBox ) {
+	private VBox createNoticeBox() {
+		VBox noticeBox = new VBox();
 		noticeBox.getStyleClass().addAll( "flyout" );
-		noticeBox.setPickOnBounds( false );
 		noticeBox.setVisible( false );
+		return noticeBox;
+	}
 
-		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
-		noticePane.setPickOnBounds( false );
-
+	private static Pane createWorkareaPane( WorkspaceBackground background, VBox noticeBox ) {
 		StackPane workpaneContainer = new StackPane( background );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		StackPane workspaceStack = new StackPane( workpaneContainer, noticePane );
-		workspaceStack.setPickOnBounds( false );
-		return workspaceStack;
+		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+
+		return new StackPane( workpaneContainer, noticePane );
 	}
 
 	private Pane createStatusPane( StatusBar statusBar ) {
@@ -478,7 +481,7 @@ public class Workspace implements WritableIdentity {
 			activeWorkarea.setActive( false );
 			// TODO Remove the program menu
 			// TODO Remove the tool bar
-			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
+			workareaPane.getChildren().remove( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( false );
 		}
 
@@ -490,7 +493,7 @@ public class Workspace implements WritableIdentity {
 
 		// Connect the new active workarea
 		if( activeWorkarea != null ) {
-			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
+			workareaPane.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( true );
 			// TODO Set the program menu
 			// TODO Set the tool bar
