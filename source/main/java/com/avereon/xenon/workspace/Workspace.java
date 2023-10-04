@@ -27,7 +27,10 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
@@ -63,6 +66,8 @@ public class Workspace implements WritableIdentity {
 	 * Should the program menu be shown as a compact menu in the toolbar.
 	 */
 	private static final boolean COMPACT_MENU = true;
+
+	public static final String TOOL_BAR = "tool-bar";
 
 	private final Xenon program;
 
@@ -102,19 +107,11 @@ public class Workspace implements WritableIdentity {
 
 	private final StatusBar statusBar;
 
-	private MemoryMonitor memoryMonitor;
-
-	private TaskMonitor taskMonitor;
-
-	private FpsMonitor fpsMonitor;
-
 	private final WorkspaceBackground background;
 
-	private final Pane workareaPane;
+	private final Pane workpaneContainer;
 
 	private final VBox noticeBox;
-
-	private ComboBox<Workarea> workareaSelector;
 
 	private final ObservableList<Workarea> workareas;
 
@@ -132,7 +129,15 @@ public class Workspace implements WritableIdentity {
 
 	private final ToggleMaximizeAction toggleMaximizeAction;
 
+	private ComboBox<Workarea> workareaSelector;
+
 	private Workarea activeWorkarea;
+
+	private MemoryMonitor memoryMonitor;
+
+	private TaskMonitor taskMonitor;
+
+	private FpsMonitor fpsMonitor;
 
 	public Workspace( final Xenon program, final String id ) {
 		this.program = program;
@@ -146,7 +151,7 @@ public class Workspace implements WritableIdentity {
 			event.consume();
 		} );
 		stage.focusedProperty().addListener( ( p, o, n ) -> {
-			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
+			if( Boolean.TRUE.equals( n ) ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
 
 		setUid( id );
@@ -167,36 +172,45 @@ public class Workspace implements WritableIdentity {
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaSelector = createWorkareaSelector();
+		Pane toolPane = createToolPane( workareaSelector );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
-		background = new WorkspaceBackground();
-
 		noticeBox = createNoticeBox();
-		workareaPane = createWorkareaPane( background, noticeBox );
 
 		statusBar = createStatusBar( program );
 
-		Pane toolPane = createToolPane();
-		Pane statusPane = createStatusPane( statusBar );
-		workareaLayout = new BorderPane( workareaPane, toolPane, null, statusPane, null );
+		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+		noticePane.setPickOnBounds( false );
+
+		// Workpane container
+		background = new WorkspaceBackground();
+		workpaneContainer = new StackPane( background );
+		workpaneContainer.getStyleClass().add( "workspace" );
+
+		Pane workspaceStack = new StackPane( workpaneContainer, noticePane );
+
+		workareaLayout = new BorderPane();
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
+		workareaLayout.setTop( toolPane );
+		workareaLayout.setCenter( workspaceStack );
+		workareaLayout.setBottom( statusBar );
 
 		memoryMonitor.start();
 		taskMonitor.start();
 		fpsMonitor.start();
 	}
 
-	private Pane createToolPane() {
+	private Pane createToolPane( Node workareaSelector ) {
 		StageMover stageMover = new StageMover( stage );
-		stageMover.getStyleClass().add( "tool-bar" );
+		stageMover.getStyleClass().add( TOOL_BAR );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
 		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
 		Pane workareaSelectorPane = new BorderPane( workareaSelector );
-		workareaSelectorPane.getStyleClass().add( "tool-bar" );
+		workareaSelectorPane.getStyleClass().add( TOOL_BAR );
 		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane );
 		HBox rightBox = new HBox( rightToolBar );
 
@@ -204,19 +218,10 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private VBox createNoticeBox() {
-		VBox noticeBox = new VBox();
-		noticeBox.getStyleClass().addAll( "flyout" );
-		noticeBox.setVisible( false );
-		return noticeBox;
-	}
-
-	private static Pane createWorkareaPane( WorkspaceBackground background, VBox noticeBox ) {
-		StackPane workpaneContainer = new StackPane( background );
-		workpaneContainer.getStyleClass().add( "workspace" );
-
-		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
-
-		return new StackPane( workpaneContainer, noticePane );
+		VBox box = new VBox();
+		box.getStyleClass().addAll( "flyout" );
+		box.setVisible( false );
+		return box;
 	}
 
 	private Pane createStatusPane( StatusBar statusBar ) {
@@ -296,7 +301,7 @@ public class Workspace implements WritableIdentity {
 
 	private HBox createToolbarRightArea() {
 		HBox box = new HBox();
-		box.getStyleClass().addAll( "tool-bar" );
+		box.getStyleClass().addAll( TOOL_BAR );
 		box.setPadding( Insets.EMPTY );
 
 		// Add the workarea menu and selector
@@ -481,7 +486,7 @@ public class Workspace implements WritableIdentity {
 			activeWorkarea.setActive( false );
 			// TODO Remove the program menu
 			// TODO Remove the tool bar
-			workareaPane.getChildren().remove( activeWorkarea.getWorkpane() );
+			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( false );
 		}
 
@@ -493,7 +498,7 @@ public class Workspace implements WritableIdentity {
 
 		// Connect the new active workarea
 		if( activeWorkarea != null ) {
-			workareaPane.getChildren().add( activeWorkarea.getWorkpane() );
+			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( true );
 			// TODO Set the program menu
 			// TODO Set the tool bar
@@ -516,7 +521,7 @@ public class Workspace implements WritableIdentity {
 		noticeBox.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
 		noticeBox.getChildren().add( 0, pane );
 
-		pane.setOnMouseClicked( ( event ) -> {
+		pane.setOnMouseClicked( event -> {
 			getProgram().getNoticeManager().readNotice( notice );
 			noticeBox.getChildren().remove( pane );
 			if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
