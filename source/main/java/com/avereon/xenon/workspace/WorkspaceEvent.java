@@ -1,11 +1,11 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.event.Event;
 import com.avereon.event.EventType;
+import com.avereon.xenon.ProgramEvent;
 
-public class WorkspaceEvent extends Event {
+public class WorkspaceEvent extends ProgramEvent {
 
-	public static final EventType<WorkspaceEvent> WORKSPACE = new EventType<>( Event.ANY, "WORKSPACE" );
+	public static final EventType<WorkspaceEvent> WORKSPACE = new EventType<>( ProgramEvent.ANY, "WORKSPACE" );
 
 	public static final EventType<WorkspaceEvent> ANY = WORKSPACE;
 

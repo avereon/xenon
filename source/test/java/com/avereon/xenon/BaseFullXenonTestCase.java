@@ -6,20 +6,22 @@ import com.avereon.util.*;
 import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opentest4j.AssertionFailedError;
+import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -34,6 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private static final long minInitialMemory = 8 * SizeUnitBase2.MiB.getSize();
+
+	protected FxRobot robot = new FxRobot();
 
 	private EventWatcher programWatcher;
 
@@ -56,24 +60,18 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		// a "proper" way to access it:
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+		// This is fixed in TestFX 4.0.17+
 
 		Xenon xenon = setProgram( new Xenon() );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
 
-		// NOTE This starts the application so all setup needs to be done by this point
-		FxToolkit.setupApplication( () -> xenon );
-
-		// FIXME Program is stating too fast to catch started event :-)
-		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
-		Fx.waitForWithExceptions( LONG_TIMEOUT );
-
+		// NOTE This starts the application, so all setup needs to be done by this point
 		long start = System.currentTimeMillis();
-		// FIXME What's taking so long for the application to start?
+		FxToolkit.setupApplication( () -> xenon );
+		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
 		long end = System.currentTimeMillis();
-		//		System.out.println( "time=" + start );
-		//		System.out.println( "stop=" + end );
-		System.out.println( "duration=" + (end - start) );
+		System.out.println( "Program start duration=" + (end - start) );
 
 		// Get initial memory use after program is started
 		initialMemoryUse = getMemoryUse();
@@ -136,12 +134,12 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
-	public Xenon getProgram() {
-		return (Xenon)super.getProgram();
-	}
-
 	protected EventWatcher getProgramEventWatcher() {
 		return programWatcher;
+	}
+
+	protected Workspace getWorkspace() {
+		return getProgram().getWorkspaceManager().getActiveWorkspace();
 	}
 
 	protected Workpane getWorkpane() {

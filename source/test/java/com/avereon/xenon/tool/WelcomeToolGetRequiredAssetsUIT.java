@@ -12,7 +12,7 @@ class WelcomeToolGetRequiredAssetsUIT extends WelcomeToolUIT {
 	void execute() {
 		Asset asset = new Asset( ProgramWelcomeType.URI );
 		WelcomeTool tool = new WelcomeTool( getProgram(), asset );
-		assertThat( tool.getAssetDependencies().size() ).isEqualTo( 0 );
+		assertThat( tool.getAssetDependencies() ).isEmpty();
 	}
 
 }

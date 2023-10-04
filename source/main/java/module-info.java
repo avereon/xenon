@@ -1,11 +1,16 @@
 import com.avereon.xenon.Mod;
 
+// NOTE Multiple attempts have been made to consolidate test classes into this
+// module without success. There are several reasons this has not worked:
+// 1. JUnit does not like to be both a test-time library and a compile-time library.
+// 2. Trying to expose base test classes for mods did not work due to previous reason.
+// 3. Trying to extract base test classes to a separate library caused a circular reference.
+
 @SuppressWarnings( "requires-transitive-automatic" )
 module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
-	requires static org.testfx.junit5;
 
 	// Both compile-time and run-time
 	requires transitive com.avereon.zenna;
@@ -23,24 +28,16 @@ module com.avereon.xenon {
 	requires java.management;
 	requires java.sql;
 	requires jdk.crypto.ec;
-	//requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires org.controlsfx.controls;
 	requires reactfx;
 
-	// NOTE Multiple attempts have been made to consolidate test classes into this
-	// module without success. There are several reasons this has not worked:
-	// 1. JUnit does not like to be both a test-time library and a compile-time library.
-	// 2. Trying to expose base test classes for mods did not work due to previous reason.
-	// 3. Trying to extract base test classes to a separate library caused a circular reference.
-	// Base test classes for the program have been created in the xenon-junit5 library.
-	// Base test classes for program mods have been created in the xenon-mod-junit5 library.
-
 	// General exports
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
 	exports com.avereon.xenon.asset;
+	exports com.avereon.xenon.asset.exception;
 	exports com.avereon.xenon.asset.type;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.index;
@@ -71,7 +68,6 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.tool.settings to org.testfx.junit5;
 	opens com.avereon.xenon.ui.util to org.testfx.junit5;
 	opens com.avereon.xenon.workspace to org.testfx.junit5;
-    exports com.avereon.xenon.asset.exception;
 
-    uses Mod;
+	uses Mod;
 }

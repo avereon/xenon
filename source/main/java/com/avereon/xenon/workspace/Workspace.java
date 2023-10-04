@@ -142,6 +142,7 @@ public class Workspace implements WritableIdentity {
 	public Workspace( final Xenon program, final String id ) {
 		this.program = program;
 		this.eventBus = new FxEventHub();
+		this.eventBus.parent( program.getFxEventHub() );
 
 		// Create the stage
 		stage = new Stage( StageStyle.UNDECORATED );
@@ -518,7 +519,15 @@ public class Workspace implements WritableIdentity {
 		getEventBus().dispatch( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
 	}
 
-	public void showNotice( Notice notice ) {
+	public Pane getNoticePane() {
+		return noticeBox;
+	}
+
+	public List<Notice> getVisibleNotices() {
+		return noticeBox.getChildren().stream().map( b -> ((NoticePane)b).getNotice() ).toList();
+	}
+
+	public void showNotice( final Notice notice ) {
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		NoticePane pane = new NoticePane( program, notice, true );
@@ -546,10 +555,13 @@ public class Workspace implements WritableIdentity {
 			TimerUtil.fxTask( () -> {
 				noticeBox.getChildren().remove( pane );
 				if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
+				getEventBus().dispatch( new NoticeEvent( this, NoticeEvent.REMOVED, this, notice ) );
 			}, balloonTimeout );
 		}
 
 		noticeBox.setVisible( true );
+
+		getEventBus().dispatch( new NoticeEvent( this, NoticeEvent.ADDED, this, notice ) );
 	}
 
 	public void hideNotices() {

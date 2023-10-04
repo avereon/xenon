@@ -990,7 +990,7 @@ public class Xenon extends Application implements XenonProgram {
         return getCard().getName();
     }
 
-    FxEventHub getFxEventHub() {
+   public FxEventHub getFxEventHub() {
         return fxEventHub;
     }
 
