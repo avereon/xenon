@@ -178,12 +178,16 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
+		// NOTE When the notice pane is showing, it captures mouse events, even though it is transparent
+		// This makes sense since mouse events need to be passed to the notices
+		// But not sure why the events are not passed down to other layers.
 		noticeBox = createNoticeBox();
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
 		// Setting pickOnBounds here is important for mouse events to pass to the workarea
 		noticePane.setPickOnBounds( false );
 
 		statusBar = createStatusBar( program );
+		Pane statusPane = createStatusPane( statusBar );
 
 		// Workpane container
 		background = new WorkspaceBackground();
@@ -196,7 +200,7 @@ public class Workspace implements WritableIdentity {
 		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 		workareaLayout.setTop( toolPane );
 		workareaLayout.setCenter( workspaceStack );
-		workareaLayout.setBottom( statusBar );
+		workareaLayout.setBottom( statusPane );
 
 		memoryMonitor.start();
 		taskMonitor.start();
