@@ -81,7 +81,7 @@ public class Workspace implements WritableIdentity {
 
 	private final BorderPane workareaLayout;
 
-	private final MenuBar programMenu;
+	private final MenuBar programMenuBar;
 
 	private final ContextMenu verticalProgramMenu;
 
@@ -166,24 +166,24 @@ public class Workspace implements WritableIdentity {
 		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
-		programMenu = createProgramMenuBar( program );
+		programMenuBar = createProgramMenuBar( program );
 		verticalProgramMenu = createProgramMenu( program );
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaSelector = createWorkareaSelector();
-		Pane toolPane = createToolPane( workareaSelector );
+		Pane toolPane = createToolPane( program, stage, workareaSelector );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
 		noticeBox = createNoticeBox();
+		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+		// Setting pickOnBounds here is important for mouse events to pass to the workarea
+		noticePane.setPickOnBounds( false );
 
 		statusBar = createStatusBar( program );
-
-		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
-		noticePane.setPickOnBounds( false );
 
 		// Workpane container
 		background = new WorkspaceBackground();
@@ -203,7 +203,7 @@ public class Workspace implements WritableIdentity {
 		fpsMonitor.start();
 	}
 
-	private Pane createToolPane( Node workareaSelector ) {
+	private static Pane createToolPane( Xenon program, Stage stage, Node workareaSelector ) {
 		StageMover stageMover = new StageMover( stage );
 		stageMover.getStyleClass().add( TOOL_BAR );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
@@ -217,14 +217,14 @@ public class Workspace implements WritableIdentity {
 		return new BorderPane( stageMover, null, rightBox, null, leftBox );
 	}
 
-	private VBox createNoticeBox() {
+	private static VBox createNoticeBox() {
 		VBox box = new VBox();
 		box.getStyleClass().addAll( "flyout" );
 		box.setVisible( false );
 		return box;
 	}
 
-	private Pane createStatusPane( StatusBar statusBar ) {
+	private static Pane createStatusPane( StatusBar statusBar ) {
 		return new BorderPane( statusBar );
 	}
 
