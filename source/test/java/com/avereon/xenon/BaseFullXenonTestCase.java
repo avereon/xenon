@@ -66,7 +66,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
 
-		// NOTE This starts the application, so all setup needs to be done by this point
+		// Start the application; all setup needs to be done before this point
 		long start = System.currentTimeMillis();
 		FxToolkit.setupApplication( () -> xenon );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
@@ -79,16 +79,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
 			initialMemoryUse = getMemoryUse();
 		}
-
-		// Wait for the active workarea
-		// FIXME This should use an event listener to wait for the workarea
-		long activeWorkareaTimeLimit = System.currentTimeMillis() + TIMEOUT;
-		while( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() == null && System.currentTimeMillis() < activeWorkareaTimeLimit ) {
-			ThreadUtil.pause( 100 );
-		}
-		// TODO Workareas do not have proper events yet
-		// getProgram().getWorkspaceManager().getActiveWorkspace().getStage().addEventHandler( javafx.event.Event.ANY, stageWatcher = new FxEventWatcher() );
-		// stageWatcher.waitForEvent( WorkareaSwitchedEvent.SWITCHED, QUICK_TIMEOUT );
 
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();

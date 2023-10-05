@@ -83,7 +83,7 @@
 
 		<!-- Test dependencies -->
 		<!-- TestFX 4.0.17 broke the module -->
-		<testfx.version>4.0.16-alpha</testfx.version>
+		<testfx.version>4.0.17</testfx.version>
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build plugin versions -->
