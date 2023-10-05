@@ -179,12 +179,13 @@ public class Workspace implements WritableIdentity {
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
-		// NOTE When the notice pane is showing, it captures mouse events, even though it is transparent
-		// This makes sense since mouse events need to be passed to the notices
-		// But not sure why the events are not passed down to other layers.
 		noticeBox = createNoticeBox();
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
-		// Setting pickOnBounds here is important for mouse events to pass to the workarea
+		// Setting pickOnBounds here is important for mouse events to pass to the
+		// workarea. When the notice pane is showing, it captures mouse events, even
+		// though it is transparent. This makes sense since mouse events need to be
+		// passed to the notices. In order to pass events through the transparent
+		// area, pickOnBounds is set to false.
 		noticePane.setPickOnBounds( false );
 
 		statusBar = createStatusBar( program );
@@ -521,10 +522,6 @@ public class Workspace implements WritableIdentity {
 
 	public Pane getNoticePane() {
 		return noticeBox;
-	}
-
-	public List<Notice> getVisibleNotices() {
-		return noticeBox.getChildren().stream().map( b -> ((NoticePane)b).getNotice() ).toList();
 	}
 
 	public void showNotice( final Notice notice ) {

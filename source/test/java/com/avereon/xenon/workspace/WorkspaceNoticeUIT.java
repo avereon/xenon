@@ -2,14 +2,13 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.xenon.BaseXenonUIT;
 import com.avereon.xenon.notice.Notice;
+import com.avereon.xenon.notice.NoticePane;
 import javafx.scene.layout.Pane;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-class NoticeInteractionUIT extends BaseXenonUIT {
+class WorkspaceNoticeUIT extends BaseXenonUIT {
 
 	@Test
 	void testUserCanCloseNotice() throws Exception {
@@ -18,15 +17,16 @@ class NoticeInteractionUIT extends BaseXenonUIT {
 		getProgram().getNoticeManager().addNotice( notice );
 		getProgramEventWatcher().waitForEvent( NoticeEvent.ADDED, 1000 );
 
-		// Find the notice pane
-		Pane noticePane = getWorkspace().getNoticePane();
-		List<Notice> notices = getProgram().getWorkspaceManager().getActiveWorkspace().getVisibleNotices();
-		assertThat( notices).isNotEmpty();
+		// Find the notices pane
+		Pane noticesPane = getWorkspace().getNoticePane();
+		assertThat( noticesPane.getChildren() ).isNotEmpty();
 
-		// TODO Click the notice pane close button
+		// Click the notice pane close button
+		NoticePane noticePane = (NoticePane)noticesPane.getChildren().get( 0 );
+		robot.clickOn( noticePane.getCloseButton() );
 
-		// TODO Verify the notice is closed
-
+		// Verify the notice is closed
+		assertThat( noticesPane.getChildren() ).isEmpty();
 	}
 
 }
