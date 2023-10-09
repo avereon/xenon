@@ -18,6 +18,8 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
+import javafx.application.ConditionalFeature;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -145,7 +147,10 @@ public class Workspace implements WritableIdentity {
 		this.eventBus.parent( program.getFxEventHub() );
 
 		// Create the stage
-		stage = new Stage( StageStyle.UNDECORATED );
+		// FIXME Cannot resize an undecorated stage
+		boolean unifiedWindowSupoorted = Platform.isSupported( ConditionalFeature.UNIFIED_WINDOW );
+		if( !unifiedWindowSupoorted ) log.atWarn().log( "Unified window not supported!" );
+		stage = new Stage( StageStyle.UNIFIED );
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );

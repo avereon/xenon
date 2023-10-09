@@ -313,8 +313,8 @@ public class Xenon extends Application implements XenonProgram {
 
         // Show the splash screen, depends stylesheet
         // NOTE If there is a test failure here it is because tests were run in the same VM
-        if (stage.getStyle() != StageStyle.UTILITY) {
-            stage.initStyle(StageStyle.UTILITY);
+        if (stage.getStyle() != StageStyle.UNDECORATED) {
+            stage.initStyle(StageStyle.UNDECORATED);
         }
         boolean daemon = !parameters.isSet(ProgramFlag.NODAEMON) && parameters.isSet(ProgramFlag.DAEMON);
         boolean nosplash = parameters.isSet(ProgramFlag.NOSPLASH);
