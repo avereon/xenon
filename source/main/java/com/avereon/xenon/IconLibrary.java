@@ -100,6 +100,7 @@ public class IconLibrary {
 		register( "workspace-new", new FrameIcon() );
 		register( "minimize", new MinimizeIcon() );
 		register( "maximize", new MaximizeIcon() );
+		register( "normalize", new NormalizeIcon() );
 		register( "workspace-close", new CloseIcon() );
 
 		register( "workarea", new WorkareaIcon() );

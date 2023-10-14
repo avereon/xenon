@@ -204,6 +204,14 @@ public class Workspace extends Stage implements WritableIdentity {
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusPane );
 
+		maximizedProperty().addListener( ( v, o, n ) -> {
+			String icon = n? "normalize" : "maximize";
+			getProgram().getActionLibrary().getAction( "maximize" ).setIcon( icon );
+
+			// TODO Also toggle the resize border
+		} );
+
+
 		memoryMonitor.start();
 		taskMonitor.start();
 		fpsMonitor.start();
