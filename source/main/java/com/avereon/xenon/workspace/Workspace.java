@@ -18,8 +18,6 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
-import javafx.application.ConditionalFeature;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -56,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  * The workspace manages the menu bar, toolbar and workareas.
  */
 @CustomLog
-public class Workspace implements WritableIdentity {
+public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
 
@@ -72,8 +70,6 @@ public class Workspace implements WritableIdentity {
 	public static final String TOOL_BAR = "tool-bar";
 
 	private final Xenon program;
-
-	private final Stage stage;
 
 	private Scene scene;
 
@@ -142,21 +138,20 @@ public class Workspace implements WritableIdentity {
 	private FpsMonitor fpsMonitor;
 
 	public Workspace( final Xenon program, final String id ) {
+		// FIXME Cannot resize an undecorated stage
+		super(StageStyle.TRANSPARENT);
+
 		this.program = program;
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
 
 		// Create the stage
-		// FIXME Cannot resize an undecorated stage
-		boolean unifiedWindowSupoorted = Platform.isSupported( ConditionalFeature.UNIFIED_WINDOW );
-		if( !unifiedWindowSupoorted ) log.atWarn().log( "Unified window not supported!" );
-		stage = new Stage( StageStyle.UNIFIED );
-		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-		stage.setOnCloseRequest( event -> {
+		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+		setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
 		} );
-		stage.focusedProperty().addListener( ( p, o, n ) -> {
+		focusedProperty().addListener( ( p, o, n ) -> {
 			if( Boolean.TRUE.equals( n ) ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
 
@@ -178,7 +173,7 @@ public class Workspace implements WritableIdentity {
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaSelector = createWorkareaSelector();
-		Pane toolPane = createToolPane( program, stage, workareaSelector );
+		Pane toolPane = createToolPane( program, this, workareaSelector );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -437,8 +432,9 @@ public class Workspace implements WritableIdentity {
 		return program;
 	}
 
+	@Deprecated
 	public Stage getStage() {
-		return stage;
+		return this;
 	}
 
 	public boolean isActive() {
@@ -577,12 +573,12 @@ public class Workspace implements WritableIdentity {
 
 	@Override
 	public String getUid() {
-		return stage.getProperties().get( Identity.KEY ).toString();
+		return getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
 	public void setUid( String id ) {
-		stage.getProperties().put( Identity.KEY, id );
+		getProperties().put( Identity.KEY, id );
 	}
 
 	Settings getSettings() {
@@ -602,15 +598,15 @@ public class Workspace implements WritableIdentity {
 		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage
-		stage.setScene( scene );
-		stage.sizeToScene();
+		setScene( scene );
+		sizeToScene();
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
 		Double x = settings.get( "x", Double.class, null );
 		Double y = settings.get( "y", Double.class, null );
-		if( x != null ) stage.setX( x );
-		if( y != null ) stage.setY( y );
+		if( x != null ) setX( x );
+		if( y != null ) setY( y );
 
 		// On Linux, setWidth() and setHeight() do not take the stage window
 		// decorations into account. The way to deal with this is to watch
@@ -619,24 +615,24 @@ public class Workspace implements WritableIdentity {
 		// if( w != null ) stage.setWidth( w );
 		// if( h != null ) stage.setHeight( h );
 
-		stage.setMaximized( settings.get( "maximized", Boolean.class, false ) );
+		setMaximized( settings.get( "maximized", Boolean.class, false ) );
 		setActive( settings.get( "active", Boolean.class, false ) );
 
 		// Add the property listeners
-		stage.maximizedProperty().addListener( ( v, o, n ) -> {
-			if( stage.isShowing() ) settings.set( "maximized", n );
+		maximizedProperty().addListener( ( v, o, n ) -> {
+			if( isShowing() ) settings.set( "maximized", n );
 		} );
-		stage.xProperty().addListener( ( v, o, n ) -> {
-			if( !stage.isMaximized() ) settings.set( "x", n );
+		xProperty().addListener( ( v, o, n ) -> {
+			if( !isMaximized() ) settings.set( "x", n );
 		} );
-		stage.yProperty().addListener( ( v, o, n ) -> {
-			if( !stage.isMaximized() ) settings.set( "y", n );
+		yProperty().addListener( ( v, o, n ) -> {
+			if( !isMaximized() ) settings.set( "y", n );
 		} );
 		scene.widthProperty().addListener( ( v, o, n ) -> {
-			if( !stage.isMaximized() ) settings.set( "w", n );
+			if( !isMaximized() ) settings.set( "w", n );
 		} );
 		scene.heightProperty().addListener( ( v, o, n ) -> {
-			if( !stage.isMaximized() ) settings.set( "h", n );
+			if( !isMaximized() ) settings.set( "h", n );
 		} );
 
 		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
@@ -667,16 +663,17 @@ public class Workspace implements WritableIdentity {
 		Fx.waitFor( 5, TimeUnit.SECONDS );
 	}
 
+	@Override
 	public void close() {
 		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
 		fpsMonitor.close();
-		getStage().close();
+		super.close();
 	}
 
 	private void setStageTitle( String name ) {
-		stage.setTitle( name + " - " + getProgram().getCard().getName() );
+		setTitle( name + " - " + getProgram().getCard().getName() );
 	}
 
 	private Workarea determineNextActiveWorkarea() {
