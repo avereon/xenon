@@ -18,6 +18,8 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
+import javafx.application.ConditionalFeature;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -69,6 +71,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String TOOL_BAR = "tool-bar";
 
+	private static final boolean customControls = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
+
 	private final Xenon program;
 
 	private Scene scene;
@@ -77,7 +81,9 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final FxEventHub eventBus;
 
-	private final BorderPane workareaLayout;
+	private final BorderPane workspaceLayout;
+
+	private final Pane borderPane;
 
 	private final MenuBar programMenuBar;
 
@@ -139,13 +145,13 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public Workspace( final Xenon program, final String id ) {
 		// FIXME Cannot resize an undecorated stage
-		super(StageStyle.TRANSPARENT);
+		super( customControls ? StageStyle.TRANSPARENT : StageStyle.DECORATED );
+		if( !customControls ) log.atWarn().log( "Transparent windows not supported" );
 
 		this.program = program;
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
 
-		// Create the stage
 		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
@@ -194,23 +200,42 @@ public class Workspace extends Stage implements WritableIdentity {
 		// Workpane container
 		background = new WorkspaceBackground();
 		workpaneContainer = new StackPane( background );
-		workpaneContainer.getStyleClass().add( "workspace" );
+		//workpaneContainer.getStyleClass().add( "workspace" );
 
 		Pane workspaceStack = new StackPane( workpaneContainer, noticePane );
 
-		workareaLayout = new BorderPane();
-		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
-		workareaLayout.setTop( toolPane );
-		workareaLayout.setCenter( workspaceStack );
-		workareaLayout.setBottom( statusPane );
+		workspaceLayout = new BorderPane();
+		workspaceLayout.getStyleClass().add( "workspace" );
+		workspaceLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
+		workspaceLayout.setTop( toolPane );
+		workspaceLayout.setCenter( workspaceStack );
+		workspaceLayout.setBottom( statusPane );
+
+		Pane t = new Pane();
+		t.getStyleClass().addAll( "resize-h" );
+		Pane r = new Pane();
+		r.getStyleClass().addAll( "resize-v" );
+		Pane b = new Pane();
+		b.getStyleClass().addAll( "resize-h" );
+		Pane l = new Pane();
+		l.getStyleClass().addAll( "resize-v" );
+//		t.setPrefHeight( 5 );
+//		r.setPrefWidth( 5 );
+//		b.setPrefHeight( 5 );
+//		l.setPrefWidth( 5 );
+
+		borderPane = new BorderPane( workspaceLayout, t, r, b, l );
+		//borderPane.getStyleClass().addAll( "program-border" );
+		//borderPane.setStyle( "-fx-background-color: transparent" );
+		//borderPane.setBorder( new Border( new BorderStroke( Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths( 5 ) ) ) );
+		//borderPane.getChildren().add( workareaLayout );
 
 		maximizedProperty().addListener( ( v, o, n ) -> {
-			String icon = n? "normalize" : "maximize";
+			String icon = n ? "normalize" : "maximize";
 			getProgram().getActionLibrary().getAction( "maximize" ).setIcon( icon );
 
 			// TODO Also toggle the resize border
 		} );
-
 
 		memoryMonitor.start();
 		taskMonitor.start();
@@ -596,7 +621,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		// properties below.
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-		scene = new Scene( workareaLayout, w, h );
+		scene = new Scene( borderPane, w, h );
 		scene.setFill( Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
