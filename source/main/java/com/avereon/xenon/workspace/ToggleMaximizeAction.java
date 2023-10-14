@@ -13,7 +13,7 @@ public class ToggleMaximizeAction extends ProgramAction {
 
 	public ToggleMaximizeAction( Xenon program, Workspace workspace ) {
 		super( program );
-		this.stage = Objects.requireNonNull( workspace.getStage() );
+		this.stage = Objects.requireNonNull( workspace );
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public class ToggleMinimizeAction extends ProgramAction {
 
 	public ToggleMinimizeAction( Xenon program, Workspace workspace ) {
 		super( program );
-		this.stage = Objects.requireNonNull( workspace.getStage() );
+		this.stage = Objects.requireNonNull( workspace );
 	}
 
 	@Override

@@ -1184,7 +1184,7 @@ public class Xenon extends Application implements XenonProgram {
 
     private void printStatus(boolean startup) {
         String status = startup ? "STOPPED" : "RUNNING";
-        if (getWorkspaceManager() != null && !getWorkspaceManager().getActiveWorkspace().getStage().isShowing()) {
+        if (getWorkspaceManager() != null && !getWorkspaceManager().getActiveWorkspace().isShowing()) {
             status = "HIDDEN";
         }
         log.atInfo().log("Status: %s", status);

@@ -432,11 +432,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		return program;
 	}
 
-	@Deprecated
-	public Stage getStage() {
-		return this;
-	}
-
 	public boolean isActive() {
 		return active;
 	}
@@ -644,8 +639,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	public void screenshot( Path file ) {
 		Fx.waitFor( 5, TimeUnit.SECONDS );
 		Fx.run( () -> {
-			double renderScaleX = getStage().getRenderScaleX();
-			double renderScaleY = getStage().getRenderScaleY();
+			double renderScaleX = getRenderScaleX();
+			double renderScaleY = getRenderScaleY();
 
 			WritableImage buffer = new WritableImage( (int)Math.rint( renderScaleX * scene.getWidth() ), (int)Math.rint( renderScaleY * scene.getHeight() ) );
 			SnapshotParameters spa = new SnapshotParameters();
