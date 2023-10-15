@@ -83,7 +83,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final BorderPane workspaceLayout;
 
-	private final Pane borderPane;
+	private final Pane railPane;
 
 	private final MenuBar programMenuBar;
 
@@ -211,20 +211,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceLayout.setCenter( workspaceStack );
 		workspaceLayout.setBottom( statusPane );
 
-		Pane t = new Pane();
-		t.getStyleClass().addAll( "resize-h" );
-		Pane r = new Pane();
-		r.getStyleClass().addAll( "resize-v" );
-		Pane b = new Pane();
-		b.getStyleClass().addAll( "resize-h" );
-		Pane l = new Pane();
-		l.getStyleClass().addAll( "resize-v" );
-//		t.setPrefHeight( 5 );
-//		r.setPrefWidth( 5 );
-//		b.setPrefHeight( 5 );
-//		l.setPrefWidth( 5 );
+		Pane t = new WorkspaceRail( this, Side.TOP );
+		Pane r = new WorkspaceRail( this, Side.RIGHT );
+		Pane b = new WorkspaceRail( this, Side.BOTTOM );
+		Pane l = new WorkspaceRail( this, Side.LEFT );
 
-		borderPane = new BorderPane( workspaceLayout, t, r, b, l );
+		railPane = new BorderPane( workspaceLayout, t, r, b, l );
 		//borderPane.getStyleClass().addAll( "program-border" );
 		//borderPane.setStyle( "-fx-background-color: transparent" );
 		//borderPane.setBorder( new Border( new BorderStroke( Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths( 5 ) ) ) );
@@ -234,7 +226,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			String icon = n ? "normalize" : "maximize";
 			getProgram().getActionLibrary().getAction( "maximize" ).setIcon( icon );
 
-			// TODO Also toggle the resize border
+			// TODO Also toggle the rail pane
 		} );
 
 		memoryMonitor.start();
@@ -621,7 +613,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		// properties below.
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-		scene = new Scene( borderPane, w, h );
+		scene = new Scene( railPane, w, h );
 		scene.setFill( Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
