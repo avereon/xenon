@@ -179,7 +179,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaSelector = createWorkareaSelector();
-		Pane toolPane = createToolPane( program, this, workareaSelector );
+		Pane toolPane = createToolPane( program, workareaSelector );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -234,9 +234,11 @@ public class Workspace extends Stage implements WritableIdentity {
 		fpsMonitor.start();
 	}
 
-	private static Pane createToolPane( Xenon program, Stage stage, Node workareaSelector ) {
-		StageMover stageMover = new StageMover( stage );
-		stageMover.getStyleClass().add( TOOL_BAR );
+	private static Pane createToolPane( Xenon program, Node workareaSelector ) {
+		//StageMover stageMover = new StageMover();
+		Pane windowMover = new Pane();
+		new StageMover( windowMover );
+		windowMover.getStyleClass().add( TOOL_BAR );
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
 		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
@@ -245,7 +247,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane );
 		HBox rightBox = new HBox( rightToolBar );
 
-		return new BorderPane( stageMover, null, rightBox, null, leftBox );
+		return new BorderPane( windowMover, null, rightBox, null, leftBox );
 	}
 
 	private static VBox createNoticeBox() {

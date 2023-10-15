@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.CustomLog;
@@ -9,14 +9,12 @@ import lombok.CustomLog;
 import java.util.List;
 
 /**
- * The StageMover is a Node intended to be used to drag a Stage around the
- * screen. Simply create the {@link StageMover} for the Stage to move, then add
- * the mover to that stage's screen graph.
+ * The StageMover is a mouse event handler to drag a Stage around the screen.
+ * Simply create the {@link StageMover} on the node to use for dragging, then
+ * add that node to the stage screen graph.
  */
 @CustomLog
-public class StageMover extends Pane implements javafx.event.EventHandler<MouseEvent> {
-
-	private final Stage stage;
+public class StageMover implements javafx.event.EventHandler<MouseEvent> {
 
 	private double anchorX;
 
@@ -24,18 +22,18 @@ public class StageMover extends Pane implements javafx.event.EventHandler<MouseE
 
 	private boolean skipMouseDragged;
 
-	StageMover( Stage stage ) {
-		this.stage = stage;
-		addEventFilter( MouseEvent.MOUSE_PRESSED, this );
-		addEventFilter( MouseEvent.MOUSE_DRAGGED, this );
+	public StageMover( Node node ) {
+		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this );
+		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this );
 	}
 
 	@Override
 	public void handle( MouseEvent event ) {
+		Stage stage = getStage( event );
 		if( event.getEventType() == MouseEvent.MOUSE_PRESSED ) {
 			boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
 
-			if( shouldToggleMaximize ) toggleMaximize();
+			if( shouldToggleMaximize ) toggleMaximize( stage );
 
 			anchorX = stage.getX() - event.getScreenX();
 			anchorY = stage.getY() - event.getScreenY();
@@ -43,14 +41,18 @@ public class StageMover extends Pane implements javafx.event.EventHandler<MouseE
 		} else if( event.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
 			if( skipMouseDragged ) return;
 
-			if( stage.isMaximized() ) unMaximize( event.getX() );
+			if( stage.isMaximized() ) unMaximize( stage, event.getX() );
 
 			stage.setX( anchorX + event.getScreenX() );
 			stage.setY( anchorY + event.getScreenY() );
 		}
 	}
 
-	private void toggleMaximize() {
+	public Stage getStage( MouseEvent event ) {
+		return (Stage)((Node)event.getSource()).getScene().getWindow();
+	}
+
+	private void toggleMaximize( Stage stage ) {
 		if( stage.isMaximized() ) {
 			stage.setMaximized( false );
 		} else {
@@ -59,7 +61,7 @@ public class StageMover extends Pane implements javafx.event.EventHandler<MouseE
 		}
 	}
 
-	private void unMaximize( double eventX ) {
+	private void unMaximize( Stage stage, double eventX ) {
 		// Get the screen width
 		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
 		if( screens.isEmpty() ) return;

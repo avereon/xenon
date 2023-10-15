@@ -17,6 +17,9 @@ public class WorkspaceRail extends BorderPane {
 		if( side.isHorizontal() ) {
 			setLeft( tl );
 			setRight( br );
+
+			// tl to resize left side
+			// br to resize right side
 		} else {
 			setTop( tl );
 			setBottom( br );
