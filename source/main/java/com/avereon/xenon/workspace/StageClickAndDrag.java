@@ -3,16 +3,33 @@ package com.avereon.xenon.workspace;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 
 public class StageClickAndDrag implements EventHandler<MouseEvent> {
 
-	//private final Stage stage;
+	private double originalX;
+
+	private double originalY;
+
+	private double originalW;
+
+	private double originalH;
 
 	private double anchorX;
 
 	private double anchorY;
+
+	private double anchorW;
+
+	private double anchorH;
+
+	private double offsetX;
+
+	private double offsetY;
+
+	private double offsetW;
+
+	private double offsetH;
 
 	private boolean skipMouseDragged;
 
@@ -24,38 +41,42 @@ public class StageClickAndDrag implements EventHandler<MouseEvent> {
 		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this );
 	}
 
-	public Window getWindow( MouseEvent event ) {
-		return event.getPickResult().getIntersectedNode().getScene().getWindow();
-
+	public static Window getWindow( MouseEvent event ) {
+		return ((Node)event.getSource()).getScene().getWindow();
 	}
 
 	@Override
 	public void handle( MouseEvent event ) {
-		Window stage = event.getPickResult().getIntersectedNode().getScene().getWindow();
+		Window stage = getWindow( event );
 
 		if( event.getEventType() == MouseEvent.MOUSE_PRESSED ) {
-			anchorX = stage.getX() - event.getScreenX();
-			anchorY = stage.getY() - event.getScreenY();
+			originalX = stage.getX();
+			originalY = stage.getY();
+			originalW = stage.getWidth();
+			originalH = stage.getHeight();
+			anchorX = event.getScreenX();
+			anchorY = event.getScreenY();
+			anchorW = originalX + originalW;
+			anchorH = originalY + originalH;
+			offsetX = anchorX - originalX;
+			offsetY = anchorY - stage.getY();
+			offsetW = anchorW - anchorX;
+			offsetH = anchorH - anchorY;
 			skipMouseDragged = false;
-
-//			// TODO Move to title bar drag handler
-//			boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
-//			if( shouldToggleMaximize ) toggleMaximize();
 		} else if( event.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
 			if( skipMouseDragged ) return;
-			stage.setX( anchorX + event.getScreenX() );
-			stage.setY( anchorY + event.getScreenY() );
+			double screenX = event.getScreenX() - offsetX;
+			double screenY = event.getScreenY() - offsetY;
 
-//			// TODO Move to title bar drag handler
-//			if( stage.isMaximized() ) unMaximize( event.getX() );
+			double screenW = originalW + (event.getScreenX() - anchorW) + offsetW;
+			double screenH = originalH + (event.getScreenY() - anchorH) + offsetH;
+			handler.handle( event, stage, screenX, screenY, screenW, screenH, anchorW, anchorH );
 		}
-
-		//handler.handle( mouseEvent );
 	}
 
 	public interface DragHandler {
 
-		void handle( MouseEvent event, Stage window, double screenX, double screenY );
+		void handle( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH );
 
 	}
 

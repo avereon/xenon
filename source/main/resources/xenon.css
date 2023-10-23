@@ -190,7 +190,7 @@ Derived from modena.css
 
 /* Workspace Rails */
 .workspace-rail-nw {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
 	-fx-min-height: 0.3em;
 	-fx-cursor: nw-resize;
@@ -203,14 +203,14 @@ Derived from modena.css
 }
 
 .workspace-rail-ne {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
 	-fx-min-height: 0.3em;
 	-fx-cursor: ne-resize;
 }
 
 .workspace-rail-en {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 0.3em;
 	-fx-min-height: 2em;
 	-fx-cursor: ne-resize;
@@ -223,14 +223,14 @@ Derived from modena.css
 }
 
 .workspace-rail-es {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 0.3em;
 	-fx-min-height: 2em;
 	-fx-cursor: se-resize;
 }
 
 .workspace-rail-se {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
 	-fx-min-height: 0.3em;
 	-fx-cursor: se-resize;
@@ -243,14 +243,14 @@ Derived from modena.css
 }
 
 .workspace-rail-sw {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
 	-fx-min-height: 0.3em;
 	-fx-cursor: sw-resize;
 }
 
 .workspace-rail-wn {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 0.3em;
 	-fx-min-height: 2em;
 	-fx-cursor: nw-resize;
@@ -263,7 +263,7 @@ Derived from modena.css
 }
 
 .workspace-rail-ws {
-	-fx-background-color: -fx-accent;
+	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 0.3em;
 	-fx-min-height: 2em;
 	-fx-cursor: sw-resize;

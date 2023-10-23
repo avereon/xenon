@@ -211,16 +211,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceLayout.setCenter( workspaceStack );
 		workspaceLayout.setBottom( statusPane );
 
-		Pane t = new WorkspaceRail( this, Side.TOP );
-		Pane r = new WorkspaceRail( this, Side.RIGHT );
-		Pane b = new WorkspaceRail( this, Side.BOTTOM );
-		Pane l = new WorkspaceRail( this, Side.LEFT );
-
-		railPane = new BorderPane( workspaceLayout, t, r, b, l );
-		//borderPane.getStyleClass().addAll( "program-border" );
-		//borderPane.setStyle( "-fx-background-color: transparent" );
-		//borderPane.setBorder( new Border( new BorderStroke( Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths( 5 ) ) ) );
-		//borderPane.getChildren().add( workareaLayout );
+		railPane = buildRailPane( this, workspaceLayout );
 
 		maximizedProperty().addListener( ( v, o, n ) -> {
 			String icon = n ? "normalize" : "maximize";
@@ -232,6 +223,20 @@ public class Workspace extends Stage implements WritableIdentity {
 		memoryMonitor.start();
 		taskMonitor.start();
 		fpsMonitor.start();
+	}
+
+	private static Pane buildRailPane( Stage workspace, Node workspaceLayout ) {
+		Pane t = new WorkspaceRail( workspace, Side.TOP );
+		Pane r = new WorkspaceRail( workspace, Side.RIGHT );
+		Pane b = new WorkspaceRail( workspace, Side.BOTTOM );
+		Pane l = new WorkspaceRail( workspace, Side.LEFT );
+
+		//borderPane.getStyleClass().addAll( "program-border" );
+		//borderPane.setStyle( "-fx-background-color: transparent" );
+		//borderPane.setBorder( new Border( new BorderStroke( Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths( 5 ) ) ) );
+		//borderPane.getChildren().add( workareaLayout );
+
+		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
 	private static Pane createToolPane( Xenon program, Node workareaSelector ) {
