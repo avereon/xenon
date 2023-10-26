@@ -81,6 +81,10 @@ Derived from modena.css
 	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
 }
 
+.tool-bar {
+	-fx-background-color: -ex-background-tool;
+}
+
 .tool-bar .button {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
@@ -192,39 +196,39 @@ Derived from modena.css
 .workspace-rail-nw {
 	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: nw-resize;
 }
 
 .workspace-rail-n {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: n-resize;
 }
 
 .workspace-rail-ne {
 	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: ne-resize;
 }
 
 .workspace-rail-en {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-min-height: 2em;
 	-fx-cursor: ne-resize;
 }
 
 .workspace-rail-e {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-cursor: e-resize;
 }
 
 .workspace-rail-es {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-min-height: 2em;
 	-fx-cursor: se-resize;
 }
@@ -232,39 +236,39 @@ Derived from modena.css
 .workspace-rail-se {
 	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: se-resize;
 }
 
 .workspace-rail-s {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: s-resize;
 }
 
 .workspace-rail-sw {
 	-fx-background-color: -ex-background-tabs;
 	-fx-min-width: 2.3em;
-	-fx-min-height: 0.3em;
+	-fx-min-height: 2px;
 	-fx-cursor: sw-resize;
 }
 
 .workspace-rail-wn {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-min-height: 2em;
 	-fx-cursor: nw-resize;
 }
 
 .workspace-rail-w {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-cursor: w-resize;
 }
 
 .workspace-rail-ws {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 0.3em;
+	-fx-min-width: 2px;
 	-fx-min-height: 2em;
 	-fx-cursor: sw-resize;
 }
@@ -407,6 +411,7 @@ Derived from modena.css
  * Status Bar
  ******************************************************************************/
 .status-bar {
+	-fx-background-color: -ex-background-tool;
 	-fx-padding: 0.5em 0.5em 0.5em 0.5em;
 	-fx-font-weight: normal;
 }
