@@ -17,16 +17,12 @@ import java.util.List;
 @CustomLog
 public class StageMover {
 
-//	private double anchorX;
-//
-//	private double anchorY;
-//
-	private boolean skipMouseDragged;
+	//private boolean skipMouseDragged;
 
 	public StageMover( Node node ) {
-		new StageClickAndDrag( node, this::handleMove );
+		new StageClickAndDrag( node, this::handleDrag );
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handleClick );
-		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDrag );
+		//node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDrag );
 	}
 
 	private void handleClick( MouseEvent event ) {
@@ -34,68 +30,44 @@ public class StageMover {
 		if( shouldToggleMaximize ) toggleMaximize( getStage( event ) );
 	}
 
-	private void handleDrag(MouseEvent event ) {
-		Stage stage = getStage( event );
-		if( stage.isMaximized() ) unMaximize( stage, event.getX() );
-		skipMouseDragged = false;
-	}
+	private void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+		//if( skipMouseDragged ) return;
 
-	private void handleMove( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		if( skipMouseDragged ) return;
+		Stage stage = getStage( event );
+		if( stage.isMaximized() ) unMaximize( handler, stage, event.getX() );
+		//skipMouseDragged = false;
+
 		window.setX( screenX );
 		window.setY( screenY );
 	}
-
-	//	public void handle( MouseEvent event ) {
-	//		Stage stage = getStage( event );
-	//		if( event.getEventType() == MouseEvent.MOUSE_PRESSED ) {
-	//			boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
-	//
-	//			if( shouldToggleMaximize ) toggleMaximize( stage );
-	//
-	//			anchorX = stage.getX() - event.getScreenX();
-	//			anchorY = stage.getY() - event.getScreenY();
-	//			skipMouseDragged = false;
-	//		} else if( event.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
-	//			if( skipMouseDragged ) return;
-	//
-	//			if( stage.isMaximized() ) unMaximize( stage, event.getX() );
-	//
-	//			stage.setX( anchorX + event.getScreenX() );
-	//			stage.setY( anchorY + event.getScreenY() );
-	//		}
-	//	}
 
 	public static Stage getStage( MouseEvent event ) {
 		return (Stage)StageClickAndDrag.getWindow( event );
 	}
 
 	private void toggleMaximize( Stage stage ) {
-		// TODO When maximized, hide workspace rails
-		if( stage.isMaximized() ) {
-			stage.setMaximized( false );
-		} else {
-			stage.setMaximized( true );
-			skipMouseDragged = true;
-		}
+		boolean isMaximized = !stage.isMaximized();
+		stage.setMaximized( isMaximized );
+		//if( isMaximized ) skipMouseDragged = true;
 	}
 
-	private void unMaximize( Stage stage, double eventX ) {
+	private void unMaximize( StageClickAndDrag handler, Stage stage, double eventX ) {
 		// Get the screen width
 		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
 		if( screens.isEmpty() ) return;
 
-		// Calculate what percent of the screen/stage width the mouse pointer is located
+		// Calculate what percent of the screen width the mouse pointer is located
 		double percent = eventX / screens.get( 0 ).getVisualBounds().getWidth();
 
-		// Calculate the xOffset from the stage width to calculate the anchor
-		double xOffset = stage.getX() + percent * stage.getWidth();
-
-		// FIXME Feedback the change in the anchor X position
-		// Update the anchorX based on percent offset
-		//anchorX = stage.getX() - xOffset;
-
+		// Normalize the window
 		toggleMaximize( stage );
+
+		// This must happen after the stage is normalized
+		// Calculate the xOffset from the stage width to calculate the anchor
+		double xOffset = percent * stage.getWidth();
+
+		// Update the anchorX based on new offset
+		handler.setAnchorX( xOffset );
 	}
 
 }

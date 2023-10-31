@@ -66,45 +66,45 @@ public class WorkspaceRail extends BorderPane {
 		}
 	}
 
-	private void handleTopResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleTopResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setY( screenY );
 		window.setHeight( anchorH - screenY );
 	}
 
-	private void handleRightResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleRightResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setWidth( screenW );
 	}
 
-	private void handleBottomResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleBottomResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setHeight( screenH );
 	}
 
-	private void handleLeftResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleLeftResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setX( screenX );
 		window.setWidth( anchorW - screenX );
 	}
 
-	private void handleTlResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleTlResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setX( screenX );
 		window.setY( screenY );
 		window.setWidth( anchorW - screenX );
 		window.setHeight( anchorH - screenY );
 	}
 
-	private void handleTrResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleTrResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setY( screenY );
 		window.setWidth( screenW );
 		window.setHeight( anchorH - screenY );
 	}
 
-	private void handleBlResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleBlResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		window.setX( screenX );
 		//window.setY( screenY );
 		window.setWidth( anchorW - screenX );
 		window.setHeight( screenH );
 	}
 
-	private void handleBrResize( MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleBrResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
 		//window.setX( screenX );
 		//window.setY( screenY );
 		window.setWidth( screenW );

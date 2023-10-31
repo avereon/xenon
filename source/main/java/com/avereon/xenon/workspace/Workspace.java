@@ -189,6 +189,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		noticeBox = createNoticeBox();
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
+
 		// Setting pickOnBounds here is important for mouse events to pass to the
 		// workarea. When the notice pane is showing, it captures mouse events, even
 		// though it is transparent. This makes sense since mouse events need to be
@@ -624,8 +625,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		// properties below.
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-		scene = new Scene( railPane, w, h );
-		scene.setFill( Color.TRANSPARENT );
+		scene = new Scene( railPane, w, h, Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage
