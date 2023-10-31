@@ -85,6 +85,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Pane railPane;
 
+	private final Set<Pane> rails;
+
 	private final MenuBar programMenuBar;
 
 	private final ContextMenu verticalProgramMenu;
@@ -200,7 +202,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		// Workpane container
 		background = new WorkspaceBackground();
 		workpaneContainer = new StackPane( background );
-		//workpaneContainer.getStyleClass().add( "workspace" );
 
 		Pane workspaceStack = new StackPane( workpaneContainer, noticePane );
 
@@ -211,13 +212,16 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceLayout.setCenter( workspaceStack );
 		workspaceLayout.setBottom( statusPane );
 
+		rails = new HashSet<>();
 		railPane = buildRailPane( this, workspaceLayout );
 
 		maximizedProperty().addListener( ( v, o, n ) -> {
+			// Toggle the maximize/normalize icon
 			String icon = n ? "normalize" : "maximize";
 			getProgram().getActionLibrary().getAction( "maximize" ).setIcon( icon );
 
-			// TODO Also toggle the rail pane
+			// Toggle the rails
+			rails.forEach( r -> r.setVisible( !n ) );
 		} );
 
 		memoryMonitor.start();
@@ -225,16 +229,16 @@ public class Workspace extends Stage implements WritableIdentity {
 		fpsMonitor.start();
 	}
 
-	private static Pane buildRailPane( Stage workspace, Node workspaceLayout ) {
+	private Pane buildRailPane( Stage workspace, Node workspaceLayout ) {
 		Pane t = new WorkspaceRail( workspace, Side.TOP );
 		Pane r = new WorkspaceRail( workspace, Side.RIGHT );
 		Pane b = new WorkspaceRail( workspace, Side.BOTTOM );
 		Pane l = new WorkspaceRail( workspace, Side.LEFT );
 
-		//borderPane.getStyleClass().addAll( "program-border" );
-		//borderPane.setStyle( "-fx-background-color: transparent" );
-		//borderPane.setBorder( new Border( new BorderStroke( Color.DARKGREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths( 5 ) ) ) );
-		//borderPane.getChildren().add( workareaLayout );
+		rails.add( t );
+		rails.add( r );
+		rails.add( b );
+		rails.add( l );
 
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
