@@ -1,5 +1,6 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.util.OperatingSystem;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
@@ -30,15 +31,15 @@ public class StageMover {
 		if( shouldToggleMaximize ) toggleMaximize( getStage( event ) );
 	}
 
-	private void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
+	private void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
 		//if( skipMouseDragged ) return;
 
 		Stage stage = getStage( event );
-		if( stage.isMaximized() ) unMaximize( handler, stage, event.getX() );
+		if( stage.isMaximized() ) unMaximize( handler, stage, event );
 		//skipMouseDragged = false;
 
-		window.setX( screenX );
-		window.setY( screenY );
+		window.setX( windowX );
+		window.setY( windowY );
 	}
 
 	public static Stage getStage( MouseEvent event ) {
@@ -51,18 +52,44 @@ public class StageMover {
 		//if( isMaximized ) skipMouseDragged = true;
 	}
 
-	private void unMaximize( StageClickAndDrag handler, Stage stage, double eventX ) {
+	private void unMaximize( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
+		if( OperatingSystem.isWindows() ) {
+			unMaximizeOnWindows( handler, stage, event );
+		} else {
+			unMaximizeOnUnix( handler, stage, event );
+		}
+	}
+
+	private void unMaximizeOnUnix( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
 		// Get the screen width
 		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
 		if( screens.isEmpty() ) return;
 
 		// Calculate what percent of the screen width the mouse pointer is located
-		double percent = eventX / screens.get( 0 ).getVisualBounds().getWidth();
+		double percent = event.getX() / screens.get( 0 ).getVisualBounds().getWidth();
+
+		// Calculate the xOffset from the stage width to calculate the anchor
+		double xOffset = stage.getX() + percent * stage.getWidth();
+
+		// Update the anchorX based on new offset
+		handler.setAnchorX( stage.getX() + xOffset );
+
+		// Normalize the window
+		toggleMaximize( stage );
+	}
+
+	private void unMaximizeOnWindows( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
+		// Get the screen width
+		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
+		if( screens.isEmpty() ) return;
+
+		// Calculate what percent of the screen width the mouse pointer is located
+		double percent = event.getX() / screens.get( 0 ).getVisualBounds().getWidth();
 
 		// Normalize the window
 		toggleMaximize( stage );
 
-		// This must happen after the stage is normalized
+		// This must happen after the stage is normalized on Windows
 		// Calculate the xOffset from the stage width to calculate the anchor
 		double xOffset = percent * stage.getWidth();
 

@@ -66,49 +66,46 @@ public class WorkspaceRail extends BorderPane {
 		}
 	}
 
-	private void handleTopResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setY( screenY );
-		window.setHeight( anchorH - screenY );
+	private void handleTopResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setY( windowY );
+		window.setHeight( anchorH - windowY );
 	}
 
-	private void handleRightResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setWidth( screenW );
+	private void handleRightResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setWidth( windowW );
 	}
 
-	private void handleBottomResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setHeight( screenH );
+	private void handleBottomResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setHeight( windowH );
 	}
 
-	private void handleLeftResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setX( screenX );
-		window.setWidth( anchorW - screenX );
+	private void handleLeftResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setX( windowX );
+		window.setWidth( anchorW - windowX );
 	}
 
-	private void handleTlResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setX( screenX );
-		window.setY( screenY );
-		window.setWidth( anchorW - screenX );
-		window.setHeight( anchorH - screenY );
+	private void handleTlResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setX( windowX );
+		window.setY( windowY );
+		window.setWidth( anchorW - windowX );
+		window.setHeight( anchorH - windowY );
 	}
 
-	private void handleTrResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setY( screenY );
-		window.setWidth( screenW );
-		window.setHeight( anchorH - screenY );
+	private void handleTrResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setY( windowY );
+		window.setWidth( windowW );
+		window.setHeight( anchorH - windowY );
 	}
 
-	private void handleBlResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		window.setX( screenX );
-		//window.setY( screenY );
-		window.setWidth( anchorW - screenX );
-		window.setHeight( screenH );
+	private void handleBlResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setX( windowX );
+		window.setWidth( anchorW - windowX );
+		window.setHeight( windowH );
 	}
 
-	private void handleBrResize( StageClickAndDrag handler, MouseEvent event, Window window, double screenX, double screenY, double screenW, double screenH, double anchorW, double anchorH ) {
-		//window.setX( screenX );
-		//window.setY( screenY );
-		window.setWidth( screenW );
-		window.setHeight( screenH );
+	private void handleBrResize( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
+		window.setWidth( windowW );
+		window.setHeight( windowH );
 	}
 
 }
