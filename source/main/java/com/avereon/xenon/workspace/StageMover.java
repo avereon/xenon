@@ -68,14 +68,11 @@ public class StageMover {
 		// Calculate what percent of the screen width the mouse pointer is located
 		double percent = event.getX() / screens.get( 0 ).getVisualBounds().getWidth();
 
-		// Calculate the xOffset from the stage width to calculate the anchor
-		double xOffset = stage.getX() + percent * stage.getWidth();
-
-		// Update the anchorX based on new offset
-		handler.setAnchorX( stage.getX() + xOffset );
-
 		// Normalize the window
 		toggleMaximize( stage );
+
+		// Update the offsetX from the stage width to calculate the anchor
+		handler.setOffsetX( percent * stage.getWidth() );
 	}
 
 	private void unMaximizeOnWindows( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
@@ -89,12 +86,8 @@ public class StageMover {
 		// Normalize the window
 		toggleMaximize( stage );
 
-		// This must happen after the stage is normalized on Windows
-		// Calculate the xOffset from the stage width to calculate the anchor
-		double xOffset = percent * stage.getWidth();
-
-		// Update the anchorX based on new offset
-		handler.setAnchorX( xOffset );
+		// Update the offsetX from the stage width to calculate the anchor
+		handler.setOffsetX( percent * stage.getWidth() );
 	}
 
 }

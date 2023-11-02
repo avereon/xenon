@@ -46,12 +46,8 @@ public class StageClickAndDrag {
 		return ((Node)event.getSource()).getScene().getWindow();
 	}
 
-	public void setAnchorX( double x ) {
-		this.anchorX = x;
-
-		// Recalculate dependent values
-		//offsetX = anchorX - originalX;
-		//offsetW = windowX2 - anchorX;
+	public void setOffsetX( double x ) {
+		this.offsetX = x;
 	}
 
 	private void handlePressed( MouseEvent event ) {
