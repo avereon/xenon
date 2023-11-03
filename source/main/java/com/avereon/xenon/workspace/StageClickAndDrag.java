@@ -75,7 +75,7 @@ public class StageClickAndDrag {
 
 		// On Cinnamon the width and height are the original window width and height, not the maximized width and height
 		// On Windows the width and height are the maximized window width and height, not the original width and height
-		log.atConfig().log( "x={0} y={1} w={2} h={3}", originalX, originalY, originalW, originalH );
+		//log.atConfig().log( "x={0} y={1} w={2} h={3}", originalX, originalY, originalW, originalH );
 	}
 
 	private void handleDragged( MouseEvent event ) {
