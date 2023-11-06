@@ -1,5 +1,6 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
@@ -22,27 +23,22 @@ public class StageMover {
 	public StageMover( Node node ) {
 		new StageClickAndDrag( node, this::handleDrag );
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handleClick );
-		//node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDrag );
 	}
 
 	private void handleClick( MouseEvent event ) {
 		boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
-		if( shouldToggleMaximize ) toggleMaximize( getStage( event ) );
+		if( shouldToggleMaximize ) toggleMaximize( Fx.getStage( event ) );
 	}
 
 	private void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
 		//if( skipMouseDragged ) return;
 
-		Stage stage = getStage( event );
+		Stage stage = Fx.getStage( event );
 		if( stage.isMaximized() ) unMaximize( handler, stage, event );
 		//skipMouseDragged = false;
 
 		window.setX( windowX );
 		window.setY( windowY );
-	}
-
-	public static Stage getStage( MouseEvent event ) {
-		return (Stage)StageClickAndDrag.getWindow( event );
 	}
 
 	private void toggleMaximize( Stage stage ) {

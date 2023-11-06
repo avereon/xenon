@@ -1,5 +1,6 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
@@ -42,16 +43,12 @@ public class StageClickAndDrag {
 		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDragged );
 	}
 
-	public static Window getWindow( MouseEvent event ) {
-		return ((Node)event.getSource()).getScene().getWindow();
-	}
-
 	public void setOffsetX( double x ) {
 		this.offsetX = x;
 	}
 
 	private void handlePressed( MouseEvent event ) {
-		Window stage = getWindow( event );
+		Window stage = Fx.getWindow( event );
 
 		// The anchor location in screen coordinates
 		anchorX = event.getScreenX();
@@ -86,7 +83,7 @@ public class StageClickAndDrag {
 		double windowW = originalW + (event.getScreenX() - anchorX);
 		double windowH = originalH + (event.getScreenY() - anchorY);
 
-		Window stage = getWindow( event );
+		Window stage = Fx.getWindow( event );
 		dragHandler.handleDrag( this, event, stage, windowX, windowY, windowW, windowH, windowX2, windowY2 );
 	}
 
