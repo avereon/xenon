@@ -845,8 +845,11 @@ public class Workspace extends Stage implements WritableIdentity {
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
 			if( item == null || empty ) {
+				graphicProperty().unbind();
 				textProperty().unbind();
 			} else {
+				// FIXME Why does the workarea icon not appear
+				graphicProperty().bind( item.iconProperty() );
 				textProperty().bind( item.nameProperty() );
 			}
 		}

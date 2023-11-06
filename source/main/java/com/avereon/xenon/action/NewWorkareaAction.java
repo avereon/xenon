@@ -45,6 +45,7 @@ public class NewWorkareaAction extends ProgramAction {
 		try {
 			Workarea workarea = uiFactory.newWorkarea();
 			workarea.setName( name );
+			workarea.setIcon( getProgram().getIconLibrary().getIcon( "broken" ) );
 			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
 			log.atError().withCause(exception).log( "Error creating new workarea: %s", name );

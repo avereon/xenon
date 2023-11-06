@@ -1,15 +1,16 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.*;
 import com.avereon.zarra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.input.TransferMode;
 import lombok.CustomLog;
 
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 
 @CustomLog
 public class Workarea implements WritableIdentity {
+
+	private final ObjectProperty<Node> icon;
 
 	private final StringProperty name;
 
@@ -34,6 +37,7 @@ public class Workarea implements WritableIdentity {
 	// private ToolBar extraToolBarItems
 
 	public Workarea() {
+		icon = new SimpleObjectProperty<>(this, "icon", null );
 		name = new SimpleStringProperty( this, "name", "" );
 		active = new SimpleBooleanProperty( this, "active", false );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
@@ -46,6 +50,14 @@ public class Workarea implements WritableIdentity {
 
 		// TODO Could be moved to UiFactory
 		workpane.setOnToolDrop( new DropHandler( this ) );
+	}
+
+	public final ObjectProperty<Node> iconProperty() {
+		return icon;
+	}
+
+	public final void setIcon( Node icon ) {
+		this.icon.set( icon );
 	}
 
 	public final StringProperty nameProperty() {
@@ -91,6 +103,10 @@ public class Workarea implements WritableIdentity {
 		if( getWorkspace() != null ) {
 			// Connect the new workspace
 		}
+	}
+
+	public Xenon getProgram() {
+		return getWorkspace().getProgram();
 	}
 
 	public Workpane getWorkpane() {
@@ -173,7 +189,7 @@ public class Workarea implements WritableIdentity {
 		}
 
 		private Xenon getProgram() {
-			return workarea.getWorkspace().getProgram();
+			return workarea.getProgram();
 		}
 
 	}

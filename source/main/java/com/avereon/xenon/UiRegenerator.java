@@ -149,6 +149,7 @@ class UiRegenerator {
 		// Create the default workarea
 		Workarea workarea = factory.newWorkarea();
 		workarea.setName( "Default" );
+		workarea.setIcon( getProgram().getIconLibrary().getIcon( "broken" ) );
 		workspace.setActiveWorkarea( workarea );
 
 		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
