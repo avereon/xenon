@@ -1,6 +1,5 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.util.OperatingSystem;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
@@ -53,29 +52,6 @@ public class StageMover {
 	}
 
 	private void unMaximize( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
-		if( OperatingSystem.isWindows() ) {
-			unMaximizeOnWindows( handler, stage, event );
-		} else {
-			unMaximizeOnUnix( handler, stage, event );
-		}
-	}
-
-	private void unMaximizeOnUnix( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
-		// Get the screen width
-		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
-		if( screens.isEmpty() ) return;
-
-		// Calculate what percent of the screen width the mouse pointer is located
-		double percent = event.getX() / screens.get( 0 ).getVisualBounds().getWidth();
-
-		// Normalize the window
-		toggleMaximize( stage );
-
-		// Update the offsetX from the stage width to calculate the anchor
-		handler.setOffsetX( percent * stage.getWidth() );
-	}
-
-	private void unMaximizeOnWindows( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
 		// Get the screen width
 		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
 		if( screens.isEmpty() ) return;
