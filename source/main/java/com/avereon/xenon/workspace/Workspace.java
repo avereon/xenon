@@ -71,7 +71,11 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String TOOL_BAR = "tool-bar";
 
-	private static final boolean customControls = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
+	private static final boolean transparentWindow = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
+
+	public static final String NORMALIZE = "normalize";
+
+	public static final String MAXIMIZE = "maximize";
 
 	private final Xenon program;
 
@@ -146,9 +150,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	private FpsMonitor fpsMonitor;
 
 	public Workspace( final Xenon program, final String id ) {
-		// FIXME Cannot resize an undecorated stage
-		super( customControls ? StageStyle.TRANSPARENT : StageStyle.DECORATED );
-		if( !customControls ) log.atWarn().log( "Transparent windows not supported" );
+		super( transparentWindow ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
+		if( !transparentWindow ) log.atWarn().log( "Transparent windows not supported" );
 
 		this.program = program;
 		this.eventBus = new FxEventHub();
@@ -218,8 +221,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		maximizedProperty().addListener( ( v, o, n ) -> {
 			// Toggle the maximize/normalize icon
-			String icon = n ? "normalize" : "maximize";
-			getProgram().getActionLibrary().getAction( "maximize" ).setIcon( icon );
+			String icon = n ? NORMALIZE : MAXIMIZE;
+			getProgram().getActionLibrary().getAction( MAXIMIZE ).setIcon( icon );
 
 			// Toggle the rails
 			rails.forEach( r -> r.setVisible( !n ) );
@@ -245,19 +248,29 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private static Pane createToolPane( Xenon program, Node workareaSelector ) {
-		//StageMover stageMover = new StageMover();
-		Pane windowMover = new Pane();
-		new StageMover( windowMover );
-		windowMover.getStyleClass().add( TOOL_BAR );
+		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
-		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
+		// The workarea selector
+		// FIXME Consolidate the workarea selector and actions
 		Pane workareaSelectorPane = new BorderPane( workareaSelector );
 		workareaSelectorPane.getStyleClass().add( TOOL_BAR );
-		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane );
+		MenuBar workareaMenu = createWorkareaMenu( program );
+		Pane workareaMenuPane = new BorderPane(workareaMenu);
+		workareaMenuPane.getStyleClass().add( TOOL_BAR );
+
+		// The empty space used to move the window around the screen
+		Pane centerBox = new Pane();
+		centerBox.getStyleClass().add( TOOL_BAR );
+		new StageMover( centerBox );
+
+		// The right toolbar options
+		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
+
+		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane, workareaMenuPane );
 		HBox rightBox = new HBox( rightToolBar );
 
-		return new BorderPane( windowMover, null, rightBox, null, leftBox );
+		return new BorderPane( centerBox, null, rightBox, null, leftBox );
 	}
 
 	private static VBox createNoticeBox() {
@@ -476,13 +489,13 @@ public class Workspace extends Stage implements WritableIdentity {
 	public void setActive( boolean active ) {
 		if( !active ) {
 			getProgram().getActionLibrary().getAction( "minimize" ).pullAction( toggleMinimizeAction );
-			getProgram().getActionLibrary().getAction( "maximize" ).pullAction( toggleMaximizeAction );
+			getProgram().getActionLibrary().getAction( MAXIMIZE ).pullAction( toggleMaximizeAction );
 		}
 
 		this.active = active;
 
 		if( active ) {
-			getProgram().getActionLibrary().getAction( "maximize" ).pushAction( toggleMaximizeAction );
+			getProgram().getActionLibrary().getAction( MAXIMIZE ).pushAction( toggleMaximizeAction );
 			getProgram().getActionLibrary().getAction( "minimize" ).pushAction( toggleMinimizeAction );
 		}
 
