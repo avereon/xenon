@@ -519,6 +519,17 @@ public class Workspace extends Stage implements WritableIdentity {
 	public void setActiveWorkarea( Workarea workarea ) {
 		if( activeWorkarea == workarea ) return;
 
+		// Get open workspace behavior setting
+		String openWorkspaceIn = getProgram().getSettings().get( "workspace-open-in", "current" );
+
+		switch( openWorkspaceIn ) {
+			case "current" -> setActiveWorkareaInCurrentWorkspace( workarea );
+			case "new" -> setActiveWorkareaInNewWorkspace( workarea );
+			default -> askUserWhatToDoWithActiveWorkarea( workarea );
+		}
+	}
+
+	private void setActiveWorkareaInCurrentWorkspace( Workarea workarea ) {
 		// Disconnect the old active workarea
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
@@ -551,6 +562,14 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		// Send a program event when active area changes
 		getEventBus().dispatch( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
+	}
+
+	private void setActiveWorkareaInNewWorkspace( Workarea workarea ) {
+		// TODO Just open a new workspace, set the active workarea and return
+	}
+
+	private void askUserWhatToDoWithActiveWorkarea( Workarea workarea ) {
+		// TODO Ask the user what to do and then do that
 	}
 
 	public Pane getNoticePane() {
