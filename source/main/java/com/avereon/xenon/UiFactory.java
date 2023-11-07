@@ -6,9 +6,14 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEdge;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.xenon.workspace.Workarea;
+import com.avereon.zarra.color.Paints;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import lombok.CustomLog;
 
 @CustomLog
@@ -36,10 +41,20 @@ public class UiFactory {
 
 	private static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
 
+	public static final String ACTIVE = "active";
+
+	public static final String NAME = "name";
+
+	public static final String PAINT = "paint";
+
 	private final Xenon program;
 
 	public UiFactory( Xenon program ) {
 		this.program = program;
+	}
+
+	public Xenon getProgram() {
+		return program;
 	}
 
 	public Workarea newWorkarea() {
@@ -47,8 +62,12 @@ public class UiFactory {
 	}
 
 	Workarea newWorkarea( String id, boolean restore ) {
+		LinearGradient paint = new LinearGradient( 0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
+
 		Workarea workarea = new Workarea();
 		workarea.setUid( id );
+		workarea.setPaint( paint );
+		workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 		setupWorkareaSettings( workarea );
 
 		Workpane workpane = workarea.getWorkpane();
@@ -62,16 +81,19 @@ public class UiFactory {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 
 		// Restore state from settings
-		workarea.setName( settings.get( "name", workarea.getName() ) );
-		workarea.setActive( settings.get( "active", Boolean.class, workarea.isActive() ) );
+		workarea.setPaint( Paints.parse( settings.get( PAINT ) ) );
+		workarea.setName( settings.get( NAME, workarea.getName() ) );
+		workarea.setActive( settings.get( ACTIVE, Boolean.class, workarea.isActive() ) );
 
 		// Save new state to settings
-		settings.set( "name", workarea.getName() );
-		settings.set( "active", workarea.isActive() );
+		settings.set( PAINT, Paints.toString( workarea.getPaint() ) );
+		settings.set( NAME, workarea.getName() );
+		settings.set( ACTIVE, workarea.isActive() );
 
 		// Add the change listeners
-		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( "name", n ) );
-		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( "active", n ) );
+		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( PAINT, Paints.toString( n ) ) );
+		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( NAME, n ) );
+		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( ACTIVE, n ) );
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
 	}
 

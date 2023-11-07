@@ -256,7 +256,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Pane workareaSelectorPane = new BorderPane( workareaSelector );
 		workareaSelectorPane.getStyleClass().add( TOOL_BAR );
 		MenuBar workareaMenu = createWorkareaMenu( program );
-		Pane workareaMenuPane = new BorderPane(workareaMenu);
+		Pane workareaMenuPane = new BorderPane( workareaMenu );
 		workareaMenuPane.getStyleClass().add( TOOL_BAR );
 
 		// The empty space used to move the window around the screen
@@ -385,7 +385,6 @@ public class Workspace extends Stage implements WritableIdentity {
 	private Button createNoticeToolbarButton() {
 		Button noticeButton = ToolBarFactory.createToolBarButton( program, "notice" );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
-		//noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
 			String icon = count == 0 ? "notice" : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
@@ -410,6 +409,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		ComboBox<Workarea> selector = new ComboBox<>();
 		selector.setItems( workareas );
 		selector.setButtonCell( new WorkareaPropertyCell() );
+		selector.setCellFactory( l -> new WorkareaPropertyCell() );
 		selector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 		return selector;
 	}
@@ -845,10 +845,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
 			if( item == null || empty ) {
+				backgroundProperty().unbind();
 				graphicProperty().unbind();
 				textProperty().unbind();
 			} else {
-				// FIXME Why does the workarea icon not appear
+				// Setting the style here overrides the normal behavior
+				//setStyle( "-fx-background-color: green;" );
+				backgroundProperty().bind( item.paintProperty().map( p -> new Background( new BackgroundFill( p, CornerRadii.EMPTY, Insets.EMPTY ) ) ) );
 				graphicProperty().bind( item.iconProperty() );
 				textProperty().bind( item.nameProperty() );
 			}

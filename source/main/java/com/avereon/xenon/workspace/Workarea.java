@@ -40,10 +40,10 @@ public class Workarea implements WritableIdentity {
 	// private ToolBar extraToolBarItems
 
 	public Workarea() {
-		icon = new SimpleObjectProperty<>(this, "icon", null );
-		paint = new SimpleObjectProperty<>(this, "paint", null );
-		name = new SimpleStringProperty( this, "name", "" );
-		active = new SimpleBooleanProperty( this, "active", false );
+		paint = new SimpleObjectProperty<>(this, "paint" );
+		icon = new SimpleObjectProperty<>(this, "icon" );
+		name = new SimpleStringProperty( this, "name" );
+		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
 
 		workpane = new Workpane();
@@ -58,6 +58,10 @@ public class Workarea implements WritableIdentity {
 
 	public final ObjectProperty<Node> iconProperty() {
 		return icon;
+	}
+
+	public final Node getIcon() {
+		return icon.get();
 	}
 
 	public final void setIcon( Node icon ) {
@@ -80,6 +84,10 @@ public class Workarea implements WritableIdentity {
 		return paint;
 	}
 
+	public final Paint getPaint() {
+		return paint.get();
+	}
+
 	public final void setPaint( Paint paint ) {
 		this.paint.set( paint );
 	}
@@ -93,8 +101,8 @@ public class Workarea implements WritableIdentity {
 	}
 
 	public final void setActive( boolean active ) {
-		workpane.setVisible( active );
 		this.active.set( active );
+		workpane.setVisible( active );
 	}
 
 	public final ObjectProperty<Workspace> workspaceProperty() {

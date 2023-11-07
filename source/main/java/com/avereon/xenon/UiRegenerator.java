@@ -78,7 +78,7 @@ class UiRegenerator {
 
 		try {
 			// Get the restore workspaces setting
-			boolean shouldOpenExisting = Boolean.parseBoolean( program.getSettings().get("workspace-open-existing-on-start", false) );
+			boolean shouldOpenExisting = Boolean.parseBoolean( program.getSettings().get( "workspace-open-existing-on-start", false ) );
 
 			// Restore the workspaces or generate the default workspace
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
@@ -128,7 +128,7 @@ class UiRegenerator {
 		try {
 			getProgram().getAssetManager().openAssetsAndWait( assets, 5, TimeUnit.SECONDS );
 			getProgram().getAssetManager().loadAssets( assets );
-		} catch(InterruptedException exception ) {
+		} catch( InterruptedException exception ) {
 			log.atWarn( exception ).log();
 			Thread.currentThread().interrupt();
 		} catch( Exception exception ) {
@@ -143,7 +143,7 @@ class UiRegenerator {
 
 		// Create the default workarea
 		Workarea workarea = factory.newWorkarea();
-		workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
+		//workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 		workarea.setName( "Default" );
 		workspace.setActiveWorkarea( workarea );
 

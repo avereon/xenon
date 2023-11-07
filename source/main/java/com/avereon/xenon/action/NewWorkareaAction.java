@@ -48,7 +48,6 @@ public class NewWorkareaAction extends ProgramAction {
 		UiFactory uiFactory = new UiFactory( getProgram() );
 		try {
 			Workarea workarea = uiFactory.newWorkarea();
-			workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 			workarea.setName( name );
 			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
