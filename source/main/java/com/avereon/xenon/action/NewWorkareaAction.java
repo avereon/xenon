@@ -1,9 +1,10 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
@@ -30,9 +31,12 @@ public class NewWorkareaAction extends ProgramAction {
 		Xenon program = getProgram();
 
 		TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle( Rb.text( "workarea", "workarea-new-title" ) );
-		dialog.setHeaderText( Rb.text( "workarea", "workarea-new-message" ) );
-		dialog.setContentText( Rb.text( "workarea", "workarea-new-prompt" ) );
+		dialog.setTitle( Rb.text( RbKey.WORKAREA, "workarea-new-title" ) );
+		dialog.setHeaderText( Rb.text( RbKey.WORKAREA, "workarea-new-message" ) );
+		dialog.setContentText( Rb.text( RbKey.WORKAREA, "workarea-new-prompt" ) );
+
+		// TODO Allow the user to select or specify an icon
+		// TODO Allow the user to select a color
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );
@@ -44,8 +48,8 @@ public class NewWorkareaAction extends ProgramAction {
 		UiFactory uiFactory = new UiFactory( getProgram() );
 		try {
 			Workarea workarea = uiFactory.newWorkarea();
+			workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 			workarea.setName( name );
-			workarea.setIcon( getProgram().getIconLibrary().getIcon( "broken" ) );
 			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
 			log.atError().withCause(exception).log( "Error creating new workarea: %s", name );

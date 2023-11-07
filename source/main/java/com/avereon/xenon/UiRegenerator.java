@@ -67,14 +67,6 @@ class UiRegenerator {
 		return program;
 	}
 
-	//	int getUiObjectCount() {
-	//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
-	//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
-	//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
-	//		int t = getSettingsFiles( Prefix.WORKTOOL ).length;
-	//		return Math.max( 2, s + a + p + t );
-	//	}
-
 	int getToolCount() {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
@@ -136,6 +128,9 @@ class UiRegenerator {
 		try {
 			getProgram().getAssetManager().openAssetsAndWait( assets, 5, TimeUnit.SECONDS );
 			getProgram().getAssetManager().loadAssets( assets );
+		} catch(InterruptedException exception ) {
+			log.atWarn( exception ).log();
+			Thread.currentThread().interrupt();
 		} catch( Exception exception ) {
 			log.atError( exception ).log();
 		}
@@ -148,8 +143,8 @@ class UiRegenerator {
 
 		// Create the default workarea
 		Workarea workarea = factory.newWorkarea();
+		workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 		workarea.setName( "Default" );
-		workarea.setIcon( getProgram().getIconLibrary().getIcon( "broken" ) );
 		workspace.setActiveWorkarea( workarea );
 
 		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
@@ -227,15 +222,11 @@ class UiRegenerator {
 			}
 		}
 
-		//		Set<Workpane> panes = new HashSet<>();
-		//		panes.addAll( workpaneEdges.keySet() );
-		//		panes.addAll( workpaneViews.keySet() );
-
 		// Restore edges and views to workpane
 		for( Workpane pane : panes.values() ) {
-			Set<WorkpaneEdge> edges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
-			Set<WorkpaneView> views = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
-			pane.restoreNodes( edges, views );
+			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
+			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
+			pane.restoreNodes( localEdges, localViews );
 
 			// FIXME Default view has already been overwritten in the settings and is getting lost
 			// Active, default and maximized views
@@ -257,21 +248,19 @@ class UiRegenerator {
 		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
-		switch( edge.getOrientation() ) {
-			case VERTICAL -> {
-				WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
-				WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
-				if( t == null || b == null ) return false;
-				edge.setEdge( Side.TOP, t );
-				edge.setEdge( Side.BOTTOM, b );
-			}
-			case HORIZONTAL -> {
-				WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
-				WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
-				if( l == null || r == null ) return false;
-				edge.setEdge( Side.LEFT, l );
-				edge.setEdge( Side.RIGHT, r );
-			}
+		Orientation orientation = edge.getOrientation();
+		if( Objects.requireNonNull( orientation ) == Orientation.VERTICAL ) {
+			WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
+			WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+			if( t == null || b == null ) return false;
+			edge.setEdge( Side.TOP, t );
+			edge.setEdge( Side.BOTTOM, b );
+		} else if( orientation == Orientation.HORIZONTAL ) {
+			WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
+			WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
+			if( l == null || r == null ) return false;
+			edge.setEdge( Side.LEFT, l );
+			edge.setEdge( Side.RIGHT, r );
 		}
 
 		return true;
@@ -316,21 +305,23 @@ class UiRegenerator {
 	private void linkTools() {
 		ProgramTool activeTool = null;
 
-		for( WorkpaneView view : viewTools.keySet() ) {
+		for( Map.Entry<WorkpaneView, Set<ProgramTool>> entry : viewTools.entrySet() ) {
+			WorkpaneView view = entry.getKey();
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
 
-			List<ProgramTool> tools = new ArrayList<>( viewTools.get( view ) );
+			List<ProgramTool> localTools = new ArrayList<>( entry.getValue() );
 
 			// Sort the tools
-			tools.sort( new ToolOrderComparator() );
+			localTools.sort( new ToolOrderComparator() );
 
 			// Add the tools to the view
-			for( ProgramTool tool : tools ) {
+			for( ProgramTool tool : localTools ) {
 				pane.addTool( tool, view, false );
 
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
-				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
+				boolean isActive = settings.get( "active", Boolean.class, false );
+				if( isActive ) activeTool = tool;
 
 				log.atDebug().log( "Tool restored: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
 			}

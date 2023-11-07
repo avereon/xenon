@@ -12,6 +12,7 @@ import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Paint;
 import lombok.CustomLog;
 
 import java.net.URI;
@@ -26,6 +27,8 @@ public class Workarea implements WritableIdentity {
 
 	private final StringProperty name;
 
+	private final ObjectProperty<Paint> paint;
+
 	private final BooleanProperty active;
 
 	private final ObjectProperty<Workspace> workspace;
@@ -38,6 +41,7 @@ public class Workarea implements WritableIdentity {
 
 	public Workarea() {
 		icon = new SimpleObjectProperty<>(this, "icon", null );
+		paint = new SimpleObjectProperty<>(this, "paint", null );
 		name = new SimpleStringProperty( this, "name", "" );
 		active = new SimpleBooleanProperty( this, "active", false );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
@@ -70,6 +74,14 @@ public class Workarea implements WritableIdentity {
 
 	public final void setName( String name ) {
 		this.name.set( name );
+	}
+
+	public final ObjectProperty<Paint> paintProperty() {
+		return paint;
+	}
+
+	public final void setPaint( Paint paint ) {
+		this.paint.set( paint );
 	}
 
 	public final BooleanProperty activeProperty() {
