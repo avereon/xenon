@@ -845,13 +845,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
 			if( item == null || empty ) {
-				backgroundProperty().unbind();
+				//backgroundProperty().unbind();
 				graphicProperty().unbind();
 				textProperty().unbind();
 			} else {
 				// Setting the style here overrides the normal behavior
 				//setStyle( "-fx-background-color: green;" );
-				backgroundProperty().bind( item.paintProperty().map( p -> new Background( new BackgroundFill( p, CornerRadii.EMPTY, Insets.EMPTY ) ) ) );
+				//backgroundProperty().bind( item.paintProperty().map( p -> new Background( new BackgroundFill( p, CornerRadii.EMPTY, Insets.EMPTY ) ) ) );
 				graphicProperty().bind( item.iconProperty() );
 				textProperty().bind( item.nameProperty() );
 			}
