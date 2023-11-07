@@ -141,6 +141,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private ComboBox<Workarea> workareaSelector;
 
+	private ComboBox<WorkareaSelectorItem> newWorkareaSelector;
+
 	private Workarea activeWorkarea;
 
 	private MemoryMonitor memoryMonitor;
@@ -185,6 +187,9 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		workareaSelector = createWorkareaSelector();
 		Pane toolPane = createToolPane( program, workareaSelector );
+
+		// TODO Need a flexible model for this combobox
+		newWorkareaSelector = new ComboBox<>();
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -660,7 +665,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		scene = new Scene( railPane, w, h, Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
-		// Setup the stage
+		// Set up the stage
 		setScene( scene );
 		sizeToScene();
 
