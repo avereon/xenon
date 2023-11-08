@@ -10,7 +10,6 @@ import com.avereon.xenon.workpane.*;
 import com.avereon.zarra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Paint;
 import lombok.CustomLog;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class Workarea implements WritableIdentity {
 
-	private final ObjectProperty<Node> icon;
+	private final StringProperty icon;
 
 	private final StringProperty name;
 
@@ -41,7 +40,7 @@ public class Workarea implements WritableIdentity {
 
 	public Workarea() {
 		paint = new SimpleObjectProperty<>(this, "paint" );
-		icon = new SimpleObjectProperty<>(this, "icon" );
+		icon = new SimpleStringProperty(this, "icon" );
 		name = new SimpleStringProperty( this, "name" );
 		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
@@ -56,15 +55,15 @@ public class Workarea implements WritableIdentity {
 		workpane.setOnToolDrop( new DropHandler( this ) );
 	}
 
-	public final ObjectProperty<Node> iconProperty() {
+	public final StringProperty iconProperty() {
 		return icon;
 	}
 
-	public final Node getIcon() {
+	public final String getIcon() {
 		return icon.get();
 	}
 
-	public final void setIcon( Node icon ) {
+	public final void setIcon( String icon ) {
 		this.icon.set( icon );
 	}
 

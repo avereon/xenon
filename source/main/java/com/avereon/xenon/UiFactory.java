@@ -67,7 +67,7 @@ public class UiFactory {
 		Workarea workarea = new Workarea();
 		workarea.setUid( id );
 		workarea.setPaint( paint );
-		workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
+		workarea.setIcon( "workarea" );
 		setupWorkareaSettings( workarea );
 
 		Workpane workpane = workarea.getWorkpane();

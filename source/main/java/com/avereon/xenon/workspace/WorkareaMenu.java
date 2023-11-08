@@ -28,7 +28,7 @@ public class WorkareaMenu extends MenuBar {
 				menu.textProperty().unbind();
 			} else {
 				// FIXME This steals the icon from the node that has it
-				menu.graphicProperty().bind( n.iconProperty() );
+				menu.graphicProperty().bind( n.iconProperty().map(i -> program.getIconLibrary().getIcon( i )) );
 				menu.textProperty().bind( n.nameProperty() );
 			}
 		} );

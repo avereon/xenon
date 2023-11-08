@@ -527,8 +527,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	public void addWorkarea( Workarea workarea ) {
 		Workspace oldWorkspace = workarea.getWorkspace();
 		if( oldWorkspace != null ) oldWorkspace.removeWorkarea( workarea );
-		workareas.add( workarea );
 		workarea.setWorkspace( this );
+		workareas.add( workarea );
 	}
 
 	public void removeWorkarea( Workarea workarea ) {
@@ -861,7 +861,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	}
 
-	public static class WorkareaPropertyCell extends ListCell<Workarea> {
+	public class WorkareaPropertyCell extends ListCell<Workarea> {
 
 		@Override
 		protected void updateItem( Workarea item, boolean empty ) {
@@ -874,7 +874,7 @@ public class Workspace extends Stage implements WritableIdentity {
 				// Setting the style here overrides the normal behavior
 				//setStyle( "-fx-background-color: green;" );
 				//backgroundProperty().bind( item.paintProperty().map( p -> new Background( new BackgroundFill( p, CornerRadii.EMPTY, Insets.EMPTY ) ) ) );
-				graphicProperty().bind( item.iconProperty() );
+				graphicProperty().bind( item.iconProperty().map( i -> getProgram().getIconLibrary().getIcon( i ) ) );
 				textProperty().bind( item.nameProperty() );
 			}
 		}
