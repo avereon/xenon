@@ -228,12 +228,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		rails = new HashSet<>();
 		railPane = buildRailPane( this, workspaceLayout );
 
-		// Bind the stage property to the active workarea name
+		// Bind the stage title property to the active workarea name
 		activeWorkareaProperty.addListener( ( p, o, n ) -> {
 			if( n == null ) {
 				titleProperty().unbind();
 			} else {
-				titleProperty().bind( n.nameProperty() );
+				titleProperty().bind( n.nameProperty().map( v -> v + " - " + program.getCard().getName() ) );
 			}
 		} );
 
