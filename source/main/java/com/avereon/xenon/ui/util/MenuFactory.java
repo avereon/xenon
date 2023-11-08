@@ -6,9 +6,11 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import lombok.CustomLog;
 
 import java.util.List;
 
+@CustomLog
 public class MenuFactory extends NavFactory {
 
 	public static final String SHORTCUT_SEPARATOR = "-";
@@ -17,21 +19,21 @@ public class MenuFactory extends NavFactory {
 
 	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
 
-	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean submenu ) {
+	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean showActionIcon ) {
 		ContextMenu menu = new ContextMenu();
-		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, submenu ) ) );
+		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, showActionIcon ) ) );
 		return menu;
 	}
 
-	public static List<Menu> createMenus( Xenon program, String descriptor, boolean submenu ) {
-		return parseDescriptor( descriptor ).stream().map( t -> createMenu( program, t, submenu ) ).toList();
+	public static List<Menu> createMenus( Xenon program, String descriptor, boolean showActionIcon ) {
+		return parseDescriptor( descriptor ).stream().map( t -> createMenu( program, t, showActionIcon ) ).toList();
 	}
 
-	public static Menu createMenu( Xenon program, String descriptor, boolean submenu ) {
-		return createMenu( program, parseDescriptor( descriptor ).get( 0 ), submenu );
+	public static Menu createMenu( Xenon program, String descriptor, boolean showActionIcon ) {
+		return createMenu( program, parseDescriptor( descriptor ).get( 0 ), showActionIcon );
 	}
 
-	public static Menu createMenu( Xenon program, Token token, boolean submenu ) {
+	public static Menu createMenu( Xenon program, Token token, boolean showActionIcon ) {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
 		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
@@ -41,13 +43,40 @@ public class MenuFactory extends NavFactory {
 		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
 		menu.setText( action.getNameWithMnemonic() );
-		if( submenu ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
 		for( Token child : token.getChildren() ) {
-			menu.getItems().add( createMenuItem( program, child, submenu ) );
+			menu.getItems().add( createMenuItem( program, child, showActionIcon ) );
+		}
+
+		return menu;
+	}
+
+	public static MenuButton createMenuButton( Xenon program, String descriptor, boolean showActionIcon ) {
+		return createMenuButton( program, parseDescriptor( descriptor ).get( 0 ), showActionIcon );
+	}
+
+	public static MenuButton createMenuButton( Xenon program, Token token, boolean showActionIcon ) {
+		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
+
+		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
+
+		MenuButton menu = new MenuButton();
+		menu.setId( MENU_ID_PREFIX + action.getId() );
+		menu.getStyleClass().addAll( MENU_ID_PREFIX + action.getId() );
+		log.atConfig().log("styleclasses=" + menu.getStyleClass() );
+		menu.setMnemonicParsing( true );
+		menu.setText( action.getNameWithMnemonic() );
+		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
+
+		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
+
+		for( Token child : token.getChildren() ) {
+			menu.getItems().add( createMenuItem( program, child, showActionIcon ) );
 		}
 
 		return menu;
@@ -57,7 +86,7 @@ public class MenuFactory extends NavFactory {
 		return createMenuItem( program, new Token( action ), false );
 	}
 
-	private static MenuItem createMenuItem( Xenon program, Token item, boolean submenu ) {
+	private static MenuItem createMenuItem( Xenon program, Token item, boolean showActionIcon ) {
 		if( item.isSeparator() ) {
 			MenuItem separator = new SeparatorMenuItem();
 			separator.setId( "separator" );
@@ -65,7 +94,7 @@ public class MenuFactory extends NavFactory {
 		} else if( item.getChildren().isEmpty() ) {
 			return createMenuItem( program, program.getActionLibrary().getAction( item.getId() ) );
 		} else {
-			return createMenu( program, item, submenu );
+			return createMenu( program, item, showActionIcon );
 		}
 	}
 
@@ -74,9 +103,9 @@ public class MenuFactory extends NavFactory {
 		if( type == null ) type = "normal";
 
 		MenuItem item;
-		//noinspection SwitchStatementWithTooFewBranches
 		switch( type ) {
-			case "checkbox" -> item = new CheckMenuItem();
+			case "check", "checkbox" -> item = new CheckMenuItem();
+			case "radio" -> item = new RadioMenuItem();
 			default -> item = new MenuItem();
 		}
 

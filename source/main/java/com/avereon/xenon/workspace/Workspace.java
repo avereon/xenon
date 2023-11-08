@@ -68,7 +68,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	 */
 	private static final boolean COMPACT_MENU = true;
 
-	public static final String TOOL_BAR = "tool-bar";
+	public static final String ACTION_BAR = "action-bar";
 
 	private static final boolean TRANSPARENT_WINDOW_SUPPORTED = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
 
@@ -260,26 +260,32 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createToolPane( Xenon program ) {
+		// The workarea menu
+		Node workareaMenu = createWorkareaMenu( program );
+
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
+		leftToolBar.getItems().add( workareaMenu );
 
-		// The workarea menu
-		MenuBar workareaMenu = createWorkareaMenu( program );
-		Pane workareaMenuPane = new BorderPane( workareaMenu );
-		workareaMenuPane.getStyleClass().add( TOOL_BAR );
-
-		// The empty space used to move the window around the screen
-		Pane centerBox = new Pane();
-		centerBox.getStyleClass().add( TOOL_BAR );
-		new StageMover( centerBox );
+		// The stage mover
+		Pane stageMover = new Pane();
+		stageMover.getStyleClass().add( "stage-mover" );
+		HBox.setHgrow( stageMover, Priority.ALWAYS );
+		new StageMover( stageMover );
 
 		// The right toolbar options
 		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
-		HBox leftBox = new HBox( leftToolBar, workareaMenuPane );
+		// The boxes
+		HBox leftBox = new HBox( leftToolBar );
+		HBox centerBox = new HBox( stageMover );
 		HBox rightBox = new HBox( rightToolBar );
 
-		return new BorderPane( centerBox, null, rightBox, null, leftBox );
+		// The tool pane
+		Pane toolPane = new BorderPane( centerBox, null, rightBox, null, leftBox );
+		toolPane.getStyleClass().add( ACTION_BAR );
+
+		return toolPane;
 	}
 
 	private static VBox createNoticeBox() {
@@ -362,8 +368,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		return noticeButton;
 	}
 
-	private MenuBar createWorkareaMenu( Xenon program ) {
-		return new WorkareaMenu( program, this );
+	private Node createWorkareaMenu( Xenon program ) {
+		return WorkareaMenu.createWorkareaMenu( program, this );
 	}
 
 	private StatusBar createStatusBar( Xenon program ) {

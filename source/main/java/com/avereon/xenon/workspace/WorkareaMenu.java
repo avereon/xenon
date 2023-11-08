@@ -3,23 +3,20 @@ package com.avereon.xenon.workspace;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ui.util.MenuFactory;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import lombok.CustomLog;
 
 @CustomLog
-public class WorkareaMenu extends MenuBar {
+public class WorkareaMenu {
 
-	private final Menu menu;
+	public static MenuButton createWorkareaMenu(Xenon program, Workspace workspace) {
+		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
 
-	private final SeparatorMenuItem workareaSeparator;
-
-	public WorkareaMenu( Xenon program, Workspace workspace ) {
-		getStyleClass().addAll( "workarea-menu-bar" );
-		menu = MenuFactory.createMenu( program, "workarea", true );
-		getMenus().add( menu );
+		//menu.getStyleClass().addAll( "workarea-menu-bar" );
+		//menu = MenuFactory.createMenu( program, "workarea", false );
+		//getItems().add( menu );
 
 		// Link the active workarea property to the menu
 		workspace.activeWorkareaProperty().addListener( ( p, o, n ) -> {
@@ -27,7 +24,6 @@ public class WorkareaMenu extends MenuBar {
 				menu.graphicProperty().unbind();
 				menu.textProperty().unbind();
 			} else {
-				// FIXME This steals the icon from the node that has it
 				menu.graphicProperty().bind( n.iconProperty().map(i -> program.getIconLibrary().getIcon( i )) );
 				menu.textProperty().bind( n.nameProperty() );
 			}
@@ -37,7 +33,7 @@ public class WorkareaMenu extends MenuBar {
 		MenuItem create = MenuFactory.createMenuItem( program, "workarea-new" );
 		MenuItem rename = MenuFactory.createMenuItem( program, "workarea-rename" );
 		MenuItem close = MenuFactory.createMenuItem( program, "workarea-close" );
-		workareaSeparator = new SeparatorMenuItem();
+		SeparatorMenuItem workareaSeparator = new SeparatorMenuItem();
 
 		// Add the workarea action menu items
 		menu.getItems().addAll( create, rename, close, workareaSeparator );
@@ -54,6 +50,7 @@ public class WorkareaMenu extends MenuBar {
 			menu.getItems().addAll( c.getList().stream().map( WorkareaMenuItem::new ).toList() );
 		});
 
+		return menu;
 	}
 
 }

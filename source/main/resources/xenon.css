@@ -81,6 +81,15 @@ Derived from modena.css
 	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
 }
 
+.action-bar {
+	-fx-padding: 0em;
+}
+
+.action-bar .stage-mover {
+	-fx-background-color: transparent;
+	-fx-pref-height: 1em;
+}
+
 .tool-bar {
 	-fx-background-color: -ex-background-tool;
 }
@@ -88,11 +97,20 @@ Derived from modena.css
 .tool-bar .button {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
-	-fx-background-radius: 0;
-	-fx-padding: 0.333333em 0.41777em 0.333333em 0.41777em;  /* 4 5 4 5 */
+	-fx-background-radius: 2;
+	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
 }
 
 .tool-bar .button:hover {
+	-fx-background-color: -fx-selection-bar;
+}
+
+.tool-bar .menu-button {
+	-fx-background-color: transparent;
+	-fx-background-radius: 2;
+}
+
+.tool-bar .menu-button:hover {
 	-fx-background-color: -fx-selection-bar;
 }
 
@@ -104,14 +122,14 @@ Derived from modena.css
 	-fx-primary: -fx-accent;
 }
 
-.menu-item:hover > .graphic-container > .xe-icon,
-.menu-item:focused > .graphic-container > .xe-icon {
+.tool-bar .button:hover .xe-icon,
+/*.tool-bar .menu-button:hover .xe-icon,*/
+.tool-bar .menu-item:hover .xe-icon,
+.tool-bar .menu-item:focused .xe-icon
+{
 	-fx-stroke: -fx-focused-text-base-color;
 }
 
-.tool-bar .button:hover > .xe-icon {
-	-fx-stroke: -fx-focused-text-base-color;
-}
 
 /*******************************************************************************
  * Splash Screen
@@ -280,6 +298,10 @@ Derived from modena.css
 	-fx-background-color: transparent;
 	-fx-padding: 0;
 	-fx-border: none;
+}
+
+.workarea-menu-item .label {
+	-fx-background-color: blue;
 }
 
 /*******************************************************************************
