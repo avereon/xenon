@@ -11,6 +11,7 @@ import com.avereon.zarra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class Workarea implements WritableIdentity {
 	// private ToolBar extraToolBarItems
 
 	public Workarea() {
-		paint = new SimpleObjectProperty<>(this, "paint" );
+		paint = new SimpleObjectProperty<>(this, "paint", Color.BLUEVIOLET );
 		icon = new SimpleStringProperty(this, "icon" );
 		name = new SimpleStringProperty( this, "name" );
 		active = new SimpleBooleanProperty( this, "active" );

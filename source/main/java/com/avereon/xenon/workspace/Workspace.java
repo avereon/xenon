@@ -22,14 +22,10 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -43,6 +39,7 @@ import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -73,7 +70,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String TOOL_BAR = "tool-bar";
 
-	private static final boolean transparentWindow = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
+	private static final boolean TRANSPARENT_WINDOW_SUPPORTED = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
 
 	public static final String NORMALIZE = "normalize";
 
@@ -81,12 +78,15 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String NOTICE = "notice";
 
+	@Getter
 	private final Xenon program;
 
 	private Scene scene;
 
+	@Getter
 	private boolean active;
 
+	@Getter
 	private final FxEventHub eventBus;
 
 	private final BorderPane workspaceLayout;
@@ -119,6 +119,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	// the workspace menu.
 	private final Region toolbarToolEnd;
 
+	@Getter
 	private final StatusBar statusBar;
 
 	private final WorkspaceBackground background;
@@ -128,8 +129,6 @@ public class Workspace extends Stage implements WritableIdentity {
 	private final VBox noticeBox;
 
 	private final ObservableList<Workarea> workareas;
-
-	private final WorkareaNameWatcher workareaNameWatcher;
 
 	private final BackgroundSettingsHandler backgroundSettingsHandler;
 
@@ -143,13 +142,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final ToggleMaximizeAction toggleMaximizeAction;
 
-	private SimpleObjectProperty<Workarea> activeWorkareaProperty;
-
-	@Deprecated( forRemoval = true )
-	private ComboBox<Workarea> workareaSelector;
-
-	//@Deprecated
-	//private Workarea activeWorkarea;
+	private final SimpleObjectProperty<Workarea> activeWorkareaProperty;
 
 	private MemoryMonitor memoryMonitor;
 
@@ -158,8 +151,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	private FpsMonitor fpsMonitor;
 
 	public Workspace( final Xenon program, final String id ) {
-		super( transparentWindow ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
-		if( !transparentWindow ) log.atWarn().log( "Transparent windows not supported" );
+		super( TRANSPARENT_WINDOW_SUPPORTED ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
+		if( !TRANSPARENT_WINDOW_SUPPORTED ) log.atWarn().log( "Transparent windows not supported" );
 
 		this.program = program;
 		this.eventBus = new FxEventHub();
@@ -178,7 +171,6 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		activeWorkareaProperty = new SimpleObjectProperty<>();
 		workareas = FXCollections.observableArrayList();
-		workareaNameWatcher = new WorkareaNameWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
@@ -192,8 +184,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		workareaSelector = createWorkareaSelector();
-		Pane toolPane = createToolPane( program, workareaSelector );
+		Pane toolPane = createToolPane( program );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -218,9 +209,12 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		Pane workspaceStack = new StackPane( workpaneContainer, noticePane );
 
+		// Create the workspace layout pane
 		workspaceLayout = new BorderPane();
 		workspaceLayout.getStyleClass().add( "workspace" );
 		workspaceLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
+
+		// Set the workspace layout components
 		workspaceLayout.setTop( toolPane );
 		workspaceLayout.setCenter( workspaceStack );
 		workspaceLayout.setBottom( statusPane );
@@ -233,7 +227,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			if( n == null ) {
 				titleProperty().unbind();
 			} else {
-				titleProperty().bind( n.nameProperty().map( v -> v + " - " + program.getCard().getName() ) );
+				titleProperty().bind( n.nameProperty().map( this::calcStageTitle ) );
 			}
 		} );
 
@@ -265,14 +259,11 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
-	private Pane createToolPane( Xenon program, Node workareaSelector ) {
+	private Pane createToolPane( Xenon program ) {
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
 
-		// The workarea selector
-		// FIXME Consolidate the workarea selector and actions
-		Pane workareaSelectorPane = new BorderPane( workareaSelector );
-		workareaSelectorPane.getStyleClass().add( TOOL_BAR );
+		// The workarea menu
 		MenuBar workareaMenu = createWorkareaMenu( program );
 		Pane workareaMenuPane = new BorderPane( workareaMenu );
 		workareaMenuPane.getStyleClass().add( TOOL_BAR );
@@ -285,7 +276,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		// The right toolbar options
 		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
-		HBox leftBox = new HBox( leftToolBar, workareaSelectorPane, workareaMenuPane );
+		HBox leftBox = new HBox( leftToolBar, workareaMenuPane );
 		HBox rightBox = new HBox( rightToolBar );
 
 		return new BorderPane( centerBox, null, rightBox, null, leftBox );
@@ -306,10 +297,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		scene.getStylesheets().clear();
 		scene.getStylesheets().add( Xenon.STYLESHEET );
 		if( url != null ) scene.getStylesheets().add( url );
-	}
-
-	public FxEventHub getEventBus() {
-		return eventBus;
 	}
 
 	private MenuBar createProgramMenuBar( Xenon program ) {
@@ -341,7 +328,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
-		int index = menus.stream().filter( ( item ) -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
+		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
 		if( index >= 0 ) menus.add( index, generateDevMenu( program ) );
 	}
 
@@ -364,68 +351,19 @@ public class Workspace extends Stage implements WritableIdentity {
 		return toolbar;
 	}
 
-	@Deprecated( since = "1.7", forRemoval = true )
-	private HBox getWorkareaTools() {
-		HBox box = new HBox();
-		box.setAlignment( Pos.CENTER_RIGHT );
-		box.getStyleClass().addAll( "menu-bar" );
-
-		return box;
-	}
-
-	private HBox createToolbarRightArea() {
-		HBox box = new HBox();
-		box.getStyleClass().addAll( TOOL_BAR );
-		box.setPadding( Insets.EMPTY );
-
-		// Add the workarea menu and selector
-		workareaSelector = createWorkareaSelector();
-		box.getChildren().add( createWorkareaMenu( program ) );
-		box.getChildren().add( workareaSelector );
-
-		// Add the notice button
-		box.getChildren().add( ToolBarFactory.createPad() );
-		box.getChildren().add( createNoticeToolbarButton() );
-
-		return box;
-	}
-
-	private void addProgramTools( ToolBar toolbar ) {
-		// Add the workarea menu and selector
-		toolbar.getItems().add( createWorkareaMenu( program ) );
-		toolbar.getItems().add( workareaSelector = createWorkareaSelector() );
-
-		// Add the notice button
-		toolbar.getItems().add( ToolBarFactory.createPad() );
-		toolbar.getItems().add( createNoticeToolbarButton() );
-	}
-
 	private Button createNoticeToolbarButton() {
 		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
 			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
-			Fx.run( () -> {
-				program.getActionLibrary().getAction( NOTICE ).setIcon( icon );
-				//noticeButton.setText( String.valueOf( count ) );
-				//program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
-			} );
+			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
 		} );
 		return noticeButton;
 	}
 
 	private MenuBar createWorkareaMenu( Xenon program ) {
 		return new WorkareaMenu( program, this );
-	}
-
-	private ComboBox<Workarea> createWorkareaSelector() {
-		ComboBox<Workarea> selector = new ComboBox<>();
-		selector.setItems( workareas );
-		selector.setButtonCell( new WorkareaPropertyCell() );
-		selector.setCellFactory( l -> new WorkareaPropertyCell() );
-		selector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
-		return selector;
 	}
 
 	private StatusBar createStatusBar( Xenon program ) {
@@ -441,7 +379,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		fpsMonitor = new FpsMonitor();
 
 		// If the memory monitor is clicked then call the garbage collector
-		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
+		memoryMonitor.setOnMouseClicked( e -> System.gc() );
 
 		statusBar.addRightItems( memoryMonitor.getMonitorGroup() );
 		statusBar.addRightItems( taskMonitor.getMonitorGroup() );
@@ -458,7 +396,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		pullMenuActions();
 		descriptor = "tool[" + descriptor + "]";
 		int index = verticalProgramMenu.getItems().indexOf( programMenuToolEnd );
-		//programMenu.getItems().add( index++, programMenuToolStart );
 		verticalProgramMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
 	}
 
@@ -490,14 +427,6 @@ public class Workspace extends Stage implements WritableIdentity {
 			toolbar.getItems().remove( index );
 			node = toolbar.getItems().get( index );
 		}
-	}
-
-	public Xenon getProgram() {
-		return program;
-	}
-
-	public boolean isActive() {
-		return active;
 	}
 
 	public void setActive( boolean active ) {
@@ -568,10 +497,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		// Disconnect the old active workarea
 		Workarea activeWorkarea = activeWorkareaProperty.get();
 		if( activeWorkarea != null ) {
-			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
-			// TODO Remove the program menu
-			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( false );
 		}
@@ -587,10 +513,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( true );
-			// TODO Set the program menu
-			// TODO Set the tool bar
 			activeWorkarea.setActive( true );
-			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
 			Tool activeTool = activeWorkarea.getWorkpane().getActiveTool();
 			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
 		}
@@ -626,11 +549,11 @@ public class Workspace extends Stage implements WritableIdentity {
 			event.consume();
 		} );
 
-		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
+		pane.getCloseButton().setOnMouseClicked( e -> {
 			getProgram().getNoticeManager().readNotice( notice );
 			noticeBox.getChildren().remove( pane );
 			if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
-			event.consume();
+			e.consume();
 		} );
 
 		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
@@ -651,10 +574,6 @@ public class Workspace extends Stage implements WritableIdentity {
 	public void hideNotices() {
 		noticeBox.getChildren().clear();
 		noticeBox.setVisible( false );
-	}
-
-	public StatusBar getStatusBar() {
-		return statusBar;
 	}
 
 	@Override
@@ -757,8 +676,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		super.close();
 	}
 
-	private void setStageTitle( String name ) {
-		setTitle( name + " - " + getProgram().getCard().getName() );
+	private String calcStageTitle( String name ) {
+		return name + " - " + getProgram().getCard().getName();
 	}
 
 	private Workarea determineNextActiveWorkarea() {
@@ -848,35 +767,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		@Override
 		public void handle( SettingsEvent event ) {
 			updateFpsMonitorFromSettings( event.getSettings() );
-		}
-
-	}
-
-	private class WorkareaNameWatcher implements ChangeListener<String> {
-
-		@Override
-		public void changed( ObservableValue<? extends String> name, String oldValue, String newValue ) {
-			setStageTitle( newValue );
-		}
-
-	}
-
-	public class WorkareaPropertyCell extends ListCell<Workarea> {
-
-		@Override
-		protected void updateItem( Workarea item, boolean empty ) {
-			super.updateItem( item, empty );
-			if( item == null || empty ) {
-				//backgroundProperty().unbind();
-				graphicProperty().unbind();
-				textProperty().unbind();
-			} else {
-				// Setting the style here overrides the normal behavior
-				//setStyle( "-fx-background-color: green;" );
-				//backgroundProperty().bind( item.paintProperty().map( p -> new Background( new BackgroundFill( p, CornerRadii.EMPTY, Insets.EMPTY ) ) ) );
-				graphicProperty().bind( item.iconProperty().map( i -> getProgram().getIconLibrary().getIcon( i ) ) );
-				textProperty().bind( item.nameProperty() );
-			}
 		}
 
 	}
