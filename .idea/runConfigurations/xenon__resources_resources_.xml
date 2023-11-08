@@ -5,6 +5,7 @@
       <option name="myRunnerSettings" />
       <option name="myRunnerParameters">
         <MavenRunnerParameters>
+          <option name="cmdOptions" />
           <option name="profiles">
             <set />
           </option>
@@ -17,6 +18,9 @@
           <option name="profilesMap">
             <map />
           </option>
+          <option name="projectsCmdOptionValues">
+            <list />
+          </option>
           <option name="resolveToWorkspace" value="false" />
           <option name="workingDirPath" value="$PROJECT_DIR$" />
         </MavenRunnerParameters>
@@ -27,6 +31,8 @@
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../carta/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="resources:resources" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../weave/pom.xml" goal="resources:resources" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../../../../sbc/code/software/perform-station-updater/pom.xml" goal="resources:resources" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../acorn/pom.xml" goal="resources:resources" />
     </method>
   </configuration>
 </component>
