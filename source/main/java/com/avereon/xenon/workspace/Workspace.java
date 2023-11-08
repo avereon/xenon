@@ -20,6 +20,8 @@ import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -76,6 +78,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	public static final String NORMALIZE = "normalize";
 
 	public static final String MAXIMIZE = "maximize";
+
+	public static final String NOTICE = "notice";
 
 	private final Xenon program;
 
@@ -139,11 +143,13 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final ToggleMaximizeAction toggleMaximizeAction;
 
+	private SimpleObjectProperty<Workarea> activeWorkareaProperty;
+
+	@Deprecated( forRemoval = true )
 	private ComboBox<Workarea> workareaSelector;
 
-	private ComboBox<WorkareaSelectorItem> newWorkareaSelector;
-
-	private Workarea activeWorkarea;
+	//@Deprecated
+	//private Workarea activeWorkarea;
 
 	private MemoryMonitor memoryMonitor;
 
@@ -170,6 +176,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		setUid( id );
 
+		activeWorkareaProperty = new SimpleObjectProperty<>();
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
@@ -187,9 +194,6 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		workareaSelector = createWorkareaSelector();
 		Pane toolPane = createToolPane( program, workareaSelector );
-
-		// TODO Need a flexible model for this combobox
-		newWorkareaSelector = new ComboBox<>();
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -224,9 +228,18 @@ public class Workspace extends Stage implements WritableIdentity {
 		rails = new HashSet<>();
 		railPane = buildRailPane( this, workspaceLayout );
 
-		maximizedProperty().addListener( ( v, o, n ) -> {
+		// Bind the stage property to the active workarea name
+		activeWorkareaProperty.addListener( ( p, o, n ) -> {
+			if( n == null ) {
+				titleProperty().unbind();
+			} else {
+				titleProperty().bind( n.nameProperty() );
+			}
+		} );
+
+		maximizedProperty().addListener( ( p, o, n ) -> {
 			// Toggle the maximize/normalize icon
-			String icon = n ? NORMALIZE : MAXIMIZE;
+			String icon = Boolean.TRUE.equals( n ) ? NORMALIZE : MAXIMIZE;
 			getProgram().getActionLibrary().getAction( MAXIMIZE ).setIcon( icon );
 
 			// Toggle the rails
@@ -252,7 +265,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
-	private static Pane createToolPane( Xenon program, Node workareaSelector ) {
+	private Pane createToolPane( Xenon program, Node workareaSelector ) {
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
 
@@ -388,26 +401,22 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Button createNoticeToolbarButton() {
-		Button noticeButton = ToolBarFactory.createToolBarButton( program, "notice" );
+		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
 		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
-			String icon = count == 0 ? "notice" : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
+			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
 			Fx.run( () -> {
-				program.getActionLibrary().getAction( "notice" ).setIcon( icon );
-				//noticeButton.setText( String.valueOf( count ) );program.getNoticeManager().getUnreadNoticeType().getUnreadIcon()
+				program.getActionLibrary().getAction( NOTICE ).setIcon( icon );
+				//noticeButton.setText( String.valueOf( count ) );
+				//program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
 			} );
 		} );
 		return noticeButton;
 	}
 
-	private static MenuBar createWorkareaMenu( Xenon program ) {
-		String descriptor = "workarea[workarea-new|workarea-rename|workarea-close]";
-
-		MenuBar workareaMenuBar = new MenuBar();
-		workareaMenuBar.getMenus().add( MenuFactory.createMenu( program, descriptor, COMPACT_MENU ) );
-		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
-		return workareaMenuBar;
+	private MenuBar createWorkareaMenu( Xenon program ) {
+		return new WorkareaMenu( program, this );
 	}
 
 	private ComboBox<Workarea> createWorkareaSelector() {
@@ -507,6 +516,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		getSettings().set( "active", active );
 	}
 
+	public ObservableList<Workarea> workareasProperty() {
+		return workareas;
+	}
+
 	public Set<Workarea> getWorkareas() {
 		return new HashSet<>( workareas );
 	}
@@ -529,13 +542,17 @@ public class Workspace extends Stage implements WritableIdentity {
 		workarea.setWorkspace( null );
 	}
 
+	public ObjectProperty<Workarea> activeWorkareaProperty() {
+		return activeWorkareaProperty;
+	}
+
 	public Workarea getActiveWorkarea() {
-		if( activeWorkarea == null && workareas.size() == 1 ) setActiveWorkarea( workareas.get( 0 ) );
-		return activeWorkarea;
+		if( activeWorkareaProperty.isNull().get() && workareas.size() == 1 ) setActiveWorkarea( workareas.get( 0 ) );
+		return activeWorkareaProperty.get();
 	}
 
 	public void setActiveWorkarea( Workarea workarea ) {
-		if( activeWorkarea == workarea ) return;
+		if( activeWorkareaProperty.get() == workarea ) return;
 
 		// Get open workspace behavior setting
 		String openWorkspaceIn = getProgram().getSettings().get( "workspace-open-in", "current" );
@@ -549,6 +566,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private void setActiveWorkareaInCurrentWorkspace( Workarea workarea ) {
 		// Disconnect the old active workarea
+		Workarea activeWorkarea = activeWorkareaProperty.get();
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
@@ -562,9 +580,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 		// Set the new active workarea
 		Workarea priorWorkarea = activeWorkarea;
-		activeWorkarea = workarea;
+		activeWorkareaProperty.set( workarea );
 
 		// Connect the new active workarea
+		activeWorkarea = getActiveWorkarea();
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.getWorkpane().setVisible( true );
@@ -572,8 +591,6 @@ public class Workspace extends Stage implements WritableIdentity {
 			// TODO Set the tool bar
 			activeWorkarea.setActive( true );
 			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
-			workareaSelector.getSelectionModel().select( activeWorkarea );
-			setStageTitle( activeWorkarea.getName() );
 			Tool activeTool = activeWorkarea.getWorkpane().getActiveTool();
 			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
 		}

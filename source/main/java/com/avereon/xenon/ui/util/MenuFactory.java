@@ -24,7 +24,7 @@ public class MenuFactory extends NavFactory {
 	}
 
 	public static List<Menu> createMenus( Xenon program, String descriptor, boolean submenu ) {
-		return parseDescriptor( descriptor ).stream().map( t -> createMenu(program,t,submenu) ).toList();
+		return parseDescriptor( descriptor ).stream().map( t -> createMenu( program, t, submenu ) ).toList();
 	}
 
 	public static Menu createMenu( Xenon program, String descriptor, boolean submenu ) {
@@ -51,6 +51,10 @@ public class MenuFactory extends NavFactory {
 		}
 
 		return menu;
+	}
+
+	public static MenuItem createMenuItem( Xenon program, String action ) {
+		return createMenuItem( program, new Token( action ), false );
 	}
 
 	private static MenuItem createMenuItem( Xenon program, Token item, boolean submenu ) {
