@@ -15,9 +15,11 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import lombok.CustomLog;
+import lombok.Getter;
 
+@Getter
 @CustomLog
-public class UiFactory {
+public final class UiFactory {
 
 	public static final double DEFAULT_WIDTH = 960;
 
@@ -51,10 +53,6 @@ public class UiFactory {
 
 	public UiFactory( Xenon program ) {
 		this.program = program;
-	}
-
-	public Xenon getProgram() {
-		return program;
 	}
 
 	public Workarea newWorkarea() {
@@ -128,7 +126,7 @@ public class UiFactory {
 		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
 		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
 		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
-		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)( c ) -> processWorkpaneChildrenChanges( workpane, c ) );
+		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkpaneChildrenChanges( workpane, c ) );
 	}
 
 	private void processWorkpaneChildrenChanges( Workpane workpane, ListChangeListener.Change<? extends Node> change ) {

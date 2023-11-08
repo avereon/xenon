@@ -13,6 +13,7 @@ import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Paint;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.net.URI;
 import java.util.List;
@@ -32,6 +33,7 @@ public class Workarea implements WritableIdentity {
 
 	private final ObjectProperty<Workspace> workspace;
 
+	@Getter
 	private final Workpane workpane;
 
 	// private MenuBar extraMenuBarItems
@@ -128,10 +130,6 @@ public class Workarea implements WritableIdentity {
 		return getWorkspace().getProgram();
 	}
 
-	public Workpane getWorkpane() {
-		return workpane;
-	}
-
 	public Set<Asset> getAssets() {
 		return getWorkpane().getTools().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
 	}
@@ -184,7 +182,7 @@ public class Workarea implements WritableIdentity {
 		}
 
 		@Override
-		public void handleDrop( DropEvent event ) throws Exception {
+		public void handleDrop( DropEvent event ) {
 			TransferMode mode = event.getTransferMode();
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
