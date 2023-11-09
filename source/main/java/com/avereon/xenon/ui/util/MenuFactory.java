@@ -19,6 +19,8 @@ public class MenuFactory extends NavFactory {
 
 	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
 
+	public static final String MENU_BUTTON_ID_PREFIX = "menu-button-";
+
 	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean showActionIcon ) {
 		ContextMenu menu = new ContextMenu();
 		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, showActionIcon ) ) );
@@ -58,15 +60,28 @@ public class MenuFactory extends NavFactory {
 		return createMenuButton( program, parseDescriptor( descriptor ).get( 0 ), showActionIcon );
 	}
 
+	public static MenuButton createMenuButton( Xenon program, Token token ) {
+		return createMenuButton( program, token, true, true );
+
+	}
+
 	public static MenuButton createMenuButton( Xenon program, Token token, boolean showActionIcon ) {
+		return createMenuButton( program, token, showActionIcon, true );
+	}
+
+	public static MenuButton createMenuButton( Xenon program, String descriptor, boolean showActionIcon, boolean showActionText ) {
+		return createMenuButton( program, parseDescriptor( descriptor ).get( 0 ), showActionIcon, showActionText );
+	}
+
+	public static MenuButton createMenuButton( Xenon program, Token token, boolean showActionIcon, boolean showActionText ) {
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
 		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
 
 		MenuButton menu = new MenuButton();
-		menu.setId( MENU_ID_PREFIX + action.getId() );
+		menu.setId( MENU_BUTTON_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
-		menu.setText( action.getNameWithMnemonic() );
+		if( showActionText ) menu.setText( action.getNameWithMnemonic() );
 		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
 

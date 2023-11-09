@@ -81,47 +81,6 @@ Derived from modena.css
 	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
 }
 
-.action-bar {
-	-fx-background-color: -ex-background-tool;
-	-fx-padding: 0em;
-}
-
-.action-bar .stage-mover {
-	-fx-background-color: transparent;
-	-fx-pref-height: 1em;
-	-fx-cursor: move;
-}
-
-.tool-bar {
-	-fx-background-color: transparent;
-}
-
-.tool-bar .button {
-	-fx-background-color: transparent;
-	-fx-background-insets: 0;
-	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
-}
-
-.tool-bar .button:hover {
-	-fx-background-color: -fx-selection-bar;
-}
-
-.tool-bar .workarea-menu {
-	-fx-background-color: transparent;
-}
-
-.tool-bar .workarea-menu:hover {
-	-fx-background-color: -fx-selection-bar;
-}
-
-.tool-bar .workarea-menu:hover > .label {
-	-fx-text-fill: -fx-focused-text-base-color;
-}
-
-.tool-bar .workarea-menu:hover > .arrow-button > .arrow {
-	-fx-background-color: -fx-focused-text-base-color;
-}
-
 /*******************************************************************************
  * Icons
  ******************************************************************************/
@@ -134,7 +93,8 @@ Derived from modena.css
 /* Do not put in .button:focus - 2023-11-09 */
 .action-bar .menu-item:hover > * > .xe-icon,
 .action-bar .menu-item:focused > * > .xe-icon,
-.action-bar .workarea-menu:hover > * > .xe-icon
+.action-bar #menu-button-menu:hover > * > .xe-icon,
+.action-bar #menu-button-workarea:hover > * > .xe-icon
 {
 	-fx-stroke: -fx-focused-text-base-color;
 }
@@ -310,6 +270,78 @@ Derived from modena.css
 
 .workarea-menu-item {
 	/*-fx-background-color: blue;*/
+}
+
+.action-bar {
+	-fx-background-color: -ex-background-tool;
+	-fx-padding: 0em;
+}
+
+.action-bar .tool-bar {
+	-fx-background-color: transparent;
+}
+
+.action-bar .stage-mover {
+	-fx-background-color: transparent;
+	-fx-pref-height: 1em;
+	-fx-cursor: move;
+}
+
+.action-bar .button {
+	-fx-background-color: transparent;
+	-fx-background-insets: 0;
+	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
+}
+
+.action-bar .button:hover {
+	-fx-background-color: -fx-selection-bar;
+}
+
+/* Program menu button */
+#menu-button-menu {
+	/* Remove the normal button background */
+	-fx-background-color: transparent;
+}
+
+#menu-button-menu > .label {
+	/* Change the normal menu button padding */
+	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
+}
+
+#menu-button-menu > .arrow-button {
+	/* Hide the normal menu button arrow button area */
+	-fx-padding: 0;
+}
+
+#menu-button-menu > .arrow-button > .arrow {
+	/* Hide the normal menu button arrow */
+	-fx-shape: null;
+	-fx-padding: 0;
+}
+
+#menu-button-menu:hover {
+	-fx-background-color: -fx-selection-bar; /* works */
+}
+
+#menu-button-menu:hover > .label {
+	-fx-text-fill: -fx-focused-text-base-color; /* works */
+}
+
+/* Workarea menu button */
+#menu-button-workarea {
+	-fx-background-color: transparent;
+}
+
+#menu-button-workarea:hover {
+	-fx-background-color: -fx-selection-bar;
+}
+
+#menu-button-workarea:hover > .label {
+	-fx-text-fill: -fx-focused-text-base-color;
+}
+
+#menu-button-workarea:hover > .arrow-button > .arrow {
+	-fx-background-color: -fx-focused-text-base-color;
 }
 
 /*******************************************************************************

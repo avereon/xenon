@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import lombok.CustomLog;
 
 import java.util.List;
@@ -18,10 +17,10 @@ import java.util.List;
 @CustomLog
 public class StageMover {
 
-	//private boolean skipMouseDragged;
+	private static final double DRAG_DISTANCE_THRESHOLD = 10;
 
 	public StageMover( Node node ) {
-		new StageClickAndDrag( node, this::handleDrag );
+		new StageDragContext( node, this::handleDrag );
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handleClick );
 	}
 
@@ -30,24 +29,22 @@ public class StageMover {
 		if( shouldToggleMaximize ) toggleMaximize( Fx.getStage( event ) );
 	}
 
-	private void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH ) {
-		//if( skipMouseDragged ) return;
+	private void handleDrag( StageDragContext.DragData data ) {
+		Stage stage = (Stage)data.window();
+		double dragThreshold = DRAG_DISTANCE_THRESHOLD * stage.getOutputScaleX();
 
-		Stage stage = Fx.getStage( event );
-		if( stage.isMaximized() ) unMaximize( handler, stage, event );
-		//skipMouseDragged = false;
+		if( stage.isMaximized() && data.dragDistance() > dragThreshold ) unMaximize( data.handler(), stage, data.event() );
 
-		window.setX( windowX );
-		window.setY( windowY );
+		stage.setX( data.windowX() );
+		stage.setY( data.windowY() );
 	}
 
 	private void toggleMaximize( Stage stage ) {
 		boolean isMaximized = !stage.isMaximized();
 		stage.setMaximized( isMaximized );
-		//if( isMaximized ) skipMouseDragged = true;
 	}
 
-	private void unMaximize( StageClickAndDrag handler, Stage stage, MouseEvent event ) {
+	private void unMaximize( StageDragContext handler, Stage stage, MouseEvent event ) {
 		// Get the screen width
 		List<Screen> screens = Screen.getScreensForRectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
 		if( screens.isEmpty() ) return;

@@ -7,7 +7,7 @@ import javafx.stage.Window;
 import lombok.CustomLog;
 
 @CustomLog
-public class StageClickAndDrag {
+public class StageDragContext {
 
 	private double originalX;
 
@@ -37,7 +37,7 @@ public class StageClickAndDrag {
 
 	private final DragHandler dragHandler;
 
-	StageClickAndDrag( Node node, DragHandler dragHandler ) {
+	StageDragContext( Node node, DragHandler dragHandler ) {
 		this.dragHandler = dragHandler;
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handlePressed );
 		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDragged );
@@ -84,12 +84,32 @@ public class StageClickAndDrag {
 		double windowH = originalH + (event.getScreenY() - anchorY);
 
 		Window stage = Fx.getWindow( event );
-		dragHandler.handleDrag( this, event, stage, windowX, windowY, windowW, windowH, windowX2, windowY2 );
+		dragHandler.onDrag( new DragData( this, event, stage, anchorX, anchorY, windowX, windowY, windowW, windowH, windowX2, windowY2 ) );
+	}
+
+	public record DragData(StageDragContext handler,
+												 MouseEvent event,
+												 Window window,
+												 double anchorX,
+												 double anchorY,
+												 double windowX,
+												 double windowY,
+												 double windowW,
+												 double windowH,
+												 double anchorW,
+												 double anchorH) {
+
+		public double dragDistance() {
+			double dx = event.getScreenX() - anchorX;
+			double dy = event.getScreenY() - anchorY;
+			return Math.sqrt( dx * dx + dy * dy );
+		}
+
 	}
 
 	public interface DragHandler {
 
-		void handleDrag( StageClickAndDrag handler, MouseEvent event, Window window, double windowX, double windowY, double windowW, double windowH, double anchorW, double anchorH );
+		void onDrag( DragData data );
 
 	}
 

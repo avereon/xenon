@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -180,7 +181,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
 		programMenuBar = createProgramMenuBar( program );
-		verticalProgramMenu = createProgramMenu( program );
+		verticalProgramMenu = createProgramContextMenu( program );
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
@@ -220,7 +221,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceLayout.setBottom( statusPane );
 
 		rails = new HashSet<>();
-		railPane = buildRailPane( this, workspaceLayout );
+		railPane = buildRailPane( workspaceLayout );
 
 		// Bind the stage title property to the active workarea name
 		activeWorkareaProperty.addListener( ( p, o, n ) -> {
@@ -245,11 +246,11 @@ public class Workspace extends Stage implements WritableIdentity {
 		fpsMonitor.start();
 	}
 
-	private Pane buildRailPane( Stage workspace, Node workspaceLayout ) {
-		Pane t = new WorkspaceRail( workspace, Side.TOP );
-		Pane r = new WorkspaceRail( workspace, Side.RIGHT );
-		Pane b = new WorkspaceRail( workspace, Side.BOTTOM );
-		Pane l = new WorkspaceRail( workspace, Side.LEFT );
+	private Pane buildRailPane( Node workspaceLayout ) {
+		Pane t = new WorkspaceRail( Side.TOP );
+		Pane r = new WorkspaceRail( Side.RIGHT );
+		Pane b = new WorkspaceRail( Side.BOTTOM );
+		Pane l = new WorkspaceRail( Side.LEFT );
 
 		rails.add( t );
 		rails.add( r );
@@ -263,9 +264,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		// The workarea menu
 		Node workareaMenu = createWorkareaMenu( program );
 
+		MenuButton menu = createProgramMenuButton( program );
+
 		// The left toolbar options
-		ToolBar leftToolBar = ToolBarFactory.createToolBar( program, "menu" );
-		leftToolBar.getItems().add( workareaMenu );
+		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
+		leftToolBar.getItems().add( createProgramMenuButton( program ) );
+		leftToolBar.getItems().add( createWorkareaMenu( program ) );
 
 		// The stage mover
 		Pane stageMover = new Pane();
@@ -319,7 +323,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new MenuBar( menus.toArray( new Menu[ 0 ] ) );
 	}
 
-	private ContextMenu createProgramMenu( Xenon program ) {
+	private ContextMenu createProgramContextMenu( Xenon program ) {
 		// Load the menu descriptors
 		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
 		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
@@ -333,12 +337,30 @@ public class Workspace extends Stage implements WritableIdentity {
 		return menu;
 	}
 
+	private MenuButton createProgramMenuButton( Xenon program ) {
+		// Load the menu descriptors
+		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+
+		// Build the program menu
+		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
+
+		// Add the dev menu if using the dev profile
+		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+
+		return menu;
+	}
+
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
 		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
 		if( index >= 0 ) menus.add( index, generateDevMenu( program ) );
 	}
 
 	private void insertDevMenu( Xenon program, ContextMenu menu ) {
+		menu.getItems().add( generateDevMenu( program ) );
+	}
+
+	private void insertDevMenu( Xenon program, MenuButton menu ) {
 		menu.getItems().add( generateDevMenu( program ) );
 	}
 
@@ -369,7 +391,51 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Node createWorkareaMenu( Xenon program ) {
-		return WorkareaMenuFactory.createWorkareaMenu( program, this );
+		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
+		menu.getStyleClass().addAll( "workarea-menu" );
+
+		// Link the active workarea property to the menu
+		activeWorkareaProperty().addListener( ( p, o, n ) -> {
+			if( n == null ) {
+				menu.graphicProperty().unbind();
+				menu.textProperty().unbind();
+			} else {
+				menu.graphicProperty().bind( n.iconProperty().map(i -> program.getIconLibrary().getIcon( i )) );
+				menu.textProperty().bind( n.nameProperty() );
+			}
+		} );
+
+		// Create the workarea action menu items
+		MenuItem create = MenuFactory.createMenuItem( program, "workarea-new" );
+		MenuItem rename = MenuFactory.createMenuItem( program, "workarea-rename" );
+		MenuItem close = MenuFactory.createMenuItem( program, "workarea-close" );
+		SeparatorMenuItem workareaSeparator = new SeparatorMenuItem();
+
+		// Add the workarea action menu items
+		menu.getItems().addAll( create, rename, close, workareaSeparator );
+
+		// Update the workarea menu when the workareas change
+		workareasProperty().addListener( (ListChangeListener<Workarea>)c -> {
+			int startIndex = menu.getItems().indexOf( workareaSeparator );
+			if( startIndex < 0 ) return;
+
+			// Remove existing workarea menu items
+			menu.getItems().remove( startIndex+1, menu.getItems().size() );
+
+			// Update the list of workarea menu items
+			menu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
+		});
+
+		return menu;
+	}
+
+	private MenuItem createWorkareaMenuItem( Workarea workarea ) {
+		MenuItem item  = new MenuItem();
+		item.textProperty().bind( workarea.nameProperty() );
+		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i )));
+		item.getStyleClass().addAll("workarea-menu-item");
+		item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
+		return item;
 	}
 
 	private StatusBar createStatusBar( Xenon program ) {

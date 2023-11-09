@@ -21,6 +21,10 @@ public class ToolBarFactory extends NavFactory {
 
 	public static final String TOOL_ITEM_ID_PREFIX = "toolitem-";
 
+	public static ToolBar createToolBar( Xenon program ) {
+		return createToolBar( program, "" );
+	}
+
 	public static ToolBar createToolBar( Xenon program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
