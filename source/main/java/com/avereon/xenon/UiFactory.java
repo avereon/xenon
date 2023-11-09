@@ -6,6 +6,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEdge;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.xenon.workspace.Workarea;
+import com.avereon.zarra.color.Colors;
 import com.avereon.zarra.color.Paints;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
@@ -49,6 +50,8 @@ public final class UiFactory {
 
 	public static final String PAINT = "paint";
 
+	public static final String COLOR = "color";
+
 	private final Xenon program;
 
 	public UiFactory( Xenon program ) {
@@ -60,7 +63,7 @@ public final class UiFactory {
 	}
 
 	Workarea newWorkarea( String id, boolean restore ) {
-		LinearGradient paint = new LinearGradient( 0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
+		LinearGradient paint = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
 
 		Workarea workarea = new Workarea();
 		workarea.setUid( id );
@@ -79,12 +82,14 @@ public final class UiFactory {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 
 		// Restore state from settings
-		workarea.setPaint( Paints.parse( settings.get( PAINT ) ) );
+		workarea.setPaint( Paints.parse( settings.get( PAINT, Paints.toString( workarea.getPaint() ) ) ) );
+		workarea.setColor( Colors.parse( settings.get( COLOR, Colors.toString( workarea.getColor() ) ) ) );
 		workarea.setName( settings.get( NAME, workarea.getName() ) );
 		workarea.setActive( settings.get( ACTIVE, Boolean.class, workarea.isActive() ) );
 
 		// Save new state to settings
 		settings.set( PAINT, Paints.toString( workarea.getPaint() ) );
+		settings.set( COLOR, Colors.toString( workarea.getColor() ) );
 		settings.set( NAME, workarea.getName() );
 		settings.set( ACTIVE, workarea.isActive() );
 

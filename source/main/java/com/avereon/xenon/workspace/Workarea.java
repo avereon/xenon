@@ -11,8 +11,7 @@ import com.avereon.zarra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
 import lombok.CustomLog;
 import lombok.Getter;
 
@@ -30,6 +29,8 @@ public class Workarea implements WritableIdentity {
 
 	private final ObjectProperty<Paint> paint;
 
+	private final ObjectProperty<Color> color;
+
 	private final BooleanProperty active;
 
 	private final ObjectProperty<Workspace> workspace;
@@ -42,8 +43,11 @@ public class Workarea implements WritableIdentity {
 	// private ToolBar extraToolBarItems
 
 	public Workarea() {
-		paint = new SimpleObjectProperty<>(this, "paint", Color.BLUEVIOLET );
-		icon = new SimpleStringProperty(this, "icon" );
+		LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET ), new Stop( 1, Color.TRANSPARENT ) );
+
+		paint = new SimpleObjectProperty<>( this, "paint", gradient );
+		color = new SimpleObjectProperty<>( this, "color", Color.valueOf( "#206080" ) );
+		icon = new SimpleStringProperty( this, "icon" );
 		name = new SimpleStringProperty( this, "name" );
 		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
@@ -92,6 +96,18 @@ public class Workarea implements WritableIdentity {
 
 	public final void setPaint( Paint paint ) {
 		this.paint.set( paint );
+	}
+
+	public final ObjectProperty<Color> colorProperty() {
+		return color;
+	}
+
+	public final Color getColor() {
+		return color.get();
+	}
+
+	public final void setColor( Color color ) {
+		this.color.set( color );
 	}
 
 	public final BooleanProperty activeProperty() {

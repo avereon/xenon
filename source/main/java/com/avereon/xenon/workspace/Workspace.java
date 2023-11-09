@@ -15,6 +15,7 @@ import com.avereon.xenon.ui.util.MenuFactory;
 import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.zarra.color.Colors;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
@@ -36,6 +37,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -227,8 +231,14 @@ public class Workspace extends Stage implements WritableIdentity {
 		activeWorkareaProperty.addListener( ( p, o, n ) -> {
 			if( n == null ) {
 				titleProperty().unbind();
+				actionBar.backgroundProperty().unbind();
 			} else {
 				titleProperty().bind( n.nameProperty().map( this::calcStageTitle ) );
+				actionBar.backgroundProperty().bind( n.colorProperty().map( c -> {
+					Color mix = Colors.mix( c, Color.TRANSPARENT, 0.6 );
+					LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, mix ), new Stop( 1, Color.TRANSPARENT ) );
+					return Background.fill( gradient );
+				}) );
 			}
 		} );
 
