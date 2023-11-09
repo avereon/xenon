@@ -13,6 +13,7 @@ public class WorkareaMenu {
 
 	public static MenuButton createWorkareaMenu(Xenon program, Workspace workspace) {
 		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
+		menu.getStyleClass().addAll( "workarea-menu" );
 
 		//menu.getStyleClass().addAll( "workarea-menu-bar" );
 		//menu = MenuFactory.createMenu( program, "workarea", false );
@@ -47,10 +48,28 @@ public class WorkareaMenu {
 			menu.getItems().remove( startIndex+1, menu.getItems().size() );
 
 			// Update the list of workarea menu items
-			menu.getItems().addAll( c.getList().stream().map( WorkareaMenuItem::new ).toList() );
+			menu.getItems().addAll( c.getList().stream().map( WorkareaMenu::createWorkareaMenuItem2 ).toList() );
 		});
 
 		return menu;
+	}
+
+	private static WorkareaMenuItem createWorkareaMenuItem( Workarea workarea ) {
+		WorkareaMenuItem item = new WorkareaMenuItem( workarea );
+
+		//item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
+		item.getStyleableNode().setOnMousePressed( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
+
+		return item;
+	}
+
+	private static MenuItem createWorkareaMenuItem2( Workarea workarea ) {
+		MenuItem item  = new MenuItem();
+		item.textProperty().bind( workarea.nameProperty() );
+		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i )));
+		item.getStyleClass().addAll("workarea-menu-item");
+		item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
+		return item;
 	}
 
 }

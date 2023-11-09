@@ -82,6 +82,7 @@ Derived from modena.css
 }
 
 .action-bar {
+	-fx-background-color: -ex-background-tool;
 	-fx-padding: 0em;
 }
 
@@ -91,13 +92,12 @@ Derived from modena.css
 }
 
 .tool-bar {
-	-fx-background-color: -ex-background-tool;
+	-fx-background-color: transparent;
 }
 
 .tool-bar .button {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
-	-fx-background-radius: 2;
 	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
 }
 
@@ -105,13 +105,20 @@ Derived from modena.css
 	-fx-background-color: -fx-selection-bar;
 }
 
-.tool-bar .menu-button {
+.tool-bar .workarea-menu {
 	-fx-background-color: transparent;
-	-fx-background-radius: 2;
 }
 
-.tool-bar .menu-button:hover {
+.tool-bar .workarea-menu:hover {
 	-fx-background-color: -fx-selection-bar;
+}
+
+.tool-bar .workarea-menu:hover > .label {
+	-fx-text-fill: -fx-focused-text-base-color;
+}
+
+.tool-bar .workarea-menu:hover > .arrow-button > .arrow {
+	-fx-background-color: -fx-focused-text-base-color;
 }
 
 /*******************************************************************************
@@ -123,8 +130,8 @@ Derived from modena.css
 }
 
 .tool-bar .button:hover .xe-icon,
-/*.tool-bar .menu-button:hover .xe-icon,*/
 .tool-bar .menu-item:hover .xe-icon,
+.tool-bar .workarea-menu:hover > .label > .xe-icon,
 .tool-bar .menu-item:focused .xe-icon
 {
 	-fx-stroke: -fx-focused-text-base-color;
@@ -300,8 +307,8 @@ Derived from modena.css
 	-fx-border: none;
 }
 
-.workarea-menu-item .label {
-	-fx-background-color: blue;
+.workarea-menu-item {
+	/*-fx-background-color: blue;*/
 }
 
 /*******************************************************************************
