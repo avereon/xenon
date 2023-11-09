@@ -184,7 +184,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		Pane toolPane = createToolPane( program );
+		Pane actionBar = createActionBar( program );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -215,7 +215,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 
 		// Set the workspace layout components
-		workspaceLayout.setTop( toolPane );
+		workspaceLayout.setTop( actionBar );
 		workspaceLayout.setCenter( workspaceStack );
 		workspaceLayout.setBottom( statusPane );
 
@@ -259,7 +259,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
-	private Pane createToolPane( Xenon program ) {
+	private Pane createActionBar( Xenon program ) {
 		// The workarea menu
 		Node workareaMenu = createWorkareaMenu( program );
 
@@ -282,10 +282,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		HBox rightBox = new HBox( rightToolBar );
 
 		// The tool pane
-		Pane toolPane = new BorderPane( centerBox, null, rightBox, null, leftBox );
-		toolPane.getStyleClass().add( ACTION_BAR );
+		Pane actionBar = new BorderPane( centerBox, null, rightBox, null, leftBox );
+		actionBar.getStyleClass().add( ACTION_BAR );
 
-		return toolPane;
+		return actionBar;
 	}
 
 	private static VBox createNoticeBox() {

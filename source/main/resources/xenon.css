@@ -89,6 +89,7 @@ Derived from modena.css
 .action-bar .stage-mover {
 	-fx-background-color: transparent;
 	-fx-pref-height: 1em;
+	-fx-cursor: move;
 }
 
 .tool-bar {
