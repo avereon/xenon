@@ -130,6 +130,7 @@ Derived from modena.css
 }
 
 /* Well, this just wreaks havoc with menu buttons */
+/* I wonder if it is because the menu-items are "under" the toolbar button */
 /*.action-bar .tool-bar .button:hover .xe-icon,*/
 
 .action-bar .workarea-menu:hover > .label > .xe-icon,
