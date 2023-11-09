@@ -271,11 +271,6 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
-		// The workarea menu
-		Node workareaMenu = createWorkareaMenu( program );
-
-		MenuButton menu = createProgramMenuButton( program );
-
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		leftToolBar.getItems().add( createProgramMenuButton( program ) );
