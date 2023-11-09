@@ -129,10 +129,12 @@ Derived from modena.css
 	-fx-primary: -fx-accent;
 }
 
-.tool-bar .button:hover .xe-icon,
-.tool-bar .menu-item:hover .xe-icon,
-.tool-bar .workarea-menu:hover > .label > .xe-icon,
-.tool-bar .menu-item:focused .xe-icon
+/* Well, this just wreaks havoc with menu buttons */
+/*.action-bar .tool-bar .button:hover .xe-icon,*/
+
+.action-bar .workarea-menu:hover > .label > .xe-icon,
+.action-bar .menu-item:hover .xe-icon,
+.action-bar .menu-item:focused .xe-icon
 {
 	-fx-stroke: -fx-focused-text-base-color;
 }
