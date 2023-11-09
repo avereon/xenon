@@ -369,7 +369,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Node createWorkareaMenu( Xenon program ) {
-		return WorkareaMenu.createWorkareaMenu( program, this );
+		return WorkareaMenuFactory.createWorkareaMenu( program, this );
 	}
 
 	private StatusBar createStatusBar( Xenon program ) {
