@@ -9,7 +9,7 @@ import org.testfx.robot.Motion;
 abstract class ProductToolUIT extends BaseToolUIT {
 
 	void openProductTool( FxRobot robot ) throws Exception {
-		robot.clickOn( "#toolitem-menu" );
+		robot.clickOn( MAIN_MENU );
 		robot.clickOn( "#menu-view" );
 		robot.clickOn( "#menuitem-product", Motion.HORIZONTAL_FIRST );
 		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
