@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.weave.ElevatedFlag;
 import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.Weave;
 
 public class Launcher {
 
@@ -15,7 +16,7 @@ public class Launcher {
 		boolean updating = update || callback;
 
 		if( updating ) {
-			new com.avereon.weave.Program().start( commands );
+			new Weave().start( commands );
 		} else {
 			Xenon.doLaunch( commands );
 		}

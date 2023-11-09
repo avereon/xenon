@@ -6,6 +6,7 @@ import com.avereon.log.Log;
 import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
+import com.avereon.weave.Weave;
 import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
@@ -181,7 +182,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
-		includedProducts.add( new com.avereon.weave.Program().getCard() );
+		includedProducts.add( new Weave().getCard() );
 	}
 
 	private Xenon getProgram() {
