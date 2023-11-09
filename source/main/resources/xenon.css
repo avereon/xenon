@@ -129,17 +129,14 @@ Derived from modena.css
 	-fx-primary: -fx-accent;
 }
 
-/* Well, this just wreaks havoc with menu buttons */
-/* I wonder if it is because the menu-items are "under" the toolbar button */
-/*.action-bar .tool-bar .button:hover .xe-icon,*/
-
-.action-bar .workarea-menu:hover > .label > .xe-icon,
-.action-bar .menu-item:hover .xe-icon,
-.action-bar .menu-item:focused .xe-icon
+.action-bar .button:hover > .xe-icon,
+/* Do not put in .button:focus - 2023-11-09 */
+.action-bar .menu-item:hover > * > .xe-icon,
+.action-bar .menu-item:focused > * > .xe-icon,
+.action-bar .workarea-menu:hover > * > .xe-icon
 {
 	-fx-stroke: -fx-focused-text-base-color;
 }
-
 
 /*******************************************************************************
  * Splash Screen

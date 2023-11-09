@@ -40,7 +40,6 @@ public class MenuFactory extends NavFactory {
 
 		Menu menu = new Menu();
 		menu.setId( MENU_ID_PREFIX + action.getId() );
-		menu.getStyleClass().add( MENU_ID_PREFIX + action.getId() );
 		menu.setMnemonicParsing( true );
 		menu.setText( action.getNameWithMnemonic() );
 		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
@@ -66,8 +65,6 @@ public class MenuFactory extends NavFactory {
 
 		MenuButton menu = new MenuButton();
 		menu.setId( MENU_ID_PREFIX + action.getId() );
-		menu.getStyleClass().addAll( MENU_ID_PREFIX + action.getId() );
-		log.atConfig().log("styleclasses=" + menu.getStyleClass() );
 		menu.setMnemonicParsing( true );
 		menu.setText( action.getNameWithMnemonic() );
 		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
