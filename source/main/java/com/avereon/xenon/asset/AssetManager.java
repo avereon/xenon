@@ -625,7 +625,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param assets The assets to open
 	 */
 	public void openAssets( Collection<Asset> assets ) throws AssetException {
-		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) );
+		program.getTaskManager().submit( new OpenAssetTask( removeAlreadyOpenAssets( assets ) ) );
 	}
 
 	/**
@@ -651,7 +651,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void openAssetsAndWait( Collection<Asset> assets, long time, TimeUnit unit ) throws ExecutionException, InterruptedException, TimeoutException {
-		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) ).get( time, unit );
+		program.getTaskManager().submit( new OpenAssetTask( removeAlreadyOpenAssets( assets ) ) ).get( time, unit );
 	}
 
 	/**
@@ -934,7 +934,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return codecs;
 	}
 
-	private Collection<Asset> removeOpenAssets( Collection<Asset> assets ) {
+	private Collection<Asset> removeAlreadyOpenAssets( Collection<Asset> assets ) {
 		Collection<Asset> filteredAssets = new ArrayList<>( assets );
 		for( Asset asset : openAssets ) {
 			filteredAssets.remove( asset );
@@ -1122,6 +1122,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doLoadAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
+
 		if( !asset.isNew() && !asset.exists() ) {
 			log.atWarn().log("Asset not found: " + asset );
 			return false;

@@ -12,6 +12,7 @@ import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.fxmisc.undo.UndoManager;
 
 import java.net.URI;
@@ -26,13 +27,12 @@ public class Asset extends Node {
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
-	public static final String SETTINGS_TYPE_KEY = "asset-type";
+	public static final String SETTINGS_TYPE_KEY = "asset-type-key";
 
 	public static final String MEDIA_TYPE_KEY = "asset.media.type";
 
 	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
-	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
 	private static final String TYPE = "type";
 
 	private static final String URI = "uri";
@@ -59,6 +59,7 @@ public class Asset extends Node {
 
 	private final FxEventHub eventHub;
 
+	@Getter
 	private final UndoManager<List<NodeChange>> undoManager;
 
 	private boolean captureUndoChanges;
@@ -163,7 +164,10 @@ public class Asset extends Node {
 	}
 
 	public Scheme getScheme() {
-		return getValue( SCHEME );
+		Scheme scheme = getValue( SCHEME );
+		//if( scheme == null ) log.atWarn().log( "Asset missing scheme: " + this );
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this);
+		return scheme;
 	}
 
 	public void setScheme( Scheme scheme ) {
@@ -210,10 +214,6 @@ public class Asset extends Node {
 		}
 	}
 
-	public UndoManager<List<NodeChange>> getUndoManager() {
-		return undoManager;
-	}
-
 	public boolean isCaptureUndoChanges() {
 		return getValue( NodeChange.CAPTURE_UNDO_CHANGES, NodeChange.DEFAULT_CAPTURE_UNDO_CHANGES );
 	}
@@ -258,7 +258,7 @@ public class Asset extends Node {
 	/**
 	 * @return If the asset is "new"
 	 */
-	public synchronized final boolean isNew() {
+	public final synchronized boolean isNew() {
 		// FIXME The isNew() logic may need improving
 		// This logic is problematic in the case of an asset that has been created
 		// but not yet saved. It can be in a tool, the program restarted and the
@@ -268,19 +268,19 @@ public class Asset extends Node {
 		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 
-	public synchronized final boolean isNewOrModified() {
+	public final synchronized boolean isNewOrModified() {
 		return isNew() || isModified();
 	}
 
-	public synchronized final boolean isSafeToSave() {
+	public final synchronized boolean isSafeToSave() {
 		return isNew() || (isLoaded() && isModified());
 	}
 
-	public synchronized final boolean isOpen() {
+	public final synchronized boolean isOpen() {
 		return open;
 	}
 
-	public synchronized final void open( AssetManager manager ) throws AssetException {
+	public final synchronized void open( AssetManager manager ) throws AssetException {
 		if( isOpen() ) return;
 
 		Scheme scheme = getScheme();
@@ -350,7 +350,11 @@ public class Asset extends Node {
 
 	public boolean exists() throws AssetException {
 		Scheme scheme = getScheme();
-		return scheme != null && scheme.exists( this );
+		boolean exists =  scheme != null && scheme.exists( this );
+
+		log.atConfig().withCause( new Throwable() ).log( "Asset.exists scheme={0} exists={1}", scheme, exists );
+
+		return exists;
 	}
 
 	public boolean delete() throws AssetException {
@@ -363,7 +367,7 @@ public class Asset extends Node {
 	 */
 	public boolean isFolder() throws AssetException {
 		Scheme scheme = getScheme();
-		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking isFolder" );
 		return scheme != null && scheme.isFolder( this );
 	}
 
