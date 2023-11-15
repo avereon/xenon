@@ -350,11 +350,7 @@ public class Asset extends Node {
 
 	public boolean exists() throws AssetException {
 		Scheme scheme = getScheme();
-		boolean exists =  scheme != null && scheme.exists( this );
-
-		log.atConfig().withCause( new Throwable() ).log( "Asset.exists scheme={0} exists={1}", scheme, exists );
-
-		return exists;
+		return scheme != null && scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {
