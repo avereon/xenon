@@ -102,7 +102,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Pane workspaceSelectionContainer;
 
-	private final MenuBar programMenuBar;
+	private final Node programMenuBar;
 
 	private final Node workareaMenu;
 
@@ -188,6 +188,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
+		//programMenuBar = createProgramMenuButtons( program );
 		programMenuBar = createProgramMenuBar( program );
 		verticalProgramMenu = createProgramContextMenu( program );
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
@@ -329,6 +330,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
+		// NOTE MenuItems, including Menus, are not Nodes
 		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
 
 		// Add the dev menu if using the dev profile
@@ -363,6 +365,24 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
 
 		return menu;
+	}
+
+	// NOTE I don't like how this looks or behaves
+	private HBox createProgramMenuButtons( Xenon program ) {
+		// Load the menu descriptors
+		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+
+		// Build the program menu
+		// FIXME Menu buttons look funny
+		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
+
+		// Add the dev menu if using the dev profile
+		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
+
+		HBox box = new HBox();
+		box.getChildren().setAll( buttons );
+		return box;
 	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {

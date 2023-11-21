@@ -8,6 +8,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import lombok.CustomLog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CustomLog
@@ -92,6 +93,35 @@ public class MenuFactory extends NavFactory {
 		}
 
 		return menu;
+	}
+
+	public static List<MenuButton> createMenuButtons( Xenon program, String descriptor, boolean showActionIcon, boolean showActionText ) {
+		return createMenuButtons( program, parseDescriptor( descriptor ), showActionIcon, showActionText );
+	}
+
+	public static List<MenuButton> createMenuButtons( Xenon program, List<Token> tokens, boolean showActionIcon, boolean showActionText ) {
+		//		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
+		//
+		//		if( action == null ) throw new IllegalArgumentException( "No action found for id: " + token.getId() );
+
+		//		MenuButton menu = new MenuButton();
+		//		menu.setId( MENU_BUTTON_ID_PREFIX + action.getId() );
+		//		menu.setMnemonicParsing( true );
+		//		if( showActionText ) menu.setText( action.getNameWithMnemonic() );
+		//		if( showActionIcon ) menu.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		//		//menu.setAccelerator( parseShortcut( action.getShortcut() ) );
+		//
+		//		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
+
+		List<MenuButton> buttons = new ArrayList<>();
+
+		for( Token child :tokens ) {
+			MenuButton button = createMenuButton( program, child, showActionIcon );
+			//button.getStyleClass().addAll("menu-button-menubar");
+			buttons.add( button );
+		}
+
+		return buttons;
 	}
 
 	public static MenuItem createMenuItem( Xenon program, String action ) {

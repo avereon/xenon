@@ -132,9 +132,23 @@ public abstract class NavFactory {
 
 		@Override
 		public boolean equals( Object object ) {
-			if( !(object instanceof Token) ) return false;
-			Token that = (Token)object;
+			if( !(object instanceof Token that) ) return false;
 			return Objects.equals( this.id, that.id );
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder childString = new StringBuilder();
+			if( !children.isEmpty() ) {
+				childString.append( "[" );
+				for( Token child : children ) {
+					boolean first = childString.toString().isBlank();
+					if( !first ) childString.append( ", " );
+					childString.append( child.id );
+				}
+				childString.append( "]" );
+			}
+			return id + childString;
 		}
 	}
 
