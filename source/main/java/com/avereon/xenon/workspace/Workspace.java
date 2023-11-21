@@ -100,7 +100,11 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Set<Pane> rails;
 
+	private final Pane workspaceSelectionContainer;
+
 	private final MenuBar programMenuBar;
+
+	private final Node workareaMenu;
 
 	private final ContextMenu verticalProgramMenu;
 
@@ -189,6 +193,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
+		workareaMenu = createWorkareaMenu( program );
+		workspaceSelectionContainer = new HBox();
 		Pane actionBar = createActionBar( program );
 
 		toolbarToolStart = new Separator();
@@ -238,7 +244,7 @@ public class Workspace extends Stage implements WritableIdentity {
 					Color mix = Colors.mix( c, Color.TRANSPARENT, 0.6 );
 					LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, mix ), new Stop( 1, Color.TRANSPARENT ) );
 					return Background.fill( gradient );
-				}) );
+				} ) );
 			}
 		} );
 
@@ -271,10 +277,13 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
+		workspaceSelectionContainer.getChildren().setAll( workareaMenu );
+
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
-		leftToolBar.getItems().add( createProgramMenuButton( program ) );
-		leftToolBar.getItems().add( createWorkareaMenu( program ) );
+		//leftToolBar.getItems().add( createProgramMenuButton( program ) );
+		leftToolBar.getItems().add( ToolBarFactory.createToolBarButton( program, "menu" ));
+		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
 		Pane stageMover = new Pane();
@@ -316,7 +325,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private MenuBar createProgramMenuBar( Xenon program ) {
 		// Load the menu descriptors
-		String defaultDescriptor = program.getSettings().get( "workspace-menubar" );
+		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
 		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
@@ -405,7 +414,7 @@ public class Workspace extends Stage implements WritableIdentity {
 				menu.graphicProperty().unbind();
 				menu.textProperty().unbind();
 			} else {
-				menu.graphicProperty().bind( n.iconProperty().map(i -> program.getIconLibrary().getIcon( i )) );
+				menu.graphicProperty().bind( n.iconProperty().map( i -> program.getIconLibrary().getIcon( i ) ) );
 				menu.textProperty().bind( n.nameProperty() );
 			}
 		} );
@@ -425,20 +434,20 @@ public class Workspace extends Stage implements WritableIdentity {
 			if( startIndex < 0 ) return;
 
 			// Remove existing workarea menu items
-			menu.getItems().remove( startIndex+1, menu.getItems().size() );
+			menu.getItems().remove( startIndex + 1, menu.getItems().size() );
 
 			// Update the list of workarea menu items
 			menu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
-		});
+		} );
 
 		return menu;
 	}
 
 	private MenuItem createWorkareaMenuItem( Workarea workarea ) {
-		MenuItem item  = new MenuItem();
+		MenuItem item = new MenuItem();
 		item.textProperty().bind( workarea.nameProperty() );
-		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i )));
-		item.getStyleClass().addAll("workarea-menu-item");
+		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i ) ) );
+		item.getStyleClass().addAll( "workarea-menu-item" );
 		item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
 		return item;
 	}
@@ -466,7 +475,19 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	public void showProgramMenu( ActionEvent event ) {
-		verticalProgramMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
+		// Option one
+		//verticalProgramMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
+
+		// Option two
+		toggleProgramWorkspace();
+	}
+
+	private void toggleProgramWorkspace() {
+		if( workspaceSelectionContainer.getChildren().get( 0 ) == workareaMenu ) {
+			workspaceSelectionContainer.getChildren().setAll( programMenuBar );
+		} else {
+			workspaceSelectionContainer.getChildren().setAll( workareaMenu );
+		}
 	}
 
 	public void pushMenuActions( String descriptor ) {

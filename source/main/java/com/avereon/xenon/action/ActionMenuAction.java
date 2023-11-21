@@ -6,9 +6,9 @@ import javafx.event.ActionEvent;
 import lombok.CustomLog;
 
 @CustomLog
-public class AppAction extends ProgramAction {
+public class ActionMenuAction extends ProgramAction {
 
-	public AppAction( Xenon program ) {
+	public ActionMenuAction( Xenon program ) {
 		super( program );
 	}
 
