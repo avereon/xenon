@@ -297,6 +297,10 @@ Derived from modena.css
 	-fx-background-color: -fx-selection-bar;
 }
 
+#menu-bar-program {
+	-fx-background-color: green;
+}
+
 /* Program menu button */
 #menu-button-menu {
 	/* Remove the normal button background */

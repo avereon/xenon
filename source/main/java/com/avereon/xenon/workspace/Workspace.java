@@ -28,6 +28,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -106,6 +107,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Node workareaMenu;
 
+	@Deprecated
 	private final ContextMenu verticalProgramMenu;
 
 	// This menu is used to mark the beginning of the space where tools can push
@@ -189,13 +191,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
 		//programMenuBar = createProgramMenuButtons( program );
-		programMenuBar = createProgramMenuBar( program );
 		verticalProgramMenu = createProgramContextMenu( program );
 		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaMenu = createWorkareaMenu( program );
-		workspaceSelectionContainer = new HBox();
+		programMenuBar = createProgramMenuBar( program );
+		workspaceSelectionContainer = new StackPane();
 		Pane actionBar = createActionBar( program );
 
 		toolbarToolStart = new Separator();
@@ -278,12 +280,12 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
-		workspaceSelectionContainer.getChildren().setAll( workareaMenu );
+		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
 
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		//leftToolBar.getItems().add( createProgramMenuButton( program ) );
-		leftToolBar.getItems().add( ToolBarFactory.createToolBarButton( program, "menu" ));
+		leftToolBar.getItems().add( ToolBarFactory.createToolBarButton( program, "menu" ) );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
@@ -336,7 +338,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		// Add the dev menu if using the dev profile
 		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus );
 
-		return new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+		bar.setId( "menu-bar-program" );
+		bar.setVisible( false );
+		StackPane.setAlignment(bar, Pos.CENTER_LEFT);
+
+		return bar;
 	}
 
 	private ContextMenu createProgramContextMenu( Xenon program ) {
@@ -427,6 +434,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	private Node createWorkareaMenu( Xenon program ) {
 		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
 		menu.getStyleClass().addAll( "workarea-menu" );
+		StackPane.setAlignment(menu, Pos.CENTER_LEFT);
 
 		// Link the active workarea property to the menu
 		activeWorkareaProperty().addListener( ( p, o, n ) -> {
@@ -503,11 +511,18 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void toggleProgramWorkspace() {
-		if( workspaceSelectionContainer.getChildren().get( 0 ) == workareaMenu ) {
-			workspaceSelectionContainer.getChildren().setAll( programMenuBar );
+		if( workareaMenu.isVisible() ) {
+			workareaMenu.setVisible( false );
+			programMenuBar.setVisible( true );
 		} else {
-			workspaceSelectionContainer.getChildren().setAll( workareaMenu );
+			programMenuBar.setVisible( false );
+			workareaMenu.setVisible( true );
 		}
+		//		if( workspaceSelectionContainer.getChildren().get( 0 ) == workareaMenu ) {
+		//			workspaceSelectionContainer.getChildren().setAll( programMenuBar );
+		//		} else {
+		//			workspaceSelectionContainer.getChildren().setAll( workareaMenu );
+		//		}
 	}
 
 	public void pushMenuActions( String descriptor ) {
