@@ -286,10 +286,15 @@ public class Workspace extends Stage implements WritableIdentity {
 	private Pane createActionBar( Xenon program ) {
 		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
 
+		// The menu button
+		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
+		menuButton.setId( "menu-button-menu" );
+
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		//leftToolBar.getItems().add( createProgramMenuButton( program ) );
-		leftToolBar.getItems().add( ToolBarFactory.createToolBarButton( program, "menu" ) );
+
+		leftToolBar.getItems().add( menuButton );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
@@ -351,49 +356,49 @@ public class Workspace extends Stage implements WritableIdentity {
 		return bar;
 	}
 
-//	private ContextMenu createProgramContextMenu( Xenon program ) {
-//		// Load the menu descriptors
-//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-//
-//		// Build the program menu
-//		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
-//
-//		// Add the dev menu if using the dev profile
-//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-//
-//		return menu;
-//	}
+	//	private ContextMenu createProgramContextMenu( Xenon program ) {
+	//		// Load the menu descriptors
+	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+	//
+	//		// Build the program menu
+	//		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
+	//
+	//		// Add the dev menu if using the dev profile
+	//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+	//
+	//		return menu;
+	//	}
 
-//	private MenuButton createProgramMenuButton( Xenon program ) {
-//		// Load the menu descriptors
-//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-//
-//		// Build the program menu
-//		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
-//
-//		// Add the dev menu if using the dev profile
-//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-//
-//		return menu;
-//	}
+	//	private MenuButton createProgramMenuButton( Xenon program ) {
+	//		// Load the menu descriptors
+	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+	//
+	//		// Build the program menu
+	//		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
+	//
+	//		// Add the dev menu if using the dev profile
+	//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+	//
+	//		return menu;
+	//	}
 
-//	private HBox createProgramMenuButtons( Xenon program ) {
-//		// Load the menu descriptors
-//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-//
-//		// Build the program menu
-//		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
-//
-//		// Add the dev menu if using the dev profile
-//		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
-//
-//		HBox box = new HBox();
-//		box.getChildren().setAll( buttons );
-//		return box;
-//	}
+	//	private HBox createProgramMenuButtons( Xenon program ) {
+	//		// Load the menu descriptors
+	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+	//
+	//		// Build the program menu
+	//		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
+	//
+	//		// Add the dev menu if using the dev profile
+	//		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
+	//
+	//		HBox box = new HBox();
+	//		box.getChildren().setAll( buttons );
+	//		return box;
+	//	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
 		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
@@ -423,16 +428,16 @@ public class Workspace extends Stage implements WritableIdentity {
 		return toolbar;
 	}
 
-//	private Button createNoticeToolbarButton() {
-//		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
-//		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
-//		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
-//			int count = newValue.intValue();
-//			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
-//			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
-//		} );
-//		return noticeButton;
-//	}
+	//	private Button createNoticeToolbarButton() {
+	//		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
+	//		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
+	//		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
+	//			int count = newValue.intValue();
+	//			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
+	//			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
+	//		} );
+	//		return noticeButton;
+	//	}
 
 	private Node createWorkareaMenu( Xenon program ) {
 		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );

@@ -23,4 +23,10 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		}
 	}
 
+	protected void openMenuItem( String menuId, String menuItemId ) {
+		robot.clickOn( MAIN_MENU );
+		robot.moveTo( menuId );
+		robot.clickOn( menuItemId );
+	}
+
 }
