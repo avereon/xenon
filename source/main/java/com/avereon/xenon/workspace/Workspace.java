@@ -36,6 +36,7 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -103,12 +104,12 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Pane workspaceSelectionContainer;
 
-	private final Node programMenuBar;
+	private final MenuBar programMenuBar;
 
 	private final Node workareaMenu;
 
-	@Deprecated
-	private final ContextMenu verticalProgramMenu;
+	//@Deprecated
+	//private final ContextMenu verticalProgramMenu;
 
 	// This menu is used to mark the beginning of the space where tools can push
 	// their own actions as well as be a standard menu.
@@ -191,14 +192,17 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
 		//programMenuBar = createProgramMenuButtons( program );
-		verticalProgramMenu = createProgramContextMenu( program );
-		programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		//verticalProgramMenu = createProgramContextMenu( program );
+		//programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		//programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaMenu = createWorkareaMenu( program );
 		programMenuBar = createProgramMenuBar( program );
 		workspaceSelectionContainer = new StackPane();
 		Pane actionBar = createActionBar( program );
+
+		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -332,7 +336,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
 
 		// Build the program menu
-		// NOTE MenuItems, including Menus, are not Nodes
 		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
 
 		// Add the dev menu if using the dev profile
@@ -341,56 +344,56 @@ public class Workspace extends Stage implements WritableIdentity {
 		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
 		bar.setId( "menu-bar-program" );
 		bar.setVisible( false );
-		StackPane.setAlignment(bar, Pos.CENTER_LEFT);
+		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
+
+		new ProgramMenuWatcher( bar );
 
 		return bar;
 	}
 
-	private ContextMenu createProgramContextMenu( Xenon program ) {
-		// Load the menu descriptors
-		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+//	private ContextMenu createProgramContextMenu( Xenon program ) {
+//		// Load the menu descriptors
+//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+//
+//		// Build the program menu
+//		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
+//
+//		// Add the dev menu if using the dev profile
+//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+//
+//		return menu;
+//	}
 
-		// Build the program menu
-		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
+//	private MenuButton createProgramMenuButton( Xenon program ) {
+//		// Load the menu descriptors
+//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+//
+//		// Build the program menu
+//		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
+//
+//		// Add the dev menu if using the dev profile
+//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
+//
+//		return menu;
+//	}
 
-		// Add the dev menu if using the dev profile
-		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-
-		return menu;
-	}
-
-	private MenuButton createProgramMenuButton( Xenon program ) {
-		// Load the menu descriptors
-		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-
-		// Build the program menu
-		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
-
-		// Add the dev menu if using the dev profile
-		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-
-		return menu;
-	}
-
-	// NOTE I don't like how this looks or behaves
-	private HBox createProgramMenuButtons( Xenon program ) {
-		// Load the menu descriptors
-		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-
-		// Build the program menu
-		// FIXME Menu buttons look funny
-		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
-
-		// Add the dev menu if using the dev profile
-		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
-
-		HBox box = new HBox();
-		box.getChildren().setAll( buttons );
-		return box;
-	}
+//	private HBox createProgramMenuButtons( Xenon program ) {
+//		// Load the menu descriptors
+//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+//
+//		// Build the program menu
+//		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
+//
+//		// Add the dev menu if using the dev profile
+//		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
+//
+//		HBox box = new HBox();
+//		box.getChildren().setAll( buttons );
+//		return box;
+//	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
 		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
@@ -420,21 +423,21 @@ public class Workspace extends Stage implements WritableIdentity {
 		return toolbar;
 	}
 
-	private Button createNoticeToolbarButton() {
-		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
-		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
-		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
-			int count = newValue.intValue();
-			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
-			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
-		} );
-		return noticeButton;
-	}
+//	private Button createNoticeToolbarButton() {
+//		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
+//		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
+//		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
+//			int count = newValue.intValue();
+//			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
+//			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
+//		} );
+//		return noticeButton;
+//	}
 
 	private Node createWorkareaMenu( Xenon program ) {
 		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
 		menu.getStyleClass().addAll( "workarea-menu" );
-		StackPane.setAlignment(menu, Pos.CENTER_LEFT);
+		StackPane.setAlignment( menu, Pos.CENTER_LEFT );
 
 		// Link the active workarea property to the menu
 		activeWorkareaProperty().addListener( ( p, o, n ) -> {
@@ -502,15 +505,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		return statusBar;
 	}
 
+	@SuppressWarnings( "unused" )
 	public void showProgramMenu( ActionEvent event ) {
-		// Option one
-		//verticalProgramMenu.show( (Node)event.getSource(), Side.BOTTOM, 0, 0 );
-
-		// Option two
-		toggleProgramWorkspace();
+		toggleProgramWorkspaceActions();
 	}
 
-	private void toggleProgramWorkspace() {
+	private void toggleProgramWorkspaceActions() {
 		if( workareaMenu.isVisible() ) {
 			workareaMenu.setVisible( false );
 			programMenuBar.setVisible( true );
@@ -518,29 +518,24 @@ public class Workspace extends Stage implements WritableIdentity {
 			programMenuBar.setVisible( false );
 			workareaMenu.setVisible( true );
 		}
-		//		if( workspaceSelectionContainer.getChildren().get( 0 ) == workareaMenu ) {
-		//			workspaceSelectionContainer.getChildren().setAll( programMenuBar );
-		//		} else {
-		//			workspaceSelectionContainer.getChildren().setAll( workareaMenu );
-		//		}
 	}
 
 	public void pushMenuActions( String descriptor ) {
 		pullMenuActions();
 		descriptor = "tool[" + descriptor + "]";
-		int index = verticalProgramMenu.getItems().indexOf( programMenuToolEnd );
-		verticalProgramMenu.getItems().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
+		int index = programMenuBar.getMenus().indexOf( programMenuToolEnd );
+		programMenuBar.getMenus().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
 	}
 
 	public void pullMenuActions() {
-		int index = verticalProgramMenu.getItems().indexOf( programMenuToolStart );
+		int index = programMenuBar.getMenus().indexOf( programMenuToolStart );
 		if( index < 0 ) return;
 		index++;
 
-		MenuItem node = verticalProgramMenu.getItems().get( index );
+		MenuItem node = programMenuBar.getMenus().get( index );
 		while( node != programMenuToolEnd ) {
-			verticalProgramMenu.getItems().remove( index );
-			node = verticalProgramMenu.getItems().get( index );
+			programMenuBar.getMenus().remove( index );
+			node = programMenuBar.getMenus().get( index );
 		}
 	}
 
@@ -866,6 +861,34 @@ public class Workspace extends Stage implements WritableIdentity {
 		Group container = monitor.getMonitorGroup();
 		container.getChildren().clear();
 		if( enabled ) container.getChildren().add( monitor );
+	}
+
+	private class ProgramMenuWatcher {
+
+		private boolean inMenu;
+
+		ProgramMenuWatcher( MenuBar bar ) {
+			// Watch for enter and exit events to known when the mouse is in the menu bar
+			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenu = true );
+			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenu = false );
+
+			// Open the first menu when the menu bar is made visible
+			bar.visibleProperty().addListener( ( p, o, n ) -> {
+				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
+			} );
+
+			// Trigger when the menus close and not in the menu bar
+			for( Menu menu : bar.getMenus() ) {
+				menu.showingProperty().addListener( ( p, o, n ) -> {
+					if( Boolean.FALSE.equals( n ) && !inMenu ) trigger();
+				} );
+			}
+		}
+
+		public void trigger() {
+			toggleProgramWorkspaceActions();
+		}
+
 	}
 
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {

@@ -298,7 +298,8 @@ Derived from modena.css
 }
 
 #menu-bar-program {
-	-fx-background-color: green;
+	-fx-background-color: transparent;
+	-fx-padding: 0;
 }
 
 /* Program menu button */
