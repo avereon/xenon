@@ -873,14 +873,14 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private class ProgramMenuWatcher {
 
-		private boolean inMenu;
+		private boolean inMenuBar;
 
 		private TimerTask task;
 
 		ProgramMenuWatcher( MenuBar bar ) {
 			// Watch for enter and exit events to known when the mouse is in the menu bar
-			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenu = true );
-			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenu = false );
+			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenuBar = true );
+			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenuBar = false );
 
 			// Open the first menu when the menu bar is made visible
 			bar.visibleProperty().addListener( ( p, o, n ) -> {
