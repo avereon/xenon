@@ -893,6 +893,7 @@ public class Workspace extends Stage implements WritableIdentity {
 					if( Boolean.TRUE.equals( n ) && task != null ) task.cancel();
 
 					if( Boolean.FALSE.equals( n ) ) {
+						// FIXME This solution, while functional, causes problems with the UI tests
 						task = new TimerTask() {
 
 							@Override
@@ -901,9 +902,8 @@ public class Workspace extends Stage implements WritableIdentity {
 							}
 
 						};
-						timer.schedule( task, 20 );
+						timer.schedule( task, 50 );
 					}
-
 				} );
 
 			}
