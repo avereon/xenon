@@ -890,7 +890,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			// Trigger when the menus close and not in the menu bar
 			for( Menu menu : bar.getMenus() ) {
 				menu.showingProperty().addListener( ( p, o, n ) -> {
-					if( Boolean.TRUE.equals( n ) && (task != null) ) task.cancel();
+					if( Boolean.TRUE.equals( n ) && task != null ) task.cancel();
 
 					if( Boolean.FALSE.equals( n ) ) {
 						task = new TimerTask() {
@@ -901,7 +901,7 @@ public class Workspace extends Stage implements WritableIdentity {
 							}
 
 						};
-						timer.schedule( task, 10 );
+						timer.schedule( task, 20 );
 					}
 
 				} );
