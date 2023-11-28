@@ -52,10 +52,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -85,6 +82,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String NOTICE = "notice";
 
+	private static final Timer timer = new Timer( true );
+
 	@Getter
 	private final Xenon program;
 
@@ -104,9 +103,9 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Pane workspaceSelectionContainer;
 
-	private final MenuBar programMenuBar;
-
 	private final Node workareaMenu;
+
+	private final MenuBar programMenuBar;
 
 	//@Deprecated
 	//private final ContextMenu verticalProgramMenu;
@@ -190,11 +189,6 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
-
-		//programMenuBar = createProgramMenuButtons( program );
-		//verticalProgramMenu = createProgramContextMenu( program );
-		//programMenuToolStart = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		//programMenuToolEnd = FxUtil.findMenuItemById( verticalProgramMenu.getItems(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
 		workareaMenu = createWorkareaMenu( program );
 		programMenuBar = createProgramMenuBar( program );
@@ -286,15 +280,15 @@ public class Workspace extends Stage implements WritableIdentity {
 	private Pane createActionBar( Xenon program ) {
 		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
 
-		// The menu button
-		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
-		menuButton.setId( "menu-button-menu" );
+		//		// The menu button
+		//		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
+		//		menuButton.setId( "menu-button-menu" );
 
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		//leftToolBar.getItems().add( createProgramMenuButton( program ) );
 
-		leftToolBar.getItems().add( menuButton );
+		//		leftToolBar.getItems().add( menuButton );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
@@ -344,7 +338,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
 
 		// Add the dev menu if using the dev profile
-		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus );
+		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus );
+		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus.get( menus.size() - 1 ) );
 
 		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
 		bar.setId( "menu-bar-program" );
@@ -405,6 +400,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( index >= 0 ) menus.add( index, generateDevMenu( program ) );
 	}
 
+	private void insertDevMenu( Xenon program, Menu menu ) {
+		menu.getItems().add( generateDevMenu( program ) );
+	}
+
 	private void insertDevMenu( Xenon program, ContextMenu menu ) {
 		menu.getItems().add( generateDevMenu( program ) );
 	}
@@ -440,18 +439,22 @@ public class Workspace extends Stage implements WritableIdentity {
 	//	}
 
 	private Node createWorkareaMenu( Xenon program ) {
-		MenuButton menu = MenuFactory.createMenuButton( program, "workarea", true );
-		menu.getStyleClass().addAll( "workarea-menu" );
-		StackPane.setAlignment( menu, Pos.CENTER_LEFT );
+		// The menu button
+		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
+		menuButton.setId( "menu-button-menu" );
+
+		MenuButton workareaMenu = MenuFactory.createMenuButton( program, "workarea", true );
+		workareaMenu.getStyleClass().addAll( "workarea-menu" );
+		StackPane.setAlignment( workareaMenu, Pos.CENTER_LEFT );
 
 		// Link the active workarea property to the menu
 		activeWorkareaProperty().addListener( ( p, o, n ) -> {
 			if( n == null ) {
-				menu.graphicProperty().unbind();
-				menu.textProperty().unbind();
+				workareaMenu.graphicProperty().unbind();
+				workareaMenu.textProperty().unbind();
 			} else {
-				menu.graphicProperty().bind( n.iconProperty().map( i -> program.getIconLibrary().getIcon( i ) ) );
-				menu.textProperty().bind( n.nameProperty() );
+				workareaMenu.graphicProperty().bind( n.iconProperty().map( i -> program.getIconLibrary().getIcon( i ) ) );
+				workareaMenu.textProperty().bind( n.nameProperty() );
 			}
 		} );
 
@@ -462,21 +465,21 @@ public class Workspace extends Stage implements WritableIdentity {
 		SeparatorMenuItem workareaSeparator = new SeparatorMenuItem();
 
 		// Add the workarea action menu items
-		menu.getItems().addAll( create, rename, close, workareaSeparator );
+		workareaMenu.getItems().addAll( create, rename, close, workareaSeparator );
 
 		// Update the workarea menu when the workareas change
 		workareasProperty().addListener( (ListChangeListener<Workarea>)c -> {
-			int startIndex = menu.getItems().indexOf( workareaSeparator );
+			int startIndex = workareaMenu.getItems().indexOf( workareaSeparator );
 			if( startIndex < 0 ) return;
 
 			// Remove existing workarea menu items
-			menu.getItems().remove( startIndex + 1, menu.getItems().size() );
+			workareaMenu.getItems().remove( startIndex + 1, workareaMenu.getItems().size() );
 
 			// Update the list of workarea menu items
-			menu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
+			workareaMenu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
 		} );
 
-		return menu;
+		return new HBox( menuButton, workareaMenu );
 	}
 
 	private MenuItem createWorkareaMenuItem( Workarea workarea ) {
@@ -872,6 +875,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		private boolean inMenu;
 
+		private TimerTask task;
+
 		ProgramMenuWatcher( MenuBar bar ) {
 			// Watch for enter and exit events to known when the mouse is in the menu bar
 			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenu = true );
@@ -885,13 +890,23 @@ public class Workspace extends Stage implements WritableIdentity {
 			// Trigger when the menus close and not in the menu bar
 			for( Menu menu : bar.getMenus() ) {
 				menu.showingProperty().addListener( ( p, o, n ) -> {
-					if( Boolean.FALSE.equals( n ) && !inMenu ) trigger();
-				} );
-			}
-		}
+					if( Boolean.TRUE.equals( n ) && (task != null) ) task.cancel();
 
-		public void trigger() {
-			toggleProgramWorkspaceActions();
+					if( Boolean.FALSE.equals( n ) ) {
+						task = new TimerTask() {
+
+							@Override
+							public void run() {
+								Fx.run( Workspace.this::toggleProgramWorkspaceActions );
+							}
+
+						};
+						timer.schedule( task, 10 );
+					}
+
+				} );
+
+			}
 		}
 
 	}
