@@ -2,6 +2,7 @@ package com.avereon.xenon.asset;
 
 import com.avereon.util.TextUtil;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,13 +53,14 @@ public abstract class Codec implements Predicate<Asset> {
 		abstract boolean accept( String pattern, String value );
 	}
 
+	@Getter
 	private AssetType assetType;
 
 	private final Map<Pattern, Set<String>> supportedMatches;
 
 	private String defaultExtension;
 
-	public Codec() {
+	protected Codec() {
 		supportedMatches = new ConcurrentHashMap<>();
 	}
 
@@ -74,10 +76,6 @@ public abstract class Codec implements Predicate<Asset> {
 
 	public abstract void save( Asset asset, OutputStream output ) throws IOException;
 
-	public AssetType getAssetType() {
-		return assetType;
-	}
-
 	public void setAssetType( AssetType type ) {
 		this.assetType = type;
 	}
@@ -92,7 +90,7 @@ public abstract class Codec implements Predicate<Asset> {
 	}
 
 	public final void addSupported( Pattern type, String pattern ) {
-		supportedMatches.computeIfAbsent( type, ( k ) -> new CopyOnWriteArraySet<>() ).add( pattern );
+		supportedMatches.computeIfAbsent( type, k -> new CopyOnWriteArraySet<>() ).add( pattern );
 	}
 
 	public final Set<String> getSupported( Pattern type ) {
@@ -136,8 +134,7 @@ public abstract class Codec implements Predicate<Asset> {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( !(object instanceof Codec) ) return false;
-		Codec that = (Codec)object;
+		if( !(object instanceof Codec that) ) return false;
 		return this.getKey().equals( that.getKey() );
 	}
 
