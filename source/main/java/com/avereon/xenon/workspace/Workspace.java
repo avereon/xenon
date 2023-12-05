@@ -23,6 +23,7 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -36,7 +37,6 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -262,9 +262,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
-			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
-			// FIXME This is getting added multpile times and causing issues
-			//new ProgramMenuWatcher( programMenuBar );
+			if( Boolean.TRUE.equals( n ) ) {
+				Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+				ProgramMenuWatcher.attach( this, programMenuBar );
+			} else {
+				ProgramMenuWatcher.detach( programMenuBar );
+			}
 		} );
 
 		memoryMonitor.start();
@@ -863,41 +866,42 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( enabled ) container.getChildren().add( monitor );
 	}
 
-	private class ProgramMenuWatcher {
-
-		private boolean inMenuBar;
+	private static class ProgramMenuWatcher {
 
 		private TimerTask task;
 
-		ProgramMenuWatcher( MenuBar bar ) {
-			// Watch for enter and exit events to known when the mouse is in the menu bar
-			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenuBar = true );
-			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenuBar = false );
+		private ProgramMenuWatcher() {}
 
-			//			// Open the first menu when the menu bar is made visible
-			//			bar.visibleProperty().addListener( ( p, o, n ) -> {
-			//				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
-			//			} );
+		public static void attach( Workspace workspace, MenuBar bar ) {
+			ProgramMenuWatcher watcher = new ProgramMenuWatcher();
 
-			// Trigger when the menus close and not in the menu bar
 			for( Menu menu : bar.getMenus() ) {
-				menu.showingProperty().addListener( ( p, o, n ) -> {
-					if( Boolean.TRUE.equals( n ) && task != null ) task.cancel();
-
+				ChangeListener<Boolean> menuWatcher = ( p, o, n ) -> {
 					if( Boolean.FALSE.equals( n ) ) {
-						// FIXME This solution, while functional, causes problems with the UI tests
-						task = new TimerTask() {
+						watcher.task = new TimerTask() {
 
 							@Override
 							public void run() {
-								Fx.run( Workspace.this::toggleProgramWorkspaceActions );
+								Fx.run( workspace::toggleProgramWorkspaceActions );
 							}
 
 						};
-						timer.schedule( task, 50 );
+						timer.schedule( watcher.task, 50 );
+					} else {
+						if( watcher.task != null ) watcher.task.cancel();
 					}
-				} );
+				};
 
+				menu.getProperties().put( "workspaceMenuWatcher", menuWatcher );
+				menu.showingProperty().addListener( menuWatcher );
+			}
+		}
+
+		@SuppressWarnings( "unchecked" )
+		public static void detach( MenuBar bar ) {
+			for( Menu menu : bar.getMenus() ) {
+				ChangeListener<Boolean> menuWatcher = (ChangeListener<Boolean>)menu.getProperties().get( "workspaceMenuWatcher" );
+				menu.showingProperty().removeListener( menuWatcher );
 			}
 		}
 
