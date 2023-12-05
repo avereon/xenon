@@ -193,13 +193,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		workareaMenu = createWorkareaMenu( program );
 		programMenuBar = createProgramMenuBar( program );
 		workspaceSelectionContainer = new StackPane();
-		Pane actionBar = createActionBar( program );
-
-		programMenuBar.visibleProperty().addListener( (p,o,n) -> {
-			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
-			// FIXME This is getting added multpile times and causing issues
-			//new ProgramMenuWatcher( programMenuBar );
-		} );
+		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
 
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
@@ -207,6 +201,9 @@ public class Workspace extends Stage implements WritableIdentity {
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
+
+		// Create the action bar. Depends on workspaceSelectionContainer and toolbar.
+		Pane actionBar = createActionBar( program );
 
 		noticeBox = createNoticeBox();
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
@@ -264,6 +261,12 @@ public class Workspace extends Stage implements WritableIdentity {
 			rails.forEach( r -> r.setVisible( !n ) );
 		} );
 
+		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
+			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+			// FIXME This is getting added multpile times and causing issues
+			//new ProgramMenuWatcher( programMenuBar );
+		} );
+
 		memoryMonitor.start();
 		taskMonitor.start();
 		fpsMonitor.start();
@@ -284,17 +287,12 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
-		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
-
 		//		// The menu button
 		//		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
 		//		menuButton.setId( "menu-button-menu" );
 
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
-		//leftToolBar.getItems().add( createProgramMenuButton( program ) );
-
-		//		leftToolBar.getItems().add( menuButton );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
@@ -303,19 +301,17 @@ public class Workspace extends Stage implements WritableIdentity {
 		HBox.setHgrow( stageMover, Priority.ALWAYS );
 		new StageMover( stageMover );
 
-		// The right toolbar options
-		ToolBar rightToolBar = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
+		// The workspace actions
+		BorderPane workspaceActions = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
 
-		// The boxes
-		HBox leftBox = new HBox( leftToolBar );
-		HBox centerBox = new HBox( stageMover );
-		HBox rightBox = new HBox( rightToolBar );
+		// The window actions
+		ToolBar windowActions = ToolBarFactory.createToolBar( program, "notice|minimize,maximize,workspace-close" );
 
-		// The tool pane
-		Pane actionBar = new BorderPane( centerBox, null, rightBox, null, leftBox );
-		actionBar.getStyleClass().add( ACTION_BAR );
+		// The action pane
+		Pane requiredActions = new BorderPane( workspaceActions, null, windowActions, null, leftToolBar );
+		requiredActions.getStyleClass().add( ACTION_BAR );
 
-		return actionBar;
+		return requiredActions;
 	}
 
 	private static VBox createNoticeBox() {
@@ -422,25 +418,16 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private ToolBar createProgramToolBar( Xenon program ) {
-		String defaultDescriptor = program.getSettings().get( "workspace-toolbar" );
-		String descriptor = getSettings().get( "toolbar", defaultDescriptor );
+		//		// This implementation was the "standard" toolbar
+		//		String defaultDescriptor = program.getSettings().get( "workspace-toolbar" );
+		//		String descriptor = getSettings().get( "toolbar", defaultDescriptor );
+		//		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
 
-		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
+		ToolBar toolbar = ToolBarFactory.createToolBar( program );
 		toolbar.getItems().add( toolbarToolEnd );
 
 		return toolbar;
 	}
-
-	//	private Button createNoticeToolbarButton() {
-	//		Button noticeButton = ToolBarFactory.createToolBarButton( program, NOTICE );
-	//		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
-	//		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
-	//			int count = newValue.intValue();
-	//			String icon = count == 0 ? NOTICE : program.getNoticeManager().getUnreadNoticeType().getUnreadIcon();
-	//			Fx.run( () -> program.getActionLibrary().getAction( NOTICE ).setIcon( icon ) );
-	//		} );
-	//		return noticeButton;
-	//	}
 
 	private Node createWorkareaMenu( Xenon program ) {
 		// The menu button
@@ -887,10 +874,10 @@ public class Workspace extends Stage implements WritableIdentity {
 			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenuBar = true );
 			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenuBar = false );
 
-//			// Open the first menu when the menu bar is made visible
-//			bar.visibleProperty().addListener( ( p, o, n ) -> {
-//				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
-//			} );
+			//			// Open the first menu when the menu bar is made visible
+			//			bar.visibleProperty().addListener( ( p, o, n ) -> {
+			//				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
+			//			} );
 
 			// Trigger when the menus close and not in the menu bar
 			for( Menu menu : bar.getMenus() ) {
