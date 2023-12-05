@@ -886,7 +886,8 @@ public class Workspace extends Stage implements WritableIdentity {
 							}
 
 						};
-						timer.schedule( watcher.task, 50 );
+						int delay = Profile.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
+						timer.schedule( watcher.task, delay );
 					} else {
 						if( watcher.task != null ) watcher.task.cancel();
 					}
