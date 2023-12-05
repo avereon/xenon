@@ -144,6 +144,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	private AboutAction aboutAction;
 
+	private HelpAction helpAction;
+
 	private RestartAction restartAction;
 
 	private UiResetAction uiResetAction;
@@ -1307,6 +1309,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction = new CloseWorkspaceAction( this ) );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
+		getActionLibrary().getAction( "help-content" ).pushAction( helpAction = new HelpAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
 		//getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
@@ -1343,6 +1346,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "workspace-close" ).pullAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
+		getActionLibrary().getAction( "help-content" ).pullAction( helpAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 		//getActionLibrary().getAction( "properties" ).pullAction( propertiesAction );
 		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
