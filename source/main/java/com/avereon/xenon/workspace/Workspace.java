@@ -195,6 +195,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceSelectionContainer = new StackPane();
 		Pane actionBar = createActionBar( program );
 
+		programMenuBar.visibleProperty().addListener( (p,o,n) -> {
+			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+			// FIXME This is getting added multpile times and causing issues
+			//new ProgramMenuWatcher( programMenuBar );
+		} );
+
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
@@ -345,8 +351,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		bar.setId( "menu-bar-program" );
 		bar.setVisible( false );
 		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
-
-		new ProgramMenuWatcher( bar );
 
 		return bar;
 	}
@@ -548,6 +552,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	public void pushToolbarActions( String descriptor ) {
+		// FIXME Where is the toolbar?
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolEnd );
 		toolbar.getItems().add( index++, toolbarToolStart );
@@ -882,10 +887,10 @@ public class Workspace extends Stage implements WritableIdentity {
 			bar.addEventFilter( MouseEvent.MOUSE_ENTERED, e -> inMenuBar = true );
 			bar.addEventFilter( MouseEvent.MOUSE_EXITED, e -> inMenuBar = false );
 
-			// Open the first menu when the menu bar is made visible
-			bar.visibleProperty().addListener( ( p, o, n ) -> {
-				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
-			} );
+//			// Open the first menu when the menu bar is made visible
+//			bar.visibleProperty().addListener( ( p, o, n ) -> {
+//				if( Boolean.TRUE.equals( n ) ) Fx.run( () -> bar.getMenus().get( 0 ).show() );
+//			} );
 
 			// Trigger when the menus close and not in the menu bar
 			for( Menu menu : bar.getMenus() ) {
