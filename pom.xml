@@ -79,7 +79,7 @@
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
 		<controlsfx.version>[11.1,)</controlsfx.version>
-		<openjfx.version>20.0.1</openjfx.version>
+		<openjfx.version>[21,)</openjfx.version>
 
 		<!-- Test dependencies -->
 		<!-- TestFX 4.0.17 broke the module -->
@@ -448,6 +448,12 @@
 									<name>fuzzywuzzy*.jar</name>
 								</jar>
 								<jar>
+									<name>jsoup*.jar</name>
+									<modules>
+										<module>jsr305</module>
+									</modules>
+								</jar>
+								<jar>
 									<name>image4j*.jar</name>
 								</jar>
 								<jar>
@@ -618,7 +624,7 @@
 						</executions>
 					</plugin>
 
-					<!-- https://docs.oracle.com/en/java/javase/14/jpackage/support-application-features.html -->
+					<!-- https://docs.oracle.com/en/java/javase/21/jpackage/support-application-features.html -->
 					<!-- MacOS does not allow -SNAPSHOT in version -->
 					<!-- MacOS requires version strings can consist of only numbers and up to two dots -->
 					<!-- Windows does not allow -SNAPSHOT in version -->
