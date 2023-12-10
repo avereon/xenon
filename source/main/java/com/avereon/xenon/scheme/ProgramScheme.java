@@ -47,7 +47,7 @@ public class ProgramScheme extends ProductScheme {
 
 		String content;
 		try {
-			Document document = getProgram().getIndexService().lookup( uri );
+			Document document = getProgram().getIndexService().lookupFromCache( uri );
 			if( document == null ) {
 				log.atWarn().log( "Document not found: doc=%s", uri );
 				String message = Rb.text( "program", "help-document-not-found" );

@@ -99,7 +99,7 @@ public class IndexService implements Controllable<IndexService> {
 			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
-	public Document lookup( URI uri ) throws Exception {
+	public Document lookupFromCache( URI uri ) throws Exception {
 		return new Document( uri, "", "",  getDocumentContentPath( uri ).toFile().toURI().toURL() );
 	}
 
@@ -119,7 +119,7 @@ public class IndexService implements Controllable<IndexService> {
 
 		Path path = getDocumentContentPath( document.uri() );
 		try {
-			Files.createDirectories( contentPath );
+			Files.createDirectories( path.getParent() );
 			try( FileWriter writer = new FileWriter( path.toFile() ) ) {
 				IoUtil.copy( document.reader(), writer );
 			} catch( Exception exception ) {
