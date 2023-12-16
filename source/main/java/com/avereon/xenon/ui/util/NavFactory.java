@@ -1,7 +1,6 @@
 package com.avereon.xenon.ui.util;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public abstract class NavFactory {
@@ -40,7 +39,7 @@ public abstract class NavFactory {
 			.map( String::valueOf )
 			.filter( s -> !COMMA_SPLITTER.equals( s ) )
 			.filter( s -> !SPACE_SPLITTER.equals( s ) )
-			.collect( Collectors.toList() );
+			.toList();
 		return parseTokens( new LinkedList<>( sTokens ) );
 	}
 
