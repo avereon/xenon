@@ -284,7 +284,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			MenuButton button = (MenuButton)e.getTarget();
 			if( !button.isShowing() ) Fx.run( this::hideProgramMenuBar );
 		} );
-		// This catches when menus are hidden and not hovering over the menu bar
+		// This catches when menus are hidden and the mouse is not hovering over the menu bar
 		programMenuBar.addEventFilter( MenuButton.ON_HIDDEN, e -> {
 			// I wish this were, "if hidden because something else was shown"
 			if( !((MenuBar)e.getSource()).isHover() ) Fx.run( this::hideProgramMenuBar );
