@@ -88,7 +88,7 @@
 
 		<!-- Build plugin versions -->
 		<cameo.version>2.10</cameo.version>
-		<curex.version>1.4</curex.version>
+		<curex.version>1.4.1</curex.version>
 	</properties>
 
 	<dependencies>
@@ -446,6 +446,9 @@
 							<jars>
 								<jar>
 									<name>fuzzywuzzy*.jar</name>
+								</jar>
+								<jar>
+									<name>jsr305*.jar</name>
 								</jar>
 								<jar>
 									<name>jsoup*.jar</name>
