@@ -29,6 +29,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
@@ -261,14 +262,43 @@ public class Workspace extends Stage implements WritableIdentity {
 			rails.forEach( r -> r.setVisible( !n ) );
 		} );
 
-		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
-			if( Boolean.TRUE.equals( n ) ) {
-				Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
-				ProgramMenuWatcher.attach( this, programMenuBar );
-			} else {
-				ProgramMenuWatcher.detach( programMenuBar );
-			}
+		// NOTE This block is to watch events on the menu bar
+		programMenuBar.addEventFilter( Event.ANY, e -> {
+			//log.atConfig().log( "event={0} hover={1}", e.getEventType().getName(), programMenuBar.getProperties() );
 		} );
+
+		// USE THIS BLOCK TO TEST IDEAS
+		//		programMenuBar.addEventFilter( MouseEvent.MOUSE_EXITED_TARGET, e -> {
+		//			if( e.getTarget() instanceof MenuButton button ) {
+		//				if( !button.isShowing() ) Fx.run( this::toggleProgramWorkspaceActions );
+		//			}
+		//		} );
+
+		// Show the first menu when the program menu bar shows
+		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
+			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+		} );
+		// This catches when the user presses ESC, but not when they select a menu item
+		programMenuBar.addEventHandler( MenuButton.ON_HIDING, e -> {
+			// Pressing ESC causes an extra MenuButton.ON_HIDING event with the menu already hidden
+			MenuButton button = (MenuButton)e.getTarget();
+			if( !button.isShowing() ) Fx.run( this::hideProgramMenuBar );
+		} );
+		// This catches when menus are hidden and the mouse is not hovering over the menu bar
+		programMenuBar.addEventFilter( MenuButton.ON_HIDDEN, e -> {
+			// I wish this were, "if hidden because something else was shown"
+			if( !((MenuBar)e.getSource()).isHover() ) Fx.run( this::hideProgramMenuBar );
+		} );
+
+		// NOTE Don't really want to do all this if we can avoid it
+		//		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
+		//			if( Boolean.TRUE.equals( n ) ) {
+		//				ProgramMenuWatcher.attach( this, programMenuBar );
+		//				Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+		//			} else {
+		//				ProgramMenuWatcher.detach( programMenuBar );
+		//			}
+		//		} );
 
 		memoryMonitor.start();
 		taskMonitor.start();
@@ -514,12 +544,20 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private void toggleProgramWorkspaceActions() {
 		if( workareaMenu.isVisible() ) {
-			workareaMenu.setVisible( false );
-			programMenuBar.setVisible( true );
+			showProgramMenuBar();
 		} else {
-			programMenuBar.setVisible( false );
-			workareaMenu.setVisible( true );
+			hideProgramMenuBar();
 		}
+	}
+
+	private void showProgramMenuBar() {
+		workareaMenu.setVisible( false );
+		programMenuBar.setVisible( true );
+	}
+
+	private void hideProgramMenuBar() {
+		programMenuBar.setVisible( false );
+		workareaMenu.setVisible( true );
 	}
 
 	public void pushMenuActions( String descriptor ) {
@@ -893,8 +931,10 @@ public class Workspace extends Stage implements WritableIdentity {
 					}
 				};
 
-				menu.getProperties().put( "workspaceMenuWatcher", menuWatcher );
-				menu.showingProperty().addListener( menuWatcher );
+				if( !menu.getProperties().containsKey( "workspaceMenuWatcher" ) ) {
+					menu.getProperties().put( "workspaceMenuWatcher", menuWatcher );
+					menu.showingProperty().addListener( menuWatcher );
+				}
 			}
 		}
 
