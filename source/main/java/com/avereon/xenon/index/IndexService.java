@@ -12,11 +12,15 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 @CustomLog
 public class IndexService implements Controllable<IndexService> {
+
+	public static final String STORE_CONTENT = "store-content";
 
 	private static final int FUZZY_SEARCH_THRESHOLD = 80;
 
@@ -58,7 +62,7 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( String index, D document ) {
-		if( document.store() ) storeContent( document );
+		if( document.properties().get( STORE_CONTENT ) == Boolean.TRUE ) storeContent( document );
 		return indexer.submit( index, document );
 	}
 
@@ -69,19 +73,19 @@ public class IndexService implements Controllable<IndexService> {
 	 * @return The resulting hit list
 	 */
 	public Result<List<Hit>> searchAll( String text, List<String> terms ) {
-//		Collection<Index> indexes = indexer.allIndexes();
+		//		Collection<Index> indexes = indexer.allIndexes();
 
-//		Search exactSearch = new FuzzySearch( 100 );
-//		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
-//		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
+		//		Search exactSearch = new FuzzySearch( 100 );
+		//		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
+		//		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
 
 		Search fuzzySearch = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
 		IndexQuery fuzzyQuery = IndexQuery.builder().terms( terms ).build();
 		List<Hit> fuzzyHits = Indexer.search( fuzzySearch, fuzzyQuery, indexer.allIndexes() ).get();
 
-//		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
-//		allHits.addAll( exactHits );
-//		allHits.addAll( fuzzyHits );
+		//		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
+		//		allHits.addAll( exactHits );
+		//		allHits.addAll( fuzzyHits );
 
 		return Result.of( fuzzyHits );
 	}
@@ -100,7 +104,7 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	public Document lookupFromCache( URI uri ) throws Exception {
-		return new Document( uri, "", "",  getDocumentContentPath( uri ).toFile().toURI().toURL() );
+		return new Document( uri, "", "", getDocumentContentPath( uri ).toFile().toURI().toURL() );
 	}
 
 	/**
