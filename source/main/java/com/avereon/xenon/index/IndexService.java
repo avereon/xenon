@@ -58,7 +58,7 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	public <D extends Document> Result<Future<Result<Set<Hit>>>> submit( String index, D document ) {
-		storeContent( document );
+		if( document.store() ) storeContent( document );
 		return indexer.submit( index, document );
 	}
 
@@ -113,8 +113,6 @@ public class IndexService implements Controllable<IndexService> {
 	}
 
 	private void storeContent( Document document ) {
-		if( !document.store() ) return;
-
 		// TODO Do this work on IO threads
 
 		Path path = getDocumentContentPath( document.uri() );
