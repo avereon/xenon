@@ -5,10 +5,10 @@ import com.avereon.index.Hit;
 import com.avereon.index.Terms;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.ToolException;
@@ -21,7 +21,8 @@ import javafx.util.Callback;
 import lombok.CustomLog;
 import lombok.NonNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @CustomLog
 public class SearchTool extends ProgramTool {
@@ -125,27 +126,11 @@ public class SearchTool extends ProgramTool {
 	}
 
 	private void showDocs( List<Hit> hits ) {
-		Map<Document, List<Hit>> maps = new HashMap<>();
-		hits.forEach( h -> {
-			List<Hit> docHits = maps.computeIfAbsent( h.getDocument(), ( v ) -> new ArrayList<>() );
-			docHits.add( h );
-		} );
+		// NOTE Then incoming hits are already in hit order
 
-		List<Document> docs = new ArrayList<>( maps.keySet() );
-
-		// FIXME This did not sort as expected
-		// The reason being that almost all hits had 100 points
-		docs.sort( ( o1, o2 ) -> {
-			String t1 = maps.get( o1 ).get( 0 ).getDocument().title();
-			String t2 = maps.get( o2 ).get( 0 ).getDocument().title();
-
-//			int p1 = maps.get( o1 ).get( 0 ).points();
-//			int p2 = maps.get( o2 ).get( 0 ).points();
-//			System.out.printf( "p1=%s p2=%s%n", p1, p2 );
-
-			return t1.compareTo( t2 );
-			//return p1 - p2;
-		} );
+		//		log.atConfig().log();
+		//		hits.forEach( h -> log.atConfig().log( "hit={0} {1} {2} {3}", h.getPoints(), h.getPriority(), h.getCoordinates(), h.getDocument().title() ) );
+		List<Document> docs = hits.stream().map( Hit::getDocument ).distinct().toList();
 
 		docList.getItems().setAll( docs );
 		docList.getSelectionModel().selectFirst();
