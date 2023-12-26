@@ -87,7 +87,7 @@ public class SearchTool extends ProgramTool {
 	}
 
 	public void open( @NonNull Hit hit ) {
-		getProgram().getAssetManager().openAsset( hit.document().uri() );
+		getProgram().getAssetManager().openAsset( hit.getDocument().uri() );
 		reset();
 	}
 
@@ -127,7 +127,7 @@ public class SearchTool extends ProgramTool {
 	private void showDocs( List<Hit> hits ) {
 		Map<Document, List<Hit>> maps = new HashMap<>();
 		hits.forEach( h -> {
-			List<Hit> docHits = maps.computeIfAbsent( h.document(), ( v ) -> new ArrayList<>() );
+			List<Hit> docHits = maps.computeIfAbsent( h.getDocument(), ( v ) -> new ArrayList<>() );
 			docHits.add( h );
 		} );
 
@@ -136,8 +136,8 @@ public class SearchTool extends ProgramTool {
 		// FIXME This did not sort as expected
 		// The reason being that almost all hits had 100 points
 		docs.sort( ( o1, o2 ) -> {
-			String t1 = maps.get( o1 ).get( 0 ).document().title();
-			String t2 = maps.get( o2 ).get( 0 ).document().title();
+			String t1 = maps.get( o1 ).get( 0 ).getDocument().title();
+			String t2 = maps.get( o2 ).get( 0 ).getDocument().title();
 
 //			int p1 = maps.get( o1 ).get( 0 ).points();
 //			int p2 = maps.get( o2 ).get( 0 ).points();
@@ -188,15 +188,15 @@ public class SearchTool extends ProgramTool {
 						category.setGraphic( null );
 						category.setText( null );
 					} else {
-						String icon = switch( item.priority() ) {
+						String icon = switch( item.getPriority() ) {
 							case Hit.TAG_PRIORITY -> "tag";
 							case Hit.TITLE_PRIORITY -> "title";
 							default -> "document";
 						};
-						label.setGraphic( getProgram().getIconLibrary().getIcon( item.document().icon() ) );
-						label.setText( item.document().title() );
+						label.setGraphic( getProgram().getIconLibrary().getIcon( item.getDocument().icon() ) );
+						label.setText( item.getDocument().title() );
 						category.setGraphic( getProgram().getIconLibrary().getIcon( icon ) );
-						category.setText( item.word() );
+						category.setText( item.getWord() );
 					}
 				}
 			};
