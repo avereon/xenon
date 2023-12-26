@@ -130,7 +130,13 @@ public class SearchTool extends ProgramTool {
 
 		//		log.atConfig().log();
 		//		hits.forEach( h -> log.atConfig().log( "hit={0} {1} {2} {3}", h.getPoints(), h.getPriority(), h.getCoordinates(), h.getDocument().title() ) );
-		List<Document> docs = hits.stream().map( Hit::getDocument ).distinct().toList();
+		List<Document> docs = hits.stream().peek( h -> {
+			//			if( h.getPoints() > h.getDocument().searchPoints() ) {
+			//				h.getDocument().searchPoints( h.getPoints() );
+			//			}
+			h.getDocument().searchPoints( h.getPoints() );
+			h.getDocument().searchPriority( h.getPriority() );
+		} ).map( Hit::getDocument ).distinct().toList();
 
 		docList.getItems().setAll( docs );
 		docList.getSelectionModel().selectFirst();
@@ -222,8 +228,15 @@ public class SearchTool extends ProgramTool {
 						category.setGraphic( null );
 						category.setText( null );
 					} else {
+						String icon = switch( item.searchPriority() ) {
+							case Hit.TAG_PRIORITY -> "tag";
+							case Hit.TITLE_PRIORITY -> "title";
+							default -> "document";
+						};
 						label.setGraphic( getProgram().getIconLibrary().getIcon( item.icon() ) );
 						label.setText( item.title() );
+						category.setGraphic( getProgram().getIconLibrary().getIcon( icon ) );
+						category.setText( String.valueOf( item.searchPoints() ) );
 					}
 				}
 			};
