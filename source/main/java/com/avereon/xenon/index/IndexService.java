@@ -31,6 +31,8 @@ public class IndexService implements Controllable<IndexService> {
 
 	private final Path contentPath;
 
+	private final int fuzzySearchThreshold = FUZZY_SEARCH_THRESHOLD;
+
 	public IndexService( Xenon program ) {
 		this.program = program;
 
@@ -79,8 +81,8 @@ public class IndexService implements Controllable<IndexService> {
 		//		IndexQuery exactQuery = IndexQuery.builder().terms( Set.of( text ) ).build();
 		//		List<Hit> exactHits = Indexer.search( exactSearch, exactQuery, indexes ).get();
 
-		Search fuzzySearch = new FuzzySearch( FUZZY_SEARCH_THRESHOLD );
-		IndexQuery fuzzyQuery = IndexQuery.builder().terms( terms ).build();
+		Search fuzzySearch = new FuzzySearch( fuzzySearchThreshold );
+		IndexQuery fuzzyQuery = IndexQuery.builder().term( text ).terms( terms ).build();
 		List<Hit> fuzzyHits = Indexer.search( fuzzySearch, fuzzyQuery, indexer.allIndexes() ).get();
 
 		//		List<Hit> allHits = new ArrayList<>( exactHits.size() + fuzzyHits.size() );
@@ -99,7 +101,7 @@ public class IndexService implements Controllable<IndexService> {
 	public Result<List<Hit>> search( String index, String term ) {
 		return indexer
 			.getIndex( index )
-			.map( i -> new FuzzySearch( 80 ).search( i, IndexQuery.builder().term( term ).build() ) )
+			.map( i -> new FuzzySearch( fuzzySearchThreshold ).search( i, IndexQuery.builder().term( term ).build() ) )
 			.orElseThrow( () -> new IndexNotFoundException( "Default index missing" ) );
 	}
 
