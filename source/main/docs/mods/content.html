@@ -210,10 +210,10 @@ public class Mazer extends Mod {
 	<p>
 		Online deployment requires the use of a simple artifact repository (also
 		called a product market). Only one
-		version of an artifact is allowed in a repository so it is common to have
+		version of an artifact is allowed in a repository, so it is common to have
 		multiple repositories for different stages of mod development. It is
-		recommended to have at least a stable (production quality) repository and
-		a latest (development quality) repository.
+		recommended to have at least a 'stable' (production quality) repository and
+		a 'latest' (development quality) repository.
 	</p>
 	<p>
 		To deploy a mod to a repository both the mod library (also called a product
@@ -232,10 +232,15 @@ public class Mazer extends Mod {
 		installed. If an update is deployed to the repository the Xenon update
 		functionality will be used to discover and install the update.
 	</p>
+	<p>
+		Example repo URL: https://www.avereon.com/download/stable/catalog<br/>
+		Example card URL: https://www.avereon.com/download/stable/xenon/linux/product/card<br/>
+		Example pack URL: https://www.avereon.com/download/stable/xenon/linux/product/pack
+	</p>
 	<h3 id="manual-deployment">Manual Deployment</h3>
 	<p>
 		Manual deployment is not the recommended way to deploy mods. It is useful
-		for early development purposes but it is not recommended for regular
+		for early development purposes, but it is not recommended for regular
 		deployment. Instead, it is recommended that an automated
 		process be set up to post mod releases (both development and production)
 		online and use <a href="#online-deployment">online deployment</a>.
