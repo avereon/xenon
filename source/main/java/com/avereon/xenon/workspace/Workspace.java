@@ -335,13 +335,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		new StageMover( stageMover );
 
 		// The workspace actions
-		BorderPane workspaceActions = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
+		BorderPane workspaceActionPane = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
 
 		// The window actions
-		ToolBar windowActions = ToolBarFactory.createToolBar( program, "search,settings,notice|minimize,maximize,workspace-close" );
+		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "search,settings,notice|minimize,maximize,workspace-close" );
 
 		// The action pane
-		Pane requiredActions = new BorderPane( workspaceActions, null, windowActions, null, leftToolBar );
+		Pane requiredActions = new BorderPane( workspaceActionPane, null, workspaceActions, null, leftToolBar );
 		requiredActions.getStyleClass().add( ACTION_BAR );
 
 		return requiredActions;
