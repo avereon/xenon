@@ -300,6 +300,7 @@ public class AssetTool extends GuidedTool {
 		TableView<Asset> table = (TableView<Asset>)event.getSource();
 		Asset item = table.getSelectionModel().getSelectedItem();
 		int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
+
 		if( item != null && event.getClickCount() >= clickCount ) {
 			try {
 				if( mode == Mode.OPEN ) {
@@ -334,33 +335,39 @@ public class AssetTool extends GuidedTool {
 		selectAsset( uri.toString() );
 	}
 
-	private void selectAsset( String text ) {
-		selectAsset( text, true );
+	private void selectAsset( String path ) {
+		selectAsset( path, true );
 	}
 
-	private void selectAsset( final String text, boolean updateHistory ) {
-		Objects.requireNonNull( text );
+	private void selectAsset( final String path, boolean updateHistory ) {
+		Objects.requireNonNull( path );
 
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
-			history.add( text );
+			history.add( path );
 			currentIndex++;
 		}
 
 		try {
-			Asset asset = getProgram().getAssetManager().createAsset( text );
-			uriField.setText( text );
+			Asset asset = getProgram().getAssetManager().createAsset( path );
+			uriField.setText( path );
 
 			if( mode == Mode.OPEN ) {
-				if( asset.isFolder() ) {
-					loadFolder( asset );
+				if( !asset.exists() ) {
+					notifyUser( "asset-not-found", path );
 				} else {
-					if( !asset.exists() ) {
-						notifyUser( "asset-not-found", text );
+					if( asset.isFolder() ) {
+						loadFolder( asset );
 					} else {
+						// TODO If the user chose "open with" then allow the user to chose a tool
+						//List<Class<? extends ProgramTool>> tools = getProgram().getToolManager().getRegisteredTools( asset.getType() );
+
+						// Use the asset manager to open the asset
 						getProgram().getAssetManager().openAsset( asset.getUri() );
+
+						// Close this tool
 						close();
 						return;
 					}
