@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.scene.Node;
@@ -13,6 +13,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * <p>
+ * This settings editor is used to manage the relationships between media types
+ * (Asset Types) and other resources like tools.
+ * </p>
+ * <p>
+ * The settings define the differences between the default configuration and
+ * what the user chooses.
+ * </p>
+ */
 public class AssetTypeSettingEditor extends SettingEditor {
 
 	private final Label label = new Label( "Asset Type Setting Editor" );
@@ -58,6 +68,7 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		int assetTypeGridIndex = 0;
 		assetTypeGrid = new GridPane();
 
+		// FIXME This was just a quick and dirty way to show the asset type associations
 		for( AssetType type : types ) {
 			Label name = new Label( type.getName() );
 
