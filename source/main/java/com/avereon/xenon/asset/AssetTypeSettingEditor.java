@@ -1,11 +1,16 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.RbKey;
+import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
@@ -25,25 +30,56 @@ import java.util.Set;
  */
 public class AssetTypeSettingEditor extends SettingEditor {
 
-	private final Label label = new Label( "Asset Type Setting Editor" );
+	private final Label assetTypesLabel;
+
+	private final ComboBox<AssetType> assetTypes;
+
+	private final Label keyLabel;
 
 	private final Label key;
 
+	private final Label nameLabel;
+
 	private final Label name;
+
+	private final Label descriptionLabel;
 
 	private final Label description;
 
 	private final GridPane assetTypeGrid;
 
+	private final GridPane assetTypeReference;
+
 	public AssetTypeSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 
-		key = new Label();
-		name = new Label();
-		description = new Label();
+		int row = 0;
+		assetTypeGrid = new GridPane();
+		assetTypeGrid.setHgap( UiFactory.PAD );
+		assetTypeGrid.setVgap( UiFactory.PAD );
 
-		// Get a sorted list of the asset types
-		List<AssetType> types = getProduct().getProgram().getAssetManager().getAssetTypes().stream().sorted().toList();
+		assetTypesLabel = new Label( Rb.text( product, RbKey.SETTINGS, "asset-types" ) + ":" );
+		assetTypes = new ComboBox<>();
+		assetTypes.getItems().setAll( getAssetTypes( product ) );
+		GridPane.setColumnSpan( assetTypes, GridPane.REMAINING );
+		assetTypeGrid.addRow( row++, assetTypesLabel, assetTypes );
+
+		nameLabel = new Label( Rb.text( product, RbKey.LABEL, "name" ) );
+		name = new Label();
+		GridPane.setColumnSpan( name, GridPane.REMAINING );
+		assetTypeGrid.addRow( row++, nameLabel, name );
+
+		descriptionLabel = new Label( Rb.text( product, RbKey.LABEL, "description" ) );
+		description = new Label();
+		GridPane.setColumnSpan( description, GridPane.REMAINING );
+		assetTypeGrid.addRow( row++, descriptionLabel, description );
+
+		keyLabel = new Label( Rb.text( product, RbKey.LABEL, "key" ) );
+		key = new Label();
+		GridPane.setColumnSpan( key, GridPane.REMAINING );
+		assetTypeGrid.addRow( row++, keyLabel, key );
+
+		// NEXT Continue working on the AssetTypeSettingsEditor
 
 		//		// Maybe a table with three columns: asset type, associations, tools
 		//		assetTypeTable = new TableView<>( FXCollections.observableArrayList( types ) );
@@ -66,9 +102,13 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		//		assetTypeTable.getColumns().setAll( assetTypeName, assetTypeAssociations, assetTypeTools );
 
 		int assetTypeGridIndex = 0;
-		assetTypeGrid = new GridPane();
+		assetTypeReference = new GridPane();
+		assetTypeReference.setHgap( UiFactory.PAD );
+		assetTypeReference.setVgap( UiFactory.PAD );
 
 		// FIXME This was just a quick and dirty way to show the asset type associations
+		// Get a sorted list of the asset types
+		List<AssetType> types = getProduct().getProgram().getAssetManager().getAssetTypes().stream().sorted().toList();
 		for( AssetType type : types ) {
 			Label name = new Label( type.getName() );
 
@@ -85,10 +125,13 @@ public class AssetTypeSettingEditor extends SettingEditor {
 				toolGrid.addRow( toolGridIndex++, new Label( toolClass.getSimpleName() ) );
 			}
 
-			assetTypeGrid.addRow( assetTypeGridIndex++, name, assocGrid, toolGrid );
+			assetTypeReference.addRow( assetTypeGridIndex++, name, assocGrid, toolGrid );
 		}
 
-		doUpdateFields( setting.getSettings().get( getKey(), String.class, "" ) );
+		assetTypes.valueProperty().addListener( (p,o,n) -> doUpdateFields( n.getKey() ) );
+		assetTypes.getSelectionModel().select( 0 );
+
+		//doUpdateFields( setting.getSettings().get( getKey(), String.class, "" ) );
 	}
 
 	private void doUpdateFields( String typeKey ) {
@@ -141,14 +184,21 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		//		grid.addRow( index++, assetTypeTable );
 
 		GridPane.setColumnSpan( assetTypeGrid, GridPane.REMAINING );
-		GridPane.setRowSpan( assetTypeGrid, GridPane.REMAINING );
-
+		//GridPane.setRowSpan( assetTypeGrid, GridPane.REMAINING );
 		pane.addRow( row, assetTypeGrid );
+
+		GridPane.setColumnSpan( assetTypeReference, GridPane.REMAINING );
+		GridPane.setRowSpan( assetTypeReference, GridPane.REMAINING );
+		pane.addRow( row + 1, assetTypeReference );
 	}
 
 	@Override
 	protected Set<Node> getComponents() {
-		return Set.of( label, key, name );
+		return Set.of( assetTypesLabel, assetTypes, keyLabel, key, nameLabel, name, descriptionLabel, description );
+	}
+
+	private List<AssetType> getAssetTypes( XenonProgramProduct product ) {
+		return product.getProgram().getAssetManager().getAssetTypes().stream().filter( AssetType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
 	}
 
 	@Override
