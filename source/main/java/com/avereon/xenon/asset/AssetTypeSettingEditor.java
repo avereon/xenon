@@ -50,6 +50,7 @@ public class AssetTypeSettingEditor extends SettingEditor {
 
 	private final Label matchesLabel;
 
+	private final AssetTypeCodecAssociationList associations;
 	private final ListView<Codec.Association> matchAssociations;
 
 	private final Label toolsLabel;
@@ -92,16 +93,20 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		// Add a spacer row
 		assetTypeGrid.addRow( row++ );
 
-		matchesLabel = new Label("Matches");
+		matchesLabel = new Label( "Matches" );
+		assetTypeGrid.addRow( row++, matchesLabel );
+
+		associations = new AssetTypeCodecAssociationList();
+		GridPane.setColumnSpan( associations, GridPane.REMAINING );
+		assetTypeGrid.addRow( row++, associations );
 
 		matchAssociations = new ListView<>();
 		matchAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
 		//matchAssociations.prefHeightProperty().bind( matchesLabel.minHeightProperty().multiply( 5 ) );
-		assetTypeGrid.addRow( row++, matchesLabel );
 		GridPane.setColumnSpan( matchAssociations, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, matchAssociations );
 
-		toolsLabel = new Label("Tools");
+		toolsLabel = new Label( "Tools" );
 
 		toolAssociations = new ListView<>();
 		toolAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
@@ -167,6 +172,9 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		key.setText( type == null ? "" : type.getKey() );
 		name.setText( type == null ? "" : type.getName() );
 		description.setText( type == null ? "" : type.getDescription() );
+
+		// NEXT Continue work on asset type association editor
+		associations.setAssetType( type );
 
 		if( type == null ) {
 			matchAssociations.getItems().clear();
@@ -250,4 +258,5 @@ public class AssetTypeSettingEditor extends SettingEditor {
 	protected void doSettingValueChanged( SettingsEvent event ) {
 		doUpdateFields( String.valueOf( event.getNewValue() ) );
 	}
+
 }
