@@ -96,7 +96,8 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		matchesLabel = new Label( "Matches" );
 		assetTypeGrid.addRow( row++, matchesLabel );
 
-		associations = new AssetTypeCodecAssociationList();
+		associations = new AssetTypeCodecAssociationList(product);
+		associations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
 		GridPane.setColumnSpan( associations, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, associations );
 
@@ -104,16 +105,16 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		matchAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
 		//matchAssociations.prefHeightProperty().bind( matchesLabel.minHeightProperty().multiply( 5 ) );
 		GridPane.setColumnSpan( matchAssociations, GridPane.REMAINING );
-		assetTypeGrid.addRow( row++, matchAssociations );
+		//assetTypeGrid.addRow( row++, matchAssociations );
 
 		toolsLabel = new Label( "Tools" );
+		assetTypeGrid.addRow( row++, toolsLabel );
 
 		toolAssociations = new ListView<>();
 		toolAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
 		//toolAssociations.prefHeightProperty().bind( toolsLabel.minHeightProperty().multiply( 5 ) );
-		assetTypeGrid.addRow( row++, toolsLabel );
 		GridPane.setColumnSpan( toolAssociations, GridPane.REMAINING );
-		assetTypeGrid.addRow( row++, toolAssociations );
+		//assetTypeGrid.addRow( row++, toolAssociations );
 
 		// NEXT Continue work on AssetTypeSettingEditor
 
@@ -232,7 +233,6 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		//		grid.addRow( index++, assetTypeTable );
 
 		GridPane.setColumnSpan( assetTypeGrid, GridPane.REMAINING );
-		GridPane.setRowSpan( assetTypeGrid, GridPane.REMAINING );
 		GridPane.setHgrow( assetTypeGrid, Priority.ALWAYS );
 		pane.addRow( row, assetTypeGrid );
 

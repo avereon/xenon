@@ -1,12 +1,14 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.XenonProgramProduct;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
@@ -15,33 +17,39 @@ import java.util.List;
 
 public class AssetTypeCodecAssociationList extends VBox {
 
-	private final GridPane items;
-
 	private final ComboBox<Codec.Pattern> associationChoices;
 
 	private final TextField pattern;
 
 	private final Button addButton;
 
+	private final GridPane items;
+
 	@Getter
 	private AssetType assetType;
 
-	public AssetTypeCodecAssociationList() {
+	public AssetTypeCodecAssociationList( XenonProgramProduct product) {
 		this.items = new GridPane();
 		this.items.setHgap( UiFactory.PAD );
 		this.items.setVgap( UiFactory.PAD );
 
 		List<Codec.Pattern> associationPatterns  = Arrays.asList(Codec.Pattern.values());
+
+		// Create the association choices chooser
 		associationChoices = new ComboBox<>();
 		associationChoices.setItems( FXCollections.observableList( associationPatterns ) );
-		pattern = new TextField();
 
-		this.addButton = new Button( "Add Association" );
+		// Create the association pattern text field
+		pattern = new TextField();
+		GridPane.setHgrow( pattern, Priority.ALWAYS );
+
+		// Create the association add button
+		this.addButton = new Button( null, product.getProgram().getIconLibrary().getIcon("add") );
 
 		getChildren().setAll( items );
 
 		addButton.setOnAction( e -> {
-			// Add the new codec association
+			// TODO Add the new codec association
 		} );
 	}
 
