@@ -57,7 +57,7 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
+		if( !newNodes.isEmpty() ) selectPage( newNodes.iterator().next().getId() );
 	}
 
 	private void selectPage( String pageId ) {
@@ -67,9 +67,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		SettingsPagePanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPagePanel( page, true ) );
-		scroller.setContent( panel );
+		scroller.setContent( panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() ) ) );
 	}
 
 }

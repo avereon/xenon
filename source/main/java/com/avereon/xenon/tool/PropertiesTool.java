@@ -88,8 +88,7 @@ public class PropertiesTool extends ProgramTool {
 		// Create a new VBox for all the pages
 		VBox container = new VBox();
 		container.getChildren().addAll( pages.stream().map( p -> {
-			p.setOptionProviders( optionProviders );
-			return new SettingsPagePanel( p );
+			return new SettingsPagePanel( p, optionProviders );
 		} ).toList() );
 
 		// Add the container to the scroller

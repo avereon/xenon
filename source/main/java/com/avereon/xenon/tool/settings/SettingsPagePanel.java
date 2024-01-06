@@ -10,6 +10,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import lombok.CustomLog;
 
+import java.util.Map;
+
 @CustomLog
 public class SettingsPagePanel extends SettingsPanel {
 
@@ -32,9 +34,18 @@ public class SettingsPagePanel extends SettingsPanel {
 		this( page, false );
 	}
 
+	public SettingsPagePanel( SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
+		this( page, false, optionProviders );
+	}
+
 	public SettingsPagePanel( SettingsPage page, boolean showTitle ) {
+		this( page, showTitle, null );
+	}
+
+	public SettingsPagePanel( SettingsPage page, boolean showTitle, Map<String, SettingOptionProvider> optionProviders ) {
+		super( optionProviders );
+
 		this.page = page;
-		setOptionProviders( page.getOptionProviders() );
 
 		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );
 		//		String fontBold = product.getResourceBundle().getString( rbKey, "font-bold" );

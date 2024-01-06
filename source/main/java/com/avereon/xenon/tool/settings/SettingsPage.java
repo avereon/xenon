@@ -8,7 +8,6 @@ import com.avereon.xenon.XenonProgramProduct;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,8 +34,6 @@ public class SettingsPage extends Node {
 	private final SettingsPage parent;
 
 	private String rbKey = RbKey.SETTINGS;
-
-	private Map<String, SettingOptionProvider> optionProviders;
 
 	static {
 		panels = new ConcurrentHashMap<>();
@@ -145,14 +142,6 @@ public class SettingsPage extends Node {
 
 	public void setRbKey( String rbKey ) {
 		this.rbKey = rbKey;
-	}
-
-	public Map<String, SettingOptionProvider> getOptionProviders() {
-		return Optional.ofNullable( optionProviders ).orElse( Map.of() );
-	}
-
-	public void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
-		this.optionProviders = optionProviders;
 	}
 
 }

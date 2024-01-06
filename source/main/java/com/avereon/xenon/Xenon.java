@@ -452,7 +452,6 @@ public class Xenon extends Application implements XenonProgram {
 		time( "index-service" );
 
 		// Load the settings pages
-		getSettingsManager().putSettingEditor( "asset-type", AssetTypeSettingEditor.class );
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class);
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );

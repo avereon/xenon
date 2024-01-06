@@ -26,6 +26,12 @@ public class SettingsPanel extends VBox {
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
+	protected SettingsPanel() {}
+
+	protected SettingsPanel( Map<String, SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
+	}
+
 	protected void addTitle( String title ) {
 		// Add the title label
 		Label titleLabel = new Label( title );
@@ -38,10 +44,6 @@ public class SettingsPanel extends VBox {
 		addBlankLine();
 		getChildren().add( titleLabel );
 		addBlankLine();
-	}
-
-	protected void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
-		this.optionProviders = optionProviders;
 	}
 
 	protected void addBlankLine() {
@@ -59,7 +61,7 @@ public class SettingsPanel extends VBox {
 
 		Settings pageSettings = page.getSettings();
 		List<SettingDependency> dependencies = group.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency dependency : dependencies ) {
 				addGroupDependencyWatchers( pageSettings, group, dependency );
 			}
@@ -112,7 +114,7 @@ public class SettingsPanel extends VBox {
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
 			List<SettingDependency> dependencies = setting.getDependencies();
-			if( dependencies.size() > 0 ) {
+			if( !dependencies.isEmpty() ) {
 				for( SettingDependency dependency : dependencies ) {
 					addSettingDependencyWatchers( pageSettings, setting, dependency );
 				}
@@ -146,7 +148,7 @@ public class SettingsPanel extends VBox {
 		settings.register( SettingsEvent.CHANGED, new GroupDependencyWatcher( dependency, group ) );
 
 		List<SettingDependency> dependencies = group.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency child : dependency.getDependencies() ) {
 				addGroupDependencyWatchers( settings, group, child );
 			}
@@ -157,7 +159,7 @@ public class SettingsPanel extends VBox {
 		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency child : dependency.getDependencies() ) {
 				addSettingDependencyWatchers( settings, setting, child );
 			}
@@ -202,16 +204,7 @@ public class SettingsPanel extends VBox {
 
 	}
 
-	private static class GroupChangeHandler implements EventHandler<NodeEvent> {
-
-		private final SettingGroup group;
-
-		private final Pane pane;
-
-		public GroupChangeHandler( SettingGroup group, Pane pane ) {
-			this.group = group;
-			this.pane = pane;
-		}
+	private record GroupChangeHandler(SettingGroup group, Pane pane) implements EventHandler<NodeEvent> {
 
 		@Override
 		public void handle( NodeEvent event ) {
@@ -223,19 +216,17 @@ public class SettingsPanel extends VBox {
 			}
 		}
 
-		protected final void setDisable( boolean disable ) {
+		private void setDisable( boolean disable ) {
 			pane.setDisable( disable );
 		}
 
-		protected final void setVisible( boolean visible ) {
+		private void setVisible( boolean visible ) {
 			pane.setVisible( visible );
 		}
 
 	}
 
-	private static class EditorChangeHandler {
-
-		private final SettingEditor editor;
+	private record EditorChangeHandler(SettingEditor editor) {
 
 		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
