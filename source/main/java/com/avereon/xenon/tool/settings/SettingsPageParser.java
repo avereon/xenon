@@ -136,6 +136,7 @@ public class SettingsPageParser {
 		page.setIcon( icon );
 		page.setTitle( title );
 		page.setRbKey( rbKey );
+		page.setPanel( panel );
 
 		SettingGroup group = null;
 		while( reader.hasNext() ) {

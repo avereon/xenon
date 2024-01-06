@@ -31,6 +31,8 @@ public class SettingsPage extends Node {
 
 	private static final String SETTINGS = "settings";
 
+	private static final String PANEL = "panel";
+
 	private final SettingsPage parent;
 
 	private String rbKey = RbKey.SETTINGS;
@@ -134,6 +136,14 @@ public class SettingsPage extends Node {
 
 	public void setSettings( Settings settings ) {
 		setValue( SETTINGS, settings );
+	}
+
+	public String getPanel() {
+		return getValue( PANEL );
+	}
+
+	public void setPanel( String panel ) {
+		setValue( PANEL, panel );
 	}
 
 	public String getRbKey() {

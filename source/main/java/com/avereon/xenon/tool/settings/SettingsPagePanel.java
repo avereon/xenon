@@ -45,6 +45,10 @@ public class SettingsPagePanel extends SettingsPanel {
 	public SettingsPagePanel( SettingsPage page, boolean showTitle, Map<String, SettingOptionProvider> optionProviders ) {
 		super( optionProviders );
 
+		if( page.getPanel() != null ) {
+			// NEXT Custom settings panels
+		}
+
 		this.page = page;
 
 		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );

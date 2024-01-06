@@ -67,7 +67,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		scroller.setContent( panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() ) ) );
+		scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() ) ) );
 	}
 
 }
