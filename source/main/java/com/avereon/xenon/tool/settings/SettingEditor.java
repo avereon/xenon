@@ -7,8 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SettingEditor {
 
@@ -21,7 +21,7 @@ public abstract class SettingEditor {
 	protected final String rbKey;
 
 	static {
-		editors = new HashMap<>();
+		editors = new ConcurrentHashMap<>();
 
 		addType( "textline", TextLineSettingEditor.class );
 		addType( "textarea", TextAreaSettingEditor.class );

@@ -3,18 +3,16 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
-import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import lombok.CustomLog;
 
@@ -26,82 +24,35 @@ import java.util.Objects;
 @CustomLog
 public class SettingsPanel extends VBox {
 
-	private final SettingsPage page;
+	private Map<String, SettingOptionProvider> optionProviders;
 
-	private final Map<String, SettingOptionProvider> optionProviders;
+	protected void addTitle( String title ) {
+		// Add the title label
+		Label titleLabel = new Label( title );
+		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
+		titleLabel.prefWidthProperty().bind( widthProperty() );
+		titleLabel.getStyleClass().add( "setting-title" );
+		titleLabel.setAlignment( Pos.CENTER );
+		//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
-	//	private String[] fontNames;
-	//
-	//	private String[] fontStyles;
-	//
-	//	private String[] fontSizes;
-
-	// TODO Add Apply button and change functionality accordingly.
-	// TODO Add a default button to set individual setting back to default.
-	// TODO Add an undo button to set individual setting back to previous.
-
-	/**
-	 * @param page The settings page for the panel
-	 */
-	public SettingsPanel( SettingsPage page ) {
-		this( page, false );
+		addBlankLine();
+		getChildren().add( titleLabel );
+		addBlankLine();
 	}
 
-	public SettingsPanel( SettingsPage page, boolean showTitle ) {
-		this.page = page;
-		this.optionProviders = page.getOptionProviders();
-
-		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );
-		//		String fontBold = product.getResourceBundle().getString( rbKey, "font-bold" );
-		//		String fontItalic = product.getResourceBundle().getString( rbKey, "font-italic" );
-		//		String fontBoldItalic = product.getResourceBundle().getString( rbKey, "font-bold-italic" );
-		//
-		//		List<String> fontFamilies = Font.getFamilies();
-		//		fontNames = fontFamilies.toArray( new String[ fontFamilies.size() ] );
-		//		fontStyles = new String[]{ fontPlain, fontBold, fontItalic, fontBoldItalic };
-		//		fontSizes = new String[]{ "8", "10", "12", "14", "16", "18", "20", "22", "24", "26" };
-
-		//setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
-
-		if( showTitle ) {
-			// Add the title label
-			Label titleLabel = new Label( page.getTitle() );
-			titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-			titleLabel.prefWidthProperty().bind( widthProperty() );
-			titleLabel.getStyleClass().add( "setting-title" );
-			titleLabel.setAlignment( Pos.CENTER );
-			//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
-
-			addBlankLine( this );
-			getChildren().add( titleLabel );
-			addBlankLine( this );
-		}
-
-		XenonProgramProduct product = page.getProduct();
-		String rbKey = page.getRbKey();
-
-		// Add the groups
-		for( SettingGroup group : page.getGroups() ) {
-			String name = Rb.text( product, rbKey, group.getId() );
-			Control pane = createGroupPane( product, rbKey, page, name, group );
-			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
-			getChildren().add( pane );
-		}
+	protected void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
 	}
 
-	public SettingsPage getPage() {
-		return this.page;
-	}
-
-	private void addBlankLine( Pane pane ) {
+	protected void addBlankLine() {
 		Label blankLine = new Label( " " );
-		blankLine.prefWidthProperty().bind( pane.widthProperty() );
+		blankLine.prefWidthProperty().bind( widthProperty() );
 		blankLine.getStyleClass().add( "setting-blank" );
 		blankLine.setAlignment( Pos.CENTER );
-		pane.getChildren().add( blankLine );
+		getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
+	protected Control createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
 		Pane pane = createSettingsPane( product, rbKey, page, group );
 
 		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
@@ -122,7 +73,7 @@ public class SettingsPanel extends VBox {
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+	protected Pane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
 		GridPane grid = new GridPane();
 		grid.setHgap( UiFactory.PAD );
 		grid.setVgap( UiFactory.PAD );
@@ -149,7 +100,9 @@ public class SettingsPanel extends VBox {
 
 			// Determine setting option provider, if any
 			String providerId = setting.getProvider();
-			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+			if( optionProviders != null ) {
+				setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+			}
 
 			// Create the editor
 			SettingEditor editor = createSettingEditor( product, rbKey, setting, editorClass );
@@ -171,7 +124,7 @@ public class SettingsPanel extends VBox {
 		return grid;
 	}
 
-	private SettingEditor createSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
+	protected SettingEditor createSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 

@@ -10,7 +10,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.xenon.tool.settings.SettingsPanel;
+import com.avereon.xenon.tool.settings.SettingsPagePanel;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
@@ -89,7 +89,7 @@ public class PropertiesTool extends ProgramTool {
 		VBox container = new VBox();
 		container.getChildren().addAll( pages.stream().map( p -> {
 			p.setOptionProviders( optionProviders );
-			return new SettingsPanel( p );
+			return new SettingsPagePanel( p );
 		} ).toList() );
 
 		// Add the container to the scroller

@@ -12,7 +12,6 @@ import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -49,13 +48,10 @@ public class AssetTypeSettingEditor extends SettingEditor {
 	private final Label description;
 
 	private final Label matchesLabel;
-
 	private final AssetTypeCodecAssociationList associations;
-	private final ListView<Codec.Association> matchAssociations;
 
 	private final Label toolsLabel;
-
-	private final ListView<Class<? extends ProgramTool>> toolAssociations;
+	private final AssetTypeToolAssociationList toolRegistrations;
 
 	private final GridPane assetTypeGrid;
 
@@ -99,70 +95,19 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		associations = new AssetTypeCodecAssociationList(product);
 		associations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
 		GridPane.setColumnSpan( associations, GridPane.REMAINING );
+		GridPane.setHgrow( associations, Priority.ALWAYS );
 		assetTypeGrid.addRow( row++, associations );
-
-		matchAssociations = new ListView<>();
-		matchAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
-		//matchAssociations.prefHeightProperty().bind( matchesLabel.minHeightProperty().multiply( 5 ) );
-		GridPane.setColumnSpan( matchAssociations, GridPane.REMAINING );
-		//assetTypeGrid.addRow( row++, matchAssociations );
 
 		toolsLabel = new Label( "Tools" );
 		assetTypeGrid.addRow( row++, toolsLabel );
 
-		toolAssociations = new ListView<>();
-		toolAssociations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
-		//toolAssociations.prefHeightProperty().bind( toolsLabel.minHeightProperty().multiply( 5 ) );
-		GridPane.setColumnSpan( toolAssociations, GridPane.REMAINING );
-		//assetTypeGrid.addRow( row++, toolAssociations );
+		toolRegistrations = new AssetTypeToolAssociationList( product );
+		toolRegistrations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
+		GridPane.setColumnSpan( toolRegistrations, GridPane.REMAINING );
+		GridPane.setHgrow( toolRegistrations, Priority.ALWAYS );
+		assetTypeGrid.addRow( row++, toolRegistrations );
 
 		// NEXT Continue work on AssetTypeSettingEditor
-
-		//		// Maybe a table with three columns: asset type, associations, tools
-		//		assetTypeTable = new TableView<>( FXCollections.observableArrayList( types ) );
-		//		TableColumn<AssetType, String> assetTypeName = new TableColumn<>( Rb.text( RbKey.SETTINGS, "asset-type" ) );
-		//		TableColumn<AssetType, List<Codec.Association>> assetTypeAssociations = new TableColumn<>( Rb.text( RbKey.SETTINGS, "associations" ) );
-		//		TableColumn<AssetType, List<String>> assetTypeTools = new TableColumn<>( Rb.text( RbKey.SETTINGS, "tools" ) );
-		//
-		//		assetTypeName.setCellValueFactory( p -> new SimpleStringProperty( p.getValue().getName() ) );
-		//		assetTypeAssociations.setCellValueFactory( p -> {
-		//			AssetType type = p.getValue();
-		//				List<Codec.Association> associations = new ArrayList<>(type.getAssociations());
-		//			return new SimpleObjectProperty<>(associations);
-		//		});
-		//		assetTypeTools.setCellValueFactory( p -> {
-		//			AssetType type = p.getValue();
-		//			List<Class<? extends ProgramTool>> toolClasses = getProduct().getProgram().getToolManager().getRegisteredTools( type );
-		//			return new SimpleObjectProperty<>(toolClasses.stream().map( Class::getSimpleName ).toList());
-		//		} );
-		//
-		//		assetTypeTable.getColumns().setAll( assetTypeName, assetTypeAssociations, assetTypeTools );
-
-		//		// FIXME This was just a quick and dirty way to show the asset type associations
-		//		int assetTypeGridIndex = 0;
-		//		// Get a sorted list of the asset types
-		//		List<AssetType> types = getProduct().getProgram().getAssetManager().getAssetTypes().stream().sorted().toList();
-		//		assetTypeReference = new GridPane();
-		//		assetTypeReference.setHgap( UiFactory.PAD );
-		//		assetTypeReference.setVgap( UiFactory.PAD );
-		//		for( AssetType type : types ) {
-		//			Label name = new Label( type.getName() );
-		//
-		//			int assocGridIndex = 0;
-		//			GridPane assocGrid = new GridPane();
-		//			for( Codec.Association association : type.getAssociations() ) {
-		//				assocGrid.addRow( assocGridIndex++, new Label( association.pattern().name() ), new Label( association.value() ) );
-		//			}
-		//
-		//			int toolGridIndex = 0;
-		//			GridPane toolGrid = new GridPane();
-		//			List<Class<? extends ProgramTool>> toolClasses = getProduct().getProgram().getToolManager().getRegisteredTools( type );
-		//			for( Class<? extends ProgramTool> toolClass : toolClasses ) {
-		//				toolGrid.addRow( toolGridIndex++, new Label( toolClass.getSimpleName() ) );
-		//			}
-		//
-		//			assetTypeReference.addRow( assetTypeGridIndex++, name, assocGrid, toolGrid );
-		//		}
 
 		assetTypes.valueProperty().addListener( ( p, o, n ) -> doUpdateFields( n.getKey() ) );
 		assetTypes.getSelectionModel().select( 0 );
@@ -174,20 +119,8 @@ public class AssetTypeSettingEditor extends SettingEditor {
 		name.setText( type == null ? "" : type.getName() );
 		description.setText( type == null ? "" : type.getDescription() );
 
-		// NEXT Continue work on asset type association editor
 		associations.setAssetType( type );
-
-		if( type == null ) {
-			matchAssociations.getItems().clear();
-		} else {
-			matchAssociations.getItems().setAll( type.getAssociations() );
-		}
-
-		if( type == null ) {
-			toolAssociations.getItems().clear();
-		} else {
-			toolAssociations.getItems().setAll( getProduct().getProgram().getToolManager().getRegisteredTools( type ) );
-		}
+		toolRegistrations.setAssetType( type );
 
 		if( type == null ) return;
 

@@ -10,10 +10,7 @@ import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetManager;
-import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.asset.AssetTypeSettingEditor;
+import com.avereon.xenon.asset.*;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -456,6 +453,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Load the settings pages
 		getSettingsManager().putSettingEditor( "asset-type", AssetTypeSettingEditor.class );
+		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class);
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );
 

@@ -45,6 +45,8 @@ public class SettingsPageParser {
 
 	private static final String TITLE = "title";
 
+	private static final String PANEL = "panel";
+
 	private static final String PRODUCT_ICON = "product";
 
 	private static final String SETTING_ICON = "setting";
@@ -115,6 +117,7 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		String icon = attributes.getOrDefault( ICON, SETTING_ICON );
 		String title = attributes.get( TITLE );
+		String panel = attributes.get( PANEL );
 
 		// Special handling of product pages
 		if( PRODUCT_PAGE.equals( id ) ) {
@@ -204,8 +207,7 @@ public class SettingsPageParser {
 		String editor = attributes.get( SettingData.EDITOR );
 		String disable = attributes.get( SettingData.DISABLE );
 		String opaque = attributes.get( SettingData.OPAQUE );
-		String rows = attributes.get( SettingData.ROWS );
-		if( rows == null ) rows = String.valueOf( 10 );
+		String rows = attributes.computeIfAbsent( SettingData.ROWS, k -> "10" );
 		String provider = attributes.get( SettingData.PROVIDER );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
@@ -249,7 +251,7 @@ public class SettingsPageParser {
 			int type = reader.getEventType();
 			if( type == XMLStreamConstants.CHARACTERS ) textBuilder.append( reader.getText() );
 		}
-		String text = textBuilder.length() == 0 ? null : textBuilder.toString();
+		String text = textBuilder.isEmpty() ? null : textBuilder.toString();
 
 		// Determine the option key
 		String key = attributes.get( KEY );

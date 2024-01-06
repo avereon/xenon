@@ -18,6 +18,8 @@ public class SettingsPage extends Node {
 
 	public static final String ID = "id";
 
+	private static final Map<String, Class<? extends SettingsPanel>> panels;
+
 	private static final String ICON = "icon";
 
 	private static final String TITLE = "title";
@@ -36,6 +38,10 @@ public class SettingsPage extends Node {
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
+	static {
+		panels = new ConcurrentHashMap<>();
+	}
+
 	SettingsPage( SettingsPage parent ) {
 		this.parent = parent;
 
@@ -46,6 +52,20 @@ public class SettingsPage extends Node {
 		defineNaturalKey( TITLE );
 
 		setModified( false );
+	}
+
+	/**
+	 * Register a new setting page panel.
+	 *
+	 * @param key The panel key
+	 * @param panel The page panel class
+	 */
+	public static void addPanel( String key, Class<? extends SettingsPanel> panel ) {
+		panels.putIfAbsent( key, panel );
+	}
+
+	public static Class<? extends SettingsPanel> getPanel( String key ) {
+		return panels.get( key );
 	}
 
 	@SuppressWarnings( "unchecked" )

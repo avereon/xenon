@@ -19,7 +19,7 @@ public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
 
-	private final Map<String, SettingsPanel> panelCache;
+	private final Map<String, SettingsPagePanel> panelCache;
 
 	private final ScrollPane scroller;
 
@@ -68,7 +68,7 @@ public class SettingsTool extends GuidedTool {
 
 	private void setPage( SettingsPage page ) {
 		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, true ) );
+		SettingsPagePanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPagePanel( page, true ) );
 		scroller.setContent( panel );
 	}
 

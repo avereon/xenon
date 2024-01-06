@@ -79,6 +79,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		SettingEditor.addType( id, clazz );
 	}
 
+	public void putPagePanel( String id, Class<? extends SettingsPanel> clazz ) {
+		SettingsPage.addPanel( id, clazz );
+	}
+
 	public Map<String, SettingOptionProvider> getOptionProviders() {
 		return Collections.unmodifiableMap( optionProviders );
 	}

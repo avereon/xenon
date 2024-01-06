@@ -251,11 +251,13 @@
 
 	<page id="assets">
 
-		<page id="asset-types">
-			<group id="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line">
-				<setting key="program-current-asset-type" editor="asset-type"/>
-			</group>
-		</page>
+		<page id="asset-types" panel="asset-type"/>
+
+<!--		<page id="asset-types">-->
+<!--			<group id="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line">-->
+<!--				<setting key="program-current-asset-type" editor="asset-type"/>-->
+<!--			</group>-->
+<!--		</page>-->
 
 	</page>
 

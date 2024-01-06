@@ -2,6 +2,7 @@ package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.exception.AssetException;
@@ -10,6 +11,7 @@ import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -157,6 +159,10 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	public Set<Codec.Association> getAssociations() {
 		return getCodecs().stream().flatMap( c -> c.getAssociations().stream() ).collect( Collectors.toSet());
+	}
+
+	public List<Class<? extends ProgramTool>> getRegisteredTools() {
+		return getProgram().getToolManager().getRegisteredTools( this );
 	}
 
 	/**
