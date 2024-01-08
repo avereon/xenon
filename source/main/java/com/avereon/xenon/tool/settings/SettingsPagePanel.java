@@ -2,12 +2,6 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.XenonProgramProduct;
-import javafx.scene.control.Control;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import lombok.CustomLog;
 
 import java.util.Map;
@@ -45,10 +39,6 @@ public class SettingsPagePanel extends SettingsPanel {
 	public SettingsPagePanel( SettingsPage page, boolean showTitle, Map<String, SettingOptionProvider> optionProviders ) {
 		super( optionProviders );
 
-		if( page.getPanel() != null ) {
-			// NEXT Custom settings panels
-		}
-
 		this.page = page;
 
 		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );
@@ -71,9 +61,7 @@ public class SettingsPagePanel extends SettingsPanel {
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
 			String name = Rb.text( product, rbKey, group.getId() );
-			Control pane = createGroupPane( product, rbKey, page, name, group );
-			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
-			getChildren().add( pane );
+			getChildren().add( createGroupPane( product, rbKey, page, name, group ) );
 		}
 	}
 

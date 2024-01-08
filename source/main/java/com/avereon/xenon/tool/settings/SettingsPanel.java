@@ -9,7 +9,6 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
@@ -26,9 +25,12 @@ public class SettingsPanel extends VBox {
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	protected SettingsPanel() {}
+	protected SettingsPanel() {
+		getStyleClass().addAll( "settings-panel" );
+	}
 
 	protected SettingsPanel( Map<String, SettingOptionProvider> optionProviders ) {
+		this();
 		this.optionProviders = optionProviders;
 	}
 
@@ -39,7 +41,6 @@ public class SettingsPanel extends VBox {
 		titleLabel.prefWidthProperty().bind( widthProperty() );
 		titleLabel.getStyleClass().add( "setting-title" );
 		titleLabel.setAlignment( Pos.CENTER );
-		//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		addBlankLine();
 		getChildren().add( titleLabel );
@@ -54,10 +55,25 @@ public class SettingsPanel extends VBox {
 		getChildren().add( blankLine );
 	}
 
-	protected Control createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
-		Pane pane = createSettingsPane( product, rbKey, page, group );
+	protected TitledPane createGroupPane( String name ) {
+		return createGroupPane(createSettingsPane(), name, false, true );
+	}
 
-		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
+	protected TitledPane createGroupPane( Pane pane, String name, boolean collapsible, boolean expanded ) {
+		TitledPane groupPane = new TitledPane( name, pane );
+		groupPane.setCollapsible( collapsible );
+		groupPane.setExpanded( expanded );
+		return groupPane;
+	}
+
+	protected TitledPane createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
+		GridPane pane = createSettingsPane( product, rbKey, page, group );
+
+		TitledPane groupPane = createGroupPane( pane, name, group.isCollapsible(), group.isExpanded() );
+		groupPane.setCollapsible( group.isCollapsible() );
+		groupPane.setExpanded( group.isExpanded() );
+
+		group.register( NodeEvent.ANY, new GroupChangeHandler( group, (Pane)groupPane.getContent() ) );
 
 		Settings pageSettings = page.getSettings();
 		List<SettingDependency> dependencies = group.getDependencies();
@@ -69,23 +85,25 @@ public class SettingsPanel extends VBox {
 
 		group.updateState();
 
-		TitledPane groupPane = new TitledPane( name, pane );
-		groupPane.setCollapsible( group.isCollapsible() );
-		groupPane.setExpanded( group.isExpanded() );
 		return groupPane;
 	}
 
-	protected Pane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+	protected GridPane createSettingsPane() {
 		GridPane grid = new GridPane();
 		grid.setHgap( UiFactory.PAD );
 		grid.setVgap( UiFactory.PAD );
-		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		ColumnConstraints labelColumnConstraints = new ColumnConstraints();
 		ColumnConstraints editorColumnConstraints = new ColumnConstraints();
 		labelColumnConstraints.setHgrow( Priority.SOMETIMES );
 		editorColumnConstraints.setHgrow( Priority.ALWAYS );
 		grid.getColumnConstraints().addAll( labelColumnConstraints, editorColumnConstraints );
+
+		return grid;
+	}
+
+	protected GridPane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+		GridPane grid = createSettingsPane();
 
 		int row = 0;
 		for( SettingData setting : group.getSettingsList() ) {
