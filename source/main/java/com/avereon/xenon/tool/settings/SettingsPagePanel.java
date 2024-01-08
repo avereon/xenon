@@ -37,7 +37,7 @@ public class SettingsPagePanel extends SettingsPanel {
 	}
 
 	public SettingsPagePanel( SettingsPage page, boolean showTitle, Map<String, SettingOptionProvider> optionProviders ) {
-		super( optionProviders );
+		super( page.getProduct(), optionProviders );
 
 		this.page = page;
 

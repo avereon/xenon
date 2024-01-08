@@ -23,15 +23,22 @@ import java.util.Objects;
 @CustomLog
 public class SettingsPanel extends VBox {
 
+	private final XenonProgramProduct product;
+
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	protected SettingsPanel() {
+	protected SettingsPanel( XenonProgramProduct product ) {
+		this( product, null );
+	}
+
+	protected SettingsPanel( XenonProgramProduct product, Map<String, SettingOptionProvider> optionProviders ) {
+		this.product = product;
+		this.optionProviders = optionProviders;
 		getStyleClass().addAll( "settings-panel" );
 	}
 
-	protected SettingsPanel( Map<String, SettingOptionProvider> optionProviders ) {
-		this();
-		this.optionProviders = optionProviders;
+	protected XenonProgramProduct getProduct() {
+		return product;
 	}
 
 	protected void addTitle( String title ) {

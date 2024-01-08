@@ -74,7 +74,7 @@ public class SettingsTool extends GuidedTool {
 		} else {
 			try {
 				Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
-				panel = type.getConstructor( SettingsPage.class ).newInstance( page );
+				panel = type.getConstructor( XenonProgramProduct.class ).newInstance( page.getProduct() );
 			} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
 				throw new RuntimeException( e );
 			}
