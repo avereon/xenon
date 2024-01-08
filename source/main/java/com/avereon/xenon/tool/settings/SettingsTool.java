@@ -10,6 +10,7 @@ import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.scene.control.ScrollPane;
 import lombok.CustomLog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +20,7 @@ public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
 
-	private final Map<String, SettingsPagePanel> panelCache;
+	private final Map<String, SettingsPanel> panelCache;
 
 	private final ScrollPane scroller;
 
@@ -67,7 +68,19 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() ) ) );
+		SettingsPanel panel;
+		if( page.getPanel() == null ) {
+			panel = new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() );
+		} else {
+			try {
+				Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
+				panel = type.getConstructor( SettingsPage.class ).newInstance( page );
+			} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
+				throw new RuntimeException( e );
+			}
+		}
+
+		scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> panel ) );
 	}
 
 }

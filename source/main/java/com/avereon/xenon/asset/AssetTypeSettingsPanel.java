@@ -17,11 +17,7 @@ public class AssetTypeSettingsPanel extends SettingsPagePanel {
 
 	public AssetTypeSettingsPanel( SettingsPage page ) {
 		super( page );
-	}
-
-	public AssetTypeSettingsPanel( SettingsPage page, boolean showTitle ) {
-		super( page, showTitle );
-
 		addTitle("MVS Asset Type Management");
 	}
+
 }

@@ -28,7 +28,10 @@ import java.util.Set;
  * The settings define the differences between the default configuration and
  * what the user chooses.
  * </p>
+ *
+ * @deprecated In favor of {@link AssetTypeSettingsPanel}
  */
+@Deprecated
 public class AssetTypeSettingEditor extends SettingEditor {
 
 	private final Label assetTypesLabel;
