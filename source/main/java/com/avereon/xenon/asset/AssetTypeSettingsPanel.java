@@ -46,73 +46,75 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 
 	private final Label description;
 
-	private final Label matchesLabel;
 	private final AssetTypeCodecAssociationList associations;
 
-	private final Label toolsLabel;
 	private final AssetTypeToolAssociationList toolRegistrations;
 
 	public AssetTypeSettingsPanel(XenonProgramProduct product ) {
 		super( product, null );
 
-		// TODO Get title from RB
+		// Add the title to the panel
 		addTitle( Rb.text( product, RbKey.SETTINGS, "asset-types" ) );
 
-		// TODO Get group name from RB
+		// Create the asset type group pane
 		TitledPane pane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "asset-type" ) );
 		getChildren().add( pane );
-
-		// Asset type selection
 		assetTypeGrid = (GridPane)pane.getContent();
 		int row = 0;
 
+		// Asset type selector
 		assetTypesLabel = new Label( Rb.text( product, RbKey.SETTINGS, "asset-type" ) + ":" );
 		assetTypes = new ComboBox<>();
 		assetTypes.getItems().setAll( getAssetTypes( product ) );
 		GridPane.setColumnSpan( assetTypes, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, assetTypesLabel, assetTypes );
 
+		// Asset type name
 		nameLabel = new Label( Rb.text( product, RbKey.LABEL, "name" ) );
 		name = new Label();
 		GridPane.setColumnSpan( name, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, nameLabel, name );
 
+		// Asset type description
 		descriptionLabel = new Label( Rb.text( product, RbKey.LABEL, "description" ) );
 		description = new Label();
 		GridPane.setColumnSpan( description, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, descriptionLabel, description );
 
+		// Asset type key
 		keyLabel = new Label( Rb.text( product, RbKey.LABEL, "key" ) );
 		key = new Label();
 		GridPane.setColumnSpan( key, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, keyLabel, key );
 
-
 		// Add a spacer row
 		assetTypeGrid.addRow( row++ );
 
-		// NEXT Create separate group for codec associations
-		// Codec associations
-		matchesLabel = new Label( "Matches" );
-		assetTypeGrid.addRow( row++, matchesLabel );
+		// Create the codec associations group pane
+		TitledPane codecAssocPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "asset-type-codec-associations" ) );
+		getChildren().add( codecAssocPane );
+		GridPane codecAssocGrid = (GridPane)codecAssocPane.getContent();
+		row = 0;
 
+		// Codec associations
 		associations = new AssetTypeCodecAssociationList(product);
-		associations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
+		associations.prefWidthProperty().bind( codecAssocGrid.widthProperty() );
 		GridPane.setColumnSpan( associations, GridPane.REMAINING );
 		GridPane.setHgrow( associations, Priority.ALWAYS );
-		assetTypeGrid.addRow( row++, associations );
+		codecAssocGrid.addRow( row++, associations );
 
-		// NEXT Create separate group for tool associations
+		// Create the codec associations group pane
+		TitledPane toolAssocPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "asset-type-tool-associations" ) );
+		getChildren().add( toolAssocPane );
+		GridPane toolAssocGrid = (GridPane)toolAssocPane.getContent();
+		row = 0;
+
 		// Tool associations
-
-		toolsLabel = new Label( "Tools" );
-		assetTypeGrid.addRow( row++, toolsLabel );
-
 		toolRegistrations = new AssetTypeToolAssociationList( product );
-		toolRegistrations.prefWidthProperty().bind( assetTypeGrid.widthProperty() );
+		toolRegistrations.prefWidthProperty().bind( toolAssocGrid.widthProperty() );
 		GridPane.setColumnSpan( toolRegistrations, GridPane.REMAINING );
 		GridPane.setHgrow( toolRegistrations, Priority.ALWAYS );
-		assetTypeGrid.addRow( row++, toolRegistrations );
+		toolAssocGrid.addRow( row++, toolRegistrations );
 
 		assetTypes.valueProperty().addListener( ( p, o, n ) -> doUpdateFields( n.getKey() ) );
 		assetTypes.getSelectionModel().select( 0 );
