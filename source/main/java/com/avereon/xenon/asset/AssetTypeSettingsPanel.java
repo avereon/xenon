@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public class AssetTypeSettingsPanel extends SettingsPanel {
 
+	private static final String ASSET_TYPE_DEFAULT_TOOL = "/asset-types/{type-key}/default/tool";
+
 	private final GridPane assetTypeGrid;
 
 	private final Label assetTypesLabel;
@@ -65,7 +67,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 		// Asset type selector
 		assetTypesLabel = new Label( Rb.text( product, RbKey.SETTINGS, "asset-type" ) + ":" );
 		assetTypes = new ComboBox<>();
-		assetTypes.getItems().setAll( getAssetTypes( product ) );
+		assetTypes.getItems().setAll( getUserAssetTypes( product ) );
 		GridPane.setColumnSpan( assetTypes, GridPane.REMAINING );
 		assetTypeGrid.addRow( row++, assetTypesLabel, assetTypes );
 
@@ -157,34 +159,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 		} );
 
 		//defaultCodec.getSupported( Codec.Pattern.EXTENSION );
-
 	}
-
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	public void addComponents( GridPane pane, int row ) {
-//		//		GridPane grid = new GridPane();
-//		//
-//		//		int index = 0;
-//		////		grid.addRow( index++, key );
-//		////		grid.addRow( index++, name );
-//		//		grid.addRow( index++, assetTypeTable );
-//
-//		GridPane.setColumnSpan( assetTypeGrid, GridPane.REMAINING );
-//		GridPane.setHgrow( assetTypeGrid, Priority.ALWAYS );
-//		pane.addRow( row, assetTypeGrid );
-//
-//		//		GridPane.setColumnSpan( assetTypeReference, GridPane.REMAINING );
-//		//		GridPane.setRowSpan( assetTypeReference, GridPane.REMAINING );
-//		//		pane.addRow( row + 1, assetTypeReference );
-//	}
-//
-//	@Override
-//	protected Set<Node> getComponents() {
-//		return Set.of( assetTypesLabel, assetTypes, keyLabel, key, nameLabel, name, descriptionLabel, description );
-//	}
 
 	private List<AssetType> getUserAssetTypes( XenonProgramProduct product ) {
 		return product.getProgram().getAssetManager().getAssetTypes().stream().filter( AssetType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
