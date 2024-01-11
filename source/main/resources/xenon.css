@@ -840,6 +840,19 @@ Derived from modena.css
 }
 
 /*******************************************************************************
+ * Settings Tool
+ ******************************************************************************/
+#tool-settings {
+	-fx-background-color: transparent;
+}
+
+.asset-type-settings-default-tool {
+	-fx-font-weight: bold;
+}
+
+.asset-type-settings-normal-tool {}
+
+/*******************************************************************************
  * Welcome Tool
  ******************************************************************************/
 #tool-welcome {

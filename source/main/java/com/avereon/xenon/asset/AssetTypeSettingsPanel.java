@@ -124,6 +124,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 
 	private void doUpdateFields( String typeKey ) {
 		AssetType type = getProduct().getProgram().getAssetManager().getAssetType( typeKey );
+
 		key.setText( type == null ? "" : type.getKey() );
 		name.setText( type == null ? "" : type.getName() );
 		description.setText( type == null ? "" : type.getDescription() );
@@ -131,34 +132,34 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 		associations.setAssetType( type );
 		toolRegistrations.setAssetType( type );
 
-		if( type == null ) return;
-
-		// The default tool
-		List<Class<? extends ProgramTool>> toolClasses = getProduct().getProgram().getToolManager().getRegisteredTools( type );
-		Class<? extends ProgramTool> toolClass = getProduct().getProgram().getToolManager().getDefaultTool( type );
-
-		type.getCodecs();
-		Codec defaultCodec = type.getDefaultCodec();
-		type.getIcon();
-
-		type.getCodecs().forEach( c -> {
-			System.out.printf( "%s%n", c.getName() );
-			Arrays.stream( Codec.Pattern.values() ).forEach( p -> {
-				System.out.printf( "  %s%n", p );
-				Set<String> supported = c.getSupported( p );
-				supported.forEach( s -> {
-					System.out.printf( "    %s%n", s );
-				} );
-			} );
-		} );
-
-		System.out.printf( "  %s%n", "TOOL" );
-		toolClasses.forEach( c -> {
-			boolean isDefault = toolClass == c;
-			System.out.printf( "    %s %s%n", c.getName(), isDefault ? "*" : "" );
-		} );
-
-		//defaultCodec.getSupported( Codec.Pattern.EXTENSION );
+//		if( type == null ) return;`
+//
+//		// The default tool
+//		List<Class<? extends ProgramTool>> toolClasses = getProduct().getProgram().getToolManager().getRegisteredTools( type );
+//		Class<? extends ProgramTool> toolClass = getProduct().getProgram().getToolManager().getDefaultTool( type );
+//
+//		type.getCodecs();
+//		Codec defaultCodec = type.getDefaultCodec();
+//		type.getIcon();
+//
+//		type.getCodecs().forEach( c -> {
+//			//System.out.printf( "%s%n", c.getName() );
+//			Arrays.stream( Codec.Pattern.values() ).forEach( p -> {
+//				//System.out.printf( "  %s%n", p );
+//				Set<String> supported = c.getSupported( p );
+//				supported.forEach( s -> {
+//					//System.out.printf( "    %s%n", s );
+//				} );
+//			} );
+//		} );
+//
+//		//System.out.printf( "  %s%n", "TOOL" );
+//		toolClasses.forEach( c -> {
+//			boolean isDefault = toolClass == c;
+//			//System.out.printf( "    %s %s%n", c.getName(), isDefault ? "*" : "" );
+//		} );
+//
+//		//defaultCodec.getSupported( Codec.Pattern.EXTENSION );
 	}
 
 	private List<AssetType> getUserAssetTypes( XenonProgramProduct product ) {
