@@ -1,5 +1,6 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.settings.Settings;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
@@ -21,7 +22,7 @@ public class AssetTypeToolAssociationList extends VBox {
 	@Getter
 	private AssetType assetType;
 
-	public AssetTypeToolAssociationList( XenonProgramProduct product) {
+	public AssetTypeToolAssociationList( XenonProgramProduct product ) {
 		this.product = product;
 		this.items = new GridPane();
 		this.items.setHgap( UiFactory.PAD );
@@ -35,6 +36,10 @@ public class AssetTypeToolAssociationList extends VBox {
 
 	public void setAssetType( AssetType assetType ) {
 		this.assetType = assetType;
+		if( assetType != null ) {
+			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+			settings.register( "tool", e -> this.update() );
+		}
 		update();
 	}
 
@@ -48,18 +53,23 @@ public class AssetTypeToolAssociationList extends VBox {
 		Class<? extends ProgramTool> defaultTool = getProgram().getToolManager().getDefaultTool( assetType );
 
 		for( Class<? extends ProgramTool> tool : assetType.getRegisteredTools() ) {
-			boolean isDefault = tool==defaultTool;
+			boolean isDefault = tool == defaultTool;
 
 			// Tool label
-			Label toolName = new Label(tool.getSimpleName());
+			Label toolName = new Label( tool.getSimpleName() );
 			toolName.getStyleClass().add( isDefault ? "asset-type-settings-default-tool" : "asset-type-settings-normal-tool" );
 			GridPane.setHgrow( toolName, Priority.ALWAYS );
 
 			// Default tool button
-			Button defaultToolButton = new Button(null,getProgram().getIconLibrary().getIcon("add") );
+			Button defaultToolButton = new Button( null, getProgram().getIconLibrary().getIcon( "asterisk" ) );
+			defaultToolButton.setOnAction( e -> this.setDefaultTool( tool ) );
 
 			items.addRow( row++, toolName, defaultToolButton );
 		}
+	}
+
+	private void setDefaultTool( Class<? extends ProgramTool> tool ) {
+		getProgram().getToolManager().setDefaultTool( assetType, tool );
 	}
 
 }

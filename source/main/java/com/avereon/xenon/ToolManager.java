@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
+import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
@@ -17,6 +18,7 @@ import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private static final TimeUnit WORK_TIME_UNIT = TimeUnit.SECONDS;
 
+	@Getter
 	private final Xenon program;
 
 	private final Map<String, String> aliases;
@@ -49,16 +52,19 @@ public class ToolManager implements Controllable<ToolManager> {
 		aliases = new ConcurrentHashMap<>();
 	}
 
-	public Xenon getProgram() {
-		return program;
-	}
-
 	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
+
+		// Set the default tool setting
+		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType );
+		String defaultTool = settings.getNode( "default" ).get( "tool" );
+		// NEXT Set the default tool for an asset type
+		// Here may not be the place to set the default tool
+		//if( !(type.getName().equals( defaultTool )) ) setDefaultTool( assetType, type );
 
 		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
@@ -249,6 +255,15 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	public Class<? extends ProgramTool> getDefaultTool( AssetType assetType ) {
 		return determineToolClassForAssetType( assetType );
+	}
+
+	public void setDefaultTool( AssetType assetType, Class<? extends ProgramTool> tool ) {
+		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+		if( toolClasses.remove( tool ) ) toolClasses.add( 0, tool );
+
+		// Set the default tool setting
+		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+		settings.set( "tool", tool.getName() );
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {

@@ -8,6 +8,7 @@ import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.*;
@@ -149,6 +150,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public Settings getAssetSettings( Asset asset ) {
 		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( String.valueOf( asset.getUri() ) ) );
+	}
+
+	public Settings getAssetTypeSettings( AssetType type ) {
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET_TYPE, IdGenerator.getId( String.valueOf( type.getKey() ) ) );
 	}
 
 	public SettingsPage getSettingsPage( String id ) {
