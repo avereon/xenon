@@ -5,6 +5,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
+import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -60,11 +61,15 @@ public class AssetTypeToolAssociationList extends VBox {
 			toolName.getStyleClass().add( isDefault ? "asset-type-settings-default-tool" : "asset-type-settings-normal-tool" );
 			GridPane.setHgrow( toolName, Priority.ALWAYS );
 
+			// Default tool icon
+			Label defaultIcon = new Label(null, getProgram().getIconLibrary().getIcon( "check" ));
+			GridPane.setHalignment( defaultIcon, HPos.CENTER );
+
 			// Default tool button
-			Button defaultToolButton = new Button( null, getProgram().getIconLibrary().getIcon( "asterisk" ) );
+			Button defaultToolButton = new Button( null, getProgram().getIconLibrary().getIcon( "up" ) );
 			defaultToolButton.setOnAction( e -> this.setDefaultTool( tool ) );
 
-			items.addRow( row++, toolName, defaultToolButton );
+			items.addRow( row++, toolName, isDefault ? defaultIcon : defaultToolButton );
 		}
 	}
 

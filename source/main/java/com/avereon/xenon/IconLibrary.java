@@ -79,6 +79,7 @@ public class IconLibrary {
 		register( "help", new QuestionIcon() );
 		register( "help-content", new QuestionIcon() );
 		register( "search", new MagnifierIcon() );
+		register( "check", new CheckIcon() );
 		register( "notice", new BellIcon() );
 		register( "notice-error", new BellIcon( Color.RED ) );
 		register( "notice-warn", new BellIcon( Color.YELLOW ) );
