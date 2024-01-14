@@ -10,7 +10,10 @@ import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
-import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.AssetTypeSettingsPanel;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -314,9 +317,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Show the splash screen, depends stylesheet
 		// NOTE If there is a test failure here it is because tests were run in the same VM
-		if( stage.getStyle() != StageStyle.UNDECORATED ) {
-			stage.initStyle( StageStyle.UNDECORATED );
-		}
+		if( stage.getStyle() != StageStyle.UNDECORATED ) stage.initStyle( StageStyle.UNDECORATED );
 		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
 		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
 		if( !daemon && !nosplash ) {
@@ -325,7 +326,7 @@ public class Xenon extends Application implements XenonProgram {
 			time( "splash-displayed" );
 		}
 
-		// Submit but do not wait for the startup task...allow the FX thread to be free
+		// Submit, but do not wait for the startup task...allow the FX thread to be free
 		getTaskManager().submit( new StartupTask() );
 	}
 
@@ -381,6 +382,7 @@ public class Xenon extends Application implements XenonProgram {
 			log.atSevere().withCause( getException() ).log( "Startup task failed" );
 			Fx.run( () -> requestExit( true ) );
 		}
+
 	}
 
 	// THREAD TaskPool-worker
@@ -452,7 +454,7 @@ public class Xenon extends Application implements XenonProgram {
 		time( "index-service" );
 
 		// Load the settings pages
-		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class);
+		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );
 
@@ -499,12 +501,28 @@ public class Xenon extends Application implements XenonProgram {
 		// Start the product manager
 		log.atFiner().log( "Starting product manager..." );
 		productManager.start();
-		productManager.startMods();
-		updateManager = new UpdateManager( this );
 		log.atFine().log( "Product manager started." );
 		time( "product-manager" );
 
-		// Restore the user interface, depends on workspace manager
+		// Start the mods, depends on product manager
+		log.atFiner().log( "Starting mods..." );
+		productManager.startMods();
+		log.atFine().log( "Mods started." );
+		time( "product-mods" );
+
+		// Start the update manager, depends on product manager
+		log.atFiner().log( "Starting update manager..." );
+		updateManager = new UpdateManager( this );
+		log.atFine().log( "Update manager started." );
+		time( "update-manager" );
+
+		// Before restoring the UI, update the default tools
+		log.atFiner().log( "Updating default tools..." );
+		toolManager.updateDefaultToolsFromSettings();
+		log.atFine().log( "Default tools updated." );
+		time( "update-default-tools" );
+
+		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
 		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
@@ -656,6 +674,7 @@ public class Xenon extends Application implements XenonProgram {
 		protected void failed() {
 			log.atSevere().withCause( getException() ).log( "Shutdown task failed" );
 		}
+
 	}
 
 	// THREAD TaskPool-worker
@@ -1563,4 +1582,5 @@ public class Xenon extends Application implements XenonProgram {
 
 		return programUpdated;
 	}
+
 }
