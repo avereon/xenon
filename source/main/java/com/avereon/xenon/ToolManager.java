@@ -59,13 +59,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		// Set the default tool setting
-		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType );
-		String defaultTool = settings.getNode( "default" ).get( "tool" );
-		// NEXT Set the default tool for an asset type
-		// Here may not be the place to set the default tool
-		//if( !(type.getName().equals( defaultTool )) ) setDefaultTool( assetType, type );
-
 		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
 	}
 
