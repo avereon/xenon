@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.7-SNAPSHOT</version>
+	<version>1.7</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -70,10 +70,10 @@
 		<!-- Runtime dependencies -->
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
-		<weave.version>[1.4-SNAPSHOT,)</weave.version>
-		<zenna.version>[0.9-SNAPSHOT,)</zenna.version>
-		<zarra.version>[0.9-SNAPSHOT,)</zarra.version>
-		<zevra.version>[0.9-SNAPSHOT,)</zevra.version>
+		<weave.version>[1.4,)</weave.version>
+		<zenna.version>[0.9,)</zenna.version>
+		<zarra.version>[0.9,)</zarra.version>
+		<zevra.version>[0.9,)</zevra.version>
 		<jackson.version>[2.16.1]</jackson.version>
 
 		<!-- Version numbers updated 11 Oct 2021 -->
