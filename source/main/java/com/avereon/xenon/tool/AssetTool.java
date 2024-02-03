@@ -5,6 +5,7 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
@@ -86,7 +87,7 @@ public class AssetTool extends GuidedTool {
 
 	private Consumer<Asset> saveActionConsumer;
 
-	public AssetTool( ProgramProduct product, Asset asset ) {
+	public AssetTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-asset" );
 
@@ -299,6 +300,7 @@ public class AssetTool extends GuidedTool {
 		TableView<Asset> table = (TableView<Asset>)event.getSource();
 		Asset item = table.getSelectionModel().getSelectedItem();
 		int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
+
 		if( item != null && event.getClickCount() >= clickCount ) {
 			try {
 				if( mode == Mode.OPEN ) {
@@ -333,33 +335,39 @@ public class AssetTool extends GuidedTool {
 		selectAsset( uri.toString() );
 	}
 
-	private void selectAsset( String text ) {
-		selectAsset( text, true );
+	private void selectAsset( String path ) {
+		selectAsset( path, true );
 	}
 
-	private void selectAsset( final String text, boolean updateHistory ) {
-		Objects.requireNonNull( text );
+	private void selectAsset( final String path, boolean updateHistory ) {
+		Objects.requireNonNull( path );
 
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
-			history.add( text );
+			history.add( path );
 			currentIndex++;
 		}
 
 		try {
-			Asset asset = getProgram().getAssetManager().createAsset( text );
-			uriField.setText( text );
+			Asset asset = getProgram().getAssetManager().createAsset( path );
+			uriField.setText( path );
 
 			if( mode == Mode.OPEN ) {
-				if( asset.isFolder() ) {
-					loadFolder( asset );
+				if( !asset.exists() ) {
+					notifyUser( "asset-not-found", path );
 				} else {
-					if( !asset.exists() ) {
-						notifyUser( "asset-not-found", text );
+					if( asset.isFolder() ) {
+						loadFolder( asset );
 					} else {
+						// TODO If the user chose "open with" then allow the user to chose a tool
+						//List<Class<? extends ProgramTool>> tools = getProgram().getToolManager().getRegisteredTools( asset.getType() );
+
+						// Use the asset manager to open the asset
 						getProgram().getAssetManager().openAsset( asset.getUri() );
+
+						// Close this tool
 						close();
 						return;
 					}
@@ -422,7 +430,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
-		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = Rb.text( "program", messageKey, parameters );
+		String message = Rb.text( "program", messageKey, (Object[])parameters );
 
 		Fx.run( () -> {
 			userMessage.setText( message );
@@ -474,9 +482,9 @@ public class AssetTool extends GuidedTool {
 	 */
 	private static class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
 
-		private final Program program;
+		private final Xenon program;
 
-		public NameValueFactory( Program program ) {
+		public NameValueFactory( Xenon program ) {
 			this.program = program;
 		}
 
@@ -526,7 +534,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class PriorAction extends ProgramAction {
 
-		protected PriorAction( Program program ) {
+		protected PriorAction( Xenon program ) {
 			super( program );
 		}
 
@@ -545,7 +553,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class NextAction extends ProgramAction {
 
-		protected NextAction( Program program ) {
+		protected NextAction( Xenon program ) {
 			super( program );
 		}
 
@@ -564,7 +572,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class ParentAction extends ProgramAction {
 
-		protected ParentAction( Program program ) {
+		protected ParentAction( Xenon program ) {
 			super( program );
 		}
 

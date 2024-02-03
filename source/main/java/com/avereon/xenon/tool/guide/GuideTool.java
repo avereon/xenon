@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -59,7 +59,7 @@ public class GuideTool extends ProgramTool {
 	private TreeCell<GuideNode> draggedCell;
 
 	@SuppressWarnings( "WeakerAccess" )
-	public GuideTool( ProgramProduct product, Asset asset ) {
+	public GuideTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-guide" );
 		guideTree = new TreeView<>();

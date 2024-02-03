@@ -18,13 +18,13 @@ import java.util.stream.Stream;
 @CustomLog
 public class StageUpdaterTask extends Task<Void> {
 
-	private final Program program;
+	private final Xenon program;
 
-	StageUpdaterTask( Program program ) {
+	StageUpdaterTask( Xenon program ) {
 		this.program = program;
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

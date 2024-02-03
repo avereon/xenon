@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.util.FileUtil;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -24,7 +24,7 @@ public class HelpTool extends GuidedTool {
 
 	private final WebView web;
 
-	public HelpTool( ProgramProduct product, Asset asset ) {
+	public HelpTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "help" ) );

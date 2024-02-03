@@ -1,5 +1,5 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.xenon.BaseXenonUiTestCase;
+import com.avereon.xenon.BaseXenonUIT;
 
-abstract class ProgramWorkspaceUIT extends BaseXenonUiTestCase {}
+abstract class ProgramWorkspaceUIT extends BaseXenonUIT {}

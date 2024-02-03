@@ -1,9 +1,9 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.notice.NoticeModel;
@@ -22,13 +22,13 @@ public class ProgramNoticeType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramNoticeType( ProgramProduct product ) {
+	public ProgramNoticeType( XenonProgramProduct product ) {
 		super( product, "notice" );
 		setDefaultCodec( new ProgramNoticeCodec() );
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
 		asset.setModel( new NoticeModel() );
 		return true;
 	}

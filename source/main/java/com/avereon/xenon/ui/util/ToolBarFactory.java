@@ -1,8 +1,8 @@
 package com.avereon.xenon.ui.util;
 
 import com.avereon.xenon.ActionProxy;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -16,18 +16,23 @@ import javafx.scene.layout.Region;
 import javafx.stage.Popup;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ToolBarFactory extends BarFactory {
+public class ToolBarFactory extends NavFactory {
 
-	public static ToolBar createToolBar( Program program, String descriptor ) {
+	public static final String TOOL_ITEM_ID_PREFIX = "toolitem-";
+
+	public static ToolBar createToolBar( Xenon program ) {
+		return createToolBar( program, "" );
+	}
+
+	public static ToolBar createToolBar( Xenon program, String descriptor ) {
 		ToolBar toolbar = new ToolBar();
 		List<Token> tokens = parseDescriptor( descriptor );
-		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).collect( Collectors.toList() ) );
+		toolbar.getItems().addAll( tokens.stream().map( t -> createToolBarItem( program, toolbar, t ) ).toList() );
 		return toolbar;
 	}
 
-	public static Button createToolBarButton( Program program, String id ) {
+	public static Button createToolBarButton( Xenon program, String id ) {
 		return createToolBarButton( program, program.getActionLibrary().getAction( id ) );
 	}
 
@@ -43,7 +48,7 @@ public class ToolBarFactory extends BarFactory {
 		return pad;
 	}
 
-	private static Node createToolBarItem( Program program, Node parent, Token item ) {
+	private static Node createToolBarItem( Xenon program, Node parent, Token item ) {
 		if( item.isSeparator() ) {
 			return new Separator();
 		} else if( item.getChildren().isEmpty() ) {
@@ -53,14 +58,14 @@ public class ToolBarFactory extends BarFactory {
 		}
 	}
 
-	private static Button createToolTray( Program program, Node parent, Token item ) {
+	private static Button createToolTray( Xenon program, Node parent, Token item ) {
 		Popup popup = new Popup();
 		popup.setAutoFix( true );
 		popup.setAutoHide( true );
 
 		ToolBar tray = new ToolBar();
 		tray.getStyleClass().add( "toolbar-tray" );
-		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).collect( Collectors.toList() ) );
+		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t ) ).toList() );
 		tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) );
 		((ToolBar)parent).orientationProperty().addListener( ( p, o, n ) -> tray.setOrientation( rotate( ((ToolBar)parent).getOrientation() ) ) );
 
@@ -81,7 +86,7 @@ public class ToolBarFactory extends BarFactory {
 
 	private static void doToggleTrayDialog( Button button, Popup popup, ToolBar tray ) {
 		if( !popup.isShowing() ) {
-			// Initially show the tray off screen so it can be laid out before the tray offset is calculated
+			// Initially show the tray off-screen, so it can be laid out before the tray offset is calculated
 			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
 
 			// Calculate offset after the tray is shown so the tray
@@ -96,12 +101,13 @@ public class ToolBarFactory extends BarFactory {
 		}
 	}
 
-	private static Button createToolBarButton( Program program, Token token ) {
+	private static Button createToolBarButton( Xenon program, Token token ) {
 		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ) );
 	}
 
-	private static Button createToolBarButton( Program program, ActionProxy action ) {
+	private static Button createToolBarButton( Xenon program, ActionProxy action ) {
 		Button button = new Button();
+		button.setId( TOOL_ITEM_ID_PREFIX + action.getId() );
 		button.setOnAction( action );
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );

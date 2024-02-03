@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import lombok.CustomLog;
 
 import javax.xml.stream.XMLInputFactory;
@@ -45,6 +45,8 @@ public class SettingsPageParser {
 
 	private static final String TITLE = "title";
 
+	private static final String PANEL = "panel";
+
 	private static final String PRODUCT_ICON = "product";
 
 	private static final String SETTING_ICON = "setting";
@@ -53,17 +55,17 @@ public class SettingsPageParser {
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-	private final ProgramProduct product;
+	private final XenonProgramProduct product;
 
-	private SettingsPageParser( ProgramProduct product ) {
+	private SettingsPageParser( XenonProgramProduct product ) {
 		this.product = product;
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path ) throws IOException {
+	public static Map<String, SettingsPage> parse( XenonProgramProduct product, String path ) throws IOException {
 		return parse( product, path, RbKey.SETTINGS );
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String rbKey ) throws IOException {
+	public static Map<String, SettingsPage> parse( XenonProgramProduct product, String path, String rbKey ) throws IOException {
 		return new SettingsPageParser( product ).parse( path, rbKey );
 	}
 
@@ -115,6 +117,7 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		String icon = attributes.getOrDefault( ICON, SETTING_ICON );
 		String title = attributes.get( TITLE );
+		String panel = attributes.get( PANEL );
 
 		// Special handling of product pages
 		if( PRODUCT_PAGE.equals( id ) ) {
@@ -133,6 +136,7 @@ public class SettingsPageParser {
 		page.setIcon( icon );
 		page.setTitle( title );
 		page.setRbKey( rbKey );
+		page.setPanel( panel );
 
 		SettingGroup group = null;
 		while( reader.hasNext() ) {
@@ -166,11 +170,15 @@ public class SettingsPageParser {
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( ID );
+		String collapsible = attributes.get( SettingData.COLLAPSIBLE );
+		String expanded = attributes.get( SettingData.EXPANDED );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingGroup group = new SettingGroup( page );
 		group.setId( id );
 		group.setFailDependencyAction( failDependencyAction );
+		group.setCollapsible( collapsible == null ? null : Boolean.parseBoolean( collapsible ) );
+		group.setExpanded( expanded == null ? null : Boolean.parseBoolean( expanded ) );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -199,11 +207,8 @@ public class SettingsPageParser {
 		String key = attributes.get( KEY );
 		String editor = attributes.get( SettingData.EDITOR );
 		String disable = attributes.get( SettingData.DISABLE );
-		if( disable == null ) disable = String.valueOf( false );
 		String opaque = attributes.get( SettingData.OPAQUE );
-		if( opaque == null ) opaque = String.valueOf( false );
-		String rows = attributes.get( SettingData.ROWS );
-		if( rows == null ) rows = String.valueOf( 10 );
+		String rows = attributes.computeIfAbsent( SettingData.ROWS, k -> "10" );
 		String provider = attributes.get( SettingData.PROVIDER );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
@@ -247,7 +252,7 @@ public class SettingsPageParser {
 			int type = reader.getEventType();
 			if( type == XMLStreamConstants.CHARACTERS ) textBuilder.append( reader.getText() );
 		}
-		String text = textBuilder.length() == 0 ? null : textBuilder.toString();
+		String text = textBuilder.isEmpty() ? null : textBuilder.toString();
 
 		// Determine the option key
 		String key = attributes.get( KEY );

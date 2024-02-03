@@ -1,17 +1,19 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.*;
 import com.avereon.zarra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.*;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.net.URI;
 import java.util.List;
@@ -21,12 +23,19 @@ import java.util.stream.Collectors;
 @CustomLog
 public class Workarea implements WritableIdentity {
 
+	private final StringProperty icon;
+
 	private final StringProperty name;
+
+	private final ObjectProperty<Paint> paint;
+
+	private final ObjectProperty<Color> color;
 
 	private final BooleanProperty active;
 
 	private final ObjectProperty<Workspace> workspace;
 
+	@Getter
 	private final Workpane workpane;
 
 	// private MenuBar extraMenuBarItems
@@ -34,8 +43,13 @@ public class Workarea implements WritableIdentity {
 	// private ToolBar extraToolBarItems
 
 	public Workarea() {
-		name = new SimpleStringProperty( this, "name", "" );
-		active = new SimpleBooleanProperty( this, "active", false );
+		LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET ), new Stop( 1, Color.TRANSPARENT ) );
+
+		paint = new SimpleObjectProperty<>( this, "paint", gradient );
+		color = new SimpleObjectProperty<>( this, "color", Color.valueOf( "#206080" ) );
+		icon = new SimpleStringProperty( this, "icon" );
+		name = new SimpleStringProperty( this, "name" );
+		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
 
 		workpane = new Workpane();
@@ -46,6 +60,18 @@ public class Workarea implements WritableIdentity {
 
 		// TODO Could be moved to UiFactory
 		workpane.setOnToolDrop( new DropHandler( this ) );
+	}
+
+	public final StringProperty iconProperty() {
+		return icon;
+	}
+
+	public final String getIcon() {
+		return icon.get();
+	}
+
+	public final void setIcon( String icon ) {
+		this.icon.set( icon );
 	}
 
 	public final StringProperty nameProperty() {
@@ -60,6 +86,30 @@ public class Workarea implements WritableIdentity {
 		this.name.set( name );
 	}
 
+	public final ObjectProperty<Paint> paintProperty() {
+		return paint;
+	}
+
+	public final Paint getPaint() {
+		return paint.get();
+	}
+
+	public final void setPaint( Paint paint ) {
+		this.paint.set( paint );
+	}
+
+	public final ObjectProperty<Color> colorProperty() {
+		return color;
+	}
+
+	public final Color getColor() {
+		return color.get();
+	}
+
+	public final void setColor( Color color ) {
+		this.color.set( color );
+	}
+
 	public final BooleanProperty activeProperty() {
 		return active;
 	}
@@ -69,8 +119,8 @@ public class Workarea implements WritableIdentity {
 	}
 
 	public final void setActive( boolean active ) {
-		workpane.setVisible( active );
 		this.active.set( active );
+		workpane.setVisible( active );
 	}
 
 	public final ObjectProperty<Workspace> workspaceProperty() {
@@ -93,8 +143,8 @@ public class Workarea implements WritableIdentity {
 		}
 	}
 
-	public Workpane getWorkpane() {
-		return workpane;
+	public Xenon getProgram() {
+		return getWorkspace().getProgram();
 	}
 
 	public Set<Asset> getAssets() {
@@ -149,7 +199,7 @@ public class Workarea implements WritableIdentity {
 		}
 
 		@Override
-		public void handleDrop( DropEvent event ) throws Exception {
+		public void handleDrop( DropEvent event ) {
 			TransferMode mode = event.getTransferMode();
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
@@ -172,8 +222,8 @@ public class Workarea implements WritableIdentity {
 			}
 		}
 
-		private Program getProgram() {
-			return workarea.getWorkspace().getProgram();
+		private Xenon getProgram() {
+			return workarea.getProgram();
 		}
 
 	}

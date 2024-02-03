@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -34,7 +34,7 @@ public class TaskMonitor extends AbstractMonitor {
 
 	private int priorThreadCount;
 
-	public TaskMonitor( Program program ) {
+	public TaskMonitor( Xenon program ) {
 		this.taskManager = program.getTaskManager();
 		this.taskWatcher = new TaskWatcher();
 

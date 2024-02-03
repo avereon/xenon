@@ -6,9 +6,9 @@ import javafx.stage.Screen;
 
 public class ProgramChecks {
 
-	private final Program program;
+	private final Xenon program;
 
-	public ProgramChecks( Program program ) {
+	public ProgramChecks( Xenon program ) {
 		this.program = program;
 		program.register( ProgramEvent.STARTED, ( e ) -> checkForHiDpi() );
 	}

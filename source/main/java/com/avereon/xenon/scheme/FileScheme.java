@@ -2,8 +2,10 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
 
 import java.io.*;
@@ -20,11 +22,13 @@ public class FileScheme extends BaseScheme {
 
 	private static final String FILE = "file";
 
+	private static final String TEMP_EXTENSION = ".xenonprior";
+
 	private List<Asset> roots;
 
 	//private FileAssetWatcher assetWatcher;
 
-	public FileScheme( Program program ) {
+	public FileScheme( Xenon program ) {
 		super( program, ID );
 		//assetWatcher = new FileAssetWatcher();
 
@@ -70,12 +74,23 @@ public class FileScheme extends BaseScheme {
 		Path file = getFile( asset ).toPath();
 		Path temp = null;
 
+		// NOTE The two-step strategy needs to keep the temp file and real file on
+		// the same file system because the move operation does not work across file
+		// systems (two Unix mount points or two Windows drives). Network files
+		// systems are also considered separate from local file systems.
+
+		// A prior two-step implementation caused problems with cloud storage products.
+		// This is presumably because the initial move step looked like a delete
+		// operation to these products. This caused a race condition between the
+		// second move step and the cloud storage product, occasionally leading to
+		// a lost file.
+
 		try {
-			// Step one - move current file out of the way
-			Path tempFolder = Files.createDirectories( getProgram().getTempFolder() );
-			temp = Files.createTempFile( tempFolder, "asset.", null );
+			// Step one - copy current file as backup
+			String tempFileName = file.getFileName() + TEMP_EXTENSION;
+			temp = file.getParent().resolve( tempFileName );
 			Files.deleteIfExists( temp );
-			Files.move( file, temp );
+			if( Files.exists( file ) ) Files.copy( file, temp );
 
 			// Step two - save asset to file
 			try( OutputStream stream = new FileOutputStream( file.toFile() ) ) {
@@ -84,15 +99,15 @@ public class FileScheme extends BaseScheme {
 				asset.setLastSaved( System.currentTimeMillis() );
 			}
 		} catch( IOException exception ) {
-			if( temp != null ) {
-				try {
-					Files.move( temp, file );
-				} catch( IOException restoreException ) {
-					log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
-				}
+			// Error recovery - move temp file back to real file
+			try {
+				Files.move( temp, file );
+			} catch( IOException restoreException ) {
+				log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
 			}
 			throw new AssetException( asset, exception );
 		} finally {
+			// Cleanup - remove the temp file regardless of the outcome
 			if( temp != null ) {
 				try {
 					Files.deleteIfExists( temp );
@@ -101,17 +116,6 @@ public class FileScheme extends BaseScheme {
 				}
 			}
 		}
-
-		// Step two - save asset to file
-		//		try( OutputStream stream = new FileOutputStream( file ) ) {
-		//			codec.save( asset, stream );
-		//			if( temp != null && temp.exists() && !temp.delete() ) log.atWarn().log( "Unable to cleanup temp file: " + temp );
-		//		} catch( Exception exception ) {
-		//			if( temp != null && temp.exists() && !temp.renameTo( file ) ) throw new AssetException( asset, "Unable to restore " + temp + " > " + file );
-		//			throw new AssetException( asset, exception );
-		//		} finally {
-		//			asset.setLastSaved( System.currentTimeMillis() );
-		//		}
 	}
 
 	@Override

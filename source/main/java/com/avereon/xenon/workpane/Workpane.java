@@ -1435,6 +1435,7 @@ public class Workpane extends Control implements WritableIdentity {
 		sources.forEach( source -> fireEvent( new ViewEvent( this, ViewEvent.MERGING, this, source ) ) );
 
 		// Get needed objects.
+		Workpane workpane = edge.getWorkpane();
 		WorkpaneEdge farEdge = targets.iterator().next().getEdge( direction );
 
 		// Extend the source views and edges.
@@ -1477,11 +1478,11 @@ public class Workpane extends Control implements WritableIdentity {
 		}
 
 		// Remove the edge.
-		edge.getWorkpane().removeEdge( edge );
 		edge.setEdge( direction, null );
 		edge.setEdge( getOppositeSide( direction ), null );
 		edge.setEdge( getSideAtLeft( direction ), null );
 		edge.setEdge( getSideAtRight( direction ), null );
+		workpane.removeEdge( edge );
 
 		return true;
 	}

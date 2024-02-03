@@ -2,9 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - stable
+    branches: [ main ]
+  pull_request:
   schedule:
     # Noon Saturday UTC
     - cron: '0 12 * * 6'
@@ -36,10 +35,10 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -55,14 +54,14 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -70,7 +69,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: java
 
@@ -83,7 +82,7 @@ jobs:
           mvn ${{env.MAVEN_PARMS}} test
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
       - name: Publish Arifacts
         run: |
@@ -91,11 +90,7 @@ jobs:
 
       - name: Trigger Dependent Builds
         run: |
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/acorn/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/aveon/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/carta/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/mazer/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/recon/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
+          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
 
       - name: Publish Icons
         run: |
@@ -125,10 +120,10 @@ jobs:
       XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -143,14 +138,14 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -178,10 +173,10 @@ jobs:
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -196,14 +191,14 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -230,10 +225,10 @@ jobs:
       AVN_PLATFORM: "linux"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -248,14 +243,14 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -305,10 +300,10 @@ jobs:
       AVN_PLATFORM: "macosx"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -323,14 +318,14 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -380,10 +375,10 @@ jobs:
       AVN_PLATFORM: "windows"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github
@@ -399,14 +394,14 @@ jobs:
       #    Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}

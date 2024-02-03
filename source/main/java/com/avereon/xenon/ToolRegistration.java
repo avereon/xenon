@@ -5,7 +5,7 @@ import javafx.scene.Node;
 
 public class ToolRegistration {
 
-	private ProgramProduct product;
+	private XenonProgramProduct product;
 
 	private Class<? extends ProgramTool> type;
 
@@ -17,16 +17,16 @@ public class ToolRegistration {
 
 	private ToolInstanceMode instanceMode;
 
-	public ToolRegistration( ProgramProduct product, Class<? extends ProgramTool> type ) {
+	public ToolRegistration( XenonProgramProduct product, Class<? extends ProgramTool> type ) {
 		this.product = product;
 		this.type = type;
 	}
 
-	public ProgramProduct getProduct() {
+	public XenonProgramProduct getProduct() {
 		return product;
 	}
 
-	public ToolRegistration setProduct( ProgramProduct product ) {
+	public ToolRegistration setProduct( XenonProgramProduct product ) {
 		this.product = product;
 		return this;
 	}

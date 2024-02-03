@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
@@ -13,7 +13,7 @@ public class ProgramAboutType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramAboutType( ProgramProduct product ) {
+	public ProgramAboutType( XenonProgramProduct product ) {
 		super( product, "about" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();
@@ -32,7 +32,7 @@ public class ProgramAboutType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Asset asset ) {
 		// Arguably "the program" is the asset model for the about data type. But
 		// that is a pretty big model. Not only that but the about tool needs to
 		// watch for changes in several things as well as things that do not

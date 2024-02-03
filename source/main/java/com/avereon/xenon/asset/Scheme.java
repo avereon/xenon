@@ -1,5 +1,7 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.xenon.asset.exception.AssetException;
+
 import java.util.List;
 
 /**

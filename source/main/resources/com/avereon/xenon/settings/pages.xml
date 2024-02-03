@@ -5,6 +5,12 @@
 	<page id="general">
 
 		<group id="workspace">
+			<setting key="workspace-open-existing-on-start" editor="checkbox"/>
+			<setting key="workspace-open-in" editor="combobox">
+				<option key="current"/>
+				<option key="new"/>
+				<option key="ask"/>
+			</setting>
 			<setting key="workspace-workarea-chooser-count" editor="combobox">
 				<option>5</option>
 				<option>10</option>
@@ -241,6 +247,12 @@
 				<setting key="workspace-fps-monitor-enabled" editor="checkbox"/>
 			</group>
 		</page>
+	</page>
+
+	<page id="assets">
+
+		<page id="asset-types" panel="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line"/>
+
 	</page>
 
 	<page id="network">

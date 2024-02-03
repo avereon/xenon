@@ -2,7 +2,7 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class PackProvider implements ProductResourceProvider {
 
-	private Program program;
+	private Xenon program;
 
 	private RepoCard repo;
 
@@ -19,7 +19,7 @@ public class PackProvider implements ProductResourceProvider {
 
 	private ProductCard card;
 
-	public PackProvider( Program program, RepoCard repo, RepoClient client, ProductCard card ) {
+	public PackProvider( Xenon program, RepoCard repo, RepoClient client, ProductCard card ) {
 		this.program = program;
 		this.repo = repo;
 		this.repoClient = client;

@@ -13,8 +13,7 @@ class ProductToolOpenUIT extends ProductToolUIT {
 		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		clickOn( "#menu-view" );
-		clickOn( "#menuitem-product" );
+		openProductTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 

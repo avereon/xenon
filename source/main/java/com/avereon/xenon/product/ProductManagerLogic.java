@@ -7,7 +7,7 @@ import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
@@ -41,16 +41,16 @@ public class ProductManagerLogic {
 
 	private static final RepoState REPO_CONNECTION_ERROR = new RepoState();
 
-	private final Program program;
+	private final Xenon program;
 
 	private final V2RepoClient repoClient;
 
 	static {
-		PRODUCT_CONNECTION_ERROR.setGroup( Program.class.getPackageName() );
+		PRODUCT_CONNECTION_ERROR.setGroup( Xenon.class.getPackageName() );
 		PRODUCT_CONNECTION_ERROR.setArtifact( "product-connection-error" );
 	}
 
-	public ProductManagerLogic( Program program ) {
+	public ProductManagerLogic( Xenon program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
 	}
@@ -61,7 +61,7 @@ public class ProductManagerLogic {
 		notifyUpdatesReadyToApply( true );
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
 

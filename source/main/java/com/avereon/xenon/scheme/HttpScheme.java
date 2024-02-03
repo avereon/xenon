@@ -1,10 +1,10 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.NullCodecException;
+import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class HttpScheme extends BaseScheme {
 	 *
 	 * @param program The program
 	 */
-	public HttpScheme( Program program ) {
+	public HttpScheme( Xenon program ) {
 		this( program, ID );
 	}
 
@@ -39,7 +39,7 @@ public class HttpScheme extends BaseScheme {
 	 * @param program The program
 	 * @param id The scheme id
 	 */
-	protected HttpScheme( Program program, String id ) {
+	protected HttpScheme( Xenon program, String id ) {
 		super( program, id );
 	}
 

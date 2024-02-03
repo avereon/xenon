@@ -7,17 +7,26 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class BaseToolUIT extends BaseXenonUiTestCase {
+public abstract class BaseToolUIT extends BaseXenonUIT {
+
+	protected static final String MAIN_MENU = "#menu-button-menu";
 
 	protected void assertToolCount( Workpane pane, int count ) {
 		Collection<Tool> tools = pane.getTools();
+		assertThat( tools ).isNotNull();
 
 		try {
-			assertThat( tools.size() ).isEqualTo( count );
+			assertThat( tools ).hasSize( count );
 		} catch( AssertionError error ) {
 			tools.forEach( t -> System.out.println( "Tool: " + t ) );
 			throw error;
 		}
+	}
+
+	protected void openMenuItem( String menuId, String menuItemId ) {
+		robot.clickOn( MAIN_MENU );
+		robot.moveTo( menuId );
+		robot.clickOn( menuItemId );
 	}
 
 }

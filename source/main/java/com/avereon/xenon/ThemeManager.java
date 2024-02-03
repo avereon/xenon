@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import com.avereon.skill.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.ui.MaterialColor;
+import com.avereon.zarra.color.MaterialColor;
 import com.avereon.zarra.color.Colors;
 import javafx.scene.paint.Color;
 import lombok.CustomLog;
@@ -21,19 +21,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Map<String, ThemeMetadata> themes;
 
 	private final Path profileThemeFolder;
 
-	public ThemeManager( Program program ) {
+	public ThemeManager( Xenon program ) {
 		this.program = program;
 		this.themes = new ConcurrentHashMap<>();
 		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

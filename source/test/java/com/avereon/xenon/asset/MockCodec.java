@@ -11,11 +11,11 @@ public class MockCodec extends Codec {
 
 	private final String key;
 
-	MockCodec() {
+	public MockCodec() {
 		this( null );
 	}
 
-	MockCodec( String key ) {
+	public MockCodec( String key ) {
 		this.key = key;
 		addSupported( Pattern.URI, "mock:test" );
 		addSupported( Pattern.URI, "program:/mock" );

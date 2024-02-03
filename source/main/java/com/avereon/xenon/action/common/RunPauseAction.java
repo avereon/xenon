@@ -1,7 +1,7 @@
 package com.avereon.xenon.action.common;
 
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import javafx.event.ActionEvent;
 import lombok.CustomLog;
@@ -11,7 +11,7 @@ public class RunPauseAction extends ProgramAction {
 
 	private final RunPauseResettable target;
 
-	public RunPauseAction( Program program, RunPauseResettable target ) {
+	public RunPauseAction( Xenon program, RunPauseResettable target ) {
 		super( program );
 		this.target = target;
 	}

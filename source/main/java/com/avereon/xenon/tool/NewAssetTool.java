@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
@@ -27,7 +27,7 @@ public class NewAssetTool extends ProgramTool {
 
 	private final AssetTypeView view;
 
-	public NewAssetTool( ProgramProduct product, Asset asset ) {
+	public NewAssetTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-asset-new" );
 

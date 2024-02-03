@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Profile;
 import com.avereon.util.OperatingSystem;
 
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UpdateManager {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final String prefix;
 
@@ -18,12 +19,18 @@ public class UpdateManager {
 
 	private StageUpdaterTask stageUpdaterTask;
 
-	public UpdateManager( Program program ) {
+	public UpdateManager( Xenon program ) {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater";
 
 		updaterLauncher = calcUpdaterLauncher( program.getHomeFolder(), program.getProductManager().getUpdatesFolder(), prefix, program.getProfile() );
-		updaterFolder = updaterLauncher.getParent().getParent();
+
+		// Linux and Mac launcher is in a /bin folder. Windows is not.
+		if( OperatingSystem.isWindows() ) {
+			updaterFolder = updaterLauncher.getParent();
+		} else {
+			updaterFolder = updaterLauncher.getParent().getParent();
+		}
 	}
 
 	public static Path calcUpdaterLauncher( Path home, Path updatesFolder, String prefix, String profile ) {
@@ -49,7 +56,7 @@ public class UpdateManager {
 		return updaterLauncher;
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

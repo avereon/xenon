@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import javafx.scene.control.Button;
 import lombok.CustomLog;
 
@@ -9,7 +9,7 @@ class UpdatesPage extends ProductPage {
 
 	private final ProductTool productTool;
 
-	UpdatesPage( Program program, ProductTool productTool ) {
+	UpdatesPage( Xenon program, ProductTool productTool ) {
 		super( program, productTool, ProductTool.UPDATES );
 		this.productTool = productTool;
 

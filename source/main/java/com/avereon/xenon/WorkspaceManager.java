@@ -14,6 +14,7 @@ import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import lombok.CustomLog;
 
 import java.util.HashSet;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Set<Workspace> workspaces;
 
@@ -35,7 +36,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private boolean uiReady;
 
-	WorkspaceManager( Program program ) {
+	WorkspaceManager( Xenon program ) {
 		this.program = program;
 		this.workspaces = new CopyOnWriteArraySet<>();
 
@@ -44,7 +45,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		} );
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 
@@ -108,12 +109,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.uiReady = uiReady;
 	}
 
-	public String getTheme() {
+	public String getThemeId() {
 		return currentThemeId;
 	}
 
 	public ThemeMetadata getThemeMetadata() {
-		return getProgram().getThemeManager().getMetadata( getTheme() );
+		return getProgram().getThemeManager().getMetadata( getThemeId() );
 	}
 
 	public void setTheme( String id ) {
@@ -134,11 +135,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace newWorkspace( String id ) {
-		Workspace workspace = new Workspace( program );
-		workspace.setUid( id );
+		Workspace workspace = new Workspace( program, id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
-		workspace.getEventBus().parent( program.getFxEventHub() );
 
 		return workspace;
 	}
@@ -170,21 +169,19 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Fx.run( () -> {
 			Workspace workspace = getActiveWorkspace();
 			if( workspace == null ) return;
-			Stage stage = workspace.getStage();
-			if( stage == null ) return;
-			stage.show();
-			stage.requestFocus();
+			workspace.show();
+			workspace.requestFocus();
 		} );
 	}
 
 	public Workspace getActiveWorkspace() {
-		if( activeWorkspace == null && workspaces.size() > 0 ) setActiveWorkspace( workspaces.iterator().next() );
+		if( activeWorkspace == null && !workspaces.isEmpty() ) setActiveWorkspace( workspaces.iterator().next() );
 		if( activeWorkspace != null ) return activeWorkspace;
 		throw new IllegalStateException( "No workspaces available" );
 	}
 
 	public Stage getActiveStage() {
-		if( activeWorkspace != null ) return getActiveWorkspace().getStage();
+		if( activeWorkspace != null ) return activeWorkspace;
 		throw new IllegalStateException( "No workspace stages available" );
 	}
 
@@ -226,7 +223,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		alert.setTitle( Rb.text( RbKey.PROGRAM, "asset-modified" ) );
 		alert.setHeaderText( Rb.text( RbKey.PROGRAM, "asset-modified-message" ) );
 		alert.setContentText( Rb.text( RbKey.PROGRAM, "asset-modified-prompt" ) );
-		alert.initOwner( getActiveWorkspace().getStage() );
+		alert.initOwner( getActiveWorkspace() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -240,8 +237,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
-		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
-		log.atWarning().log( "Number of visible workspaces: %s", visibleWorkspaces );
+		long visibleWorkspaces = workspaces.stream().filter( Window::isShowing ).count();
 		boolean closeProgram = visibleWorkspaces == 1;
 		boolean shutdownVerify = getProgram().getSettings().get( "shutdown-verify", Boolean.class, true );
 
@@ -256,7 +252,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 				alert.setTitle( Rb.text( "workspace", "workspace-close-title" ) );
 				alert.setHeaderText( Rb.text( "workspace", "workspace-close-message" ) );
 				alert.setContentText( Rb.text( "workspace", "workspace-close-prompt" ) );
-				alert.initOwner( workspace.getStage() );
+				alert.initOwner( workspace );
 
 				Stage stage = program.getWorkspaceManager().getActiveStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -298,7 +294,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	void hideWindows() {
-		getWorkspaces().forEach( workspace -> workspace.getStage().hide() );
+		getWorkspaces().forEach( Window::hide );
 	}
 
 	private void closeWorkspace( Workspace workspace ) {

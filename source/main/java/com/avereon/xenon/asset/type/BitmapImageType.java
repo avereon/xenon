@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
@@ -20,7 +20,7 @@ public class BitmapImageType extends AssetType {
 
 	private static final String pngMediaTypePattern = "image/png";
 
-	public BitmapImageType( ProgramProduct product ) {
+	public BitmapImageType( XenonProgramProduct product ) {
 		super( product, "image" );
 
 		// TODO Replace this placeholder codec with actual codecs

@@ -15,11 +15,22 @@ public class ActionLibrary {
 
 	private final Map<String, ActionProxy> actionsById;
 
-	public ActionLibrary( Program product ) {
+	public ActionLibrary( Xenon product ) {
 		this.actionsById = new ConcurrentHashMap<>();
+
+		// TODO Common action bindings
+		// Should the following be assigned?:
+		// F1 - Help - Very common across most applications
+		// F3 - Search in tool - Common in text editors and web browsers
+		// F5 - Refresh - Common in web browsers
+		// F11 - Full screen - Common in web browsers
+		// F12 - About tool
 
 		// Create default actions
 		register( product, "program" );
+		register( product, "menu" );
+		register( product, "maintenance" );
+
 		register( product, "file" );
 		register( product, "new" );
 		register( product, "open" );
@@ -31,6 +42,8 @@ public class ActionLibrary {
 		register( product, "print" );
 		register( product, "close" );
 		register( product, "close-all" );
+		register( product, "minimize" );
+		register( product, "maximize" );
 		register( product, "exit" );
 
 		register( product, "edit" );
@@ -58,6 +71,7 @@ public class ActionLibrary {
 		register( product, "statusbar-show" );
 		register( product, "settings" );
 
+		register( product, "tool" );
 		register( product, "tools" );
 
 		register( product, "help" );
@@ -77,7 +91,7 @@ public class ActionLibrary {
 		register( product, "test-action-5" );
 		register( product, "mock-update" );
 		register( product, "restart" );
-		register( product, "reset" );
+		register( product, "uireset" );
 
 		register( product, "workarea" );
 		register( product, "workarea-new" );
@@ -89,9 +103,10 @@ public class ActionLibrary {
 		register( product, "wallpaper-toggle" );
 		register( product, "wallpaper-prior" );
 		register( product, "wallpaper-next" );
+		register( product, "wallpaper-tint-toggle" );
 
-		register( product, "reset" );
 		register( product, "runpause" );
+		register( product, "reset" );
 
 		register( product, "refresh" );
 		register( product, "enable" );

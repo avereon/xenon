@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import javafx.event.ActionEvent;
 import lombok.CustomLog;
@@ -10,7 +10,7 @@ public class RunnableTestAction extends ProgramAction {
 
 	private final Runnable runnable;
 
-	public RunnableTestAction( Program program, Runnable runnable ) {
+	public RunnableTestAction( Xenon program, Runnable runnable ) {
 		super( program );
 		this.runnable = runnable;
 	}

@@ -1,11 +1,11 @@
 package com.avereon.xenon.task;
 
-import com.avereon.xenon.BaseXenonTestCase;
+import com.avereon.xenon.BasePartXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class BaseTaskTest extends BaseXenonTestCase {
+public abstract class BaseTaskTest extends BasePartXenonTestCase {
 
 	static final int DEFAULT_WAIT_TIME = 1;
 

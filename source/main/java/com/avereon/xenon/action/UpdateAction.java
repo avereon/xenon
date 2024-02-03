@@ -1,12 +1,12 @@
 package com.avereon.xenon.action;
 
 import com.avereon.xenon.ProgramAction;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import javafx.event.ActionEvent;
 
 public class UpdateAction extends ProgramAction {
 
-	public UpdateAction( Program program ) {
+	public UpdateAction( Xenon program ) {
 		super( program );
 	}
 

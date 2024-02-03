@@ -6,13 +6,21 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEdge;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.xenon.workspace.Workarea;
+import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.color.Paints;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import lombok.CustomLog;
+import lombok.Getter;
 
+@Getter
 @CustomLog
-public class UiFactory {
+public final class UiFactory {
 
 	public static final double DEFAULT_WIDTH = 960;
 
@@ -36,9 +44,17 @@ public class UiFactory {
 
 	private static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
 
-	private final Program program;
+	public static final String ACTIVE = "active";
 
-	public UiFactory( Program program ) {
+	public static final String NAME = "name";
+
+	public static final String PAINT = "paint";
+
+	public static final String COLOR = "color";
+
+	private final Xenon program;
+
+	public UiFactory( Xenon program ) {
 		this.program = program;
 	}
 
@@ -47,8 +63,12 @@ public class UiFactory {
 	}
 
 	Workarea newWorkarea( String id, boolean restore ) {
+		LinearGradient paint = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
+
 		Workarea workarea = new Workarea();
 		workarea.setUid( id );
+		workarea.setPaint( paint );
+		workarea.setIcon( "workarea" );
 		setupWorkareaSettings( workarea );
 
 		Workpane workpane = workarea.getWorkpane();
@@ -62,16 +82,21 @@ public class UiFactory {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 
 		// Restore state from settings
-		workarea.setName( settings.get( "name", workarea.getName() ) );
-		workarea.setActive( settings.get( "active", Boolean.class, workarea.isActive() ) );
+		workarea.setPaint( Paints.parse( settings.get( PAINT, Paints.toString( workarea.getPaint() ) ) ) );
+		workarea.setColor( Colors.parse( settings.get( COLOR, Colors.toString( workarea.getColor() ) ) ) );
+		workarea.setName( settings.get( NAME, workarea.getName() ) );
+		workarea.setActive( settings.get( ACTIVE, Boolean.class, workarea.isActive() ) );
 
 		// Save new state to settings
-		settings.set( "name", workarea.getName() );
-		settings.set( "active", workarea.isActive() );
+		settings.set( PAINT, Paints.toString( workarea.getPaint() ) );
+		settings.set( COLOR, Colors.toString( workarea.getColor() ) );
+		settings.set( NAME, workarea.getName() );
+		settings.set( ACTIVE, workarea.isActive() );
 
 		// Add the change listeners
-		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( "name", n ) );
-		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( "active", n ) );
+		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( PAINT, Paints.toString( n ) ) );
+		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( NAME, n ) );
+		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( ACTIVE, n ) );
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
 	}
 
@@ -106,7 +131,7 @@ public class UiFactory {
 		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
 		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
 		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
-		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)( c ) -> processWorkpaneChildrenChanges( workpane, c ) );
+		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkpaneChildrenChanges( workpane, c ) );
 	}
 
 	private void processWorkpaneChildrenChanges( Workpane workpane, ListChangeListener.Change<? extends Node> change ) {

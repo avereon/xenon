@@ -4,7 +4,7 @@ import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -32,7 +32,7 @@ public class NoticeTool extends ProgramTool {
 
 	private EventHandler<NodeEvent> assetHandler;
 
-	public NoticeTool( ProgramProduct product, Asset asset ) {
+	public NoticeTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-notice" );
 
@@ -95,8 +95,6 @@ public class NoticeTool extends ProgramTool {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
 				noticePane.setOnMouseClicked( ( event ) -> {
 					noticePane.executeNoticeAction();
-					event.consume();
-					this.close();
 				} );
 				noticePane.getCloseButton().setOnMouseClicked( ( event ) -> {
 					getProgram().getNoticeManager().removeNotice( notice );

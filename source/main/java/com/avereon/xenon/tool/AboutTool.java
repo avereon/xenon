@@ -8,9 +8,9 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.product.ModEvent;
@@ -20,9 +20,7 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
-import javafx.geometry.HPos;
 import javafx.geometry.Rectangle2D;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -31,6 +29,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.File;
 import java.lang.management.*;
@@ -68,7 +67,7 @@ public class AboutTool extends GuidedTool {
 
 	private EventHandler<ModEvent> modEnabledWatcher;
 
-	public AboutTool( ProgramProduct product, Asset asset ) {
+	public AboutTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-about" );
 
@@ -105,7 +104,7 @@ public class AboutTool extends GuidedTool {
 		setTitle( getProduct().getCard().getName() );
 		setGraphic( getProgram().getIconLibrary().getIcon( "about" ) );
 
-		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
+		updateCheckWatcher = e -> Platform.runLater( summaryPane.getInformationPane()::updateUpdateCheckInfo );
 		getProgram().getSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
 		getProgram().getSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 
@@ -135,10 +134,10 @@ public class AboutTool extends GuidedTool {
 	}
 
 	private void updatePages() {
-		ProductCard metadata = getProgram().getCard();
-		summaryPane.update( metadata );
-		modsText.setText( getModsText( (Program)getProduct() ) );
-		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+		summaryPane.update( getProgram().getCard() );
+		summaryPane.getInformationPane().update();
+		modsText.setText( getModsText( (Xenon)getProduct() ) );
+		detailsText.setText( getDetailsText( (Xenon)getProduct() ) );
 	}
 
 	private Guide createGuide() {
@@ -166,6 +165,54 @@ public class AboutTool extends GuidedTool {
 		private final Label productVersion;
 
 		private final Label productProvider;
+
+		@Getter
+		private final InformationPane informationPane;
+
+		@Getter
+		private final ModSummaryPane modSummaryPane;
+
+		public SummaryPane() {
+			Node icon = getProgram().getIconLibrary().getIcon( "program", ICON_SIZE );
+
+			VBox title = new VBox( UiFactory.PAD );
+			title.getChildren().add( productName = makeLabel( "tool-about-title" ) );
+			title.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
+			title.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
+
+			HBox header = new HBox( icon, title );
+
+			informationPane = new InformationPane();
+			modSummaryPane = new ModSummaryPane();
+			HBox.setHgrow( informationPane, Priority.ALWAYS );
+			HBox.setHgrow( modSummaryPane, Priority.ALWAYS );
+			HBox summaries = new HBox( informationPane, modSummaryPane );
+
+			ScrollPane summaryScroller = new ScrollPane( summaries );
+			summaryScroller.setFitToWidth( true );
+
+			VBox page = new VBox( header, summaryScroller );
+			HBox.setHgrow( page, Priority.ALWAYS );
+
+			HBox content = new HBox( icon, page );
+
+			getChildren().addAll( content );
+		}
+
+		public void update( ProductCard card ) {
+			String from = Rb.text( "tool", "about-from" );
+			productName.setText( card.getName() );
+			if( card.getRelease().getVersion().isSnapshot() ) {
+				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
+			} else {
+				productVersion.setText( card.getRelease().getVersion().toHumanString() );
+			}
+			productProvider.setText( from + " " + card.getProvider() );
+		}
+
+	}
+
+	private class InformationPane extends VBox {
 
 		private final Label javaFxHeader;
 
@@ -199,7 +246,7 @@ public class AboutTool extends GuidedTool {
 
 		private final Label nextUpdateTimestamp;
 
-		public SummaryPane() {
+		public InformationPane() {
 			super( UiFactory.PAD );
 			setId( "tool-about-summary" );
 
@@ -212,18 +259,6 @@ public class AboutTool extends GuidedTool {
 			javaLabel = makeLabel( "tool-about-header" );
 			javaVmName = makeLabel( "tool-about-name" );
 			osName = makeLabel( "tool-about-name" );
-
-			Node icon = getProgram().getIconLibrary().getIcon( "program", ICON_SIZE );
-
-			VBox header = new VBox( UiFactory.PAD );
-			header.getChildren().add( productName = makeLabel( "tool-about-title" ) );
-			header.getChildren().add( productVersion = makeLabel( "tool-about-version" ) );
-			header.getChildren().add( productProvider = makeLabel( "tool-about-provider" ) );
-			//			header.getChildren().add( makeSeparator() );
-			//			header.getChildren().add( lastUpdateTimestamp );
-			//			header.getChildren().add( nextUpdateTimestamp );
-//			header.getChildren().add( makeSeparator() );
-//			header.getChildren().add( makeSeparator() );
 
 			VBox information = new VBox( UiFactory.PAD );
 			// Java
@@ -249,50 +284,11 @@ public class AboutTool extends GuidedTool {
 			information.getChildren().add( osVersion = makeLabel( "tool-about-version" ) );
 			information.getChildren().add( osProvider = makeLabel( "tool-about-provider" ) );
 
-			// Mods
-			VBox mods = new VBox( UiFactory.PAD );
-			List<ProductCard> cards = new ArrayList<>( getProgram().getProductManager().getInstalledProductCards( false ) );
-			cards.sort( new ProductCardComparator( ProductCardComparator.Field.NAME ) );
-			for( ProductCard card : cards ) {
-				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
-
-				Label modHeader = makeLabel( "tool-about-header" );
-				Label modVersion = makeLabel( "tool-about-version" );
-				Label modProvider = makeLabel( "tool-about-provider" );
-
-				modHeader.setText( card.getName() );
-				modVersion.setText( card.getVersion() );
-				modProvider.setText( from + " " + card.getProvider() );
-
-				mods.getChildren().add( makeSeparator() );
-				mods.getChildren().add( makeSeparator() );
-				mods.getChildren().add( modHeader );
-				mods.getChildren().add( modVersion );
-				mods.getChildren().add( modProvider );
-			}
-
-			ScrollPane scroller = new ScrollPane( new VBox( information, mods ) );
-
-			GridPane grid = new GridPane();
-			grid.getChildren().addAll( icon, header, scroller );
-			GridPane.setConstraints( icon, 1, 1, 1, 1, HPos.LEFT, VPos.TOP );
-			GridPane.setConstraints( header, 2, 1 );
-			GridPane.setConstraints( scroller, 2, 2 );
-			GridPane.setHgrow( header, Priority.ALWAYS );
-			GridPane.setHgrow( scroller, Priority.ALWAYS );
-
-			getChildren().addAll( grid );
+			getChildren().addAll( information );
 		}
 
-		public void update( ProductCard card ) {
+		public void update() {
 			String from = Rb.text( "tool", "about-from" );
-			productName.setText( card.getName() );
-			if( card.getRelease().getVersion().isSnapshot() ) {
-				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
-			} else {
-				productVersion.setText( card.getRelease().getVersion().toHumanString() );
-			}
-			productProvider.setText( from + " " + card.getProvider() );
 
 			javaFxHeader.setText( "JavaFX " + System.getProperty( "javafx.version" ) );
 			javaFxRuntime.setText( "JavaFX Runtime " + System.getProperty( "javafx.runtime.version" ) );
@@ -335,6 +331,38 @@ public class AboutTool extends GuidedTool {
 
 	}
 
+	private class ModSummaryPane extends VBox {
+
+		public ModSummaryPane() {
+			String from = Rb.text( "tool", "about-from" );
+
+			// Mods
+			VBox mods = new VBox( UiFactory.PAD );
+			List<ProductCard> cards = new ArrayList<>( getProgram().getProductManager().getInstalledProductCards( false ) );
+			cards.sort( new ProductCardComparator( ProductCardComparator.Field.NAME ) );
+			for( ProductCard card : cards ) {
+				if( card.getProductKey().equals( getProgram().getCard().getProductKey() ) ) continue;
+
+				Label modHeader = makeLabel( "tool-about-header" );
+				Label modVersion = makeLabel( "tool-about-version" );
+				Label modProvider = makeLabel( "tool-about-provider" );
+
+				modHeader.setText( card.getName() );
+				modVersion.setText( card.getVersion() );
+				modProvider.setText( from + " " + card.getProvider() );
+
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( makeSeparator() );
+				mods.getChildren().add( modHeader );
+				mods.getChildren().add( modVersion );
+				mods.getChildren().add( modProvider );
+			}
+
+			getChildren().addAll( mods );
+		}
+
+	}
+
 	private Node makeSeparator() {
 		return new Pane();
 	}
@@ -345,7 +373,7 @@ public class AboutTool extends GuidedTool {
 		return label;
 	}
 
-	private String getModsText( Program program ) {
+	private String getModsText( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		program
@@ -359,7 +387,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@SuppressWarnings( "StringBufferReplaceableByString" )
-	private String getDetailsText( Program program ) {
+	private String getDetailsText( Xenon program ) {
 		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
 
@@ -459,7 +487,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@SuppressWarnings( "StringBufferReplaceableByString" )
-	private String getProgramDetails( Program program ) {
+	private String getProgramDetails( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
@@ -493,7 +521,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getRuntimeDetail( Program program ) {
+	private String getRuntimeDetail( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		// CPU Information
@@ -578,7 +606,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getExecutionDetail( Program program ) {
+	private String getExecutionDetail( Xenon program ) {
 		StringBuilder builder = new StringBuilder();
 
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();

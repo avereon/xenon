@@ -1,9 +1,10 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramAction;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @CustomLog
 public class NewWorkareaAction extends ProgramAction {
 
-	public NewWorkareaAction( Program program ) {
+	public NewWorkareaAction( Xenon program ) {
 		super( program );
 	}
 
@@ -27,12 +28,15 @@ public class NewWorkareaAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		Program program = getProgram();
+		Xenon program = getProgram();
 
 		TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle( Rb.text( "workarea", "workarea-new-title" ) );
-		dialog.setHeaderText( Rb.text( "workarea", "workarea-new-message" ) );
-		dialog.setContentText( Rb.text( "workarea", "workarea-new-prompt" ) );
+		dialog.setTitle( Rb.text( RbKey.WORKAREA, "workarea-new-title" ) );
+		dialog.setHeaderText( Rb.text( RbKey.WORKAREA, "workarea-new-message" ) );
+		dialog.setContentText( Rb.text( RbKey.WORKAREA, "workarea-new-prompt" ) );
+
+		// TODO Allow the user to select or specify an icon
+		// TODO Allow the user to select a color
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );

@@ -15,6 +15,10 @@ public abstract class SettingDependant extends Node {
 
 	public static final String VISIBLE = "visible";
 
+	public static final String COLLAPSIBLE = "collapsible";
+
+	public static final String EXPANDED = "expanded";
+
 	private static final String DEPENDENCIES = "dependencies";
 
 	private static final String FAIL_DEPENDENCY_ACTION = "fail-dependency-action";
@@ -32,7 +36,7 @@ public abstract class SettingDependant extends Node {
 		return getValue( DISABLE, false );
 	}
 
-	public void setDisable( boolean enabled ) {
+	public void setDisable( Boolean enabled ) {
 		setValue( DISABLE, enabled );
 	}
 
@@ -40,8 +44,24 @@ public abstract class SettingDependant extends Node {
 		return getValue( VISIBLE, false );
 	}
 
-	public void setVisible( boolean visible ) {
+	public void setVisible( Boolean visible ) {
 		setValue( VISIBLE, visible );
+	}
+
+	public boolean isCollapsible() {
+		return getValue( COLLAPSIBLE, false );
+	}
+
+	public void setCollapsible( Boolean collapsible ) {
+		setValue( COLLAPSIBLE, collapsible );
+	}
+
+	public boolean isExpanded() {
+		return getValue( EXPANDED, true );
+	}
+
+	public void setExpanded( Boolean expanded ) {
+		setValue( EXPANDED, expanded );
 	}
 
 	public List<SettingDependency> getDependencies() {

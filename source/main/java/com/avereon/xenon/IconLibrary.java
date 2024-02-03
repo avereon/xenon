@@ -3,11 +3,11 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.task.Task;
-import com.avereon.zenna.icon.*;
 import com.avereon.zarra.image.BrokenIcon;
 import com.avereon.zarra.image.ImageIcon;
 import com.avereon.zarra.image.Images;
 import com.avereon.zarra.image.VectorImage;
+import com.avereon.zenna.icon.*;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -23,17 +23,21 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Map<String, VectorImage> icons;
 
-	public IconLibrary( Program program ) {
+	public IconLibrary( Xenon program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
 
 		register( "provider", new WingDiscLargeIcon() );
 		register( "program", new XRingLargeIcon() );
+		register( "menu", new Hamburger4Icon() );
 		register( "context", new ContextIcon() );
+		register( "settings", new GearIcon() );
+		register( "maintenance", new WrenchIcon() );
+		register( "restart", new RefreshIcon() );
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 
@@ -48,6 +52,7 @@ public class IconLibrary {
 		register( "properties", new PropertiesIcon() );
 		register( "print", new PrinterIcon() );
 
+		register( "edit", new PencilIcon() );
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
 		register( "cut", new CutIcon() );
@@ -59,8 +64,10 @@ public class IconLibrary {
 		register( "play", new PlayIcon() );
 		register( "pause", new PauseIcon() );
 
+		register( "tool", new WrenchIcon() );
+
+		register( "view", new EyeIcon() );
 		register( "setting", new SettingIcon() );
-		register( "settings", new GearIcon() );
 		register( "themes", new ThemeIcon() );
 		register( "options", new PreferencesIcon() );
 
@@ -72,12 +79,19 @@ public class IconLibrary {
 		register( "help", new QuestionIcon() );
 		register( "help-content", new QuestionIcon() );
 		register( "search", new MagnifierIcon() );
-		register( "notice", new NoticeIcon() );
-		register( "notice-error", new NoticeIcon( Color.RED ) );
-		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
-		register( "notice-info", new NoticeIcon( Color.GREEN.brighter() ) );
-		register( "notice-norm", new NoticeIcon( Color.web( "#40a0c0" ) ) );
-		register( "notice-none", new NoticeIcon() );
+		register( "check", new CheckIcon() );
+		register( "notice", new BellIcon() );
+		register( "notice-error", new BellIcon( Color.RED ) );
+		register( "notice-warn", new BellIcon( Color.YELLOW ) );
+		register( "notice-info", new BellIcon( Color.GREEN.brighter() ) );
+		register( "notice-norm", new BellIcon( Color.web( "#40a0c0" ) ) );
+		register( "notice-none", new BellIcon() );
+		register( "notice-unread", new BellIcon( true ) );
+		register( "notice-unread-error", new BellIcon( Color.RED, true ) );
+		register( "notice-unread-warn", new BellIcon( Color.YELLOW, true ) );
+		register( "notice-unread-info", new BellIcon( Color.GREEN.brighter(), true ) );
+		register( "notice-unread-norm", new BellIcon( Color.web( "#40a0c0" ), true ) );
+		register( "notice-unread-none", new BellIcon( true ) );
 		register( "product", new ProductIcon() );
 		register( "task", new TaskQueueIcon() );
 		register( "update", new DownloadIcon() );
@@ -85,7 +99,10 @@ public class IconLibrary {
 
 		register( "workspace", new FrameIcon() );
 		register( "workspace-new", new FrameIcon() );
-		register( "workspace-close", new FrameIcon() );
+		register( "minimize", new MinimizeIcon() );
+		register( "maximize", new MaximizeIcon() );
+		register( "normalize", new NormalizeIcon() );
+		register( "workspace-close", new CloseIcon() );
 
 		register( "workarea", new WorkareaIcon() );
 		register( "workarea-new", new WorkareaIcon() );
@@ -122,17 +139,20 @@ public class IconLibrary {
 		register( "toggle-disabled", new ToggleIcon( false ) );
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return program;
 	}
 
 	public void register( String id, VectorImage icon ) {
-		icon.getProperties().put( "stylesheet", Program.STYLESHEET );
+		icon.getProperties().put( "stylesheet", Xenon.STYLESHEET );
 		icons.put( id, icon );
 	}
 
 	public void unregister( String id, VectorImage icon ) {
-		if( icons.get( id ).getClass() == icon.getClass() ) icons.remove( id );
+		if( icon == null ) return;
+		var registered = icons.get( id );
+		if( registered == null ) return;
+		if( registered.getClass() == icon.getClass() ) icons.remove( id );
 	}
 
 	public Node getIcon( String id ) {

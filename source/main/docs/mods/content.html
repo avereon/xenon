@@ -28,9 +28,9 @@ Avereon website or must be fully qualified.
 
 	<h3 id="requirements">Requirements</h3>
 	<p>
-		Xenon requires Java 11 or higher and usually adopts LTS Java versions as
+		Xenon requires Java 17 or higher and usually adopts LTS Java versions as
 		they are released. Xenon also takes advantage of the Java module system and
-		therefore you mod will also need to be a Java module.
+		therefore your mod will also need to be a Java module.
 	</p>
 
 	<h3 id="project-setup">Project Setup</h3>
@@ -38,7 +38,7 @@ Avereon website or must be fully qualified.
 		To start a new mod project we recommend that you use Maven, or a Maven
 		compatible tool like Gradle, to configure the new mod project using an
 		existing parent pom to jump start the process. It is possible to set up a
-		mod project without using the parent pom but you would have to handle
+		mod project without using the parent pom, but you would have to handle
 		quite a bit of configuration on your own.
 	</p>
 
@@ -63,7 +63,7 @@ Avereon website or must be fully qualified.
   &lt;parent&gt;
     &lt;groupId&gt;com.avereon.pom&lt;/groupId&gt;
     &lt;artifactId&gt;mod&lt;/artifactId&gt;
-    &lt;version&gt;3.0.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;3.5.3&lt;/version&gt;
   &lt;/parent&gt;
 
   &lt;groupId&gt;[your.group.id]&lt;/groupId&gt;
@@ -83,9 +83,9 @@ Avereon website or must be fully qualified.
 
 	<p>
 		At the same time you can create the source/main/java folders so that the
-		project layout looks like this. Note that the 'source' folder is different
-		than the standard Maven 'src' folder. This is the only departure from the
-		<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
+		project layout looks like the following. Note that the 'source' folder is
+		different from the standard Maven 'src' folder. This is the only departure
+		from the <a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
 	</p>
 
 	<pre>pom.xml
@@ -103,7 +103,7 @@ source/main/java</pre>
 	<p>
 		Create the Java module info file source/main/java/module-info.java. This
 		file defines the Java module requirements and will be updated from time to
-		time as needs arise. For now we just need the initial configuration:
+		time as needs arise. For now, we just need the initial configuration:
 	</p>
 	<pre>module [your java module name] {
   requires com.avereon.xenon;
@@ -182,7 +182,7 @@ public class Mazer extends Mod {
 }</pre>
 	<p>
 		With the mod card in place there is enough
-		implementation to build the <a href="#module-library">mod library</a> and
+		implementation to build the <a href="#mod-library">mod library</a> and
 		eventually <a href="#mod-deployment">try it with Xenon</a>.
 	</p>
 
@@ -210,10 +210,10 @@ public class Mazer extends Mod {
 	<p>
 		Online deployment requires the use of a simple artifact repository (also
 		called a product market). Only one
-		version of an artifact is allowed in a repository so it is common to have
+		version of an artifact is allowed in a repository, so it is common to have
 		multiple repositories for different stages of mod development. It is
-		recommended to have at least a stable (production quality) repository and
-		a latest (development quality) repository.
+		recommended to have at least a 'stable' (production quality) repository and
+		a 'latest' (development quality) repository.
 	</p>
 	<p>
 		To deploy a mod to a repository both the mod library (also called a product
@@ -232,10 +232,15 @@ public class Mazer extends Mod {
 		installed. If an update is deployed to the repository the Xenon update
 		functionality will be used to discover and install the update.
 	</p>
+	<p>
+		Example repo URL: https://www.avereon.com/download/stable/catalog<br/>
+		Example card URL: https://www.avereon.com/download/stable/xenon/linux/product/card<br/>
+		Example pack URL: https://www.avereon.com/download/stable/xenon/linux/product/pack
+	</p>
 	<h3 id="manual-deployment">Manual Deployment</h3>
 	<p>
 		Manual deployment is not the recommended way to deploy mods. It is useful
-		for early development purposes but it is not recommended for regular
+		for early development purposes, but it is not recommended for regular
 		deployment. Instead, it is recommended that an automated
 		process be set up to post mod releases (both development and production)
 		online and use <a href="#online-deployment">online deployment</a>.

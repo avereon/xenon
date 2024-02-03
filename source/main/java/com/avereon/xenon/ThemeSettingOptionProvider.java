@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 
 public class ThemeSettingOptionProvider implements SettingOptionProvider {
 
-	private Program program;
+	private Xenon program;
 
-	public ThemeSettingOptionProvider( Program program ) {
+	public ThemeSettingOptionProvider( Xenon program ) {
 		this.program = program;
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
 

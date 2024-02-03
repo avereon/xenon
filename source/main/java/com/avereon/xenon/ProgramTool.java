@@ -1,13 +1,15 @@
 package com.avereon.xenon;
 
 import com.avereon.event.EventHandler;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.workpane.Tool;
@@ -27,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
- * {@link Program}.
+ * {@link Xenon}.
  *
  * <h2>ProgramTool Lifecycle</h2>
  * There are several steps in the tool lifecycle. Some are called only once and
@@ -104,13 +106,13 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	public static final int TOOL_READY_TIMEOUT = 2;
 
-	private final ProgramProduct product;
+	private final XenonProgramProduct product;
 
 	private boolean isReady;
 
 	private boolean setActiveWhenReady;
 
-	public ProgramTool( ProgramProduct product, Asset asset ) {
+	public ProgramTool( XenonProgramProduct product, Asset asset ) {
 		super( asset );
 		this.product = product;
 		setTitle( asset.getName() );
@@ -118,11 +120,11 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
-	public final ProgramProduct getProduct() {
+	public final XenonProgramProduct getProduct() {
 		return product;
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return product.getProgram();
 	}
 
@@ -185,6 +187,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	/**
 	 * The tool and asset are ready.
 	 */
+	// THREAD JavaFX Application Thread
 	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
@@ -210,11 +213,11 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	protected void pushMenus( String descriptor ) {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenubarActions( descriptor );
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushMenuActions( descriptor );
 	}
 
 	protected void pullMenus() {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenubarActions();
+		getProgram().getWorkspaceManager().getActiveWorkspace().pullMenuActions();
 	}
 
 	protected void pushTools( String descriptor ) {
@@ -250,7 +253,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	static void waitForReady( OpenAssetRequest request, ProgramTool tool ) {
 		TaskChain.of( "wait for ready", () -> {
-			waitForTool( tool);
+			waitForTool( tool );
 			return null;
 		} ).link( () -> {
 			waitForAsset( request.getAsset() );
@@ -295,19 +298,41 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	private void callToolReady( OpenAssetRequest request ) {
+		// Set the isReady flag to true
 		isReady = true;
+
+		// Determine if the asset is missing
+		boolean assetMissing;
+		try {
+			assetMissing = !request.getAsset().isNew() && !request.getAsset().exists();
+		} catch( AssetException exception ) {
+			assetMissing = true;
+		}
+		final boolean finalAssetMissing = assetMissing;
+
 		Fx.run( () -> {
+			// Notify the user if the asset is missing
+			if( finalAssetMissing ) {
+				String title = Rb.text(RbKey.ASSET, "asset-missing" );
+				String message = Rb.text( RbKey.ASSET, "asset-is-missing", request.getAsset().getSimpleName(), request.getAsset().getUri() );
+				Notice notice = new Notice( title, message );
+				getProgram().getNoticeManager().addNotice( notice );
+			}
+
+			// Set the tool active and call ready and open
 			try {
-				if( setActiveWhenReady ) {
-					getWorkpane().setActiveTool( this );
-					setActiveWhenReady = false;
-				}
+				if( setActiveWhenReady ) doSetActiveWhenReady();
 				ready( request );
 				open( request );
 			} catch( ToolException exception ) {
 				log.atSevere().withCause( exception ).log();
 			}
 		} );
+	}
+
+	void doSetActiveWhenReady() {
+		getWorkpane().setActiveTool( this );
+		setActiveWhenReady = false;
 	}
 
 }

@@ -29,13 +29,13 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double SLOPE_RADIUS = 5000;
 
-	public WelcomeTool( ProgramProduct product, Asset asset ) {
+	public WelcomeTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-welcome" );
 
-		Node icon = ((Program)product).getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
-		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
-		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
+		Node icon = ((Xenon)product).getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
+		Node docsIcon = ((Xenon)product).getIconLibrary().getIcon( "document", ICON_SIZE );
+		Node modsIcon = ((Xenon)product).getIconLibrary().getIcon( "product", ICON_SIZE );
 
 		String documentButtonTitle = Rb.text( RbKey.LABEL, "documentation" );
 		String documentButtonDescription = Rb.text( RbKey.LABEL, "documentation-desc" );

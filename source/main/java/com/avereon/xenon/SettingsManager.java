@@ -8,19 +8,16 @@ import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
-import com.avereon.xenon.tool.settings.SettingOptionProvider;
-import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.xenon.tool.settings.SettingsPageParser;
-import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.tool.settings.*;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
 import lombok.CustomLog;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,7 +28,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final String GENERAL = "general";
 
-	private final Program program;
+	private final Xenon program;
 
 	private final Guide guide;
 
@@ -45,7 +42,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private final Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsManager( Program program ) {
+	public SettingsManager( Xenon program ) {
 		this.program = program;
 		this.guide = new Guide();
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
@@ -56,13 +53,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		guide.setSelectionMode( SelectionMode.MULTIPLE );
 
-		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
+		this.settings.register( SettingsEvent.ANY, eventBus::dispatch );
 	}
 
 	public Settings getSettings( String path ) {
-		Settings settings = this.settings.getNode( path );
-		//settings.addSettingsListener( e -> eventBus.dispatch( e ) );
-		return settings;
+		return this.settings.getNode( path );
 	}
 
 	public Settings getSettings( String root, String path ) {
@@ -81,6 +76,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return ProgramSettings.PRODUCT + card.getProductKey();
 	}
 
+	public void putSettingEditor( String id, Class<? extends SettingEditor> clazz ) {
+		SettingEditor.addType( id, clazz );
+	}
+
+	public void putPagePanel( String id, Class<? extends SettingsPanel> clazz ) {
+		SettingsPage.addPanel( id, clazz );
+	}
+
 	public Map<String, SettingOptionProvider> getOptionProviders() {
 		return Collections.unmodifiableMap( optionProviders );
 	}
@@ -93,7 +96,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		optionProviders.put( id, provider );
 	}
 
-	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
+	public Map<String, SettingsPage> addSettingsPages( XenonProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
 			pages = SettingsPageParser.parse( product, path );
@@ -146,11 +149,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getAssetSettings( Asset asset ) {
-		return getAssetSettings( asset.getUri() );
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( String.valueOf( asset.getUri() ) ) );
 	}
 
-	public Settings getAssetSettings( URI uri ) {
-		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
+	public Settings getAssetTypeSettings( AssetType type ) {
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET_TYPE, IdGenerator.getId( String.valueOf( type.getKey() ) ) );
 	}
 
 	public SettingsPage getSettingsPage( String id ) {

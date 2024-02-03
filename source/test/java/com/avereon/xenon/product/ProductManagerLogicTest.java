@@ -27,7 +27,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	@BeforeEach
 	public void setup() {
-		logic = new ProductManagerLogic( program );
+		logic = new ProductManagerLogic( getProgram() );
 		generateRepoProductMap();
 
 		// Start with the repos disabled

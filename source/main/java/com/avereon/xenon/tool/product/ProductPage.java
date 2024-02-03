@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.TaskEvent;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 abstract class ProductPage extends ProductToolPage {
 
-	private Program program;
+	private Xenon program;
 
 	private ProductTool productTool;
 
@@ -33,7 +33,7 @@ abstract class ProductPage extends ProductToolPage {
 
 	private String missingMessage;
 
-	ProductPage( Program program, ProductTool productTool, String productType ) {
+	ProductPage( Xenon program, ProductTool productTool, String productType ) {
 		this.program = program;
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
@@ -74,7 +74,7 @@ abstract class ProductPage extends ProductToolPage {
 		} ).collect( Collectors.toSet() );
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 

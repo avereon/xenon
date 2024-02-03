@@ -19,10 +19,10 @@ public class AssetManagerTest extends ProgramTestCase {
 	@Override
 	protected void setup() throws Exception {
 		super.setup();
-		manager = new AssetManager( program );
-		manager.addScheme( new MockScheme( program ) );
-		manager.addScheme( new NewScheme( program ) );
-		manager.addAssetType( new MockAssetType( program ) );
+		manager = new AssetManager( getProgram() );
+		manager.addScheme( new MockScheme( getProgram() ) );
+		manager.addScheme( new NewScheme( getProgram() ) );
+		manager.addAssetType( new MockAssetType( getProgram() ) );
 	}
 
 	@Test
@@ -144,6 +144,15 @@ public class AssetManagerTest extends ProgramTestCase {
 		watcher.waitForEvent( AssetEvent.OPENED );
 		assertThat( asset.isOpen() ).isTrue();
 
+		// Asset must be loaded to be saved
+		manager.loadAssets( asset );
+		watcher.waitForEvent( AssetEvent.LOADED );
+		assertThat( asset.isLoaded() ).isTrue();
+
+		// And an asset must be modified to be saved
+		asset.setModified( true );
+		assertThat( asset.isSafeToSave() ).isTrue();
+
 		manager.saveAssets( asset );
 		watcher.waitForEvent( AssetEvent.SAVED );
 		assertThat( asset.isSaved() ).isTrue();
@@ -160,6 +169,15 @@ public class AssetManagerTest extends ProgramTestCase {
 		// Asset must be open to be saved
 		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
 		assertThat( asset.isOpen() ).isTrue();
+
+		// Asset must be loaded to be saved
+		manager.loadAssets( asset );
+		watcher.waitForEvent( AssetEvent.LOADED );
+		assertThat( asset.isLoaded() ).isTrue();
+
+		// And an asset must be modified to be saved
+		asset.setModified( true );
+		assertThat( asset.isSafeToSave() ).isTrue();
 
 		manager.saveAssetsAndWait( asset );
 		assertThat( asset.isSaved() ).isTrue();
@@ -206,7 +224,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( new MockAssetType( program ).getKey() );
+		AssetType type = manager.getAssetType( new MockAssetType( getProgram() ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );

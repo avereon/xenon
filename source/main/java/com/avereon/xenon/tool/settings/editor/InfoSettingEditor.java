@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.scene.Node;
@@ -23,7 +23,7 @@ public abstract class InfoSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public InfoSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Type type ) {
+	public InfoSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Type type ) {
 		super( product, rbKey, setting );
 		this.type = type;
 	}

@@ -1,9 +1,9 @@
 package com.avereon.xenon;
 
-import com.avereon.product.Product;
-import com.avereon.product.ProductCard;
+import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zarra.image.VectorImage;
 import lombok.CustomLog;
@@ -21,18 +21,20 @@ import java.util.Map;
  * {@link #shutdown()} and {@link #unregister()} lifecycle methods to interact
  * with the program.
  * <p/>
- * The Mod also implements ProgramProduct which provides access to the program,
+ * The Mod also implements {@link ProgramProduct} which provides access to the program,
  * the Mod class loader and the Mod resource bundles.
  */
 @SuppressWarnings( "UnusedReturnValue" )
 @CustomLog
-public abstract class Mod implements ProgramProduct, Comparable<Mod> {
+public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
-	private Program program;
+	private ModStatus status;
+
+	private Xenon program;
 
 	private Product parent;
 
@@ -44,21 +46,62 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		card = ProductCard.card( this );
 	}
 
+	/**
+	 * Get the status of the mod. The status is one of the mod lifecycle
+	 * {@link ModStatus} values.
+	 *
+	 * @return The mod status
+	 */
+	public final ModStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * Set the status of the mod. This should only be called by the program
+	 * {@link ProductManager}.
+	 *
+	 * @param status The mod status
+	 */
+	public final void setStatus( ModStatus status ) {
+		this.status = status;
+	}
+
+	/**
+	 * Get the mod {@link Program} instance.
+	 *
+	 * @return The mod program
+	 */
 	@Override
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 
+	/**
+	 * Get the mod {@link ProductCard}.
+	 *
+	 * @return The mod product card
+	 */
 	@Override
 	public ProductCard getCard() {
 		return card;
 	}
 
+	/**
+	 * Get the mod parent product. This could be another mod or the program.
+	 *
+	 * @return The mod parent product
+	 */
 	@Override
-	public Product getParent() {
+	public final Product getParent() {
 		return parent;
 	}
 
+	/**
+	 * Set the mod parent product. This should only be called by the program
+	 * {@link ProductManager}.
+	 *
+	 * @param parent The mod parent product
+	 */
 	public void setParent( Product parent ) {
 		this.parent = parent;
 	}
@@ -152,7 +195,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param toolClass The tool class
 	 * @return The tool registration
 	 */
-	protected ToolRegistration registerTool( ProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+	protected ToolRegistration registerTool( XenonProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
 		ToolRegistration registration = new ToolRegistration( product, toolClass );
 		getProgram().getToolManager().registerTool( assetType, registration );
 		return registration;
@@ -192,26 +235,27 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param program The program reference
 	 * @param card The Mod product card
 	 */
-	public final void init( Program program, ProductCard card ) {
+	public final void init( Xenon program, ProductCard card ) {
 		if( this.program != null ) return;
 		this.program = program;
 		this.card = card;
+		Rb.init( this );
 	}
 
 	/**
 	 * Called by the program to register a mod instance. This method is typically
 	 * called before the program frame and workspaces are created and allows the
 	 * mod to register icons, actions, asset types, tools, etc. This method is
-	 * also called as part of the mod install process before the {@link #startup}
-	 * method is called.
+	 * also called as part of the mod installation process before the
+	 * {@link #startup} method is called.
 	 */
 	public void register() {}
 
 	/**
-	 * Called by the program to startup a mod instance. This method is typically
+	 * Called by the program to start a mod instance. This method is typically
 	 * called after the program frame and workspaces are created, but not
 	 * necessarily visible, and allows the mod to perform any work needed once the
-	 * UI is generated. This method is also called as part of the mod install
+	 * UI is generated. This method is also called as part of the mod installation
 	 * process after the {@link #register} method is called. This method is also
 	 * called when a mod is enabled from the product tool.
 	 */
@@ -231,8 +275,8 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * Called by the program to unregister a mod instance. This method is
 	 * typically called after the program frame and workspaces are destroyed and
 	 * allows the mod to unregister icons, actions, asset types, tools, etc.
-	 * This method is also called as part of the mod uninstall process after the
-	 * {@link #shutdown} method is called.
+	 * This method is also called as part of the mod uninstallation process after
+	 * the {@link #shutdown} method is called.
 	 */
 	public void unregister() {}
 

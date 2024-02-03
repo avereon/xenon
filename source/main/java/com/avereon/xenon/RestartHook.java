@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.log.Log;
+import com.avereon.product.ProgramFlag;
 import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.weave.UpdateCommandBuilder;
@@ -8,6 +9,7 @@ import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.UpdateTask;
 import com.avereon.xenon.product.ProductUpdate;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -34,7 +36,8 @@ public class RestartHook extends Thread {
 
 	private static final String DELETE_SUFFIX = "delete";
 
-	private final Program program;
+	@Getter
+	private final Xenon program;
 
 	private final Mode mode;
 
@@ -46,7 +49,7 @@ public class RestartHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
-	RestartHook( Program program, Mode mode, String... additionalParameters ) {
+	RestartHook( Xenon program, Mode mode, String... additionalParameters ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 		this.mode = mode;
@@ -100,8 +103,11 @@ public class RestartHook extends Thread {
 			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
 		}
 
+		boolean useDarkMode = getProgram().getWorkspaceManager().getThemeMetadata().isDark();
+
 		builder = new ProcessBuilder( updaterLaunchCommands );
 		builder.directory( updaterFolder.toFile() );
+		if( useDarkMode ) builder.command().add( UpdateFlag.DARK );
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( updatingProgramText );
 		builder.command().add( UpdateFlag.UPDATE );

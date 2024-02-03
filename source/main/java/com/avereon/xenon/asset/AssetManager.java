@@ -6,6 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.notice.Notice;
@@ -40,7 +41,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
 
-	private final Program program;
+	private final Xenon program;
 
 	private volatile Asset currentAsset;
 
@@ -84,7 +85,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean running;
 
-	public AssetManager( Program program ) {
+	public AssetManager( Xenon program ) {
 		this.program = program;
 		openAssets = new CopyOnWriteArraySet<>();
 		identifiedAssets = new ConcurrentHashMap<>();
@@ -92,6 +93,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
 
+		// FIXME This is pretty dangerous for a couple of reasons
+		// 1. It saves all assets, not just the current one
+		// 2. In the even there was an error loading an asset, it can save the asset in a bad state
+		// ?. Maybe this should be changed to save assets that submit themselves for autosave?
 		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
 		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
 		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
@@ -110,7 +115,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		closeAllActionHandler = new CloseAllActionHandler( program );
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return program;
 	}
 
@@ -386,55 +391,65 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
-		return openAsset( uri, model, null, true, true );
+		return openAsset( uri, model, null, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
+		return openAsset( uri, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( uri, null, null, openTool, setActive );
+		return openAsset( uri, null, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
-		return openAsset( uri, null, view, true, true );
+		return openAsset( uri, null, view, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
-		return openAsset( uri, null, view, true, true );
+		return openAsset( uri, null, view, null, true, true );
 	}
 
 	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
 		Set<Future<ProgramTool>> futures = new HashSet<>();
 		for( URI uri : uris ) {
-			futures.add( openAsset( uri, null, null, openTool, setActive ) );
+			futures.add( openAsset( uri, null, null, null, openTool, setActive ) );
 		}
 		return futures;
 	}
 
-	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
 		request.setModel( model );
+		request.setToolClass( toolClass );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset ) {
-		return openAsset( asset, null, null );
+		return openAsset( asset, null, null, null );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
-		return openAsset( asset, view, null );
+		return openAsset( asset, view, null, null );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side ) {
+		return openAsset( asset, view, side, null );
+	}
+
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side, Class<? extends ProgramTool> toolClass ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setAsset( asset );
 		request.setView( view );
 		request.setOpenTool( true );
 		request.setSetActive( true );
+		request.setToolClass( toolClass );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
@@ -610,7 +625,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param assets The assets to open
 	 */
 	public void openAssets( Collection<Asset> assets ) throws AssetException {
-		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) );
+		program.getTaskManager().submit( new OpenAssetTask( removeAlreadyOpenAssets( assets ) ) );
 	}
 
 	/**
@@ -636,7 +651,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void openAssetsAndWait( Collection<Asset> assets, long time, TimeUnit unit ) throws ExecutionException, InterruptedException, TimeoutException {
-		program.getTaskManager().submit( new OpenAssetTask( removeOpenAssets( assets ) ) ).get( time, unit );
+		program.getTaskManager().submit( new OpenAssetTask( removeAlreadyOpenAssets( assets ) ) ).get( time, unit );
 	}
 
 	/**
@@ -919,7 +934,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return codecs;
 	}
 
-	private Collection<Asset> removeOpenAssets( Collection<Asset> assets ) {
+	private Collection<Asset> removeAlreadyOpenAssets( Collection<Asset> assets ) {
 		Collection<Asset> filteredAssets = new ArrayList<>( assets );
 		for( Asset asset : openAssets ) {
 			filteredAssets.remove( asset );
@@ -1107,18 +1122,20 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doLoadAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
+
+		if( !asset.isNew() && !asset.exists() ) {
+			log.atWarn().log("Asset not found: " + asset );
+			return false;
+		}
+
 		if( !asset.isOpen() ) doOpenAsset( asset );
-
-		// It's problematic to check if an asset exists, particularly for new assets
-		//if( !asset.exists() ) return false;
-
 		if( !asset.getScheme().canLoad( asset ) ) return false;
 
 		// Load the asset
 		log.atTrace().log( "Loading asset " + asset.getUri() );
 		asset.load( this );
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
-		log.atDebug().log( "Asset loaded: %s", asset );
+		log.atInfo().log( "Loaded: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1136,7 +1153,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private boolean doSaveAsset( Asset asset ) throws AssetException {
-		if( asset == null || !isManagedAssetOpen( asset ) ) return false;
+		if( asset == null || !isManagedAssetOpen( asset ) || !asset.isSafeToSave() ) return false;
 
 		if( !asset.getScheme().canSave( asset ) ) return false;
 
@@ -1148,7 +1165,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
-		log.atDebug().log( "Asset saved: %s", asset );
+		log.atInfo().log( "Saved: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1172,8 +1189,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO Delete the asset settings?
 		// Should the settings be removed? Or left for later?
-		//		Settings settings = asset.getSettings();
-		//		if( settings != null ) settings.delete();
+		// Recommended not to delete the asset settings.
+		// Maybe have a settings cleanup task and/or user actions
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.atDebug().log( "Asset closed: %s", asset );
@@ -1275,8 +1292,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Use the scheme to rename the source to the target
 		target.getScheme().rename( source, target );
 
-		closeAssets( source );
 		openAsset( target.getUri() );
+		closeAssets( source );
 	}
 
 	private void copySettings( Asset source, Asset target, boolean delete ) {
@@ -1384,7 +1401,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class NewActionHandler extends ProgramAction {
 
-		private NewActionHandler( Program program ) {
+		private NewActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1410,7 +1427,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private boolean isHandling;
 
-		private OpenActionHandler( Program program ) {
+		private OpenActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1435,7 +1452,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class ReloadActionHandler extends ProgramAction {
 
-		protected ReloadActionHandler( Program program ) {
+		protected ReloadActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1455,14 +1472,14 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private final boolean saveAs;
 
-		private SaveActionHandler( Program program, boolean saveAs ) {
+		private SaveActionHandler( Xenon program, boolean saveAs ) {
 			super( program );
 			this.saveAs = saveAs;
 		}
 
 		@Override
 		public boolean isEnabled() {
-			return saveAs || canSaveAsset( getCurrentAsset() );
+			return (saveAs && getCurrentAsset() != null) || canSaveAsset( getCurrentAsset() );
 		}
 
 		@Override
@@ -1474,7 +1491,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveAllActionHandler extends ProgramAction {
 
-		private SaveAllActionHandler( Program program ) {
+		private SaveAllActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1496,7 +1513,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class RenameActionHandler extends ProgramAction {
 
-		private RenameActionHandler( Program program ) {
+		private RenameActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1514,7 +1531,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class CloseActionHandler extends ProgramAction {
 
-		private CloseActionHandler( Program program ) {
+		private CloseActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1536,7 +1553,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class CloseAllActionHandler extends ProgramAction {
 
-		private CloseAllActionHandler( Program program ) {
+		private CloseAllActionHandler( Xenon program ) {
 			super( program );
 		}
 
@@ -1702,7 +1719,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			autosave.update();
+			autosave.request();
 		}
 
 	}

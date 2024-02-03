@@ -1,12 +1,12 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.BaseXenonTestCase;
+import com.avereon.xenon.BasePartXenonTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CodecTest extends BaseXenonTestCase {
+class CodecTest extends BasePartXenonTestCase {
 
 	private Codec codec;
 

@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
+import com.avereon.product.Profile;
 import com.avereon.util.OperatingSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class ProgramCardTest extends ProgramTestCase {
 	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
-		metadata = program.getCard();
+		metadata = getProgram().getCard();
 	}
 
 	@Test
@@ -63,7 +64,7 @@ public class ProgramCardTest extends ProgramTestCase {
 	void testProgramDataFolder() {
 		String suffix = "-" + Profile.TEST;
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertThat( program.getDataFolder() ).isEqualTo( programDataFolder );
+		assertThat( getProgram().getDataFolder() ).isEqualTo( programDataFolder );
 	}
 
 }

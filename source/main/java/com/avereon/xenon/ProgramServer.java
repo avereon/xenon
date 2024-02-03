@@ -16,7 +16,7 @@ import java.util.logging.LogRecord;
 @CustomLog
 public class ProgramServer implements Controllable<ProgramServer> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final int requestedPort;
 
@@ -24,7 +24,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	private SocketHandler handler;
 
-	ProgramServer( Program program, int requestedPort ) {
+	ProgramServer( Xenon program, int requestedPort ) {
 		this.program = program;
 		this.requestedPort = requestedPort;
 	}

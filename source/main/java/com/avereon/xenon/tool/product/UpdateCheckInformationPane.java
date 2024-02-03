@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.Label;
@@ -13,13 +13,13 @@ import javafx.scene.layout.Priority;
 
 class UpdateCheckInformationPane extends HBox {
 
-	private Program program;
+	private Xenon program;
 
 	private Label lastUpdateCheckField;
 
 	private Label nextUpdateCheckField;
 
-	UpdateCheckInformationPane( Program program ) {
+	UpdateCheckInformationPane( Xenon program ) {
 		this.program = program;
 		Label lastUpdateCheckLabel = new Label( Rb.text( RbKey.UPDATE, "product-update-check-last" ) );
 		Label nextUpdateCheckLabel = new Label( Rb.text( RbKey.UPDATE, "product-update-check-next" ) );

@@ -3,10 +3,10 @@ package com.avereon.xenon.notice;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.xenon.ManagerSettings;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.scheme.FaultScheme;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class NoticeManager implements Controllable<NoticeManager> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final List<Notice> startupNotices;
 
@@ -35,7 +35,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private Asset asset;
 
-	public NoticeManager( Program program ) {
+	public NoticeManager( Xenon program ) {
 		this.program = program;
 		this.startupNotices = new CopyOnWriteArrayList<>();
 		this.unreadCount = new SimpleIntegerProperty();
@@ -75,11 +75,15 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		Fx.run( () -> {
 			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
-			if( tools.size() > 0 ) {
-				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
-			} else {
+			NoticeTool activeNoticeTool = (NoticeTool)tools.stream().filter( Tool::isActive ).findAny().orElse( null );
+
+			if( tools.isEmpty() ) {
 				getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
 				updateUnreadCount();
+			} else if( activeNoticeTool != null ) {
+				markAllAsRead();
+			} else {
+				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.stream().findAny().orElse( null ) );
 			}
 		} );
 	}
@@ -100,7 +104,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return Notice.Type.values()[ getUnreadNotices().stream().mapToInt( ( n ) -> n.getType().ordinal() ).max().orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
-	public void readAll() {
+	public void markAllAsRead() {
 		getNoticeList().getNotices().forEach( ( n ) -> n.setRead( true ) );
 		updateUnreadCount();
 	}
@@ -110,7 +114,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		updateUnreadCount();
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return this.program;
 	}
 
@@ -161,7 +165,18 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateUnreadCount() {
-		unreadCount.setValue( getUnreadNotices().size() );
+		int unreadNoticeCount = getUnreadNotices().size();
+
+		unreadCount.setValue( unreadNoticeCount );
+
+		// Update the action icon
+		String actionIcon = "notice";
+		if( unreadNoticeCount == 0 ) {
+			actionIcon += "-none";
+		} else {
+			actionIcon += "-unread";
+		}
+		getProgram().getActionLibrary().getAction( "notice" ).setIcon( actionIcon );
 	}
 
 	private List<Notice> getUnreadNotices() {

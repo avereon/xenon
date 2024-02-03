@@ -8,13 +8,13 @@ import lombok.CustomLog;
 @CustomLog
 public class ProgramTaskManager extends TaskManager {
 
-	private final Program program;
+	private final Xenon program;
 
-	public ProgramTaskManager( Program program ) {
+	public ProgramTaskManager( Xenon program ) {
 		this.program = program;
 	}
 
-	public Program getProgram() {
+	public Xenon getProgram() {
 		return program;
 	}
 
@@ -40,7 +40,7 @@ public class ProgramTaskManager extends TaskManager {
 	@Override
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
 		if( getProgram() == null ) return;
-		log.atSevere().withCause( throwable ).log();
+		super.taskFailed( task, throwable );
 	}
 
 }

@@ -1,12 +1,12 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.FxPlatformTestCase;
+import com.avereon.xenon.BaseFxPlatformTestCase;
 import com.avereon.xenon.workspace.Workarea;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class WorkareaTest extends FxPlatformTestCase {
+class WorkareaTest extends BaseFxPlatformTestCase {
 
 	@Test
 	void testConstructor() {

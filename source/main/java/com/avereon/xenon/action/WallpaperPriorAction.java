@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import javafx.event.ActionEvent;
 
 import java.nio.file.Path;
@@ -8,7 +8,7 @@ import java.util.List;
 
 public class WallpaperPriorAction extends WallpaperFileAction {
 
-	public WallpaperPriorAction( Program program ) {
+	public WallpaperPriorAction( Xenon program ) {
 		super( program );
 	}
 

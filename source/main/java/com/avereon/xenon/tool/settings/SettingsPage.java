@@ -3,12 +3,11 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,6 +16,8 @@ public class SettingsPage extends Node {
 	public static final SettingsPage EMPTY = new SettingsPage( null );
 
 	public static final String ID = "id";
+
+	private static final Map<String, Class<? extends SettingsPanel>> panels;
 
 	private static final String ICON = "icon";
 
@@ -30,14 +31,18 @@ public class SettingsPage extends Node {
 
 	private static final String SETTINGS = "settings";
 
-	private final SettingsPage page;
+	private static final String PANEL = "panel";
+
+	private final SettingsPage parent;
 
 	private String rbKey = RbKey.SETTINGS;
 
-	private Map<String, SettingOptionProvider> optionProviders;
+	static {
+		panels = new ConcurrentHashMap<>();
+	}
 
-	SettingsPage( SettingsPage page ) {
-		this.page = page;
+	SettingsPage( SettingsPage parent ) {
+		this.parent = parent;
 
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
 		setValue( PAGES, new ConcurrentHashMap<>() );
@@ -46,6 +51,25 @@ public class SettingsPage extends Node {
 		defineNaturalKey( TITLE );
 
 		setModified( false );
+	}
+
+	/**
+	 * Register a new setting page panel.
+	 *
+	 * @param key The panel key
+	 * @param panel The page panel class
+	 */
+	public static void addPanel( String key, Class<? extends SettingsPanel> panel ) {
+		panels.putIfAbsent( key, panel );
+	}
+
+	public static Class<? extends SettingsPanel> getPanel( String key ) {
+		return panels.get( key );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public SettingsPage getParent() {
+		return parent;
 	}
 
 	public String getId() {
@@ -97,21 +121,29 @@ public class SettingsPage extends Node {
 		pages.put( page.getId(), page );
 	}
 
-	public ProgramProduct getProduct() {
+	public XenonProgramProduct getProduct() {
 		return getValue( PRODUCT );
 	}
 
-	public void setProduct( ProgramProduct product ) {
+	public void setProduct( XenonProgramProduct product ) {
 		setValue( PRODUCT, product );
 	}
 
 	public Settings getSettings() {
-		if( page != null ) return page.getSettings();
+		if( parent != null ) return parent.getSettings();
 		return getValue( SETTINGS );
 	}
 
 	public void setSettings( Settings settings ) {
 		setValue( SETTINGS, settings );
+	}
+
+	public String getPanel() {
+		return getValue( PANEL );
+	}
+
+	public void setPanel( String panel ) {
+		setValue( PANEL, panel );
 	}
 
 	public String getRbKey() {
@@ -120,14 +152,6 @@ public class SettingsPage extends Node {
 
 	public void setRbKey( String rbKey ) {
 		this.rbKey = rbKey;
-	}
-
-	public Map<String, SettingOptionProvider> getOptionProviders() {
-		return Optional.ofNullable( optionProviders ).orElse( Map.of() );
-	}
-
-	public void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
-		this.optionProviders = optionProviders;
 	}
 
 }

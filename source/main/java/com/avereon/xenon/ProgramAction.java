@@ -26,16 +26,16 @@ public abstract class ProgramAction implements EventHandler<ActionEvent> {
 
 	private static final ActionProxy NONE = new ActionProxy();
 
-	private final Program program;
+	private final Xenon program;
 
 	private ActionProxy proxy = NONE;
 
-	protected ProgramAction( Program program ) {
+	protected ProgramAction( Xenon program ) {
 		if( program == null ) throw new NullPointerException( "Program cannot be null" );
 		this.program = program;
 	}
 
-	public final Program getProgram() {
+	public final Xenon getProgram() {
 		return program;
 	}
 

@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
 import com.avereon.xenon.RbKey;
@@ -10,7 +10,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
-import com.avereon.xenon.tool.settings.SettingsPanel;
+import com.avereon.xenon.tool.settings.SettingsPagePanel;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
@@ -33,7 +33,7 @@ public class PropertiesTool extends ProgramTool {
 
 	private final EventHandler<PropertiesToolEvent> hideHandler;
 
-	public PropertiesTool( ProgramProduct product, Asset asset ) {
+	public PropertiesTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-properties" );
 
@@ -88,8 +88,7 @@ public class PropertiesTool extends ProgramTool {
 		// Create a new VBox for all the pages
 		VBox container = new VBox();
 		container.getChildren().addAll( pages.stream().map( p -> {
-			p.setOptionProviders( optionProviders );
-			return new SettingsPanel( p );
+			return new SettingsPagePanel( p, optionProviders );
 		} ).toList() );
 
 		// Add the container to the scroller

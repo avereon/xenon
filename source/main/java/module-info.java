@@ -1,22 +1,18 @@
 import com.avereon.xenon.Mod;
 
+// NOTE Multiple attempts have been made to consolidate test classes into this
+// module without success. There are several reasons this has not worked:
+// 1. JUnit does not like to be both a test-time library and a compile-time library.
+// 2. Trying to expose base test classes for mods did not work due to previous reason.
+// 3. Trying to extract base test classes to a separate library caused a circular reference.
+
+@SuppressWarnings( "requires-transitive-automatic" )
 module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
 
 	// Both compile-time and run-time
-	requires com.avereon.weave;
-	requires com.fasterxml.jackson.core;
-	requires com.fasterxml.jackson.databind;
-	requires com.fasterxml.jackson.annotation;
-	requires java.net.http;
-	requires java.logging;
-	requires java.management;
-	requires java.sql;
-	requires jdk.crypto.ec;
-	requires org.controlsfx.controls;
-	requires reactfx;
 	requires transitive com.avereon.zenna;
 	requires transitive com.avereon.zarra;
 	requires transitive com.avereon.zevra;
@@ -26,10 +22,22 @@ module com.avereon.xenon {
 	requires transitive javafx.swing;
 	requires transitive javafx.web;
 	requires transitive org.fxmisc.undo;
+	requires com.avereon.weave;
+	requires java.net.http;
+	requires java.logging;
+	requires java.management;
+	requires java.sql;
+	requires jdk.crypto.ec;
+	requires com.fasterxml.jackson.databind;
+	requires com.fasterxml.jackson.annotation;
+	requires org.controlsfx.controls;
+	requires reactfx;
 
+	// General exports
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
 	exports com.avereon.xenon.asset;
+	exports com.avereon.xenon.asset.exception;
 	exports com.avereon.xenon.asset.type;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.index;
@@ -48,12 +56,11 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
 
+	opens com.avereon.xenon;
 	opens com.avereon.xenon.bundles;
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
-	exports com.avereon.xenon.ui;
 
 	uses Mod;
-
 }

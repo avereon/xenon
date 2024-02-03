@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
@@ -10,6 +10,7 @@ import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.scene.control.ScrollPane;
 import lombok.CustomLog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +26,7 @@ public class SettingsTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public SettingsTool( ProgramProduct product, Asset asset ) {
+	public SettingsTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-settings" );
 
@@ -57,7 +58,7 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
+		if( !newNodes.isEmpty() ) selectPage( newNodes.iterator().next().getId() );
 	}
 
 	private void selectPage( String pageId ) {
@@ -67,9 +68,19 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, true ) );
-		scroller.setContent( panel );
+		SettingsPanel panel;
+		if( page.getPanel() == null ) {
+			panel = new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() );
+		} else {
+			try {
+				Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
+				panel = type.getConstructor( XenonProgramProduct.class ).newInstance( page.getProduct() );
+			} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
+				throw new RuntimeException( e );
+			}
+		}
+
+		scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> panel ) );
 	}
 
 }

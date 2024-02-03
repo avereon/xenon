@@ -1,7 +1,7 @@
 package com.avereon.xenon.action;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
@@ -15,9 +15,11 @@ import java.util.Optional;
 @CustomLog
 public class RenameWorkareaAction extends ProgramAction {
 
+	public static final String WORKAREA = "workarea";
+
 	private Workarea workarea;
 
-	public RenameWorkareaAction( Program program ) {
+	public RenameWorkareaAction( Xenon program ) {
 		super( program );
 	}
 
@@ -28,13 +30,13 @@ public class RenameWorkareaAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		Program program = getProgram();
+		Xenon program = getProgram();
 		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		TextInputDialog dialog = new TextInputDialog( workarea.getName() );
-		dialog.setTitle( Rb.text( "workarea", "workarea-rename-title" ) );
-		dialog.setHeaderText( Rb.text( "workarea", "workarea-rename-message" ) );
-		dialog.setContentText( Rb.text( "workarea", "workarea-rename-prompt" ) );
+		dialog.setTitle( Rb.text( WORKAREA, "workarea-rename-title" ) );
+		dialog.setHeaderText( Rb.text( WORKAREA, "workarea-rename-message" ) );
+		dialog.setContentText( Rb.text( WORKAREA, "workarea-rename-prompt" ) );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );

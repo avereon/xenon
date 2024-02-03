@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
+import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
@@ -17,6 +18,7 @@ import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private static final TimeUnit WORK_TIME_UNIT = TimeUnit.SECONDS;
 
-	private final Program program;
+	@Getter
+	private final Xenon program;
 
 	private final Map<String, String> aliases;
 
@@ -42,15 +45,11 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private final Set<Class<?>> singletonLocks = new CopyOnWriteArraySet<>();
 
-	public ToolManager( Program program ) {
+	public ToolManager( Xenon program ) {
 		this.program = program;
 		toolClassMetadata = new ConcurrentHashMap<>();
 		assetTypeToolClasses = new ConcurrentHashMap<>();
 		aliases = new ConcurrentHashMap<>();
-	}
-
-	public Program getProgram() {
-		return program;
 	}
 
 	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
@@ -247,9 +246,41 @@ public class ToolManager implements Controllable<ToolManager> {
 		return new ArrayList<>( assetTypeToolClasses.get( assetType ) );
 	}
 
+	public Class<? extends ProgramTool> getDefaultTool( AssetType assetType ) {
+		return determineToolClassForAssetType( assetType );
+	}
+
+	public void setDefaultTool( AssetType assetType, Class<? extends ProgramTool> tool ) {
+		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+		if( toolClasses.remove( tool ) ) toolClasses.add( 0, tool );
+
+		// Set the default tool setting
+		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+		settings.set( "tool", tool.getName() );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public void updateDefaultToolsFromSettings() {
+		// Go through each asset type and set the default tool from the settings
+
+		for( AssetType assetType : assetTypeToolClasses.keySet() ) {
+			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+			String defaultTool = settings.get( "tool" );
+			if( defaultTool != null ) {
+				try {
+					Class<? extends ProgramTool> clazz = (Class<? extends ProgramTool>)Class.forName( defaultTool );
+					setDefaultTool( assetType, clazz );
+				} catch( ClassNotFoundException e ) {
+					log.atWarn().withCause( e ).log("%s default tool class not found: %s", assetType.getName(), defaultTool);
+				}
+			}
+		}
+	}
+
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
@@ -262,6 +293,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
+
 		return toolClass;
 	}
 
@@ -303,7 +335,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProgramTool getToolInstance( OpenAssetRequest request ) throws Exception {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
-		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
+		XenonProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
 		// In order for this to be safe on any thread a task needs to be created
 		// that is then run on the FX platform thread and the result obtained on
@@ -311,7 +343,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Create the new tool instance
-			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
+			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
 			ProgramTool tool = constructor.newInstance( product, asset );
 
 			// Set the id before using settings

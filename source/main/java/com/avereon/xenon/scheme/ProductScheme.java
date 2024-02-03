@@ -1,15 +1,15 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.Codec;
 
 import java.io.IOException;
 
 public abstract class ProductScheme extends BaseScheme {
 
-	public ProductScheme( Program program, String id ) {
+	public ProductScheme( Xenon program, String id ) {
 		super( program, id );
 	}
 

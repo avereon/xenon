@@ -88,7 +88,7 @@ public class SplashScreenPane extends Pane {
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 
 		// NOTE Application.setUserAgentStylesheet() must be called in application for this to work properly
-		scene.getStylesheets().addAll( Program.STYLESHEET );
+		scene.getStylesheets().addAll( Xenon.STYLESHEET );
 
 		stage.setTitle( title );
 		stage.setScene( scene );

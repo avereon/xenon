@@ -6,6 +6,8 @@ public interface ProgramSettings {
 
 	String ASSET = BASE + "asset/";
 
+	String ASSET_TYPE = BASE + "asset/type/";
+
 	String PRODUCT = BASE + "product/";
 
 	String PROGRAM = BASE + "program/";

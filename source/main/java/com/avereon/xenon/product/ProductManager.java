@@ -3,12 +3,10 @@ package com.avereon.xenon.product;
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.log.Log;
-import com.avereon.product.Product;
-import com.avereon.product.ProductCard;
-import com.avereon.product.Rb;
-import com.avereon.product.RepoCard;
+import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
+import com.avereon.weave.Weave;
 import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
@@ -109,7 +107,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private static final int NO_CHECK = -1;
 
-	private Program program;
+	private Xenon program;
 
 	private Settings settings;
 
@@ -167,7 +165,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private boolean productReposRegistered;
 
-	public ProductManager( Program program ) {
+	public ProductManager( Xenon program ) {
 		this.program = program;
 
 		repos = new ConcurrentHashMap<>();
@@ -184,10 +182,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
-		includedProducts.add( new com.avereon.weave.Program().getCard() );
+		includedProducts.add( new Weave().getCard() );
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
 
@@ -297,7 +295,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productStates.put( productKey, new ProductState() );
 	}
 
-	public void registerProgram( Program program ) {
+	public void registerProgram( Xenon program ) {
 		registerProduct( program );
 		ProductCard card = program.getCard();
 
@@ -325,7 +323,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productStates.remove( productKey );
 	}
 
-	public void unregisterProgram( Program program ) {
+	public void unregisterProgram( Xenon program ) {
 		unregisterProduct( program );
 	}
 
@@ -1053,6 +1051,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
+			mod.setStatus( ModStatus.REGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1063,6 +1062,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
+			mod.setStatus( ModStatus.STARTED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1073,6 +1073,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
+			mod.setStatus( ModStatus.STOPPED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1082,6 +1083,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
+			mod.setStatus( ModStatus.UNREGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
@@ -1200,15 +1202,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				return;
 			}
 
+			// Configure logging for the mod
+			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+
 			// This will need to change if nested mods are to be supported
 			// Set the parent product
 			mod.setParent( getProgram() );
-
-			// Init Rb
-			Rb.init( mod );
-
-			// Configure logging for the mod
-			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
 			// Initialize the mod
 			mod.init( getProgram(), card );

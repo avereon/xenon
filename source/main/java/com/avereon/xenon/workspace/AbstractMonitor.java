@@ -20,7 +20,7 @@ public abstract class AbstractMonitor extends StackPane {
 
 	protected static DecimalFormat percentFormat = new DecimalFormat( "#0" );
 
-	private static Set<AbstractMonitor> monitors;
+	private static final Set<AbstractMonitor> monitors;
 
 	private final Group monitorGroup;
 

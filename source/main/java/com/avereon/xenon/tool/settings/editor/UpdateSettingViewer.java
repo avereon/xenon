@@ -4,8 +4,8 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.DateUtil;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zarra.javafx.Fx;
@@ -28,7 +28,7 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public UpdateSettingViewer( ProgramProduct product, String rbKey, SettingData setting ) {
+	public UpdateSettingViewer( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 
@@ -75,7 +75,7 @@ public class UpdateSettingViewer extends SettingEditor {
 	}
 
 	private void updateLabels() {
-		Program program = product.getProgram();
+		Xenon program = product.getProgram();
 		String unknown = Rb.text( getProduct(), RbKey.UPDATE, "unknown" );
 		String notScheduled = Rb.text( getProduct(), RbKey.UPDATE, "not-scheduled" );
 

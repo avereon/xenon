@@ -12,7 +12,7 @@ class TaskToolGetRequiredAssetsUIT extends TaskToolUIT {
 	void execute() {
 		Asset asset = new Asset( ProgramTaskType.URI );
 		TaskTool tool = new TaskTool( getProgram(), asset );
-		assertThat( tool.getAssetDependencies().size() ).isEqualTo( 0 );
+		assertThat( tool.getAssetDependencies() ).isEmpty();
 	}
 
 }

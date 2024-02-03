@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.log.LazyEval;
+import com.avereon.product.ProgramFlag;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
 import lombok.CustomLog;
@@ -18,13 +19,13 @@ import java.util.logging.LogRecord;
 @CustomLog
 public class ProgramPeer implements Controllable<ProgramPeer> {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final int port;
 
 	private Socket socket;
 
-	ProgramPeer( Program program, int port ) {
+	ProgramPeer( Xenon program, int port ) {
 		this.program = program;
 		this.port = port;
 	}

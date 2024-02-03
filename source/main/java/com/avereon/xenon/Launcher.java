@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.weave.ElevatedFlag;
 import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.Weave;
 
 public class Launcher {
 
@@ -10,18 +11,14 @@ public class Launcher {
 
 		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
 
-		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
-			// Launch an elevated updater instance
-			new com.avereon.weave.Program().start( commands );
-		} else if( parameters.isSet( UpdateFlag.UPDATE ) ) {
-			// Launch an updater instance
-			// When launching an updater instance, the custom launcher name must be
-			// set correctly in the event the updater needs to start an elevated
-			// updater to handler elevated tasks.
-			new com.avereon.weave.Program().start( commands );
+		boolean update = parameters.isSet( UpdateFlag.UPDATE );
+		boolean callback = parameters.isSet( ElevatedFlag.CALLBACK_SECRET );
+		boolean updating = update || callback;
+
+		if( updating ) {
+			new Weave().start( commands );
 		} else {
-			// Launch a program instance
-			Program.launch( commands );
+			Xenon.doLaunch( commands );
 		}
 	}
 

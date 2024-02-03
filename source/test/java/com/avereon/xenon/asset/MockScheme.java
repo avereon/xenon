@@ -1,13 +1,13 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.scheme.BaseScheme;
 
 public class MockScheme extends BaseScheme {
 
 	public static final String ID = "mock";
 
-	MockScheme( Program program ) {
+	MockScheme( Xenon program ) {
 		super( program, ID );
 	}
 

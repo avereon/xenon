@@ -3,9 +3,9 @@ package com.avereon.xenon.scheme;
 import com.avereon.index.Document;
 import com.avereon.product.Rb;
 import com.avereon.util.IoUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.Codec;
 import lombok.CustomLog;
 
@@ -19,7 +19,7 @@ public class ProgramScheme extends ProductScheme {
 
 	public static final String ID = "program";
 
-	public ProgramScheme( Program program ) {
+	public ProgramScheme( Xenon program ) {
 		super( program, ID );
 	}
 
@@ -47,7 +47,7 @@ public class ProgramScheme extends ProductScheme {
 
 		String content;
 		try {
-			Document document = getProgram().getIndexService().lookup( uri );
+			Document document = getProgram().getIndexService().lookupFromCache( uri );
 			if( document == null ) {
 				log.atWarn().log( "Document not found: doc=%s", uri );
 				String message = Rb.text( "program", "help-document-not-found" );

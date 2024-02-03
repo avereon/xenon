@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.zenna.icon.XRingLargeIcon;
 import com.avereon.zarra.image.Proof;
 import com.avereon.zarra.image.RenderedImage;
-import com.avereon.zarra.style.Theme;
+import com.avereon.zarra.style.Motif;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
@@ -61,7 +61,7 @@ public class InstallerBannerImage extends RenderedImage {
 
 	public static void main( String[] commands ) {
 		RenderedImage image = new InstallerBannerImage();
-		image.setTheme( Theme.LIGHT );
+		image.setTheme( Motif.LIGHT );
 		image.relocate( 50, 50 );
 		Proof.proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.web( "#E0E0E0" ) );
 	}

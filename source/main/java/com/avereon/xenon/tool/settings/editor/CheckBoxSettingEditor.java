@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ObservableValue;
@@ -18,19 +18,18 @@ public class CheckBoxSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public CheckBoxSettingEditor( ProgramProduct product, String rbKey, SettingData setting ) {
+	public CheckBoxSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting ) {
 		super( product, rbKey, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getRbKey();
-		boolean selected = setting.getSettings().get( getKey(), Boolean.class, false );
-
+		String selected = setting.getSettings().get( getKey() );
 		String label = Rb.text( getProduct(), getRbKey(), rbKey );
 
 		checkbox = new CheckBox();
-		checkbox.setSelected( selected );
+		checkbox.setSelected( Boolean.parseBoolean( selected ) );
 		checkbox.setText( label );
 		checkbox.setId( rbKey );
 
@@ -55,11 +54,11 @@ public class CheckBoxSettingEditor extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue().toString() ) );
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( String.valueOf( event.getNewValue() ) ) );
 	}
 
 	private void doCheckboxValueChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		setting.getSettings().set( getKey(), checkbox.isSelected() );
+		setting.getSettings().set( getKey(), String.valueOf( newValue ) );
 	}
 
 }

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @CustomLog
 class UiRegenerator {
 
-	private final Program program;
+	private final Xenon program;
 
 	private final UiFactory factory;
 
@@ -58,22 +58,14 @@ class UiRegenerator {
 
 	private boolean restored;
 
-	UiRegenerator( Program program ) {
+	UiRegenerator( Xenon program ) {
 		this.program = program;
 		this.factory = new UiFactory( program );
 	}
 
-	private Program getProgram() {
+	private Xenon getProgram() {
 		return program;
 	}
-
-	//	int getUiObjectCount() {
-	//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
-	//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
-	//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
-	//		int t = getSettingsFiles( Prefix.WORKTOOL ).length;
-	//		return Math.max( 2, s + a + p + t );
-	//	}
 
 	int getToolCount() {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
@@ -81,22 +73,34 @@ class UiRegenerator {
 
 	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
-		Fx.checkFxThread();
+		Fx.affirmOnFxThread();
 		restoreLock.lock();
+
 		try {
+			// Get the restore workspaces setting
+			boolean shouldOpenExisting = Boolean.parseBoolean( program.getSettings().get( "workspace-open-existing-on-start", false ) );
+
 			// Restore the workspaces or generate the default workspace
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			if( workspaceIds.size() == 0 ) {
+			if( !shouldOpenExisting || workspaceIds.isEmpty() ) {
 				createDefaultWorkspace();
+				log.atConfig().log( "Created default workspace" );
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
+				log.atConfig().log( "Restored previous workspaces" );
 			}
 
 			// Ensure there is an active workarea
-			if( getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
-				Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
+			Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();
+			if( workspace != null && !workspace.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
 				workspace.setActiveWorkarea( workspace.getWorkareas().iterator().next() );
 			}
+
+			// Check the restored state
+			if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
+			if( workspace == null ) log.atError().log( "No active workspace" );
+			if( workspace != null && workspace.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
+			if( workspace != null && workspace.getActiveWorkarea() == null ) log.atError().log( "No active workarea" );
 
 			// Notify the workspace manager the UI is ready
 			getProgram().getWorkspaceManager().setUiReady( true );
@@ -124,6 +128,9 @@ class UiRegenerator {
 		try {
 			getProgram().getAssetManager().openAssetsAndWait( assets, 5, TimeUnit.SECONDS );
 			getProgram().getAssetManager().loadAssets( assets );
+		} catch( InterruptedException exception ) {
+			log.atWarn( exception ).log();
+			Thread.currentThread().interrupt();
 		} catch( Exception exception ) {
 			log.atError( exception ).log();
 		}
@@ -136,6 +143,7 @@ class UiRegenerator {
 
 		// Create the default workarea
 		Workarea workarea = factory.newWorkarea();
+		//workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
 		workarea.setName( "Default" );
 		workspace.setActiveWorkarea( workarea );
 
@@ -158,7 +166,7 @@ class UiRegenerator {
 		// Create the tools
 		getUiSettingsIds( ProgramSettings.TOOL ).forEach( id -> {
 			restoreWorktool( id );
-			splashScreen.update();
+			if( splashScreen != null ) splashScreen.update();
 		} );
 
 		linkWorkareas();
@@ -214,15 +222,11 @@ class UiRegenerator {
 			}
 		}
 
-		//		Set<Workpane> panes = new HashSet<>();
-		//		panes.addAll( workpaneEdges.keySet() );
-		//		panes.addAll( workpaneViews.keySet() );
-
 		// Restore edges and views to workpane
 		for( Workpane pane : panes.values() ) {
-			Set<WorkpaneEdge> edges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
-			Set<WorkpaneView> views = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
-			pane.restoreNodes( edges, views );
+			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
+			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
+			pane.restoreNodes( localEdges, localViews );
 
 			// FIXME Default view has already been overwritten in the settings and is getting lost
 			// Active, default and maximized views
@@ -244,21 +248,19 @@ class UiRegenerator {
 		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
-		switch( edge.getOrientation() ) {
-			case VERTICAL -> {
-				WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
-				WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
-				if( t == null || b == null ) return false;
-				edge.setEdge( Side.TOP, t );
-				edge.setEdge( Side.BOTTOM, b );
-			}
-			case HORIZONTAL -> {
-				WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
-				WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
-				if( l == null || r == null ) return false;
-				edge.setEdge( Side.LEFT, l );
-				edge.setEdge( Side.RIGHT, r );
-			}
+		Orientation orientation = edge.getOrientation();
+		if( Objects.requireNonNull( orientation ) == Orientation.VERTICAL ) {
+			WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
+			WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+			if( t == null || b == null ) return false;
+			edge.setEdge( Side.TOP, t );
+			edge.setEdge( Side.BOTTOM, b );
+		} else if( orientation == Orientation.HORIZONTAL ) {
+			WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
+			WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
+			if( l == null || r == null ) return false;
+			edge.setEdge( Side.LEFT, l );
+			edge.setEdge( Side.RIGHT, r );
 		}
 
 		return true;
@@ -303,21 +305,23 @@ class UiRegenerator {
 	private void linkTools() {
 		ProgramTool activeTool = null;
 
-		for( WorkpaneView view : viewTools.keySet() ) {
+		for( Map.Entry<WorkpaneView, Set<ProgramTool>> entry : viewTools.entrySet() ) {
+			WorkpaneView view = entry.getKey();
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
 
-			List<ProgramTool> tools = new ArrayList<>( viewTools.get( view ) );
+			List<ProgramTool> localTools = new ArrayList<>( entry.getValue() );
 
 			// Sort the tools
-			tools.sort( new ToolOrderComparator() );
+			localTools.sort( new ToolOrderComparator() );
 
 			// Add the tools to the view
-			for( ProgramTool tool : tools ) {
+			for( ProgramTool tool : localTools ) {
 				pane.addTool( tool, view, false );
 
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
-				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
+				boolean isActive = settings.get( "active", Boolean.class, false );
+				if( isActive ) activeTool = tool;
 
 				log.atDebug().log( "Tool restored: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
 			}

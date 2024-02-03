@@ -3,18 +3,15 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
-import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import lombok.CustomLog;
 
@@ -26,89 +23,68 @@ import java.util.Objects;
 @CustomLog
 public class SettingsPanel extends VBox {
 
-	private final SettingsPage page;
+	private final XenonProgramProduct product;
 
-	private final Map<String, SettingOptionProvider> optionProviders;
+	private Map<String, SettingOptionProvider> optionProviders;
 
-	//	private String[] fontNames;
-	//
-	//	private String[] fontStyles;
-	//
-	//	private String[] fontSizes;
-
-	// TODO Add Apply button and change functionality accordingly.
-	// TODO Add a default button to set individual setting back to default.
-	// TODO Add an undo button to set individual setting back to previous.
-
-	/**
-	 * @param page The settings page for the panel
-	 */
-	public SettingsPanel( SettingsPage page ) {
-		this( page, false );
+	protected SettingsPanel( XenonProgramProduct product ) {
+		this( product, null );
 	}
 
-	public SettingsPanel( SettingsPage page, boolean showTitle ) {
-		this.page = page;
-		this.optionProviders = page.getOptionProviders();
-
-		//		String fontPlain = product.getResourceBundle().getString( rbKey, "font-plain" );
-		//		String fontBold = product.getResourceBundle().getString( rbKey, "font-bold" );
-		//		String fontItalic = product.getResourceBundle().getString( rbKey, "font-italic" );
-		//		String fontBoldItalic = product.getResourceBundle().getString( rbKey, "font-bold-italic" );
-		//
-		//		List<String> fontFamilies = Font.getFamilies();
-		//		fontNames = fontFamilies.toArray( new String[ fontFamilies.size() ] );
-		//		fontStyles = new String[]{ fontPlain, fontBold, fontItalic, fontBoldItalic };
-		//		fontSizes = new String[]{ "8", "10", "12", "14", "16", "18", "20", "22", "24", "26" };
-
-		//setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
-
-		if( showTitle ) {
-			// Add the title label
-			Label titleLabel = new Label( page.getTitle() );
-			titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-			titleLabel.prefWidthProperty().bind( widthProperty() );
-			titleLabel.getStyleClass().add( "setting-title" );
-			titleLabel.setAlignment( Pos.CENTER );
-			//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
-
-			addBlankLine( this );
-			getChildren().add( titleLabel );
-			addBlankLine( this );
-		}
-
-		ProgramProduct product = page.getProduct();
-		String rbKey = page.getRbKey();
-
-		// Add the groups
-		for( SettingGroup group : page.getGroups() ) {
-			String name = Rb.text( product, rbKey, group.getId() );
-			Control pane = createGroupPane( product, rbKey, page, name, group );
-			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
-			getChildren().add( pane );
-		}
+	protected SettingsPanel( XenonProgramProduct product, Map<String, SettingOptionProvider> optionProviders ) {
+		this.product = product;
+		this.optionProviders = optionProviders;
+		getStyleClass().addAll( "settings-panel" );
 	}
 
-	public SettingsPage getPage() {
-		return this.page;
+	protected XenonProgramProduct getProduct() {
+		return product;
 	}
 
-	private void addBlankLine( Pane pane ) {
+	protected void addTitle( String title ) {
+		// Add the title label
+		Label titleLabel = new Label( title );
+		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
+		titleLabel.prefWidthProperty().bind( widthProperty() );
+		titleLabel.getStyleClass().add( "setting-title" );
+		titleLabel.setAlignment( Pos.CENTER );
+
+		addBlankLine();
+		getChildren().add( titleLabel );
+		addBlankLine();
+	}
+
+	protected void addBlankLine() {
 		Label blankLine = new Label( " " );
-		blankLine.prefWidthProperty().bind( pane.widthProperty() );
+		blankLine.prefWidthProperty().bind( widthProperty() );
 		blankLine.getStyleClass().add( "setting-blank" );
 		blankLine.setAlignment( Pos.CENTER );
-		pane.getChildren().add( blankLine );
+		getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( ProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
-		Pane pane = createSettingsPane( product, rbKey, page, group );
+	protected TitledPane createGroupPane( String name ) {
+		return createGroupPane(createSettingsPane(), name, false, true );
+	}
 
-		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
+	protected TitledPane createGroupPane( Pane pane, String name, boolean collapsible, boolean expanded ) {
+		TitledPane groupPane = new TitledPane( name, pane );
+		groupPane.setCollapsible( collapsible );
+		groupPane.setExpanded( expanded );
+		return groupPane;
+	}
+
+	protected TitledPane createGroupPane( XenonProgramProduct product, String rbKey, SettingsPage page, String name, SettingGroup group ) {
+		GridPane pane = createSettingsPane( product, rbKey, page, group );
+
+		TitledPane groupPane = createGroupPane( pane, name, group.isCollapsible(), group.isExpanded() );
+		groupPane.setCollapsible( group.isCollapsible() );
+		groupPane.setExpanded( group.isExpanded() );
+
+		group.register( NodeEvent.ANY, new GroupChangeHandler( group, (Pane)groupPane.getContent() ) );
 
 		Settings pageSettings = page.getSettings();
 		List<SettingDependency> dependencies = group.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency dependency : dependencies ) {
 				addGroupDependencyWatchers( pageSettings, group, dependency );
 			}
@@ -116,23 +92,25 @@ public class SettingsPanel extends VBox {
 
 		group.updateState();
 
-		TitledPane groupPane = new TitledPane( name, pane );
-		groupPane.setCollapsible( false );
-		groupPane.setExpanded( true );
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( ProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+	protected GridPane createSettingsPane() {
 		GridPane grid = new GridPane();
 		grid.setHgap( UiFactory.PAD );
 		grid.setVgap( UiFactory.PAD );
-		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		ColumnConstraints labelColumnConstraints = new ColumnConstraints();
 		ColumnConstraints editorColumnConstraints = new ColumnConstraints();
 		labelColumnConstraints.setHgrow( Priority.SOMETIMES );
 		editorColumnConstraints.setHgrow( Priority.ALWAYS );
 		grid.getColumnConstraints().addAll( labelColumnConstraints, editorColumnConstraints );
+
+		return grid;
+	}
+
+	protected GridPane createSettingsPane( XenonProgramProduct product, String rbKey, SettingsPage page, SettingGroup group ) {
+		GridPane grid = createSettingsPane();
 
 		int row = 0;
 		for( SettingData setting : group.getSettingsList() ) {
@@ -149,7 +127,9 @@ public class SettingsPanel extends VBox {
 
 			// Determine setting option provider, if any
 			String providerId = setting.getProvider();
-			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+			if( optionProviders != null ) {
+				setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+			}
 
 			// Create the editor
 			SettingEditor editor = createSettingEditor( product, rbKey, setting, editorClass );
@@ -159,7 +139,7 @@ public class SettingsPanel extends VBox {
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
 			List<SettingDependency> dependencies = setting.getDependencies();
-			if( dependencies.size() > 0 ) {
+			if( !dependencies.isEmpty() ) {
 				for( SettingDependency dependency : dependencies ) {
 					addSettingDependencyWatchers( pageSettings, setting, dependency );
 				}
@@ -171,12 +151,12 @@ public class SettingsPanel extends VBox {
 		return grid;
 	}
 
-	private SettingEditor createSettingEditor( ProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
+	protected SettingEditor createSettingEditor( XenonProgramProduct product, String rbKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( XenonProgramProduct.class, String.class, SettingData.class );
 			editor = constructor.newInstance( product, rbKey, setting );
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error creating setting editor: %s", LazyEval.of( editorClass::getName ) );
@@ -193,7 +173,7 @@ public class SettingsPanel extends VBox {
 		settings.register( SettingsEvent.CHANGED, new GroupDependencyWatcher( dependency, group ) );
 
 		List<SettingDependency> dependencies = group.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency child : dependency.getDependencies() ) {
 				addGroupDependencyWatchers( settings, group, child );
 			}
@@ -204,7 +184,7 @@ public class SettingsPanel extends VBox {
 		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
-		if( dependencies.size() > 0 ) {
+		if( !dependencies.isEmpty() ) {
 			for( SettingDependency child : dependency.getDependencies() ) {
 				addSettingDependencyWatchers( settings, setting, child );
 			}
@@ -249,16 +229,7 @@ public class SettingsPanel extends VBox {
 
 	}
 
-	private static class GroupChangeHandler implements EventHandler<NodeEvent> {
-
-		private final SettingGroup group;
-
-		private final Pane pane;
-
-		public GroupChangeHandler( SettingGroup group, Pane pane ) {
-			this.group = group;
-			this.pane = pane;
-		}
+	private record GroupChangeHandler(SettingGroup group, Pane pane) implements EventHandler<NodeEvent> {
 
 		@Override
 		public void handle( NodeEvent event ) {
@@ -270,26 +241,24 @@ public class SettingsPanel extends VBox {
 			}
 		}
 
-		protected final void setDisable( boolean disable ) {
+		private void setDisable( boolean disable ) {
 			pane.setDisable( disable );
 		}
 
-		protected final void setVisible( boolean visible ) {
+		private void setVisible( boolean visible ) {
 			pane.setVisible( visible );
 		}
 
 	}
 
-	private static class EditorChangeHandler {
-
-		private final SettingEditor editor;
+	private record EditorChangeHandler(SettingEditor editor) {
 
 		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
 			SettingData setting = editor.getSetting();
 
 			// Register a handler when the setting value changes to update the editor
-			setting.getSettings().register( SettingsEvent.CHANGED, editor::doSettingValueChanged );
+			setting.getSettings().register( SettingsEvent.CHANGED, editor::handle );
 
 			// Register a handler on the setting node to update other setting nodes
 			setting.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );

@@ -4,18 +4,18 @@ import com.avereon.xenon.task.Task;
 
 public abstract class ProgramTask<V> extends Task<V> {
 
-	private Program program;
+	private Xenon program;
 
-	public ProgramTask( Program program ) {
+	public ProgramTask( Xenon program ) {
 		this( program, null );
 	}
 
-	public ProgramTask( Program program, String name ) {
+	public ProgramTask( Xenon program, String name ) {
 		super( name );
 		this.program = program;
 	}
 
-	protected Program getProgram() {
+	protected Xenon getProgram() {
 		return program;
 	}
 

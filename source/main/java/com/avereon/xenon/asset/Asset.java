@@ -6,11 +6,13 @@ import com.avereon.transaction.TxnEvent;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.fxmisc.undo.UndoManager;
 
 import java.net.URI;
@@ -25,13 +27,12 @@ public class Asset extends Node {
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
-	public static final String SETTINGS_TYPE_KEY = "asset-type";
+	public static final String SETTINGS_TYPE_KEY = "asset-type-key";
 
 	public static final String MEDIA_TYPE_KEY = "asset.media.type";
 
 	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
-	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
 	private static final String TYPE = "type";
 
 	private static final String URI = "uri";
@@ -58,6 +59,7 @@ public class Asset extends Node {
 
 	private final FxEventHub eventHub;
 
+	@Getter
 	private final UndoManager<List<NodeChange>> undoManager;
 
 	private boolean captureUndoChanges;
@@ -162,7 +164,10 @@ public class Asset extends Node {
 	}
 
 	public Scheme getScheme() {
-		return getValue( SCHEME );
+		Scheme scheme = getValue( SCHEME );
+		//if( scheme == null ) log.atWarn().log( "Asset missing scheme: " + this );
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this);
+		return scheme;
 	}
 
 	public void setScheme( Scheme scheme ) {
@@ -186,6 +191,15 @@ public class Asset extends Node {
 	}
 
 	/**
+	 * A convenience method to get the "simple" name of the asset.
+	 *
+	 * @return The simple name of the asset.
+	 */
+	public String getSimpleName() {
+		return getFileName();
+	}
+
+	/**
 	 * A convenience method to get the file name from the URI.
 	 *
 	 * @return The file name from the URI.
@@ -196,17 +210,8 @@ public class Asset extends Node {
 		if( uri.isOpaque() ) {
 			return uri.getSchemeSpecificPart();
 		} else {
-			String path = uri.getPath();
-			//boolean isFolder = path.endsWith( "/" );
-			//if( isFolder ) path = path.substring( 0, path.length() - 1 );
 			return UriUtil.parseName( uri );
-
-			//return path.substring( uri.getPath().lastIndexOf( '/' ) + 1 );
 		}
-	}
-
-	public UndoManager<List<NodeChange>> getUndoManager() {
-		return undoManager;
 	}
 
 	public boolean isCaptureUndoChanges() {
@@ -233,13 +238,13 @@ public class Asset extends Node {
 		setValue( LAST_SAVED_KEY, timestamp );
 	}
 
-//	public File getFile() {
-//		return getValue( FILE );
-//	}
-//
-//	public void setFile( File file ) {
-//		setValue( FILE, file );
-//	}
+	//	public File getFile() {
+	//		return getValue( FILE );
+	//	}
+	//
+	//	public void setFile( File file ) {
+	//		setValue( FILE, file );
+	//	}
 
 	public <M> M getModel() {
 		return getValue( MODEL );
@@ -251,17 +256,9 @@ public class Asset extends Node {
 	}
 
 	/**
-	 * A asset is "new" if it does not have a URI associated with it yet. This
-	 * usually occurs when the asset is created with only an asset type and
-	 * has not been saved yet. When it is saved, a URI will be associated to the
-	 * asset and it will be considered "old" from that point forward.
-	 * <p>
-	 * A asset is existing if it is created with a URI. The asset type is
-	 * determined when the asset is opened.
-	 *
 	 * @return If the asset is "new"
 	 */
-	public synchronized final boolean isNew() {
+	public final synchronized boolean isNew() {
 		// FIXME The isNew() logic may need improving
 		// This logic is problematic in the case of an asset that has been created
 		// but not yet saved. It can be in a tool, the program restarted and the
@@ -271,15 +268,19 @@ public class Asset extends Node {
 		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 
-	public synchronized final boolean isNewOrModified() {
+	public final synchronized boolean isNewOrModified() {
 		return isNew() || isModified();
 	}
 
-	public synchronized final boolean isOpen() {
+	public final synchronized boolean isSafeToSave() {
+		return isNew() || (isLoaded() && isModified());
+	}
+
+	public final synchronized boolean isOpen() {
 		return open;
 	}
 
-	public synchronized final void open( AssetManager manager ) throws AssetException {
+	public final synchronized void open( AssetManager manager ) throws AssetException {
 		if( isOpen() ) return;
 
 		Scheme scheme = getScheme();
@@ -348,14 +349,8 @@ public class Asset extends Node {
 	}
 
 	public boolean exists() throws AssetException {
-		// NEXT Should the asset assume it exists if there is not a scheme to verify?
-		// TODO What about remote resources when there is NOT a connection possible?
-		// TODO What about remote resources when there IS a connection possible?
-
 		Scheme scheme = getScheme();
-		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
-		//log.atWarning().log( "NO SCHEME - Can't determine if the asset exists" );
-		return scheme == null || scheme.exists( this );
+		return scheme != null && scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {
@@ -368,7 +363,7 @@ public class Asset extends Node {
 	 */
 	public boolean isFolder() throws AssetException {
 		Scheme scheme = getScheme();
-		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking isFolder" );
 		return scheme != null && scheme.isFolder( this );
 	}
 
