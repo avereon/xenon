@@ -2,9 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - stable
   schedule:
     # Noon Saturday UTC
     - cron: '0 12 * * 6'
