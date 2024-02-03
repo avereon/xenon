@@ -14,26 +14,26 @@ one by one, leading up to the Xenon release. This document helps coordinate the 
 
 ## Dependency Release List for Version 1.7
 
-| Project               | Old Version  | New Version |   Status |
-|-----------------------|--------------|-------------|---------:|
+| Project               | Old Version  | New Version |   Status | Next Status |
+|-----------------------|--------------|-------------|---------:|-------------|
 | Maven Parent POMs     |
 | top                   | 3.5.3        | 3.5.3       | Complete |
 | jar                   | 3.5.3        | 3.5.3       | Complete |
 | asm                   | 3.5.3        | 3.5.3       | Complete |
 | prd                   | 3.5.3        | 3.5.3       | Complete |
 | prg                   | 3.5.3        | 3.5.3       | Complete |
-| mod                   | 3.5.3        | 3.5.3       | Complete |
+| mod                   | 3.5.3        | 3.5.4       | Complete |
 | Avereon Libraries     |
-| zevra                 | 0.9-SNAPSHOT | 0.9         | Complete |
-| zarra                 | 0.9-SNAPSHOT | 0.9         | Complete |
-| zenna                 | 0.9-SNAPSHOT | 0.9         | Complete |
-| curve                 | 0.4-SNAPSHOT | 0.4         | Complete |
-| marea                 | 0.2-SNAPSHOT | 0.2         | Complete |
+| zevra                 | 0.9-SNAPSHOT | 0.9         | Complete | Complete    |
+| zarra                 | 0.9-SNAPSHOT | 0.9         | Complete | Complete    |
+| zenna                 | 0.9-SNAPSHOT | 0.9         | Complete | Complete    |
+| curve                 | 0.4-SNAPSHOT | 0.4         | Complete | Complete    |
+| marea                 | 0.2-SNAPSHOT | 0.2         | Complete | Complete    |
 | Avereon Maven Plugins |
-| curex                 | 1.4.1        | 1.4.1       | Complete |
-| cameo                 | 2.10         | 2.10        | Complete |
+| curex                 | 1.4.1        | 1.4.1       | Complete | Complete    |
+| cameo                 | 2.10         | 2.10        | Complete | Complete    |
 | Avereon Applications  |
-| weave                 | 1.4-SNAPSHOT | 1.4         | Complete |
+| weave                 | 1.4-SNAPSHOT | 1.4         | Complete | Complete    |
 | xenon                 | 1.7-SNAPSHOT | 1.7         | Complete |
 | Xenon Test Utilities  |
 | zerra                 | 0.9-SNAPSHOT | 0.9         | Complete |
