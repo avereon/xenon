@@ -34,9 +34,9 @@ one by one, leading up to the Xenon release. This document helps coordinate the 
 | cameo                 | 2.10         | 2.10        | Complete | Complete    |
 | Avereon Applications  |
 | weave                 | 1.4-SNAPSHOT | 1.4         | Complete | Complete    |
-| xenon                 | 1.7-SNAPSHOT | 1.7         | Complete |
+| xenon                 | 1.7-SNAPSHOT | 1.7         | Complete | Complete    |
 | Xenon Test Utilities  |
-| zerra                 | 0.9-SNAPSHOT | 0.9         | Complete |
+| zerra                 | 0.9-SNAPSHOT | 0.9         | Complete | Complete    |
 | Avereon Mods          |
 | acorn                 | 1.2.4        | 1.3         |          |
 | aveon                 | 1.2-SNAPSHOT | 1.2         |          |
