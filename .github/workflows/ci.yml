@@ -59,7 +59,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -143,7 +143,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -196,7 +196,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -248,7 +248,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -323,7 +323,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -399,7 +399,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
