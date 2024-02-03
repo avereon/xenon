@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
   schedule:
     # Noon Saturday UTC
     - cron: '0 12 * * 6'
