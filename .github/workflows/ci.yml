@@ -83,7 +83,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-#      - name: Publish Arifacts
+#      - name: Publish Artifacts
 #        run: |
 #          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
 #
@@ -165,7 +165,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-      - name: Publish Arifacts
+      - name: Publish Artifacts
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
 
