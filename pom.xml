@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.3</version>
+		<version>3.5.4</version>
 		<relativePath/>
 	</parent>
 
@@ -66,11 +66,13 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
+		<java.version>21</java.version>
+
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
-		<weave.version>1.4</weave.version>
+		<weave.version>1.5-SNAPSHOT</weave.version>
 		<zenna.version>0.9</zenna.version>
 		<zarra.version>0.9</zarra.version>
 		<zevra.version>0.9</zevra.version>
