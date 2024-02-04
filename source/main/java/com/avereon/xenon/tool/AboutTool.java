@@ -218,6 +218,8 @@ public class AboutTool extends GuidedTool {
 
 		private final Label javaFxRuntime;
 
+		private final Label javaFxProvider;
+
 		private final Label javaLabel;
 
 		private Label javaName;
@@ -275,6 +277,7 @@ public class AboutTool extends GuidedTool {
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( javaFxHeader );
 			information.getChildren().add( javaFxRuntime = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( javaFxProvider = makeLabel( "tool-about-provider" ) );
 
 			// Operating System
 			information.getChildren().add( makeSeparator() );
@@ -292,6 +295,7 @@ public class AboutTool extends GuidedTool {
 
 			javaFxHeader.setText( "JavaFX " + System.getProperty( "javafx.version" ) );
 			javaFxRuntime.setText( "JavaFX Runtime " + System.getProperty( "javafx.runtime.version" ) );
+			javaFxProvider.setText( from + " Community" );
 
 			javaLabel.setText( "Java " + System.getProperty( "java.version" ) );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
