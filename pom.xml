@@ -81,7 +81,8 @@
 		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
 		<controlsfx.version>11.2.0</controlsfx.version>
-		<openjfx.version>21.0.2</openjfx.version>
+		<!-- UI test failures on unix systems with version 20.0.2 -->
+		<openjfx.version>21.0.1</openjfx.version>
 
 		<!-- Test dependencies -->
 		<!-- TestFX 4.0.17 broke the module -->
