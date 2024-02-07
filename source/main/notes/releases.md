@@ -43,6 +43,7 @@ one by one, leading up to the Xenon release. This document helps coordinate the 
 | carta                 | 1.3-SNAPSHOT | 1.3         |          |
 | mazer                 | 1.3-SNAPSHOT | 1.3         |          |
 | recon                 | 1.2-SNAPSHOT | 1.2         |          |
+| sysup                 |              | 1.0.0       |          |
 
 
 ## Dependency Release List for Version 1.6
