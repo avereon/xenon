@@ -82,7 +82,8 @@
 		<!-- Runtime dependencies -->
 		<controlsfx.version>11.2.0</controlsfx.version>
 		<!-- UI test failures on unix systems with version 20.0.2 -->
-		<openjfx.version>21.0.1</openjfx.version>
+		<!-- https://bugs.openjdk.org/browse/JDK-8308345 -->
+		<openjfx.version>20.0.1</openjfx.version>
 
 		<!-- Test dependencies -->
 		<!-- TestFX 4.0.17 broke the module -->
