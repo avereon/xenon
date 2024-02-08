@@ -259,22 +259,28 @@ public class ToolManager implements Controllable<ToolManager> {
 		settings.set( "tool", tool.getName() );
 	}
 
-	@SuppressWarnings( "unchecked" )
 	public void updateDefaultToolsFromSettings() {
 		// Go through each asset type and set the default tool from the settings
-
 		for( AssetType assetType : assetTypeToolClasses.keySet() ) {
 			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
 			String defaultTool = settings.get( "tool" );
 			if( defaultTool != null ) {
-				try {
-					Class<? extends ProgramTool> clazz = (Class<? extends ProgramTool>)Class.forName( defaultTool );
-					setDefaultTool( assetType, clazz );
-				} catch( ClassNotFoundException e ) {
-					log.atWarn().withCause( e ).log("%s default tool class not found: %s", assetType.getName(), defaultTool);
+				Class<? extends ProgramTool> toolClass = findAssetTypeToolClassByName( assetType, defaultTool );
+				if( toolClass != null ) {
+					setDefaultTool( assetType, toolClass );
+				} else {
+					log.atWarn().log( "%s default tool class not found: %s", assetType.getName(), defaultTool );
 				}
 			}
 		}
+	}
+
+	private Class<? extends ProgramTool> findAssetTypeToolClassByName( AssetType assetType, String name ) {
+		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+		for( Class<? extends ProgramTool> toolClass : toolClasses ) {
+			if( toolClass.getName().equals( name ) ) return toolClass;
+		}
+		return null;
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
