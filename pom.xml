@@ -574,23 +574,6 @@
 									<reuseForks>false</reuseForks>
 									<runOrder>alphabetical</runOrder>
 									<argLine>-Xmx128m --add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</argLine>
-<!--									<systemPropertyVariables>-->
-<!--										&lt;!&ndash; Set testfx.setup.timeout to a reasonable time &ndash;&gt;-->
-<!--										&lt;!&ndash; This might be as low as 1000 for a fast computer &ndash;&gt;-->
-<!--										&lt;!&ndash; This might be as high as 5000 for a slow computer &ndash;&gt;-->
-<!--										<testfx.setup.timeout>5000</testfx.setup.timeout>-->
-<!--										&lt;!&ndash; Set testfx.headless to true to run FX tests in headless mode &ndash;&gt;-->
-<!--										<testfx.headless>true</testfx.headless>-->
-<!--										&lt;!&ndash; Set testfx.robot to glass when running tests in headless mode &ndash;&gt;-->
-<!--										<testfx.robot>glass</testfx.robot>-->
-<!--										&lt;!&ndash; Set prism.order to sw when running tests in headless mode &ndash;&gt;-->
-<!--										&lt;!&ndash; https://wiki.openjdk.java.net/display/OpenJFX/Monocle &ndash;&gt;-->
-<!--										<prism.order>sw</prism.order>-->
-<!--										&lt;!&ndash; Not sure what this setting does but it's in all the examples found &ndash;&gt;-->
-<!--										<prism.text>t2k</prism.text>-->
-<!--										&lt;!&ndash; Set java.awt.headless to true when running tests in headless mode &ndash;&gt;-->
-<!--										<java.awt.headless>true</java.awt.headless>-->
-<!--									</systemPropertyVariables>-->
 								</configuration>
 							</execution>
 						</executions>
