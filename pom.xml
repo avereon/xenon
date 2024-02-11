@@ -274,7 +274,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<!-- Version comes from parent -->
 				<configuration>
-					<argLine>-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
+					<argLine>-Xmx128m --add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</argLine>
 				</configuration>
 			</plugin>
 
@@ -573,7 +573,7 @@
 									<forkCount>1</forkCount>
 									<reuseForks>false</reuseForks>
 									<runOrder>alphabetical</runOrder>
-									<argLine>-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
+									<argLine>-Xmx128m --add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</argLine>
 <!--									<systemPropertyVariables>-->
 <!--										&lt;!&ndash; Set testfx.setup.timeout to a reasonable time &ndash;&gt;-->
 <!--										&lt;!&ndash; This might be as low as 1000 for a fast computer &ndash;&gt;-->
