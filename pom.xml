@@ -87,8 +87,8 @@
 
 		<!-- Test dependencies -->
 		<!-- TestFX 4.0.17 broke the module -->
-		<testfx.version>4.0.16-alpha</testfx.version>
-		<monocle.version>jdk-12.0.1+2</monocle.version>
+		<testfx.version>4.0.18</testfx.version>
+		<monocle.version>17.0.10</monocle.version>
 
 		<!-- Build plugin versions -->
 		<cameo.version>2.10</cameo.version>
