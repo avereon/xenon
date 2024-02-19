@@ -68,29 +68,28 @@
 
 		<java.version>21</java.version>
 
-		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
-		<reactfx.version>2.0-M5</reactfx.version>
-		<undofx.version>2.1.1</undofx.version>
+		<!-- Version numbers reviewed 18 Feb 2023 -->
 		<weave.version>1.5-SNAPSHOT</weave.version>
 		<zenna.version>0.10-SNAPSHOT</zenna.version>
 		<zarra.version>0.9</zarra.version>
 		<zevra.version>0.9</zevra.version>
 		<jackson.version>2.16.1</jackson.version>
+		<reactfx.version>2.0-M5</reactfx.version>
+		<undofx.version>2.1.1</undofx.version>
 
-		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
+		<!-- Version numbers reviewed 18 Feb 2023 -->
+		<openjfx.version>21.0.2</openjfx.version>
 		<controlsfx.version>11.2.0</controlsfx.version>
-		<!-- UI test failures on unix systems with version 20.0.2 -->
-		<!-- https://bugs.openjdk.org/browse/JDK-8308345 -->
-		<openjfx.version>20.0.1</openjfx.version>
 
 		<!-- Test dependencies -->
-		<!-- TestFX 4.0.17 broke the module -->
+		<!-- Version numbers reviewed 18 Feb 2023 -->
 		<testfx.version>4.0.18</testfx.version>
-		<monocle.version>17.0.10</monocle.version>
+		<monocle.version>21.0.2</monocle.version>
 
 		<!-- Build plugin versions -->
+		<!-- Version numbers reviewed 18 Feb 2023 -->
 		<cameo.version>2.10</cameo.version>
 		<curex.version>1.4.1</curex.version>
 	</properties>
