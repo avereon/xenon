@@ -1407,7 +1407,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return getUserAssetTypes().size() > 0;
+			return !getUserAssetTypes().isEmpty();
 		}
 
 		@Override
@@ -1433,7 +1433,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return !isHandling && getUserAssetTypes().size() > 0;
+			return !isHandling && !getUserAssetTypes().isEmpty();
 		}
 
 		@Override
@@ -1602,7 +1602,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				}
 			}
 
-			if( throwables.size() != 0 ) {
+			if( !throwables.isEmpty() ) {
 				for( Throwable throwable : throwables.keySet() ) {
 					String errorName = throwable.getClass().getSimpleName();
 					String taskName = getClass().getSimpleName();
@@ -1619,7 +1619,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public String toString() {
-			if( assets == null || assets.size() == 0 ) return super.toString() + ": none";
+			if( assets == null || assets.isEmpty() ) return super.toString() + ": none";
 			return super.toString() + ": " + assets.iterator().next().toString();
 		}
 
