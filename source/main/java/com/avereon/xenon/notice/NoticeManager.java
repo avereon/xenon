@@ -3,14 +3,14 @@ package com.avereon.xenon.notice;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.xenon.ManagerSettings;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramEvent;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.scheme.FaultScheme;
-import com.avereon.xenon.task.TaskException;
+import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.zarra.javafx.Fx;
@@ -151,12 +151,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	String getThrowableTitle( Throwable throwable ) {
-		if( throwable instanceof TaskException ) throwable = throwable.getCause();
+		if( throwable instanceof Task.InternalException ) throwable = throwable.getCause();
 		return throwable.getClass().getSimpleName();
 	}
 
 	String getThrowableMessage( Throwable throwable ) {
-		if( throwable instanceof TaskException ) throwable = throwable.getCause();
+		if( throwable instanceof Task.InternalException ) throwable = throwable.getCause();
 		return throwable.getLocalizedMessage();
 	}
 

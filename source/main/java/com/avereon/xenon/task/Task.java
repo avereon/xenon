@@ -6,6 +6,7 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import lombok.CustomLog;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -78,7 +79,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		exceptionSource = new TaskException();
+		exceptionSource = new InternalException();
 		eventBus = new EventHub();
 		taskCallable.setCallable( this );
 	}
@@ -315,6 +316,37 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		@Override
 		public T call() throws Exception {
 			return callable.call();
+		}
+
+	}
+
+	public static class InternalException extends RuntimeException {
+
+		public InternalException() {
+			super();
+			setStackTrace( trimStackTrace() );
+		}
+
+		private StackTraceElement[] trimStackTrace() {
+			int index = 0;
+			String className = Task.class.getName();
+			StackTraceElement[] elements = getStackTrace();
+
+			while( className.equals( elements[ index ].getClassName() ) ) {
+				index++;
+			}
+
+			return Arrays.copyOfRange( elements, index, elements.length );
+		}
+
+		@Override
+		public String getMessage() {
+			return getCause().getMessage();
+		}
+
+		@Override
+		public String getLocalizedMessage() {
+			return getCause().getLocalizedMessage();
 		}
 
 	}

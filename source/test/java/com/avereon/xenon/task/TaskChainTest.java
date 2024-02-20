@@ -116,7 +116,7 @@ class TaskChainTest extends ProgramTestCase {
 		Throwable thrown = catchThrowable( task::get );
 
 		assertThat( thrown ).isInstanceOf( ExecutionException.class );
-		assertThat( thrown.getCause() ).isInstanceOf( TaskException.class );
+		assertThat( thrown.getCause() ).isInstanceOf( Task.InternalException.class );
 		assertThat( thrown.getCause().getCause() ).isInstanceOf( RuntimeException.class );
 		assertThat( thrown.getCause().getCause() ).isEqualTo( expected );
 		assertThat( thrown.getCause().getCause().getCause() ).isNull();
