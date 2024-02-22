@@ -11,7 +11,7 @@
 	},
 	{
 		"internalId": "vhwvtzdbtlzlsblv",
-		"name" : "${project.organization.name} Nightly",
+		"name" : "${project.organization.name} Latest",
 		"url" : "https://www.avereon.com/download/latest",
 		"icon" : "https://www.avereon.com/download/stable/avereon/provider/icon",
 		"icons": [ "provider", "https://www.avereon.com/download/stable/avereon/provider/icon" ],

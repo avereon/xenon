@@ -26,7 +26,7 @@ class RepoStateTest {
 		assertThat( cards.get( 0 ).isRemovable() ).isEqualTo( false );
 		assertThat( cards.get( 0 ).getRank() ).isEqualTo( -2 );
 
-		assertThat( cards.get( 1 ).getName() ).isEqualTo( "Avereon Nightly" );
+		assertThat( cards.get( 1 ).getName() ).isEqualTo( "Avereon Latest" );
 		assertThat( cards.get( 1 ).getUrl() ).isEqualTo( "https://www.avereon.com/download/latest" );
 		//assertThat( cards.get( 1 ).getIcon()).isEqualTo( "https://www.avereon.com/download/stable/avereon/provider/icon" ) ;
 		assertThat( cards.get( 1 ).getIcons().get( 0 ) ).isEqualTo( "provider" );
