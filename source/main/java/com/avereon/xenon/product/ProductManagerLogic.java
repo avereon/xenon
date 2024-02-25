@@ -182,7 +182,9 @@ public class ProductManagerLogic {
 		downloads.keySet().forEach( ( r ) -> {
 			try {
 				log.atDebug().log( "Loading catalog card: %s", r );
-				catalogs.put( r, CatalogCard.fromJson( r, downloads.get( r ).get().getInputStream() ) );
+				CatalogCard catalog = CatalogCard.fromJson( downloads.get( r ).get().getInputStream() );
+				catalog.setRepo( r );
+				catalogs.put( r, catalog );
 			} catch( Exception exception ) {
 				log.atError().withCause( exception ).log();
 			}
@@ -570,10 +572,10 @@ public class ProductManagerLogic {
 					getProgram().getProductManager().doInstallMod( card, Set.of( resource ) );
 					installedProducts.add( new InstalledProduct( getProgram().getProductManager().getProductInstallFolder( card ) ) );
 				} catch( Exception exception ) {
-					log.atError(exception).log( "Error installing: %s", card );
+					log.atError( exception ).log( "Error installing: %s", card );
 				}
 			} catch( Exception exception ) {
-				log.atError(exception).log( "Error creating product update pack" );
+				log.atError( exception ).log( "Error creating product update pack" );
 			}
 		}
 

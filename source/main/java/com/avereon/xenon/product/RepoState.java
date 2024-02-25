@@ -12,6 +12,8 @@ import java.util.List;
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class RepoState extends RepoCard {
 
+	public static final String CONFIG = "/META-INF/repositories.json";
+
 	private boolean enabled = true;
 
 	private boolean removable = true;

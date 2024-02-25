@@ -63,12 +63,15 @@ public class V2RepoClient implements RepoClient {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					catalogCards.add( CatalogCard.fromJson( matchingRepoCards.get( future ), input ) );
+					RepoCard repo = matchingRepoCards.get( future );
+					CatalogCard catalog = CatalogCard.fromJson( input );
+					catalog.setRepo( repo );
+					catalogCards.add( catalog );
 				} catch( Exception exception ) {
 					log.atWarn( exception ).log( "Error downloading catalog card: %s", LazyEval.of( download::getSource ) );
 				}
 			} catch( Exception exception ) {
-				log.atWarn( exception).log( "Error downloading catalog card" );
+				log.atWarn( exception ).log( "Error downloading catalog card" );
 			}
 		}
 
@@ -97,7 +100,7 @@ public class V2RepoClient implements RepoClient {
 					log.atWarn( exception ).log( "Error downloading product card: %s", LazyEval.of( download::getSource ) );
 				}
 			} catch( Exception exception ) {
-				log.atWarn( exception).log( "Error downloading product card" );
+				log.atWarn( exception ).log( "Error downloading product card" );
 			}
 		}
 
