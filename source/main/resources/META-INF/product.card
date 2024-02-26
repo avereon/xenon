@@ -3,6 +3,7 @@
   "artifact": "${project.artifactId}",
   "version": "${project.version}",
   "timestamp": "${project.timestamp}",
+  "osSpecific": true,
   "iconUri": "program",
 	"icons": [ "program", "https://avereon.com/download/latest/xenon/product/icon" ],
   "name": "${project.name}",

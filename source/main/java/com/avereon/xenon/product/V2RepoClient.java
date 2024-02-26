@@ -28,16 +28,26 @@ public class V2RepoClient implements RepoClient {
 		this.program = program;
 	}
 
+	@Deprecated
 	@Override
 	public URI getCatalogUri( RepoCard repo ) {
 		return UriUtil.addToPath( getRepoApi( repo ), "catalog" );
 	}
 
+	//	@Override
+	//	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
+	//		String os = OperatingSystem.getFamily().toString().toLowerCase();
+	//		return getProductUri( repo, product, false, asset, format );
+	//	}
+
 	@Override
-	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
+	public URI getProductUri( RepoCard repo, String product, boolean osSpecific, String asset, String format ) {
+		String os = osSpecific ? OperatingSystem.getFamily().toString().toLowerCase() : null;
+
+		// FIXME If the format is "card" then the do not include the OS
 		URI uri = getRepoApi( repo );
 		uri = UriUtil.addToPath( uri, product );
-		uri = UriUtil.addToPath( uri, OperatingSystem.getFamily().toString().toLowerCase() );
+		if( os != null ) uri = UriUtil.addToPath( uri, os );
 		uri = UriUtil.addToPath( uri, asset );
 		uri = UriUtil.addToPath( uri, format );
 		return uri;
@@ -83,7 +93,7 @@ public class V2RepoClient implements RepoClient {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
 			for( String p : catalog.getProducts() ) {
-				URI uri = getProductUri( catalog.getRepo(), p, "product", "card" );
+				URI uri = getProductUri( catalog.getRepo(), p, false, "product", "card" );
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}
