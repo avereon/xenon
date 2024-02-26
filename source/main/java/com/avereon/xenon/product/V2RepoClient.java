@@ -42,12 +42,12 @@ public class V2RepoClient implements RepoClient {
 
 	@Override
 	public URI getProductUri( RepoCard repo, String product, boolean osSpecific, String asset, String format ) {
-		String os = osSpecific ? OperatingSystem.getFamily().toString().toLowerCase() : null;
+		String os = OperatingSystem.getFamily().toString().toLowerCase();
 
-		// FIXME If the format is "card" then the do not include the OS
 		URI uri = getRepoApi( repo );
 		uri = UriUtil.addToPath( uri, product );
-		if( os != null ) uri = UriUtil.addToPath( uri, os );
+		// FIXME It would be nice if repos did not have to support os specific products
+		uri = UriUtil.addToPath( uri, os );
 		uri = UriUtil.addToPath( uri, asset );
 		uri = UriUtil.addToPath( uri, format );
 		return uri;
