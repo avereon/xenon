@@ -34,19 +34,12 @@ public class V2RepoClient implements RepoClient {
 		return UriUtil.addToPath( getRepoApi( repo ), "catalog" );
 	}
 
-	//	@Override
-	//	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
-	//		String os = OperatingSystem.getFamily().toString().toLowerCase();
-	//		return getProductUri( repo, product, false, asset, format );
-	//	}
-
 	@Override
-	public URI getProductUri( RepoCard repo, String product, boolean osSpecific, String asset, String format ) {
+	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
 		String os = OperatingSystem.getFamily().toString().toLowerCase();
 
 		URI uri = getRepoApi( repo );
 		uri = UriUtil.addToPath( uri, product );
-		// FIXME It would be nice if repos did not have to support os specific products
 		uri = UriUtil.addToPath( uri, os );
 		uri = UriUtil.addToPath( uri, asset );
 		uri = UriUtil.addToPath( uri, format );
@@ -93,7 +86,7 @@ public class V2RepoClient implements RepoClient {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
 			for( String p : catalog.getProducts() ) {
-				URI uri = getProductUri( catalog.getRepo(), p, false, "product", "card" );
+				URI uri = getProductUri( catalog.getRepo(), p, "product", "card" );
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}

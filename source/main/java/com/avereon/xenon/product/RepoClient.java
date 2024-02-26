@@ -11,7 +11,7 @@ public interface RepoClient {
 
 	URI getCatalogUri( RepoCard repo );
 
-	URI getProductUri( RepoCard repo, String product, boolean osSpecific, String asset, String format );
+	URI getProductUri( RepoCard repo, String product, String asset, String format );
 
 	Set<CatalogCard> getCatalogCards( Set<RepoCard> repos );
 

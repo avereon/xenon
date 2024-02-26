@@ -204,7 +204,7 @@ public class ProductManagerLogic {
 				.getProducts()
 				.stream()
 				.filter( artifacts::contains )
-				.forEach( ( product ) -> repoDownloads.add( getProgram().getTaskManager().submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, false, "product", "card" ) ) ) ) );
+				.forEach( ( product ) -> repoDownloads.add( getProgram().getTaskManager().submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
 		} );
 
 		return downloads;
@@ -218,7 +218,7 @@ public class ProductManagerLogic {
 			Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
 			catalog
 				.getProducts()
-				.forEach( ( product ) -> repoDownloads.add( getProgram().getTaskManager().submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, false, "product", "card" ) ) ) ) );
+				.forEach( ( product ) -> repoDownloads.add( getProgram().getTaskManager().submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
 		} );
 
 		return downloads;

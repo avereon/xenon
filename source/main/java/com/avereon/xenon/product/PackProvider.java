@@ -31,7 +31,7 @@ public class PackProvider implements ProductResourceProvider {
 		Set<ProductResource> resources = new HashSet<>();
 
 		// Add the product pack as a resource
-		URI codebase = repoClient.getProductUri( repo, card.getArtifact(), card.isOsSpecific(), "product", "pack" );
+		URI codebase = repoClient.getProductUri( repo, card.getArtifact(), "product", "pack" );
 		resources.add( new ProductResource( ProductResource.Type.PACK, codebase ) );
 
 //		// Determine what other resources need to be downloaded
