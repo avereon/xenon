@@ -29,7 +29,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Compile, Unit Test, CodeQL
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -83,30 +83,11 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-#      - name: Publish Artifacts
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
-#
-#      - name: Trigger Dependent Builds
-#        run: |
-#          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
-#
-#      - name: Publish Icons
-#        run: |
-#          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
-#          if [ $? -ne 0 ]; then exit 1; fi
-#          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
-#          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-dark.png 2>&1
-#          scp -B target/main/images/${AVN_PRODUCT}-light.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-light.png 2>&1
-#
-#      - name: Publish JavaDoc
-#        run: |
-#          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
-#          if [ $? -ne 0 ]; then exit 1; fi
-#          scp -B target/${AVN_PRODUCT}-*-javadoc.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
-#          if [ $? -ne 0 ]; then exit 1; fi
-#          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
-#          if [ $? -ne 0 ]; then exit 1; fi
+      - name: Upload Artifacts for Next Steps
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: target
 
   publish:
     needs: build
@@ -149,29 +130,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
         with:
-          languages: java
-
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
-
-#      - name: Unit Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+          name: build
+          path: target
 
       - name: Publish Artifacts
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
-
-      - name: Trigger Dependent Builds
-        run: |
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
 
       - name: Publish Icons
         run: |
@@ -189,6 +156,17 @@ jobs:
           if [ $? -ne 0 ]; then exit 1; fi
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
+
+  trigger_dependent_builds:
+    needs: publish
+    name: Trigger Dependent Builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
+    steps:
+      - name: Trigger Dependent Builds
+        run: |
+          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
 
   screenshots1x:
     needs: build
@@ -232,6 +210,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: target
 
       - name: Generate Screenshots
         run: |
@@ -286,6 +270,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: target
+
       - name: Generate Screenshots
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
@@ -338,15 +328,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: target
 
-      #      - name: Unit Tests
-      #        run: |
-      #          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
@@ -413,15 +401,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: target
 
-          #      - name: Unit Tests
-          #        run: |
-          #          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
@@ -489,15 +475,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: target
 
-#      - name: Unit Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} verify
       #          mvn ${{env.MAVEN_PARMS}} -P testui verify
