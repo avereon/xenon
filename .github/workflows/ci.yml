@@ -91,7 +91,7 @@ jobs:
 
   publish:
     needs: build
-    name: Publish
+    name: Maven Publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
