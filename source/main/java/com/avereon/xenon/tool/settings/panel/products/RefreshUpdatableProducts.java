@@ -1,10 +1,11 @@
-package com.avereon.xenon.tool.product;
+package com.avereon.xenon.tool.settings.panel.products;
 
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
+import com.avereon.xenon.tool.settings.panel.ProductsUpdatesSettingsPanel;
 import com.avereon.zarra.javafx.Fx;
 
 import java.util.ArrayList;
@@ -12,31 +13,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Deprecated
-class RefreshUpdatableProducts extends Task<Void> {
+public class RefreshUpdatableProducts extends Task<Void> {
 
-	private final ProductTool productTool;
+	private final ProductsUpdatesSettingsPanel parent;
 
-	private final boolean force;
+	private boolean force;
 
-	RefreshUpdatableProducts( ProductTool productTool, boolean force ) {
-		this.productTool = productTool;
+	public RefreshUpdatableProducts( ProductsUpdatesSettingsPanel parent, boolean force ) {
+		this.parent = parent;
 		this.force = force;
 	}
 
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
-		Fx.run( () -> productTool.getUpdatesPage().showUpdating() );
-		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().findAvailableUpdates( force ) );
-		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
+		Fx.run( parent::showUpdating );
+		List<ProductCard> cards = new ArrayList<>( parent.getProgram().getProductManager().findAvailableUpdates( force ) );
+		cards.sort( new ProgramProductCardComparator( parent.getProgram(), ProductCardComparator.Field.NAME ) );
 
 		//productTool.getUpdatesPage().reloadProducts( cards );
 		Map<String, ProductCard> installedProducts = new HashMap<>();
 		Map<String, ProductCard> productUpdates = new HashMap<>();
 
 		// Installed product map
-		for( ProductCard card : productTool.getProgram().getProductManager().getInstalledProductCards( false ) ) {
+		for( ProductCard card : parent.getProgram().getProductManager().getInstalledProductCards( false ) ) {
 			installedProducts.put( card.getProductKey(), card );
 		}
 
@@ -51,7 +51,7 @@ class RefreshUpdatableProducts extends Task<Void> {
 			newCards.add( installedProducts.get( card.getProductKey() ) );
 		}
 
-		Fx.run( () -> productTool.getUpdatesPage().setProducts( newCards, productUpdates ) );
+		Fx.run( () -> parent.setProducts( newCards, productUpdates ) );
 
 		return null;
 	}
