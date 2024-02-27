@@ -13,7 +13,6 @@ import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.asset.AssetTypeSettingsPanel;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -33,6 +32,8 @@ import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingGroup;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.tool.settings.panel.AssetTypeSettingsPanel;
+import com.avereon.xenon.tool.settings.panel.ProductSettingsPanel;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
@@ -455,6 +456,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
+		getSettingsManager().putPagePanel( "product", ProductSettingsPanel.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );
 

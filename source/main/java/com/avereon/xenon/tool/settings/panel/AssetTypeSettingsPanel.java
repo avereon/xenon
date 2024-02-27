@@ -1,9 +1,11 @@
-package com.avereon.xenon.asset;
+package com.avereon.xenon.tool.settings.panel;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.AssetTypeCodecAssociationList;
+import com.avereon.xenon.asset.AssetTypeToolAssociationList;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import javafx.scene.control.ComboBox;
@@ -12,9 +14,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * <p>
@@ -53,7 +53,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 	private final AssetTypeToolAssociationList toolRegistrations;
 
 	public AssetTypeSettingsPanel(XenonProgramProduct product ) {
-		super( product, null );
+		super( product );
 
 		// Add the title to the panel
 		addTitle( Rb.text( product, RbKey.SETTINGS, "asset-types" ) );

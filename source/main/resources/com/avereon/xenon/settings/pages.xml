@@ -250,9 +250,14 @@
 	</page>
 
 	<page id="assets">
-
 		<page id="asset-types" panel="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line"/>
+	</page>
 
+	<page id="products">
+		<page id="products-installed" panel="product" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="products-available" panel="product" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="products-updates" panel="product" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="products-markets" panel="product" tagIds="product, modules, module, mod, plugin, extension"/>
 	</page>
 
 	<page id="network">

@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.product;
+package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
@@ -6,7 +6,7 @@ import com.avereon.product.ProductCardComparator;
 
 public class ProgramProductCardComparator extends ProductCardComparator {
 
-	private Product product;
+	private final Product product;
 
 	public ProgramProductCardComparator( Product product, Field field ) {
 		super( field );
