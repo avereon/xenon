@@ -46,6 +46,12 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		return buttons.getChildren();
 	}
 
+	public void showUpdating() {productList.showUpdating();}
+
+	public void setProducts( List<ProductCard> cards ) {productList.setProducts( cards );}
+
+	public void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {productList.setProducts( cards, productUpdates );}
+
 	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();

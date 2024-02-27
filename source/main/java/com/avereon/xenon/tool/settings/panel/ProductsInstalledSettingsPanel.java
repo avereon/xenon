@@ -3,6 +3,7 @@ package com.avereon.xenon.tool.settings.panel;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.panel.products.DisplayMode;
 import com.avereon.xenon.tool.settings.panel.products.ProductsSettingsPanel;
+import com.avereon.xenon.tool.settings.panel.products.RefreshInstalledProducts;
 import javafx.scene.control.Button;
 import lombok.CustomLog;
 
@@ -21,7 +22,7 @@ public class ProductsInstalledSettingsPanel extends ProductsSettingsPanel {
 	//@Override
 	protected void updateState( boolean force ) {
 		log.atFiner().log( "Update installed products" );
-		//productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts( productTool, force ) );
+		getProgram().getTaskManager().submit( new RefreshInstalledProducts( this, force ) );
 	}
 
 }

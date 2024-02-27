@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -24,9 +25,13 @@ import java.util.Objects;
 @CustomLog
 public class SettingsPanel extends VBox {
 
+	@Getter
 	private final XenonProgramProduct product;
 
-	private Map<String, SettingOptionProvider> optionProviders;
+	@Getter
+	private final Xenon program;
+
+	private final Map<String, SettingOptionProvider> optionProviders;
 
 	protected SettingsPanel( XenonProgramProduct product ) {
 		this( product, null );
@@ -34,16 +39,9 @@ public class SettingsPanel extends VBox {
 
 	protected SettingsPanel( XenonProgramProduct product, Map<String, SettingOptionProvider> optionProviders ) {
 		this.product = product;
+		this.program = product.getProgram();
 		this.optionProviders = optionProviders;
 		getStyleClass().addAll( "settings-panel" );
-	}
-
-	protected Xenon getProgram() {
-		return getProduct().getProgram();
-	}
-
-	public XenonProgramProduct getProduct() {
-		return product;
 	}
 
 	protected void addTitle( String title ) {
