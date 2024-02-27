@@ -6,10 +6,10 @@ import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.BooleanProperty;
@@ -31,8 +31,6 @@ import java.util.TimeZone;
 
 @CustomLog
 class ProductPane extends GridPane {
-
-	private final ProductTool tool;
 
 	private final Xenon program;
 
@@ -73,14 +71,13 @@ class ProductPane extends GridPane {
 
 	private BooleanProperty selectedProperty;
 
-	ProductPane( ProductTool tool, ProductCard source, ProductCard update, DisplayMode displayMode ) {
+	ProductPane( XenonProgramProduct product, ProductCard source, ProductCard update, DisplayMode displayMode ) {
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 
-		this.tool = tool;
 		this.source = source;
 		this.displayMode = displayMode;
-		this.program = tool.getProgram();
+		this.program = product.getProgram();
 		this.manager = program.getProductManager();
 		this.selectedProperty = new SimpleBooleanProperty( true );
 		manager.setProductUpdate( source, update );
@@ -216,7 +213,7 @@ class ProductPane extends GridPane {
 		if( isInstalledProductsPanel ) {
 			enableSwitch.setVisible( true );
 			enableSwitch.setDisable( isProgram );
-			enableSwitch.setSelected( isProgram || tool.getProgram().getProductManager().isEnabled( source ) );
+			enableSwitch.setSelected( isProgram || program.getProductManager().isEnabled( source ) );
 
 			actionButton1.setVisible( false );
 

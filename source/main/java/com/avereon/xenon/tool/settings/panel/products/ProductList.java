@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings.panel.products;
 
+import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import javafx.scene.Node;
@@ -8,11 +9,16 @@ import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProductList extends VBox {
 
-	private List<ProductPane> sources;
+	private final ProductsSettingsPanel parent;
+
+	private final DisplayMode displayMode;
+
+	private final List<ProductPane> sources;
 
 	private final Labeled message;
 
@@ -20,10 +26,12 @@ public class ProductList extends VBox {
 
 	private final String missingMessage;
 
-	public ProductList( DisplayMode displayMode ) {
-		String mode = displayMode.name().toLowerCase();
+	public ProductList( ProductsSettingsPanel parent, DisplayMode displayMode ) {
+		this.parent = parent;
+		this.displayMode = displayMode;
 		this.sources = new CopyOnWriteArrayList<>();
 
+		String mode = displayMode.name().toLowerCase();
 		this.refreshMessage = Rb.text( RbKey.TOOL, "product-" + mode + "-refresh" );
 		this.missingMessage = Rb.text( RbKey.TOOL, "product-" + mode + "-missing" );
 
@@ -60,4 +68,25 @@ public class ProductList extends VBox {
 		}
 	}
 
+	void setProducts( List<ProductCard> cards ) {
+		setProducts( cards, Map.of() );
+	}
+
+	void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
+		if( cards.isEmpty() ) {
+			showMissing();
+		} else {
+			// Add a product pane for each card
+			sources.clear();
+			sources.addAll(
+				parent.createSourceList( cards )
+				.stream()
+				.map( ( source ) -> new ProductPane( parent.getProduct(), source, productUpdates.get( source.getProductKey() ), displayMode ) )
+				.toList() );
+
+			getChildren().clear();
+			getChildren().addAll( sources );
+			updateProductStates();
+		}
+	}
 }
