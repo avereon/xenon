@@ -191,7 +191,7 @@ public class ProductTool extends GuidedTool {
 		currentPage.updateState( false );
 	}
 
-	List<ProductCard> createSourceList( List<ProductCard> cards ) {
+	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
 		Map<String, List<ProductCard>> cardMap = new HashMap<>();
@@ -217,7 +217,7 @@ public class ProductTool extends GuidedTool {
 			List<ProductCard> releases = cardMap.get( card.getProductKey() );
 			if( releases != null ) {
 				releases.sort( Collections.reverseOrder( new ProgramProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
-				sources.add( releases.get( 0 ) );
+				sources.add( releases.getFirst() );
 			}
 		}
 
