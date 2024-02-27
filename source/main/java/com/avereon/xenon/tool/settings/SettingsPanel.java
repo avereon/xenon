@@ -42,7 +42,7 @@ public class SettingsPanel extends VBox {
 		return getProduct().getProgram();
 	}
 
-	protected XenonProgramProduct getProduct() {
+	public XenonProgramProduct getProduct() {
 		return product;
 	}
 
