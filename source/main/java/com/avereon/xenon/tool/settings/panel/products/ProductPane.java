@@ -34,6 +34,8 @@ public class ProductPane extends GridPane {
 
 	private final Xenon program;
 
+	private final ProductsSettingsPanel parent;
+
 	private final ProductManager manager;
 
 	@Getter
@@ -71,13 +73,14 @@ public class ProductPane extends GridPane {
 
 	private BooleanProperty selectedProperty;
 
-	ProductPane( XenonProgramProduct product, ProductCard source, ProductCard update, DisplayMode displayMode ) {
+	ProductPane( XenonProgramProduct product, ProductsSettingsPanel parent, ProductCard source, ProductCard update, DisplayMode displayMode ) {
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 
 		this.source = source;
 		this.displayMode = displayMode;
 		this.program = product.getProgram();
+		this.parent = parent;
 		this.manager = program.getProductManager();
 		this.selectedProperty = new SimpleBooleanProperty( true );
 		manager.setProductUpdate( source, update );
@@ -284,7 +287,7 @@ public class ProductPane extends GridPane {
 		program.getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
 				manager.uninstallProducts( source ).get();
-				//tool.getSelectedPage().updateState( false );
+				parent.updateState( false );
 			} catch( Exception exception ) {
 				log.atWarning().withCause(exception).log( "Error uninstalling product", exception );
 			}

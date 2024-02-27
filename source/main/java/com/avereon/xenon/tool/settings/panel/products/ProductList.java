@@ -86,7 +86,7 @@ public class ProductList extends VBox {
 			sources.addAll(
 				parent.createSourceList( cards )
 				.stream()
-				.map( ( source ) -> new ProductPane( parent.getProduct(), source, productUpdates.get( source.getProductKey() ), displayMode ) )
+				.map( ( source ) -> new ProductPane( parent.getProduct(), parent, source, productUpdates.get( source.getProductKey() ), displayMode ) )
 				.toList() );
 
 			getChildren().clear();
