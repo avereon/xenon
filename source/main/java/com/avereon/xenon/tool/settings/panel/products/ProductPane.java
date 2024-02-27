@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 @CustomLog
-class ProductPane extends GridPane {
+public class ProductPane extends GridPane {
 
 	private final Xenon program;
 

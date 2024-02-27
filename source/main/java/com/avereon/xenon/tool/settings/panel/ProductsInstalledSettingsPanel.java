@@ -19,7 +19,7 @@ public class ProductsInstalledSettingsPanel extends ProductsSettingsPanel {
 		getButtonBox().addAll( refreshButton );
 	}
 
-	//@Override
+	@Override
 	protected void updateState( boolean force ) {
 		log.atFiner().log( "Update installed products" );
 		getProgram().getTaskManager().submit( new RefreshInstalledProducts( this, force ) );

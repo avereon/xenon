@@ -5,8 +5,12 @@ import com.avereon.product.ProductCardComparator;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.product.DownloadRequest;
+import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.product.ProgramProductCardComparator;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.settings.SettingsPanel;
+import com.avereon.zarra.javafx.Fx;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -14,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class ProductsSettingsPanel extends SettingsPanel {
 
@@ -47,6 +52,10 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 	}
 
 	public void showUpdating() {productList.showUpdating();}
+
+	protected void updateState( boolean force ) {}
+
+	public List<ProductPane> getSourcePanels() {return productList.getSourcePanels();}
 
 	public void setProducts( List<ProductCard> cards ) {productList.setProducts( cards );}
 
@@ -83,6 +92,31 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		}
 
 		return sources;
+	}
+
+	public void installProducts( List<ProductPane> panes ) {
+		getProgram().getProductManager().installProducts( getDownloads( panes, true ) );
+	}
+
+	public void updateProducts( List<ProductPane> panes ) {
+		getProgram().getProductManager().updateProducts( getDownloads( panes, false ), true );
+	}
+
+	private Set<DownloadRequest> getDownloads( List<ProductPane> panes, boolean install ) {
+		return panes.stream().filter( ProductPane::isSelected ).map( pane -> {
+			DownloadRequest request = new DownloadRequest( install ? pane.getSource() : pane.getUpdate() );
+			//pane.setProductSize( request.getCard().get)
+			request
+				.register( TaskEvent.START, e -> Fx.run( () -> {
+					pane.setSize( e.getTask().getTotal() );
+					pane.setStatus( ProductStatus.DOWNLOADING );
+				} ) )
+				.register( TaskEvent.PROGRESS, e -> Fx.run( () -> pane.setProgress( e.getTask().getPercent() ) ) )
+				.register( TaskEvent.CANCEL, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
+				.register( TaskEvent.FAILURE, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
+				.register( TaskEvent.SUCCESS, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.INSTALLED : ProductStatus.DOWNLOADED ) ) );
+			return request;
+		} ).collect( Collectors.toSet() );
 	}
 
 }

@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -66,6 +67,10 @@ public class ProductList extends VBox {
 		for( Node node : getChildren() ) {
 			if( node instanceof ProductPane pane ) pane.updateProductState();
 		}
+	}
+
+	List<ProductPane> getSourcePanels() {
+		return Collections.unmodifiableList( sources );
 	}
 
 	void setProducts( List<ProductCard> cards ) {
