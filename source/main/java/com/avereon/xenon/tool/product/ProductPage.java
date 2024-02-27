@@ -102,7 +102,7 @@ abstract class ProductPage extends ProductToolPage {
 	}
 
 	void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
-		if( cards.size() == 0 ) {
+		if( cards.isEmpty() ) {
 			showMissing();
 		} else {
 			// Add a product pane for each card
@@ -111,7 +111,7 @@ abstract class ProductPage extends ProductToolPage {
 				.createSourceList( cards )
 				.stream()
 				.map( ( source ) -> new ProductPane( getTool(), source, productUpdates.get( source.getProductKey() ) ) )
-				.collect( Collectors.toList() ) );
+				.toList() );
 
 			getChildren().clear();
 			getChildren().addAll( sources );
