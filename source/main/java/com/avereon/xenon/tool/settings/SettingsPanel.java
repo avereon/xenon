@@ -6,13 +6,14 @@ import com.avereon.log.LazyEval;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import lombok.CustomLog;
 
 import java.lang.reflect.Constructor;
@@ -37,27 +38,35 @@ public class SettingsPanel extends VBox {
 		getStyleClass().addAll( "settings-panel" );
 	}
 
+	protected Xenon getProgram() {
+		return getProduct().getProgram();
+	}
+
 	protected XenonProgramProduct getProduct() {
 		return product;
 	}
 
 	protected void addTitle( String title ) {
-		// Add the title label
-		Label titleLabel = new Label( title );
-		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-		titleLabel.prefWidthProperty().bind( widthProperty() );
-		titleLabel.getStyleClass().add( "setting-title" );
-		titleLabel.setAlignment( Pos.CENTER );
+		addTitle( new Label( title ), null, null );
+	}
+
+	protected void addTitle( String title, Node left, Node right ) {
+		addTitle( new Label( title ), left, right );
+	}
+
+	protected void addTitle( Node title, Node left, Node right ) {
+		BorderPane titleBox = new BorderPane(title, null, right, null, left);
+		title.getStyleClass().add( "settings-title" );
 
 		addBlankLine();
-		getChildren().add( titleLabel );
+		getChildren().add( titleBox );
 		addBlankLine();
 	}
 
 	protected void addBlankLine() {
 		Label blankLine = new Label( " " );
 		blankLine.prefWidthProperty().bind( widthProperty() );
-		blankLine.getStyleClass().add( "setting-blank" );
+		blankLine.getStyleClass().add( "settings-blank" );
 		blankLine.setAlignment( Pos.CENTER );
 		getChildren().add( blankLine );
 	}

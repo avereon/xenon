@@ -632,6 +632,10 @@ Derived from modena.css
 	-fx-spacing: 0.3em;
 }
 
+.settings-title {
+	-fx-font-size: 2em;
+}
+
 .settings-infoarea {
 	-fx-wrap-text: true
 }
