@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
+@Deprecated
 class UpdateCheckInformationPane extends HBox {
 
 	private Xenon program;

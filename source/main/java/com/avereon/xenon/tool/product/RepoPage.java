@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CustomLog
+@Deprecated
 class RepoPage extends ProductToolPage {
 
 	private final Xenon program;

@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@Deprecated
 abstract class ProductPage extends ProductToolPage {
 
 	private Xenon program;

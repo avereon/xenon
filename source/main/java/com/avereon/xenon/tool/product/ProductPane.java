@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 @CustomLog
+@Deprecated
 class ProductPane extends GridPane {
 
 	private final ProductTool tool;

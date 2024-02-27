@@ -15,6 +15,7 @@ import java.util.List;
  * Should be run on the FX platform thread.
  */
 @CustomLog
+@Deprecated
 class RefreshInstalledProducts extends Task<Void> {
 
 	private final ProductTool productTool;

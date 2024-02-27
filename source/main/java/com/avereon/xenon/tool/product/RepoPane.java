@@ -21,6 +21,7 @@ import org.controlsfx.control.ToggleSwitch;
 import java.util.Objects;
 
 @CustomLog
+@Deprecated
 class RepoPane extends GridPane {
 
 	private final ProductTool productTool;

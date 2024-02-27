@@ -18,6 +18,7 @@ import lombok.CustomLog;
 import java.util.*;
 
 @CustomLog
+@Deprecated
 public class ProductTool extends GuidedTool {
 
 	public static final String INSTALLED = "installed";
@@ -225,3 +226,4 @@ public class ProductTool extends GuidedTool {
 	}
 
 }
+

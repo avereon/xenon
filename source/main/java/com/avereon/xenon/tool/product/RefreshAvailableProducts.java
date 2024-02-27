@@ -10,6 +10,7 @@ import com.avereon.zarra.javafx.Fx;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 class RefreshAvailableProducts extends Task<Void> {
 
 	private ProductTool productTool;

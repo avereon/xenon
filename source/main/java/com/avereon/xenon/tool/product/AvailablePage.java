@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import lombok.CustomLog;
 
 @CustomLog
+@Deprecated
 class AvailablePage extends ProductPage {
 
 	private final ProductTool productTool;
