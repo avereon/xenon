@@ -49,6 +49,10 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 
 	public void showUpdating() {productList.showUpdating();}
 
+	protected void setSelected( boolean selected ) {
+		updateState( false );
+	}
+
 	protected void updateState( boolean force ) {}
 
 	public List<ProductTile> getSourcePanels() {return productList.getSourcePanels();}

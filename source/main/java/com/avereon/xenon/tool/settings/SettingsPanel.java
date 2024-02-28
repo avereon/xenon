@@ -176,6 +176,10 @@ public class SettingsPanel extends VBox {
 		return editor;
 	}
 
+	protected void setSelected( boolean selected ) {
+		// Do nothing
+	}
+
 	private void addGroupDependencyWatchers( Settings settings, SettingGroup group, SettingDependency dependency ) {
 		settings.register( SettingsEvent.CHANGED, new GroupDependencyWatcher( dependency, group ) );
 
