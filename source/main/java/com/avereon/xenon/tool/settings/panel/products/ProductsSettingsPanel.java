@@ -8,6 +8,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.product.ProgramProductCardComparator;
+import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.zarra.javafx.Fx;
@@ -55,13 +56,23 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 
 	protected void updateState( boolean force ) {}
 
-	public List<ProductTile> getSourcePanels() {return productList.getSourcePanels();}
+	public List<ProductTile> getSourcePanels() {
+		return productList.getSourcePanels();
+	}
 
-	public void setProducts( List<ProductCard> cards ) {productList.setProducts( cards );}
+	public void setProducts( List<ProductCard> cards ) {
+		productList.setProducts( cards );
+	}
 
-	public void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {productList.setProducts( cards, productUpdates );}
+	public void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
+		productList.setProducts( cards, productUpdates );
+	}
 
-	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
+	public void setRepos( List<? extends RepoState> states ) {
+
+	}
+
+		protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
 		Map<String, List<ProductCard>> cardMap = new HashMap<>();

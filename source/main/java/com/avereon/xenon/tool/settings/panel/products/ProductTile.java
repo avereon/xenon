@@ -5,9 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
@@ -30,13 +28,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 @CustomLog
-public class ProductTile extends GridPane {
-
-	private final Xenon program;
-
-	private final ProductsSettingsPanel parent;
-
-	private final ProductManager manager;
+public class ProductTile extends BaseTile {
 
 	@Getter
 	private final ProductCard source;
@@ -74,20 +66,18 @@ public class ProductTile extends GridPane {
 	private BooleanProperty selectedProperty;
 
 	ProductTile( XenonProgramProduct product, ProductsSettingsPanel parent, ProductCard source, ProductCard update, DisplayMode displayMode ) {
+		super( product, parent );
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 
 		this.source = source;
 		this.displayMode = displayMode;
-		this.program = product.getProgram();
-		this.parent = parent;
-		this.manager = program.getProductManager();
 		this.selectedProperty = new SimpleBooleanProperty( true );
-		manager.setProductUpdate( source, update );
+		getProductManager().setProductUpdate( source, update );
 
 		setId( "tool-product-artifact" );
 
-		Node productIcon = program.getIconLibrary().getIcon( source.getIcons(), "module", ProductsSettingsPanel.ICON_SIZE );
+		Node productIcon = getProgram().getIconLibrary().getIcon( source.getIcons(), "module", ProductsSettingsPanel.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );
@@ -145,7 +135,7 @@ public class ProductTile extends GridPane {
 	}
 
 	public ProductCard getUpdate() {
-		return manager.getProductUpdate( source );
+		return getProductManager().getProductUpdate( source );
 	}
 
 	public boolean isSelected() {
@@ -169,18 +159,18 @@ public class ProductTile extends GridPane {
 	}
 
 	void updateProductState() {
-		boolean isProgram = program.getCard().equals( source );
-		boolean isEnabled = manager.isEnabled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
-		boolean isInstalled = manager.isInstalled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
-		boolean inProgress = manager.getStatus( source ) == ProductStatus.DOWNLOADING;
-		boolean isDownloaded = manager.getStatus( source ) == ProductStatus.DOWNLOADED;
-		boolean isUpdateStaged = manager.isUpdateStaged( source );
+		boolean isProgram = getProgram().getCard().equals( source );
+		boolean isEnabled = getProductManager().isEnabled( source ) || getProductManager().getStatus( source ) == ProductStatus.INSTALLED;
+		boolean isInstalled = getProductManager().isInstalled( source ) || getProductManager().getStatus( source ) == ProductStatus.INSTALLED;
+		boolean inProgress = getProductManager().getStatus( source ) == ProductStatus.DOWNLOADING;
+		boolean isDownloaded = getProductManager().getStatus( source ) == ProductStatus.DOWNLOADED;
+		boolean isUpdateStaged = getProductManager().isUpdateStaged( source );
 		boolean isInstalledProductsPanel = displayMode == DisplayMode.INSTALLED;
 		boolean isAvailableProductsPanel = displayMode == DisplayMode.AVAILABLE;
 		boolean isUpdatesProductsPanel = displayMode == DisplayMode.UPDATES;
 
 		ProductCard update = getUpdate();
-		boolean isSpecificUpdateReleaseStaged = update != null && manager.isSpecificUpdateReleaseStaged( update );
+		boolean isSpecificUpdateReleaseStaged = update != null && getProductManager().isSpecificUpdateReleaseStaged( update );
 
 		// Determine state string key
 		String stateLabelKey = "not-installed";
@@ -216,20 +206,20 @@ public class ProductTile extends GridPane {
 		if( isInstalledProductsPanel ) {
 			enableSwitch.setVisible( true );
 			enableSwitch.setDisable( isProgram );
-			enableSwitch.setSelected( isProgram || program.getProductManager().isEnabled( source ) );
+			enableSwitch.setSelected( isProgram || getProgram().getProductManager().isEnabled( source ) );
 
 			actionButton1.setVisible( false );
 
 			actionButton2.setVisible( true );
 			actionButton2.setDisable( isProgram );
-			actionButton2.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
+			actionButton2.setGraphic( getProgram().getIconLibrary().getIcon( "remove" ) );
 			actionButton2.setOnAction( ( event ) -> requestRemoveProduct() );
 		} else if( isAvailableProductsPanel ) {
 			enableSwitch.setVisible( false );
 
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isInstalled || inProgress );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
+			actionButton1.setGraphic( getProgram().getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> installProduct() );
 
 			actionButton2.setVisible( false );
@@ -239,7 +229,7 @@ public class ProductTile extends GridPane {
 
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( inProgress );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
+			actionButton1.setGraphic( getProgram().getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> updateProduct() );
 
 			actionButton2.setVisible( false );
@@ -248,12 +238,12 @@ public class ProductTile extends GridPane {
 	}
 
 	void setStatus( ProductStatus status ) {
-		manager.setStatus( getSource(), status );
+		getProductManager().setStatus( getSource(), status );
 		updateProductState();
 	}
 
 	private void toggleEnabled( boolean enabled ) {
-		manager.setModEnabled( getSource(), enabled );
+		getProductManager().setModEnabled( getSource(), enabled );
 		updateProductState();
 	}
 
@@ -273,21 +263,21 @@ public class ProductTile extends GridPane {
 		String message = Rb.text( RbKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
-		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );
+		alert.setGraphic( getProgram().getIconLibrary().getIcon( source.getIcons(), 64 ) );
 		alert.setTitle( title );
 		alert.setHeaderText( header );
 
-		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() && result.get() == ButtonType.YES ) removeProduct();
 	}
 
 	private void removeProduct() {
-		program.getTaskManager().submit( Task.of( "Remove product", () -> {
+		getProgram().getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
-				manager.uninstallProducts( source ).get();
-				parent.updateState( false );
+				getProductManager().uninstallProducts( source ).get();
+				getProductSettingsPanel().updateState( false );
 			} catch( Exception exception ) {
 				log.atWarning().withCause(exception).log( "Error uninstalling product", exception );
 			}

@@ -3,7 +3,6 @@ package com.avereon.xenon.tool.settings.panel.products;
 import com.avereon.product.RepoCard;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.Task;
@@ -17,18 +16,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import lombok.CustomLog;
-import lombok.Getter;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.util.Objects;
 
 @CustomLog
-public class RepoTile extends GridPane {
-
-	@Getter
-	private final Xenon program;
-
-	private final ProductsSettingsPanel parent;
+public class RepoTile extends BaseTile {
 
 	private final RepoState source;
 
@@ -55,16 +48,16 @@ public class RepoTile extends GridPane {
 	private HBox urlBox;
 
 	public RepoTile( XenonProgramProduct product, ProductsSettingsPanel parent, RepoState source ) {
+		super( product, parent );
+
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 
-		this.program = product.getProgram();
-		this.parent = parent;
 		this.source = source;
 
 		setId( "tool-product-market" );
 
-		Node marketIcon = program.getIconLibrary().getIcon( source.getIcons(), "market", ProductsSettingsPanel.ICON_SIZE );
+		Node marketIcon = getProgram().getIconLibrary().getIcon( source.getIcons(), "market", ProductsSettingsPanel.ICON_SIZE );
 
 		iconLabel = new Label( null, marketIcon );
 		iconLabel.setId( "tool-product-market-icon" );
@@ -107,7 +100,7 @@ public class RepoTile extends GridPane {
 		enableSwitch.setSelected( source.isEnabled() );
 		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled( newValue ) );
 
-		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
+		removeButton = new Button( "", getProgram().getIconLibrary().getIcon( "remove" ) );
 		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		GridPane.setRowSpan( iconLabel, 2 );
@@ -127,7 +120,7 @@ public class RepoTile extends GridPane {
 		return source;
 	}
 
-	void updateRepoState() {
+	public void updateRepoState() {
 		nameLabel.setText( source.getName() );
 		nameLabel.setDisable( !source.isEnabled() );
 		nameField.setText( source.getName() );
@@ -159,14 +152,14 @@ public class RepoTile extends GridPane {
 	private void commitEditName() {
 		if( !editName ) return;
 		source.setName( nameField.getText() );
-		if( isValidRepoState( source ) ) getProgram().getProductManager().addRepo( source );
+		if( isValidRepoState( source ) ) getProductManager().addRepo( source );
 		setEditName( false );
 	}
 
 	private void commitEditUrl() {
 		if( !editUrl ) return;
 		source.setUrl( urlField.getText() );
-		 if( isValidRepoState( source ) ) getProgram().getProductManager().addRepo( source );
+		 if( isValidRepoState( source ) ) getProductManager().addRepo( source );
 		// TODO Load the repo metadata...
 		setEditUrl( false );
 	}
@@ -187,15 +180,15 @@ public class RepoTile extends GridPane {
 	}
 
 	private void toggleEnabled( boolean enabled ) {
-		getProgram().getProductManager().setRepoEnabled( source, enabled );
+		getProductManager().setRepoEnabled( source, enabled );
 		updateRepoState();
 	}
 
 	private void removeRepo() {
 		getProgram().getTaskManager().submit( Task.of( "Remove repo", () -> {
 			try {
-				getProgram().getProductManager().removeRepo( source );
-				parent.updateState( false );
+				getProductManager().removeRepo( source );
+				getProductSettingsPanel().updateState( false );
 			} catch( Exception exception ) {
 				log.atWarning().withCause( exception ).log( "Error removing repository" );
 			}
