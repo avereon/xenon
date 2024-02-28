@@ -3,23 +3,21 @@ package com.avereon.xenon.tool.settings.panel.products;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
+import com.avereon.xenon.product.RepoState;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProductList extends VBox {
 
 	private final ProductsSettingsPanel parent;
 
 	private final DisplayMode displayMode;
-
-	private final List<ProductTile> sources;
 
 	private final Labeled message;
 
@@ -30,7 +28,6 @@ public class ProductList extends VBox {
 	public ProductList( ProductsSettingsPanel parent, DisplayMode displayMode ) {
 		this.parent = parent;
 		this.displayMode = displayMode;
-		this.sources = new CopyOnWriteArrayList<>();
 
 		getStyleClass().addAll( "tool-product-list" );
 
@@ -67,12 +64,12 @@ public class ProductList extends VBox {
 
 	private void updateProductStates() {
 		for( Node node : getChildren() ) {
-			if( node instanceof ProductTile pane ) pane.updateProductState();
+			if( node instanceof ProductTile pane ) pane.updateTileState();
 		}
 	}
 
-	List<ProductTile> getSourcePanels() {
-		return Collections.unmodifiableList( sources );
+	List<BaseTile> getTiles() {
+		return getChildren().filtered( ( node ) -> node instanceof BaseTile ).stream().map( node -> (BaseTile)node ).toList();
 	}
 
 	void setProducts( List<ProductCard> cards ) {
@@ -83,17 +80,37 @@ public class ProductList extends VBox {
 		if( cards.isEmpty() ) {
 			showMissing();
 		} else {
-			// Add a product pane for each card
-			sources.clear();
-			sources.addAll(
-				parent.createSourceList( cards )
+			List<ProductTile> tiles = parent
+				.createSourceList( cards )
 				.stream()
 				.map( ( source ) -> new ProductTile( parent.getProduct(), parent, source, productUpdates.get( source.getProductKey() ), displayMode ) )
-				.toList() );
-
-			getChildren().clear();
-			getChildren().addAll( sources );
-			updateProductStates();
+				.toList();
+			setTiles( tiles );
 		}
 	}
+
+	void addRepo( RepoState card ) {
+		// Add a repo tile for the card
+		RepoTile tile = new RepoTile( parent.getProduct(), parent, card );
+		tile.setEditUrl( true );
+
+		List<BaseTile> tiles = new ArrayList<>( getTiles() );
+		tiles.add( tile );
+		setTiles( tiles );
+	}
+
+	public void setRepos( List<? extends RepoState> cards ) {
+		if( cards.isEmpty() ) {
+			showMissing();
+		} else {
+			setTiles( cards.stream().map( ( source ) -> new RepoTile( parent.getProduct(), parent, source ) ).toList() );
+		}
+	}
+
+	private void setTiles( List<? extends BaseTile> tiles ) {
+		getChildren().clear();
+		getChildren().addAll( tiles );
+		updateProductStates();
+	}
+
 }

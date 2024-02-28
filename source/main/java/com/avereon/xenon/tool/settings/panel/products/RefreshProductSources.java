@@ -9,11 +9,11 @@ import com.avereon.zarra.javafx.Fx;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RefreshProductRepos extends Task<Void> {
+public class RefreshProductSources extends Task<Void> {
 
 	private final ProductsSourcesSettingsPanel parent;
 
-	public RefreshProductRepos( ProductsSourcesSettingsPanel parent ) {
+	public RefreshProductSources( ProductsSourcesSettingsPanel parent ) {
 		this.parent = parent;
 	}
 

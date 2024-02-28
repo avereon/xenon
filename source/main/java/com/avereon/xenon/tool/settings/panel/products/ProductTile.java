@@ -158,7 +158,8 @@ public class ProductTile extends BaseTile {
 		this.progress.setProgress( progress );
 	}
 
-	void updateProductState() {
+	@Override
+	public void updateTileState() {
 		boolean isProgram = getProgram().getCard().equals( source );
 		boolean isEnabled = getProductManager().isEnabled( source ) || getProductManager().getStatus( source ) == ProductStatus.INSTALLED;
 		boolean isInstalled = getProductManager().isInstalled( source ) || getProductManager().getStatus( source ) == ProductStatus.INSTALLED;
@@ -239,12 +240,12 @@ public class ProductTile extends BaseTile {
 
 	void setStatus( ProductStatus status ) {
 		getProductManager().setStatus( getSource(), status );
-		updateProductState();
+		updateTileState();
 	}
 
 	private void toggleEnabled( boolean enabled ) {
 		getProductManager().setModEnabled( getSource(), enabled );
-		updateProductState();
+		updateTileState();
 	}
 
 	private void installProduct() {

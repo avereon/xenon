@@ -120,7 +120,8 @@ public class RepoTile extends BaseTile {
 		return source;
 	}
 
-	public void updateRepoState() {
+	@Override
+	public void updateTileState() {
 		nameLabel.setText( source.getName() );
 		nameLabel.setDisable( !source.isEnabled() );
 		nameField.setText( source.getName() );
@@ -140,13 +141,13 @@ public class RepoTile extends BaseTile {
 	private void setEditName( boolean editName ) {
 		if( editName && editUrl ) commitEditUrl();
 		this.editName = editName;
-		updateRepoState();
+		updateTileState();
 	}
 
 	public void setEditUrl( boolean editUrl ) {
 		if( editUrl && editName ) commitEditName();
 		this.editUrl = editUrl;
-		updateRepoState();
+		updateTileState();
 	}
 
 	private void commitEditName() {
@@ -181,7 +182,7 @@ public class RepoTile extends BaseTile {
 
 	private void toggleEnabled( boolean enabled ) {
 		getProductManager().setRepoEnabled( source, enabled );
-		updateRepoState();
+		updateTileState();
 	}
 
 	private void removeRepo() {

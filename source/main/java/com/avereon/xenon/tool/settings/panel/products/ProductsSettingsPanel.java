@@ -56,8 +56,8 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 
 	protected void updateState( boolean force ) {}
 
-	public List<ProductTile> getSourcePanels() {
-		return productList.getSourcePanels();
+	public List<BaseTile> getSourcePanels() {
+		return productList.getTiles();
 	}
 
 	public void setProducts( List<ProductCard> cards ) {
@@ -68,11 +68,23 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		productList.setProducts( cards, productUpdates );
 	}
 
-	public void setRepos( List<? extends RepoState> states ) {
+	public void newRepo() {
+		String newProductMarketName = Rb.text( getProduct(), RbKey.SETTINGS, "products-source-new" );
 
+		RepoState card = new RepoState();
+		card.setName( newProductMarketName );
+		card.setUrl( "" );
+		card.setEnabled( true );
+		card.setRemovable( true );
+
+		productList.addRepo( card );
 	}
 
-		protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
+	public void setRepos( List<? extends RepoState> states ) {
+		productList.setRepos( states );
+	}
+
+	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
 		Map<String, List<ProductCard>> cardMap = new HashMap<>();
@@ -105,12 +117,16 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		return sources;
 	}
 
-	public void installProducts( List<ProductTile> panes ) {
-		getProgram().getProductManager().installProducts( getDownloads( panes, true ) );
+	public void installProducts( List<BaseTile> panes ) {
+		getProgram().getProductManager().installProducts( getDownloads( panes.stream().map( t -> (ProductTile)t ).toList(), true ) );
 	}
 
-	public void updateProducts( List<ProductTile> panes ) {
-		getProgram().getProductManager().updateProducts( getDownloads( panes, false ), true );
+	public void updateProducts( List<BaseTile> panes ) {
+		getProgram().getProductManager().updateProducts( getDownloads( panes.stream().map( t -> (ProductTile)t ).toList(), false ), true );
+	}
+
+	protected void updateTileStates() {
+		getChildren().forEach( tile -> ((BaseTile)tile).updateTileState() );
 	}
 
 	private Set<DownloadRequest> getDownloads( List<ProductTile> panes, boolean install ) {

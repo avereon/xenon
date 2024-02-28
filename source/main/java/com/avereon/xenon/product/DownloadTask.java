@@ -5,6 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskException;
 import lombok.CustomLog;
 
 import java.io.IOException;
@@ -67,8 +68,12 @@ public class DownloadTask extends Task<Download> {
 	}
 
 	@Override
-	public Download call() throws IOException {
-		return download();
+	public Download call() {
+		try {
+			return download();
+		} catch( IOException exception ) {
+			throw new TaskException( "Download failed: +" + uri, exception );
+		}
 	}
 
 	@Override
@@ -94,7 +99,7 @@ public class DownloadTask extends Task<Download> {
 		InputStream input = connection.getInputStream();
 
 		if( connection instanceof HttpURLConnection ) {
-			HttpURLConnection httpConnection =((HttpURLConnection)connection);
+			HttpURLConnection httpConnection = ((HttpURLConnection)connection);
 			int status = httpConnection.getResponseCode();
 			if( status >= 300 ) throw new IOException( status + " " + httpConnection.getResponseMessage() );
 		}
@@ -116,7 +121,7 @@ public class DownloadTask extends Task<Download> {
 			if( isCancelled() ) return null;
 		}
 
-		log.atFine().log(  "Resource downloaded: %s", uri );
+		log.atFine().log( "Resource downloaded: %s", uri );
 		log.atFiner().log( "        to location: %s", download.getTarget() );
 
 		return download;

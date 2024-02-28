@@ -21,4 +21,8 @@ public class BaseTile extends GridPane {
 		this.productManager = program.getProductManager();
 	}
 
+	public void updateTileState() {
+		// Do nothing
+	}
+
 }
