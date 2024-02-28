@@ -134,8 +134,9 @@ public class RepoTile extends BaseTile {
 
 		removeButton.setDisable( !source.isRemovable() );
 
-		if( editName ) this.nameField.requestFocus();
-		if( editUrl ) this.urlField.requestFocus();
+		// NOTE These cause extra focus changes that disable the fields
+		//if( editName ) this.nameField.requestFocus();
+		//if( editUrl ) this.urlField.requestFocus();
 	}
 
 	private void setEditName( boolean editName ) {
@@ -151,6 +152,7 @@ public class RepoTile extends BaseTile {
 	}
 
 	private void commitEditName() {
+		//log.atConfig().withCause( new Throwable() ).log( "Commit name: editName=%s editUrl=%s", editName, editUrl );
 		if( !editName ) return;
 		source.setName( nameField.getText() );
 		if( isValidRepoState( source ) ) getProductManager().addRepo( source );
@@ -158,6 +160,7 @@ public class RepoTile extends BaseTile {
 	}
 
 	private void commitEditUrl() {
+		//log.atConfig().withCause( new Throwable() ).log( "Update url: editName=%s editUrl=%s", editName, editUrl );
 		if( !editUrl ) return;
 		source.setUrl( urlField.getText() );
 		 if( isValidRepoState( source ) ) getProductManager().addRepo( source );
