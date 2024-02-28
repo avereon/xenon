@@ -19,7 +19,7 @@ public class ProductList extends VBox {
 
 	private final DisplayMode displayMode;
 
-	private final List<ProductPane> sources;
+	private final List<ProductTile> sources;
 
 	private final Labeled message;
 
@@ -31,6 +31,8 @@ public class ProductList extends VBox {
 		this.parent = parent;
 		this.displayMode = displayMode;
 		this.sources = new CopyOnWriteArrayList<>();
+
+		getStyleClass().addAll( "tool-product-list" );
 
 		String mode = displayMode.name().toLowerCase();
 		this.refreshMessage = Rb.text( RbKey.TOOL, "product-" + mode + "-refresh" );
@@ -65,11 +67,11 @@ public class ProductList extends VBox {
 
 	private void updateProductStates() {
 		for( Node node : getChildren() ) {
-			if( node instanceof ProductPane pane ) pane.updateProductState();
+			if( node instanceof ProductTile pane ) pane.updateProductState();
 		}
 	}
 
-	List<ProductPane> getSourcePanels() {
+	List<ProductTile> getSourcePanels() {
 		return Collections.unmodifiableList( sources );
 	}
 
@@ -86,7 +88,7 @@ public class ProductList extends VBox {
 			sources.addAll(
 				parent.createSourceList( cards )
 				.stream()
-				.map( ( source ) -> new ProductPane( parent.getProduct(), parent, source, productUpdates.get( source.getProductKey() ), displayMode ) )
+				.map( ( source ) -> new ProductTile( parent.getProduct(), parent, source, productUpdates.get( source.getProductKey() ), displayMode ) )
 				.toList() );
 
 			getChildren().clear();

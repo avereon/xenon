@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 @CustomLog
-public class ProductPane extends GridPane {
+public class ProductTile extends GridPane {
 
 	private final Xenon program;
 
@@ -73,7 +73,7 @@ public class ProductPane extends GridPane {
 
 	private BooleanProperty selectedProperty;
 
-	ProductPane( XenonProgramProduct product, ProductsSettingsPanel parent, ProductCard source, ProductCard update, DisplayMode displayMode ) {
+	ProductTile( XenonProgramProduct product, ProductsSettingsPanel parent, ProductCard source, ProductCard update, DisplayMode displayMode ) {
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 

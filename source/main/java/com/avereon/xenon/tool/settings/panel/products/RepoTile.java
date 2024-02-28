@@ -23,7 +23,7 @@ import org.controlsfx.control.ToggleSwitch;
 import java.util.Objects;
 
 @CustomLog
-public class RepoPane extends GridPane {
+public class RepoTile extends GridPane {
 
 	@Getter
 	private final Xenon program;
@@ -54,7 +54,7 @@ public class RepoPane extends GridPane {
 
 	private HBox urlBox;
 
-	public RepoPane( XenonProgramProduct product, ProductsSettingsPanel parent, RepoState source ) {
+	public RepoTile( XenonProgramProduct product, ProductsSettingsPanel parent, RepoState source ) {
 		setHgap( UiFactory.PAD );
 		setVgap( UiFactory.PAD );
 

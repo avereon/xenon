@@ -836,6 +836,10 @@ Derived from modena.css
 	-fx-padding: 1em 0.3em 0.3em 0.3em;
 }
 
+.tool-product-list {
+	-fx-spacing: 0.3em;
+}
+
 .tool-product-message {
 	-fx-background-color: -ex-background-text;
 	-fx-padding: 2em;

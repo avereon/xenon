@@ -6,7 +6,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.tool.settings.panel.products.DisplayMode;
 import com.avereon.xenon.tool.settings.panel.products.ProductsSettingsPanel;
-import com.avereon.xenon.tool.settings.panel.products.RepoPane;
+import com.avereon.xenon.tool.settings.panel.products.RepoTile;
 import javafx.scene.control.Button;
 
 public class ProductsSourcesSettingsPanel extends ProductsSettingsPanel {
@@ -29,7 +29,7 @@ public class ProductsSourcesSettingsPanel extends ProductsSettingsPanel {
 		card.setEnabled( true );
 		card.setRemovable( true );
 
-		RepoPane pane = new RepoPane( getProduct(), this, card );
+		RepoTile pane = new RepoTile( getProduct(), this, card );
 		getChildren().add( pane );
 		pane.setEditUrl( true );
 	}
