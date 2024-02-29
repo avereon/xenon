@@ -36,35 +36,35 @@ public class ProductTile extends BaseTile {
 
 	private final DisplayMode displayMode;
 
-	private Label iconLabel;
+	private final Label iconLabel;
 
-	private Label nameLabel;
+	private final Label nameLabel;
 
-	private Label versionLabel;
+	private final Label versionLabel;
 
-	private Label summaryLabel;
+	private final Label summaryLabel;
 
-	private Label hyphenLabel;
+	private final Label hyphenLabel;
 
-	private Label providerLabel;
+	private final Label providerLabel;
 
-	private Label releaseLabel;
+	private final Label releaseLabel;
 
-	private HBox stateContainer;
+	private final HBox stateContainer;
 
-	private ProgressBar progress;
+	private final ProgressBar progress;
 
-	private Label stateLabel;
+	private final Label stateLabel;
 
 	private final Label sizeLabel;
 
-	private ToggleSwitch enableSwitch;
+	private final ToggleSwitch enableSwitch;
 
-	private Button actionButton1;
+	private final Button actionButton1;
 
-	private Button actionButton2;
+	private final Button actionButton2;
 
-	private BooleanProperty selectedProperty;
+	private final BooleanProperty selectedProperty;
 
 	ProductTile( XenonProgramProduct product, ProductsSettingsPanel parent, ProductCard source, ProductCard update, DisplayMode displayMode ) {
 		super( product, parent );
