@@ -16,10 +16,12 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import lombok.CustomLog;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@CustomLog
 public abstract class ProductsSettingsPanel extends SettingsPanel {
 
 	protected static final int ICON_SIZE = 48;
@@ -54,7 +56,7 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		updateState( false );
 	}
 
-	protected void updateState( boolean force ) {}
+	abstract protected void updateState( boolean force );
 
 	public List<BaseTile> getSourcePanels() {
 		return tileList.getTiles();
@@ -68,7 +70,7 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		tileList.setProducts( cards, productUpdates );
 	}
 
-	public void newRepo() {
+	public void newSource() {
 		String newProductMarketName = Rb.text( getProduct(), RbKey.SETTINGS, "products-source-new" );
 
 		RepoState card = new RepoState();
@@ -80,7 +82,7 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		tileList.addRepo( card );
 	}
 
-	public void setRepos( List<? extends RepoState> states ) {
+	public void setSources( List<? extends RepoState> states ) {
 		tileList.setRepos( states );
 	}
 
@@ -115,6 +117,10 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		}
 
 		return sources;
+	}
+
+	public void addSource( RepoState state ) {
+		getProgram().getProductManager().addRepo( state );
 	}
 
 	public void installProducts( List<BaseTile> panes ) {

@@ -66,9 +66,9 @@ public class V2RepoClient implements RepoClient {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					RepoCard repo = matchingRepoCards.get( future );
+					// DEPRECATED RepoCard repo = matchingRepoCards.get( future );
 					CatalogCard catalog = CatalogCard.fromJson( input );
-					catalog.setRepo( repo );
+					// DEPRECATED catalog.setRepo( repo );
 					catalogCards.add( catalog );
 				} catch( Exception exception ) {
 					log.atWarn( exception ).log( "Error downloading catalog card: %s", LazyEval.of( download::getSource ) );
@@ -85,8 +85,8 @@ public class V2RepoClient implements RepoClient {
 	public Set<ProductCard> getProductCards( Set<CatalogCard> catalogs ) {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
-			for( String p : catalog.getProducts() ) {
-				URI uri = getProductUri( catalog.getRepo(), p, "product", "card" );
+			for( String product : catalog.getProducts() ) {
+				URI uri = getProductUri( catalog, product, "product", "card" );
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}

@@ -6,10 +6,9 @@ import com.avereon.log.Log;
 import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.weave.Weave;
-import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
+import com.avereon.weave.Weave;
 import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -17,16 +16,19 @@ import com.avereon.xenon.util.Lambda;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -139,6 +141,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private Set<ProductCard> includedProducts;
 
+	private final Object updateProviderReposLock = new Object();
+
 	private final Object availableProductsLock = new Object();
 
 	private Set<ProductCard> availableProducts;
@@ -155,7 +159,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private UpdateCheckTask task;
 
+	@Getter
 	private final FxEventHub eventBus;
+
+	private long lastProviderRepoCheck;
 
 	private long lastAvailableProductCheck;
 
@@ -189,12 +196,40 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return program;
 	}
 
-	public FxEventHub getEventBus() {
-		return eventBus;
+	public Set<RepoState> getRepos() {
+		return getRepos( false );
 	}
 
-	public Set<RepoState> getRepos() {
+	public Set<RepoState> getRepos( boolean force ) {
+		TaskManager.taskThreadCheck();
+
+		synchronized( updateProviderReposLock ) {
+			if( !force && repos != null ) return new HashSet<>( repos.values() );
+
+			if( !force && System.currentTimeMillis() - lastProviderRepoCheck < 1000 ) return Set.of();
+			lastProviderRepoCheck = System.currentTimeMillis();
+
+			try {
+				repos.values().forEach( this::updateRepo );
+			} catch( Exception exception ) {
+				log.atError().withCause( exception ).log( "Error getting available products" );
+			}
+		}
+
 		return new HashSet<>( repos.values() );
+	}
+
+	public void updateRepo( RepoState repo ) {
+		TaskManager.taskThreadCheck();
+
+		try {
+			URI uri = URI.create( repo.getUrl() + "/catalog" );
+			DownloadTask task = new DownloadTask( getProgram(), uri );
+			Future<Download> future = getProgram().getTaskManager().submit( task );
+			repo.copyFrom( CatalogCard.fromJson( future.get().getInputStream() ) );
+		} catch( Exception exception ) {
+			log.atWarning().withCause( exception ).log( "Error loading repository metadata" );
+		}
 	}
 
 	public void registerProviderRepos( Collection<RepoState> repos ) {

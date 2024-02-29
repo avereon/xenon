@@ -20,10 +20,13 @@ public class RefreshProductSources extends Task<Void> {
 	@Override
 	public Void call() {
 		Fx.run( parent::showUpdating );
-		List<RepoState> cards = new ArrayList<>( parent.getProgram().getProductManager().getRepos() );
+
+		// Load the product repos
+
+		List<RepoState> cards = new ArrayList<>( parent.getProgram().getProductManager().getRepos( true ) );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.NAME ) );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.RANK ) );
-		Fx.run( () -> parent.setRepos( cards ) );
+		Fx.run( () -> parent.setSources( cards ) );
 		return null;
 	}
 

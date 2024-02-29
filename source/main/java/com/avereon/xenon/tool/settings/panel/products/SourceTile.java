@@ -59,7 +59,6 @@ public class SourceTile extends BaseTile {
 		setId( "tool-product-market" );
 
 		Node marketIcon = getProgram().getIconLibrary().getIcon( source.getIcons(), "market", ProductsSettingsPanel.ICON_SIZE );
-
 		iconLabel = new Label( null, marketIcon );
 		iconLabel.setId( "tool-product-market-icon" );
 
@@ -117,12 +116,15 @@ public class SourceTile extends BaseTile {
 		add( removeButton, 2, 1 );
 	}
 
-	private RepoCard getSource() {
+	RepoCard getSource() {
 		return source;
 	}
 
 	@Override
 	public void updateTileState() {
+		Node marketIcon = getProgram().getIconLibrary().getIcon( source.getIcons(), "market", ProductsSettingsPanel.ICON_SIZE );
+		iconLabel.setGraphic( marketIcon );
+
 		nameLabel.setText( source.getName() );
 		nameLabel.setDisable( !source.isEnabled() );
 		nameField.setText( source.getName() );
@@ -152,20 +154,24 @@ public class SourceTile extends BaseTile {
 	}
 
 	private void commitEditName() {
-		//log.atConfig().withCause( new Throwable() ).log( "Commit name: editName=%s editUrl=%s", editName, editUrl );
 		if( !editName ) return;
 		source.setName( nameField.getText() );
-		if( isValidRepoState( source ) ) getProductManager().addRepo( source );
+		if( isValidRepoState( source ) ) getProductSettingsPanel().addSource( source );
 		setEditName( false );
 	}
 
 	private void commitEditUrl() {
-		//log.atConfig().withCause( new Throwable() ).log( "Update url: editName=%s editUrl=%s", editName, editUrl );
 		if( !editUrl ) return;
 		source.setUrl( urlField.getText() );
-		 if( isValidRepoState( source ) ) getProductManager().addRepo( source );
-		// TODO Load the repo metadata...
+		if( isValidRepoState( source ) ) getProductSettingsPanel().addSource( source );
 		setEditUrl( false );
+		reloadRepoState();
+	}
+
+	private void reloadRepoState() {
+		getProductSettingsPanel().getProgram().getTaskManager().submit( Task.of( "Load repo state", () -> {
+			getProductSettingsPanel().getProgram().getProductManager().updateRepo( source );
+		} ) );
 	}
 
 	private boolean isValidRepoState( RepoState state ) {

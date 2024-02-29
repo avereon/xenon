@@ -14,8 +14,8 @@ public class ProductsSourcesSettingsPanel extends ProductsSettingsPanel {
 		super( product, DisplayMode.SOURCES );
 
 		Button addButton = new Button( "", getProgram().getIconLibrary().getIcon( "add" ) );
-		addButton.setOnMousePressed( ( e ) -> newRepo() );
-		addButton.setOnTouchPressed( ( e ) -> newRepo() );
+		addButton.setOnMousePressed( ( e ) -> newSource() );
+		addButton.setOnTouchPressed( ( e ) -> newSource() );
 
 		getButtonBox().addAll( addButton );
 	}

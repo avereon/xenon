@@ -182,12 +182,23 @@ public class IconLibrary {
 	public Node getIcon( List<String> ids, double size ) {
 		VectorImage icon = null;
 		for( String id : ids ) {
+			// Check the icon cache
 			icon = icons.get( id );
+
+			// If the icon is not in the cache, try to load it from a URL
 			if( icon == null ) icon = getIconFromUrl( id, size );
+
+			// If an icon is found, stop looking
 			if( icon != null ) break;
 		}
-		if( icon != null ) icon = icon.copy();
-		if( icon == null ) icon = new BrokenIcon();
+
+		// If there is an icon, make a copy of it
+		if( icon != null ) {
+			icon = icon.copy();
+		} else {
+			// If the icon is still null, use the broken icon
+			icon = new BrokenIcon();
+		}
 
 		return icon.resize( size );
 	}

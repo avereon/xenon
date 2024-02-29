@@ -183,7 +183,7 @@ public class ProductManagerLogic {
 			try {
 				log.atDebug().log( "Loading catalog card: %s", r );
 				CatalogCard catalog = CatalogCard.fromJson( downloads.get( r ).get().getInputStream() );
-				catalog.setRepo( r );
+				// DEPRECATED catalog.setRepo( r );
 				catalogs.put( r, catalog );
 			} catch( Exception exception ) {
 				log.atError().withCause( exception ).log();
