@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ProductList extends VBox {
+public class TileList extends VBox {
 
 	private final ProductsSettingsPanel parent;
 
@@ -25,7 +25,7 @@ public class ProductList extends VBox {
 
 	private final String missingMessage;
 
-	public ProductList( ProductsSettingsPanel parent, DisplayMode displayMode ) {
+	public TileList( ProductsSettingsPanel parent, DisplayMode displayMode ) {
 		this.parent = parent;
 		this.displayMode = displayMode;
 
@@ -58,10 +58,6 @@ public class ProductList extends VBox {
 		getChildren().addAll( message );
 	}
 
-	private void hideMessage() {
-		getChildren().remove( message );
-	}
-
 	private void updateProductStates() {
 		for( Node node : getChildren() ) {
 			if( node instanceof ProductTile pane ) pane.updateTileState();
@@ -91,7 +87,7 @@ public class ProductList extends VBox {
 
 	void addRepo( RepoState card ) {
 		// Add a repo tile for the card
-		RepoTile tile = new RepoTile( parent.getProduct(), parent, card );
+		SourceTile tile = new SourceTile( parent.getProduct(), parent, card );
 		tile.setEditUrl( true );
 
 		List<BaseTile> tiles = new ArrayList<>( getTiles() );
@@ -103,7 +99,7 @@ public class ProductList extends VBox {
 		if( cards.isEmpty() ) {
 			showMissing();
 		} else {
-			setTiles( cards.stream().map( ( source ) -> new RepoTile( parent.getProduct(), parent, source ) ).toList() );
+			setTiles( cards.stream().map( ( source ) -> new SourceTile( parent.getProduct(), parent, source ) ).toList() );
 		}
 	}
 

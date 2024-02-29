@@ -22,33 +22,33 @@ import org.controlsfx.control.ToggleSwitch;
 import java.util.Objects;
 
 @CustomLog
-public class RepoTile extends BaseTile {
+public class SourceTile extends BaseTile {
 
 	private final RepoState source;
 
 	private Label iconLabel;
 
-	private Label nameLabel;
+	private final Label nameLabel;
 
-	private TextField nameField;
+	private final TextField nameField;
 
-	private Label urlLabel;
+	private final Label urlLabel;
 
-	private TextField urlField;
+	private final TextField urlField;
 
 	private ToggleSwitch enableSwitch;
 
-	private Button removeButton;
+	private final Button removeButton;
 
 	private boolean editName;
 
 	private boolean editUrl;
 
-	private HBox nameBox;
+	private final HBox nameBox;
 
-	private HBox urlBox;
+	private final HBox urlBox;
 
-	public RepoTile( XenonProgramProduct product, ProductsSettingsPanel parent, RepoState source ) {
+	public SourceTile( XenonProgramProduct product, ProductsSettingsPanel parent, RepoState source ) {
 		super( product, parent );
 
 		setHgap( UiFactory.PAD );
@@ -135,7 +135,6 @@ public class RepoTile extends BaseTile {
 
 		removeButton.setDisable( !source.isRemovable() );
 
-		// NOTE These cause extra focus changes that disable the fields
 		if( editName ) this.nameField.requestFocus();
 		if( editUrl ) this.urlField.requestFocus();
 	}

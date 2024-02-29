@@ -26,13 +26,13 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 
 	private final HBox buttons;
 
-	private final ProductList productList;
+	private final TileList tileList;
 
 	protected ProductsSettingsPanel( XenonProgramProduct product, DisplayMode displayMode ) {
 		super( product );
 		this.buttons = new HBox();
 		this.buttons.setId( "tool-product-page-header-buttons" );
-		this.productList = new ProductList( this, displayMode );
+		this.tileList = new TileList( this, displayMode );
 
 		String mode = displayMode.name().toLowerCase();
 
@@ -41,14 +41,14 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		getChildren().add( new BorderPane( null, null, buttons, null, null ) );
 
 		// Add the product list to the panel
-		getChildren().add( productList );
+		getChildren().add( tileList );
 	}
 
 	protected ObservableList<Node> getButtonBox() {
 		return buttons.getChildren();
 	}
 
-	public void showUpdating() {productList.showUpdating();}
+	public void showUpdating() {tileList.showUpdating();}
 
 	protected void setSelected( boolean selected ) {
 		updateState( false );
@@ -57,15 +57,15 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 	protected void updateState( boolean force ) {}
 
 	public List<BaseTile> getSourcePanels() {
-		return productList.getTiles();
+		return tileList.getTiles();
 	}
 
 	public void setProducts( List<ProductCard> cards ) {
-		productList.setProducts( cards );
+		tileList.setProducts( cards );
 	}
 
 	public void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
-		productList.setProducts( cards, productUpdates );
+		tileList.setProducts( cards, productUpdates );
 	}
 
 	public void newRepo() {
@@ -77,11 +77,11 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		card.setEnabled( true );
 		card.setRemovable( true );
 
-		productList.addRepo( card );
+		tileList.addRepo( card );
 	}
 
 	public void setRepos( List<? extends RepoState> states ) {
-		productList.setRepos( states );
+		tileList.setRepos( states );
 	}
 
 	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
