@@ -24,6 +24,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import org.controlsfx.control.ToggleSwitch;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -240,20 +241,20 @@ public class ProductTile extends BaseTile {
 
 	void setStatus( ProductStatus status ) {
 		getProductManager().setStatus( getSource(), status );
-		updateTileState();
+		Fx.run( this::updateTileState );
 	}
 
 	private void toggleEnabled( boolean enabled ) {
 		getProductManager().setModEnabled( getSource(), enabled );
-		updateTileState();
+		Fx.run( this::updateTileState );
 	}
 
 	private void installProduct() {
-		//tool.getAvailablePage().installProducts( List.of( this ) );
+		getProductSettingsPanel().installProducts( List.of( this ) );
 	}
 
 	private void updateProduct() {
-		//tool.getUpdatesPage().updateProducts( List.of( this ) );
+		getProductSettingsPanel().updateProducts( List.of( this ) );
 	}
 
 	private void requestRemoveProduct() {

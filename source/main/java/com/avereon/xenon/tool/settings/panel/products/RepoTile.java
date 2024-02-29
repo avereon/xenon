@@ -6,6 +6,7 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.Task;
+import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -68,7 +69,7 @@ public class RepoTile extends BaseTile {
 		nameLabel.setOnMousePressed( ( event ) -> setEditName( source.isRemovable() ) );
 		nameField = new TextField( source.getName() );
 		nameField.setId( "tool-product-market-name-editor" );
-		nameField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( oldValue ) commitEditName();} );
+		nameField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( !newValue ) commitEditName();} );
 		nameField.setOnKeyPressed( ( event ) -> {
 			if( event.getCode() == KeyCode.ENTER ) commitEditName();
 			if( event.getCode() == KeyCode.ESCAPE ) cancelEditName();
@@ -85,7 +86,7 @@ public class RepoTile extends BaseTile {
 		urlLabel.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
 		urlField = new TextField( source.getUrl() );
 		urlField.setId( "tool-product-market-uri-editor" );
-		urlField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( oldValue ) commitEditUrl();} );
+		urlField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( !newValue ) commitEditUrl();} );
 		urlField.setOnKeyPressed( ( event ) -> {
 			if( event.getCode() == KeyCode.ENTER ) commitEditUrl();
 			if( event.getCode() == KeyCode.ESCAPE ) cancelEditUrl();
@@ -135,20 +136,20 @@ public class RepoTile extends BaseTile {
 		removeButton.setDisable( !source.isRemovable() );
 
 		// NOTE These cause extra focus changes that disable the fields
-		//if( editName ) this.nameField.requestFocus();
-		//if( editUrl ) this.urlField.requestFocus();
+		if( editName ) this.nameField.requestFocus();
+		if( editUrl ) this.urlField.requestFocus();
 	}
 
 	private void setEditName( boolean editName ) {
 		if( editName && editUrl ) commitEditUrl();
 		this.editName = editName;
-		updateTileState();
+		Fx.run( this::updateTileState );
 	}
 
 	public void setEditUrl( boolean editUrl ) {
 		if( editUrl && editName ) commitEditName();
 		this.editUrl = editUrl;
-		updateTileState();
+		Fx.run( this::updateTileState );
 	}
 
 	private void commitEditName() {
@@ -185,7 +186,7 @@ public class RepoTile extends BaseTile {
 
 	private void toggleEnabled( boolean enabled ) {
 		getProductManager().setRepoEnabled( source, enabled );
-		updateTileState();
+		Fx.run( this::updateTileState );
 	}
 
 	private void removeRepo() {
