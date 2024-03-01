@@ -253,10 +253,10 @@
 		<page id="asset-types" panel="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line"/>
 	</page>
 
-	<page id="products-installed" panel="products-installed" tagIds="product, modules, module, mod, plugin, extension">
-		<page id="products-available" panel="products-available" tagIds="product, modules, module, mod, plugin, extension"/>
-		<page id="products-updates" panel="products-updates" tagIds="product, modules, module, mod, plugin, extension"/>
-		<page id="products-sources" panel="products-sources" tagIds="product, modules, module, mod, plugin, extension"/>
+	<page id="modules" panel="modules-installed" tagIds="product, modules, module, mod, plugin, extension">
+		<page id="modules-available" panel="modules-available" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="modules-updates" panel="modules-updates" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="modules-sources" panel="modules-sources" tagIds="product, modules, module, mod, plugin, extension"/>
 	</page>
 
 	<page id="network">

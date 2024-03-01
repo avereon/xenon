@@ -6,7 +6,7 @@ import com.avereon.xenon.asset.*;
 
 public class ProgramProductType extends AssetType {
 
-	private static final String uriPattern = "program:/products";
+	private static final String uriPattern = "program:/modules";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

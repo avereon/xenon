@@ -455,10 +455,10 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
-		getSettingsManager().putPagePanel( "products-installed", ProductsInstalledSettingsPanel.class );
-		getSettingsManager().putPagePanel( "products-available", ProductsAvailableSettingsPanel.class );
-		getSettingsManager().putPagePanel( "products-updates", ProductsUpdatesSettingsPanel.class );
-		getSettingsManager().putPagePanel( "products-sources", ProductsSourcesSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-installed", ProductsInstalledSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-available", ProductsAvailableSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-updates", ProductsUpdatesSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-sources", ProductsSourcesSettingsPanel.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );
 
