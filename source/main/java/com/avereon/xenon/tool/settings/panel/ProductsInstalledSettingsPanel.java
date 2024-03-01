@@ -21,7 +21,7 @@ public class ProductsInstalledSettingsPanel extends ProductsSettingsPanel {
 
 	@Override
 	protected void updateState( boolean force ) {
-		log.atFiner().log( "Update installed products" );
+		log.atFiner().log( "Update installed products force=%s", force );
 		getProgram().getTaskManager().submit( new RefreshInstalledProducts( this, force ) );
 	}
 

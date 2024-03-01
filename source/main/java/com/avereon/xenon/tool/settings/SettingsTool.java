@@ -12,6 +12,7 @@ import javafx.scene.control.ScrollPane;
 import lombok.CustomLog;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,9 +57,10 @@ public class SettingsTool extends GuidedTool {
 		if( pageId == null ) pageId = GENERAL;
 		selectPage( pageId );
 
-		String path = UriUtil.parseName( request.getUri() );
-		if( path != null ) {
-			selectPage(path);
+		URI uri = request.getUri();
+		if( uri != null ) {
+			String name = UriUtil.parseName( uri );
+			if( name != null ) selectPage( name );
 		}
 	}
 
@@ -75,7 +77,7 @@ public class SettingsTool extends GuidedTool {
 
 	private void setPage( SettingsPage page ) {
 		SettingsPanel currentPanel = (SettingsPanel)scroller.getContent();
-		if( currentPanel != null ) currentPanel.setSelected(false);
+		if( currentPanel != null ) currentPanel.setSelected( false );
 
 		SettingsPanel nextPanel = findOrCreatePanel( page );
 

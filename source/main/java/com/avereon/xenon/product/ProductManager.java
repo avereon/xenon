@@ -219,7 +219,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return new HashSet<>( repos.values() );
 	}
 
-	public void updateRepo( RepoState repo ) {
+	public void updateRepo( RepoCard repo ) {
 		TaskManager.taskThreadCheck();
 
 		try {
@@ -803,7 +803,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck ) {
-		long delay;
 		long intervalDelay = 0;
 		switch( intervalUnit ) {
 			case MONTH: {
@@ -819,7 +818,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				break;
 			}
 			case HOUR: {
-				intervalDelay = (long)MILLIS_IN_HOUR;
+				intervalDelay = MILLIS_IN_HOUR;
 				break;
 			}
 		}
@@ -852,18 +851,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return delay;
 	}
 
-	//	public Set<ProductManagerListener> getProductManagerListeners() {
-	//		return new HashSet<>( listeners );
-	//	}
-	//
-	//	public void addProductManagerListener( ProductManagerListener listener ) {
-	//		listeners.add( listener );
-	//	}
-	//
-	//	public void removeProductManagerListener( ProductManagerListener listener ) {
-	//		listeners.remove( listener );
-	//	}
-
 	@Override
 	public void setSettings( Settings settings ) {
 		if( settings == null || this.settings != null ) return;
@@ -873,7 +860,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// What are these settings if the update node is retrieved below?
 		this.settings = settings;
 
-		if( "STAGE".equals( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() ) ) {
+		if( "STAGE".equalsIgnoreCase( settings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
 			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
@@ -884,10 +871,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Maybe the catalogs and updates should be stored in a different location
 		this.updateSettings = settings.getNode( "update" );
 
-		// Load the product catalogs
+		// Load the module sources
 		loadRepos();
 
-		// Load the product updates
+		// Load the module updates
 		loadUpdates();
 	}
 
@@ -1000,6 +987,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		providerRepos.keySet().forEach( ( id ) -> repos.putIfAbsent( id, providerRepos.get( id ) ) );
 
 		saveRepos();
+
+		getRepos( true );
 	}
 
 	private void saveRepos() {

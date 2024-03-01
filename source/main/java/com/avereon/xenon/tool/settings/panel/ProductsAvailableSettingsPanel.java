@@ -27,7 +27,7 @@ public class ProductsAvailableSettingsPanel extends ProductsSettingsPanel {
 
 	@Override
 	protected void updateState( boolean force ) {
-		log.atFiner().log(  "Update available products" );
+		log.atFiner().log(  "Update available products force=%s", force );
 		getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, force ) );
 	}
 

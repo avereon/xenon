@@ -171,6 +171,7 @@ public class SourceTile extends BaseTile {
 	private void reloadRepoState() {
 		getProductSettingsPanel().getProgram().getTaskManager().submit( Task.of( "Load repo state", () -> {
 			getProductSettingsPanel().getProgram().getProductManager().updateRepo( source );
+			Fx.run( this::updateTileState );
 		} ) );
 	}
 
