@@ -226,7 +226,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			URI uri = URI.create( repo.getUrl() + "/catalog" );
 			DownloadTask task = new DownloadTask( getProgram(), uri );
 			Future<Download> future = getProgram().getTaskManager().submit( task );
-			repo.copyFrom( CatalogCard.fromJson( future.get().getInputStream() ) );
+			RepoState source = repos.get( repo.getInternalId() );
+			source.copyFrom( CatalogCard.fromJson( future.get().getInputStream() ) );
+			repo.copyFrom( source );
+			saveRepos();
 		} catch( Exception exception ) {
 			log.atWarning().withCause( exception ).log( "Error loading repository metadata" );
 		}
