@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramProductType;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zarra.javafx.Fx;
@@ -23,7 +24,7 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitFor( LONG_TIMEOUT );
-		assertThat( pane.getActiveTool() ).isInstanceOf( ProductTool.class );
+		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
