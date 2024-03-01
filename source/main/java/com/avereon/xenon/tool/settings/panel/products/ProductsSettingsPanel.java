@@ -39,7 +39,7 @@ public abstract class ProductsSettingsPanel extends SettingsPanel {
 		String mode = displayMode.name().toLowerCase();
 
 		// Add the title to the panel based on the display mode
-		addTitle( Rb.text( product, RbKey.SETTINGS, "products-" + mode ) );
+		addTitle( Rb.text( product, RbKey.SETTINGS, "products-" + mode ), null, null, false, true );
 		getChildren().add( new BorderPane( null, null, buttons, null, null ) );
 
 		// Add the product list to the panel

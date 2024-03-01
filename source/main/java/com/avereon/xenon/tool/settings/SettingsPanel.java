@@ -45,20 +45,20 @@ public class SettingsPanel extends VBox {
 	}
 
 	protected void addTitle( String title ) {
-		addTitle( new Label( title ), null, null );
+		addTitle( new Label( title ), null, null, false, false );
 	}
 
-	protected void addTitle( String title, Node left, Node right ) {
-		addTitle( new Label( title ), left, right );
+	protected void addTitle( String title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
+		addTitle( new Label( title ), left, right, skipTopBlank, skipBottomBlank );
 	}
 
-	protected void addTitle( Node title, Node left, Node right ) {
-		BorderPane titleBox = new BorderPane(title, null, right, null, left);
+	protected void addTitle( Node title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
+		BorderPane titleBox = new BorderPane( title, null, right, null, left );
 		title.getStyleClass().add( "settings-title" );
 
-		addBlankLine();
+		if( !skipTopBlank ) addBlankLine();
 		getChildren().add( titleBox );
-		addBlankLine();
+		if( !skipBottomBlank ) addBlankLine();
 	}
 
 	protected void addBlankLine() {
@@ -70,7 +70,7 @@ public class SettingsPanel extends VBox {
 	}
 
 	protected TitledPane createGroupPane( String name ) {
-		return createGroupPane(createSettingsPane(), name, false, true );
+		return createGroupPane( createSettingsPane(), name, false, true );
 	}
 
 	protected TitledPane createGroupPane( Pane pane, String name, boolean collapsible, boolean expanded ) {

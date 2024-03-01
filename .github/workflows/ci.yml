@@ -343,20 +343,20 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      - name: Post Install Pack (jpackage)
+      - name: Publish Install Pack
         run: |
           scp -B target/jpackage/*.deb ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.deb 2>&1
       #    scp -B target/jpackage/*.rpm ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      #      - name: Post Install Pack (izpack)
+      #      - name: Publish Install Pack (izpack)
       #        run: |
       #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
-      - name: Post Product Pack
+      - name: Publish Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
@@ -416,20 +416,20 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      - name: Post Install Pack (jpackage)
+      - name: Publish Install Pack
         run: |
           scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
       #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      #      - name: Post Install Pack (izpack)
+      #      - name: Publish Install Pack (izpack)
       #        run: |
       #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
-      - name: Post Product Pack
+      - name: Publish Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
@@ -489,25 +489,25 @@ jobs:
 
       - name: Build Packs
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      - name: Post Install Pack (jpackage)
+      - name: Publish Install Pack
         shell: bash
         run: |
           scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
-      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.msi 2>&1
 
-      #      - name: Post Install Pack (izpack)
+      #      - name: Publish Install Pack (izpack)
       #        shell: bash
       #        run: |
       #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
-      - name: Post Product Pack
+      - name: Publish Product Pack
         shell: bash
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         shell: bash
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
