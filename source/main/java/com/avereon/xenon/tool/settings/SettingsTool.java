@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
+import com.avereon.util.UriUtil;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -54,6 +55,11 @@ public class SettingsTool extends GuidedTool {
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = GENERAL;
 		selectPage( pageId );
+
+		String path = UriUtil.parseName( request.getUri() );
+		if( path != null ) {
+			selectPage(path);
+		}
 	}
 
 	@Override

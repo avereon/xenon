@@ -1444,7 +1444,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, new ProgramSearchType( this ), SearchTool.class, ToolInstanceMode.SINGLETON, "search", "search" );
-		registerTool( manager, new ProgramProductType( this ), ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, new ProgramProductType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, new ProgramSettingsType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
