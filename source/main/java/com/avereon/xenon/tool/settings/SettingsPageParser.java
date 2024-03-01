@@ -97,6 +97,7 @@ public class SettingsPageParser {
 		reader.next();
 		if( !reader.getLocalName().equals( PAGES ) ) return;
 
+		int order = 0;
 		while( reader.hasNext() ) {
 			reader.next();
 			if( reader.isEndElement() && reader.getLocalName().equals( PAGES ) ) break;
@@ -104,14 +105,14 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					SettingsPage page = parsePage( reader, rbKey, null );
+					SettingsPage page = parsePage( reader, rbKey, null, order++ );
 					pages.put( page.getId(), page );
 				}
 			}
 		}
 	}
 
-	private SettingsPage parsePage( XMLStreamReader reader, String rbKey, SettingsPage parent ) throws XMLStreamException {
+	private SettingsPage parsePage( XMLStreamReader reader, String rbKey, SettingsPage parent, int order ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 		String id = attributes.get( ID );
@@ -137,7 +138,11 @@ public class SettingsPageParser {
 		page.setTitle( title );
 		page.setRbKey( rbKey );
 		page.setPanel( panel );
+		page.setOrder( order );
 
+		log.atConfig().log( "Parsing settings page=%s order=%s", page.getTitle(), order );
+
+		int childOrder = 0;
 		SettingGroup group = null;
 		while( reader.hasNext() ) {
 			reader.next();
@@ -146,7 +151,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					page.addPage( parsePage( reader, rbKey, page ) );
+					page.addPage( parsePage( reader, rbKey, page, childOrder++ ) );
 				} else if( GROUP.equals( tagName ) ) {
 					if( group != null ) {
 						page.addGroup( group );

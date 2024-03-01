@@ -23,6 +23,8 @@ public class SettingsPage extends Node {
 
 	private static final String TITLE = "title";
 
+	private static final String ORDER = "order";
+
 	private static final String GROUPS = "groups";
 
 	private static final String PAGES = "pages";
@@ -94,6 +96,14 @@ public class SettingsPage extends Node {
 
 	public void setTitle( String title ) {
 		setValue( TITLE, title );
+	}
+
+	public Integer getOrder() {
+		return getValue( ORDER );
+	}
+
+	public void setOrder( Integer order ) {
+		setValue( ORDER, order );
 	}
 
 	public SettingGroup getGroup( String id ) {
