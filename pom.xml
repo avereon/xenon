@@ -624,36 +624,6 @@
 						<version>${maven.exec.version}</version>
 						<executions>
 							<execution>
-								<id>jpackage-install-pack</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${java.home}/bin/jpackage</executable>
-									<arguments>
-										<argument>@${basedir}/target/main/jpackage/app.options</argument>
-										<argument>@${basedir}/target/main/jpackage/install-pack-common.options</argument>
-										<argument>@${basedir}/target/main/jpackage/install-pack-${product.platform}.options</argument>
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>jpackage-wait-between-runs</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>timeout</executable>
-									<arguments>
-										<argument>/T</argument>
-										<argument>2</argument>
-										<argument>/nobreak</argument>
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
 								<id>jpackage-product-pack</id>
 								<phase>post-integration-test</phase>
 								<goals>
@@ -665,6 +635,21 @@
 										<argument>@${basedir}/target/main/jpackage/app.options</argument>
 										<argument>@${basedir}/target/main/jpackage/product-pack-common.options</argument>
 										<argument>@${basedir}/target/main/jpackage/product-pack-${product.platform}.options</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>jpackage-install-pack</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>@${basedir}/target/main/jpackage/app.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-common.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-${product.platform}.options</argument>
 									</arguments>
 								</configuration>
 							</execution>
