@@ -17,7 +17,7 @@ public class RefreshUpdatableProducts extends Task<Void> {
 
 	private final ProductsUpdatesSettingsPanel parent;
 
-	private boolean force;
+	private final boolean force;
 
 	public RefreshUpdatableProducts( ProductsUpdatesSettingsPanel parent, boolean force ) {
 		this.parent = parent;

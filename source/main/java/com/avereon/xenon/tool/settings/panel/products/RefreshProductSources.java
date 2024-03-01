@@ -13,8 +13,11 @@ public class RefreshProductSources extends Task<Void> {
 
 	private final ProductsSourcesSettingsPanel parent;
 
-	public RefreshProductSources( ProductsSourcesSettingsPanel parent ) {
+	private final boolean force;
+
+	public RefreshProductSources( ProductsSourcesSettingsPanel parent, boolean force ) {
 		this.parent = parent;
+		this.force = force;
 	}
 
 	@Override
@@ -23,7 +26,7 @@ public class RefreshProductSources extends Task<Void> {
 
 		// Load the product repos
 
-		List<RepoState> cards = new ArrayList<>( parent.getProgram().getProductManager().getRepos( true ) );
+		List<RepoState> cards = new ArrayList<>( parent.getProgram().getProductManager().getRepos( force ) );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.NAME ) );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.RANK ) );
 		Fx.run( () -> parent.setSources( cards ) );

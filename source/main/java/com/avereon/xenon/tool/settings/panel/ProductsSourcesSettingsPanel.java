@@ -23,7 +23,7 @@ public class ProductsSourcesSettingsPanel extends ProductsSettingsPanel {
 	@Override
 	protected void updateState( boolean force ) {
 		log.atFine().log( "Update product repos" );
-		getProgram().getTaskManager().submit( new RefreshProductSources( this ) );
+		getProgram().getTaskManager().submit( new RefreshProductSources( this, force ) );
 	}
 
 }
