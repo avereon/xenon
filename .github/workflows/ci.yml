@@ -483,11 +483,13 @@ jobs:
           path: target
 
       - name: UI Tests
+        shell: bash
         run: |
           mvn ${{env.MAVEN_PARMS}} verify
       #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Packs
+        shell: bash
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
