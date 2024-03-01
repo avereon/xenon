@@ -4,13 +4,13 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.*;
 
-public class ProgramProductType extends AssetType {
+public class ProgramModuleType extends AssetType {
 
 	private static final String uriPattern = "program:/modules";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public ProgramProductType( XenonProgramProduct product ) {
+	public ProgramModuleType( XenonProgramProduct product ) {
 		super( product, "product" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

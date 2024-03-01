@@ -455,10 +455,10 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-installed", ProductsInstalledSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-available", ProductsAvailableSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-updates", ProductsUpdatesSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-sources", ProductsSourcesSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-installed", ModulesInstalledSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-available", ModulesAvailableSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-updates", ModulesUpdatesSettingsPanel.class );
+		getSettingsManager().putPagePanel( "modules-sources", ModulesSourcesSettingsPanel.class );
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 		time( "settings-pages" );
 
@@ -1413,7 +1413,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addAssetType( new ProgramNoticeType( this ) );
 		manager.addAssetType( new ProgramSearchType( this ) );
 		manager.addAssetType( new ProgramHelpType( this ) );
-		manager.addAssetType( new ProgramProductType( this ) );
+		manager.addAssetType( new ProgramModuleType( this ) );
 		manager.addAssetType( new ProgramTaskType( this ) );
 		manager.addAssetType( new ProgramAssetNewType( this ) );
 		manager.addAssetType( new ProgramAssetType( this ) );
@@ -1429,7 +1429,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeAssetType( new ProgramAssetType( this ) );
 		manager.removeAssetType( new ProgramAssetNewType( this ) );
 		manager.removeAssetType( new ProgramTaskType( this ) );
-		manager.removeAssetType( new ProgramProductType( this ) );
+		manager.removeAssetType( new ProgramModuleType( this ) );
 		manager.removeAssetType( new ProgramHelpType( this ) );
 		manager.removeAssetType( new ProgramSearchType( this ) );
 		manager.removeAssetType( new ProgramNoticeType( this ) );
@@ -1444,7 +1444,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, new ProgramSearchType( this ), SearchTool.class, ToolInstanceMode.SINGLETON, "search", "search" );
-		registerTool( manager, new ProgramProductType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, new ProgramModuleType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, new ProgramSettingsType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
@@ -1468,7 +1468,7 @@ public class Xenon extends Application implements XenonProgram {
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
 		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );
-		unregisterTool( manager, new ProgramProductType( this ), ProductTool.class );
+		unregisterTool( manager, new ProgramModuleType( this ), ProductTool.class );
 		unregisterTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class );
 		unregisterTool( manager, new ProgramSearchType( this ), SearchTool.class );
 		unregisterTool( manager, new ProgramNoticeType( this ), NoticeTool.class );

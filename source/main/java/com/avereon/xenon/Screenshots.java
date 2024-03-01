@@ -5,7 +5,7 @@ import com.avereon.product.ProgramFlag;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
-import com.avereon.xenon.asset.type.ProgramProductType;
+import com.avereon.xenon.asset.type.ProgramModuleType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.Tool;
@@ -108,8 +108,8 @@ abstract class Screenshots {
 	}
 
 	private void screenshotProductPages() throws InterruptedException, TimeoutException {
-		screenshot( ProgramProductType.URI, "installed", "product-tool-installed" );
-		screenshot( ProgramProductType.URI, "sources", "product-tool-sources" );
+		screenshot( ProgramModuleType.URI, "installed", "product-tool-installed" );
+		screenshot( ProgramModuleType.URI, "sources", "product-tool-sources" );
 
 		// NOTE This one requires time to determine the available mods
 		//screenshot( ProgramProductType.URI, "available", "product-tool-available" );

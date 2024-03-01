@@ -5,7 +5,7 @@ import com.avereon.product.ProductCardComparator;
 import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import com.avereon.xenon.tool.settings.panel.ProductsInstalledSettingsPanel;
+import com.avereon.xenon.tool.settings.panel.ModulesInstalledSettingsPanel;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
 
@@ -16,13 +16,13 @@ import java.util.List;
  * Should be run on the FX platform thread.
  */
 @CustomLog
-public class RefreshInstalledProducts extends Task<Void> {
+public class RefreshInstalledModules extends Task<Void> {
 
-	private final ProductsInstalledSettingsPanel parent;
+	private final ModulesInstalledSettingsPanel parent;
 
 	private final boolean force;
 
-	public RefreshInstalledProducts( ProductsInstalledSettingsPanel parent, boolean force ) {
+	public RefreshInstalledModules( ModulesInstalledSettingsPanel parent, boolean force ) {
 		this.parent = parent;
 		this.force = force;
 	}

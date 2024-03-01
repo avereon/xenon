@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.type.ProgramProductType;
+import com.avereon.xenon.asset.type.ProgramModuleType;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -20,7 +20,7 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		Workpane pane = getWorkpane();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramProductType.URI );
+		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramModuleType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitFor( LONG_TIMEOUT );

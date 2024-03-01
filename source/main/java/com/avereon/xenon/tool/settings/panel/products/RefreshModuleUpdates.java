@@ -5,7 +5,7 @@ import com.avereon.product.ProductCardComparator;
 import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import com.avereon.xenon.tool.settings.panel.ProductsUpdatesSettingsPanel;
+import com.avereon.xenon.tool.settings.panel.ModulesUpdatesSettingsPanel;
 import com.avereon.zarra.javafx.Fx;
 
 import java.util.ArrayList;
@@ -13,13 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RefreshUpdatableProducts extends Task<Void> {
+public class RefreshModuleUpdates extends Task<Void> {
 
-	private final ProductsUpdatesSettingsPanel parent;
+	private final ModulesUpdatesSettingsPanel parent;
 
 	private final boolean force;
 
-	public RefreshUpdatableProducts( ProductsUpdatesSettingsPanel parent, boolean force ) {
+	public RefreshModuleUpdates( ModulesUpdatesSettingsPanel parent, boolean force ) {
 		this.parent = parent;
 		this.force = force;
 	}

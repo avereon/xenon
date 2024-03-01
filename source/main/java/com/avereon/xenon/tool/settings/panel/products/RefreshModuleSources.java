@@ -3,19 +3,19 @@ package com.avereon.xenon.tool.settings.panel.products;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.product.RepoStateComparator;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.tool.settings.panel.ProductsSourcesSettingsPanel;
+import com.avereon.xenon.tool.settings.panel.ModulesSourcesSettingsPanel;
 import com.avereon.zarra.javafx.Fx;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RefreshProductSources extends Task<Void> {
+public class RefreshModuleSources extends Task<Void> {
 
-	private final ProductsSourcesSettingsPanel parent;
+	private final ModulesSourcesSettingsPanel parent;
 
 	private final boolean force;
 
-	public RefreshProductSources( ProductsSourcesSettingsPanel parent, boolean force ) {
+	public RefreshModuleSources( ModulesSourcesSettingsPanel parent, boolean force ) {
 		this.parent = parent;
 		this.force = force;
 	}

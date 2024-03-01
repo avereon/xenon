@@ -8,7 +8,7 @@ import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramProductType;
+import com.avereon.xenon.asset.type.ProgramModuleType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
@@ -611,7 +611,7 @@ public class ProductManagerLogic {
 	}
 
 	private void openProductTool() {
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
+		URI uri = URI.create( ProgramModuleType.URI + "#" + ProductTool.UPDATES );
 		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
@@ -619,7 +619,7 @@ public class ProductManagerLogic {
 		if( updates.size() == 0 ) return;
 		String title = Rb.text( RbKey.UPDATE, "updates-found" );
 		String message = Rb.text( RbKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
+		URI uri = URI.create( ProgramModuleType.URI + "#" + ProductTool.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) ).setBalloonStickiness( Notice.Balloon.ALWAYS ).setType( Notice.Type.INFO );
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );

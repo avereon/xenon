@@ -1,34 +1,30 @@
 package com.avereon.xenon.tool.settings.panel;
 
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.tool.settings.panel.products.RefreshModuleUpdates;
 import com.avereon.xenon.tool.settings.panel.products.DisplayMode;
 import com.avereon.xenon.tool.settings.panel.products.ProductsSettingsPanel;
-import com.avereon.xenon.tool.settings.panel.products.RefreshAvailableProducts;
 import javafx.scene.control.Button;
 import lombok.CustomLog;
 
-/**
- * This settings panel is used to display the available products and allow users
- * to install, uninstall, and update products.
- */
 @CustomLog
-public class ProductsAvailableSettingsPanel extends ProductsSettingsPanel {
+public class ModulesUpdatesSettingsPanel extends ProductsSettingsPanel {
 
-	public ProductsAvailableSettingsPanel( XenonProgramProduct product ) {
-		super( product, DisplayMode.AVAILABLE );
+	public ModulesUpdatesSettingsPanel( XenonProgramProduct product ) {
+		super( product, DisplayMode.UPDATES );
 
 		Button refreshButton = new Button( "", getProgram().getIconLibrary().getIcon( "refresh" ) );
 		refreshButton.setOnAction( event -> updateState( true ) );
 		Button downloadAllButton = new Button( "", getProgram().getIconLibrary().getIcon( "download" ) );
-		downloadAllButton.setOnAction( event -> installProducts( getSourcePanels() ) );
+		downloadAllButton.setOnAction( event -> updateProducts( getSourcePanels() ) );
 
 		getButtonBox().addAll( refreshButton, downloadAllButton );
 	}
 
 	@Override
 	protected void updateState( boolean force ) {
-		log.atFiner().log(  "Update available products force=%s", force );
-		getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, force ) );
+		log.atFiner().log( "Update available updates force=%s", force );
+		getProgram().getTaskManager().submit( new RefreshModuleUpdates( this, force ) );
 	}
 
 }
