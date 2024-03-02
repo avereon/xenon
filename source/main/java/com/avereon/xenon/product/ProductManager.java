@@ -10,6 +10,7 @@ import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.weave.Weave;
 import com.avereon.xenon.*;
+import com.avereon.xenon.Module;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
@@ -119,7 +120,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private Map<String, RepoState> repos;
 
-	private Map<String, Mod> modules;
+	private Map<String, Module> modules;
 
 	private Path homeModuleFolder;
 
@@ -295,7 +296,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	public Set<Mod> getModules() {
+	public Set<Module> getModules() {
 		return new HashSet<>( modules.values() );
 	}
 
@@ -307,7 +308,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return modules.keySet();
 	}
 
-	public Mod getMod( String productKey ) {
+	public Module getMod( String productKey ) {
 		return modules.get( productKey );
 	}
 
@@ -341,12 +342,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		setRemovable( card, false );
 	}
 
-	private void registerMod( Mod mod ) {
-		registerProduct( mod );
-		ProductCard card = mod.getCard();
+	private void registerMod( Module module ) {
+		registerProduct( module );
+		ProductCard card = module.getCard();
 
 		// Add the mod to the collection
-		modules.put( card.getProductKey(), mod );
+		modules.put( card.getProductKey(), module );
 
 		// Set the state flags
 		setUpdatable( card, card.getProductUri() != null );
@@ -365,14 +366,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		unregisterProduct( program );
 	}
 
-	private void unregisterMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	private void unregisterMod( Module module ) {
+		ProductCard card = module.getCard();
 
 		// Remove the module.
 		modules.remove( card.getProductKey() );
 
 		// Treat mods like other products
-		unregisterProduct( mod );
+		unregisterProduct( module );
 	}
 
 	public Task<Collection<InstalledProduct>> installProducts( DownloadRequest... download ) {
@@ -468,29 +469,29 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return getProgram().getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
-	public boolean isModEnabled( Mod mod ) {
-		return isEnabled( mod.getCard() );
+	public boolean isModEnabled( Module module ) {
+		return isEnabled( module.getCard() );
 	}
 
 	public void setModEnabled( ProductCard card, boolean enabled ) {
-		Mod mod = getMod( card.getProductKey() );
-		if( mod != null ) setModEnabled( mod, enabled );
+		Module module = getMod( card.getProductKey() );
+		if( module != null ) setModEnabled( module, enabled );
 	}
 
-	private void setModEnabled( Mod mod, boolean enabled ) {
-		if( isModEnabled( mod ) == enabled ) return;
+	private void setModEnabled( Module module, boolean enabled ) {
+		if( isModEnabled( module ) == enabled ) return;
 
 		// Should be called before setting the enabled flag
-		if( !enabled ) callModShutdown( mod );
+		if( !enabled ) callModShutdown( module );
 
-		Settings settings = getProgram().getSettingsManager().getProductSettings( mod.getCard() );
+		Settings settings = getProgram().getSettingsManager().getProductSettings( module.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.atTrace().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
-		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
+		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, module.getCard() ) );
 
 		// Should be called after setting the enabled flag
-		if( enabled ) callModStart( mod );
+		if( enabled ) callModStart( module );
 	}
 
 	public CheckOption getCheckOption() {
@@ -1052,68 +1053,68 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		log.atDebug().log( "Mod enabled: ", LazyEval.of( card::getProductKey ) );
 	}
 
-	void doRemoveMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	void doRemoveMod( Module module ) {
+		ProductCard card = module.getCard();
 		Path installFolder = card.getInstallFolder();
 		String source = installFolder == null ? "classpath" : installFolder.toString();
 
 		log.atDebug().log( "Remove product from: %s", source );
 
 		// Disable the product
-		setModEnabled( mod, false );
+		setModEnabled( module, false );
 		log.atDebug().log( "Mod disabled: ", LazyEval.of( card::getProductKey ) );
 
 		// Allow the mod to unregister resources
-		callModUnregister( mod );
+		callModUnregister( module );
 		log.atDebug().log( "Mod unregistered: ", LazyEval.of( card::getProductKey ) );
 
 		// Unload the mod
-		unloadMod( mod );
+		unloadMod( module );
 		log.atDebug().log( "Mod unloaded from: ", source );
 
 		// Remove the product settings
 		getProgram().getSettingsManager().getProductSettings( card ).delete();
 	}
 
-	private void callModRegister( Mod mod ) {
+	private void callModRegister( Module module ) {
 		try {
-			mod.register();
-			mod.setStatus( ModStatus.REGISTERED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
+			module.register();
+			module.setStatus( ModStatus.REGISTERED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
 
-	private void callModStart( Mod mod ) {
-		if( !isEnabled( mod.getCard() ) ) return;
+	private void callModStart( Module module ) {
+		if( !isEnabled( module.getCard() ) ) return;
 		try {
-			mod.startup();
-			mod.setStatus( ModStatus.STARTED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
+			module.startup();
+			module.setStatus( ModStatus.STARTED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
 
-	private void callModShutdown( Mod mod ) {
-		if( !isEnabled( mod.getCard() ) ) return;
+	private void callModShutdown( Module module ) {
+		if( !isEnabled( module.getCard() ) ) return;
 		try {
-			mod.shutdown();
-			mod.setStatus( ModStatus.STOPPED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
+			module.shutdown();
+			module.setStatus( ModStatus.STOPPED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
 
-	private void callModUnregister( Mod mod ) {
+	private void callModUnregister( Module module ) {
 		try {
-			mod.unregister();
-			mod.setStatus( ModStatus.UNREGISTERED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
+			module.unregister();
+			module.setStatus( ModStatus.UNREGISTERED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
 
@@ -1171,7 +1172,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void loadModulePathMods() {
 		log.atTrace().log( "Loading standard mod from: module-path" );
 		try {
-			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
+			ServiceLoader.load( Module.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error loading module-path mods" );
 		}
@@ -1201,7 +1202,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Create the mod module layer
 			Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), finder, Set.of() );
 			ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, getProgram().getClass().getClassLoader() );
-			ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
+			ServiceLoader<Module> loader = ServiceLoader.load( modLayer, Module.class );
 
 			// Load the mod
 			loader.stream().findFirst().ifPresentOrElse( m -> {
@@ -1214,8 +1215,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void loadMod( Mod mod, Path source ) {
-		ProductCard card = mod.getCard();
+	private void loadMod( Module module, Path source ) {
+		ProductCard card = module.getCard();
 		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
 		try {
 			log.atDebug().log( "Loading mod: %s", message );
@@ -1230,23 +1231,23 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 
 			// Configure logging for the mod
-			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+			Log.setPackageLogLevel( module.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
 			// This will need to change if nested mods are to be supported
 			// Set the parent product
-			mod.setParent( getProgram() );
+			module.setParent( getProgram() );
 
 			// Initialize the mod
-			mod.init( getProgram(), card );
+			module.init( getProgram(), card );
 
 			// Set the mod install folder
 			card.setInstallFolder( source );
 
 			// Add the product registration to the manager
-			registerMod( mod );
+			registerMod( module );
 
 			// Notify handlers of install
-			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, module.getCard() ) );
 
 			log.atDebug().log( "Mod loaded: %s", message );
 		} catch( Throwable throwable ) {
@@ -1254,18 +1255,18 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void unloadMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	private void unloadMod( Module module ) {
+		ProductCard card = module.getCard();
 
 		String message = card.getProductKey();
 		try {
 			log.atDebug().log( "Unloading mod: %s", message );
 
 			// Remove the product registration from the manager
-			unregisterMod( mod );
+			unregisterMod( module );
 
 			// Notify handlers of remove
-			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, module.getCard() ) );
 
 			// TODO Disable logging for a mod that has been removed
 

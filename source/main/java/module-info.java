@@ -1,4 +1,4 @@
-import com.avereon.xenon.Mod;
+import com.avereon.xenon.Module;
 
 // NOTE Multiple attempts have been made to consolidate test classes into this
 // module without success. There are several reasons this has not worked:
@@ -62,5 +62,5 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
 
-	uses Mod;
+	uses Module;
 }

@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @SuppressWarnings( "UnusedReturnValue" )
 @CustomLog
-public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
+public abstract class Module implements XenonProgramProduct, Comparable<Module> {
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
@@ -42,7 +42,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 
 	private Map<String, SettingsPage> settingsPages;
 
-	public Mod() {
+	public Module() {
 		card = ProductCard.card( this );
 	}
 
@@ -113,7 +113,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to register
 	 * @return the mod
 	 */
-	protected Mod registerIcon( String id, VectorImage icon ) {
+	protected Module registerIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().register( id, icon );
 		return this;
 	}
@@ -125,7 +125,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to unregister
 	 * @return the mod
 	 */
-	protected Mod unregisterIcon( String id, VectorImage icon ) {
+	protected Module unregisterIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}
@@ -137,7 +137,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param id
 	 * @return
 	 */
-	protected Mod registerAction( Product bundle, String id ) {
+	protected Module registerAction( Product bundle, String id ) {
 		getProgram().getActionLibrary().register( bundle, id );
 		return this;
 	}
@@ -148,7 +148,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param id
 	 * @return
 	 */
-	protected Mod unregisterAction( String id ) {
+	protected Module unregisterAction( String id ) {
 		//getProgram().getActionLibrary().unregister( id );
 		return this;
 	}
@@ -159,7 +159,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param type
 	 * @return
 	 */
-	protected Mod registerAssetType( AssetType type ) {
+	protected Module registerAssetType( AssetType type ) {
 		getProgram().getAssetManager().addAssetType( type );
 		return this;
 	}
@@ -170,7 +170,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param type
 	 * @return
 	 */
-	protected Mod unregisterAssetType( AssetType type ) {
+	protected Module unregisterAssetType( AssetType type ) {
 		getProgram().getAssetManager().removeAssetType( type );
 		return this;
 	}
@@ -182,7 +182,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param metadata
 	 * @return
 	 */
-	protected Mod registerTool( AssetType assetType, ToolRegistration metadata ) {
+	protected Module registerTool( AssetType assetType, ToolRegistration metadata ) {
 		getProgram().getToolManager().registerTool( assetType, metadata );
 		return this;
 	}
@@ -208,22 +208,22 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * @param type
 	 * @return
 	 */
-	protected Mod unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
+	protected Module unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
 		getProgram().getToolManager().unregisterTool( assetType, type );
 		return this;
 	}
 
-	protected Mod loadDefaultSettings() throws IOException {
+	protected Module loadDefaultSettings() throws IOException {
 		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
 		return this;
 	}
 
-	protected Mod registerSettingsPages() {
+	protected Module registerSettingsPages() {
 		settingsPages = getProgram().getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
 		return this;
 	}
 
-	protected Mod unregisterSettingsPages() {
+	protected Module unregisterSettingsPages() {
 		getProgram().getSettingsManager().removeSettingsPages( settingsPages );
 		return this;
 	}
@@ -297,7 +297,7 @@ public abstract class Mod implements XenonProgramProduct, Comparable<Mod> {
 	 * This implementation only compares the product card artifact values.
 	 */
 	@Override
-	public int compareTo( Mod that ) {
+	public int compareTo( Module that ) {
 		return this.getCard().getArtifact().compareTo( that.getCard().getArtifact() );
 	}
 
