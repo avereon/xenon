@@ -1079,7 +1079,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModRegister( Module module ) {
 		try {
 			module.register();
-			module.setStatus( ModStatus.REGISTERED );
+			module.setStatus( Module.Status.REGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, module.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
@@ -1090,7 +1090,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( module.getCard() ) ) return;
 		try {
 			module.startup();
-			module.setStatus( ModStatus.STARTED );
+			module.setStatus( Module.Status.STARTED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, module.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
@@ -1101,7 +1101,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled( module.getCard() ) ) return;
 		try {
 			module.shutdown();
-			module.setStatus( ModStatus.STOPPED );
+			module.setStatus( Module.Status.STOPPED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, module.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
@@ -1111,7 +1111,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void callModUnregister( Module module ) {
 		try {
 			module.unregister();
-			module.setStatus( ModStatus.UNREGISTERED );
+			module.setStatus( Module.Status.UNREGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, module.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );

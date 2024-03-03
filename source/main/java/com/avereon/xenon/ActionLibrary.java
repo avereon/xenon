@@ -163,6 +163,10 @@ public class ActionLibrary {
 		actionsById.put( id, proxy );
 	}
 
+	public void unregister( String id ) {
+		//actionsById.remove( id );
+	}
+
 	public void registerScene( Scene scene ) {
 		actionsById.values().forEach( a -> doAcceleratorInstall( a, scene ) );
 	}
