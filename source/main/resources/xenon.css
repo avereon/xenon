@@ -181,7 +181,7 @@ Derived from modena.css
 /* Workspace Rails */
 .workspace-rail-nw {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 2.3em;
+	-fx-min-width: 2em;
 	-fx-min-height: 2px;
 	-fx-cursor: nw-resize;
 }
@@ -194,7 +194,7 @@ Derived from modena.css
 
 .workspace-rail-ne {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 2.3em;
+	-fx-min-width: 2em;
 	-fx-min-height: 2px;
 	-fx-cursor: ne-resize;
 }
@@ -221,7 +221,7 @@ Derived from modena.css
 
 .workspace-rail-se {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 2.3em;
+	-fx-min-width: 2em;
 	-fx-min-height: 2px;
 	-fx-cursor: se-resize;
 }
@@ -234,7 +234,7 @@ Derived from modena.css
 
 .workspace-rail-sw {
 	-fx-background-color: -ex-background-tabs;
-	-fx-min-width: 2.3em;
+	-fx-min-width: 2em;
 	-fx-min-height: 2px;
 	-fx-cursor: sw-resize;
 }
@@ -272,9 +272,15 @@ Derived from modena.css
 	/*-fx-background-color: blue;*/
 }
 
+/* The workspace actions toolbar */
+.workspace-actions {
+	/* This fixes a problem with the workspace close button on Windows: https://github.com/avereon/xenon/issues/254 */
+	-fx-padding: 0.416667em 0.49em 0.416667em 0.49em;
+}
+
 .action-bar {
 	-fx-background-color: -ex-background-tool;
-	-fx-padding: 0em;
+	-fx-padding: 0;
 }
 
 .action-bar .tool-bar {
@@ -290,7 +296,7 @@ Derived from modena.css
 .action-bar .button {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
-	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
+	-fx-padding: 0.3em 0.3em 0.3em 0.3em;
 }
 
 .action-bar .button:hover {
@@ -310,7 +316,7 @@ Derived from modena.css
 
 #menu-button-menu > .label {
 	/* Change the normal menu button padding */
-	-fx-padding: 0.333333em 0.333333em 0.333333em 0.333333em;
+	-fx-padding: 0.3em 0.3em 0.3em 0.3em;
 }
 
 #menu-button-menu > .arrow-button {

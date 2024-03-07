@@ -30,6 +30,7 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
@@ -68,20 +69,22 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String VIEW_ACTION = "view";
 
-	/**
-	 * Should the program menu be shown as a compact menu in the toolbar.
-	 */
-	private static final boolean COMPACT_MENU = true;
-
 	public static final String ACTION_BAR = "action-bar";
 
-	private static final boolean TRANSPARENT_WINDOW_SUPPORTED = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
+	public static final String WORKSPACE_ACTIONS = "workspace-actions";
 
 	public static final String NORMALIZE = "normalize";
 
 	public static final String MAXIMIZE = "maximize";
 
 	public static final String NOTICE = "notice";
+
+	/**
+	 * Should the program menu be shown as a compact menu in the toolbar.
+	 */
+	private static final boolean COMPACT_MENU = true;
+
+	private static final boolean TRANSPARENT_WINDOW_SUPPORTED = Platform.isSupported( ConditionalFeature.TRANSPARENT_WINDOW );
 
 	private static final Timer timer = new Timer( true );
 
@@ -334,11 +337,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		HBox.setHgrow( stageMover, Priority.ALWAYS );
 		new StageMover( stageMover );
 
-		// The workspace actions
+		// The workspace action pane
 		BorderPane workspaceActionPane = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
 
-		// The window actions
+		// The workspace actions
 		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "search,settings,notice|minimize,maximize,workspace-close" );
+		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
 
 		// The action pane
 		Pane requiredActions = new BorderPane( workspaceActionPane, null, workspaceActions, null, leftToolBar );
