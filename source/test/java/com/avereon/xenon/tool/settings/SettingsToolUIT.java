@@ -7,7 +7,7 @@ import com.avereon.zarra.javafx.Fx;
 abstract class SettingsToolUIT extends BaseToolUIT {
 
 	void openSettingsTool() throws Exception {
-		openMenuItem( "#menu-edit", "#menuitem-settings" );
+		openMenuItem( "#menu-file", "#menuitem-settings" );
 		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 
