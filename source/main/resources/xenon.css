@@ -598,10 +598,16 @@ Derived from modena.css
 	-fx-background-color: -fx-faint-focus-color, white;
 	-fx-background-insets: -3, -1;
 	-fx-background-radius: 2, 0;
-	-fx-scale-x: 1.1;
-	-fx-scale-y: 1.1;
+	-fx-scale-x: 1.2;
+	-fx-scale-y: 1.2;
 	-fx-border-color: -fx-focus-color;
 	-fx-border-insets: -1, -1;
+	-fx-view-order: -1;
+}
+
+.paint-palette-box {
+	-fx-padding: 0.2em;
+	-fx-spacing: 0.2em;
 }
 
 /*******************************************************************************
