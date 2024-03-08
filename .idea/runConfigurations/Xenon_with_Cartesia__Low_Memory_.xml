@@ -5,7 +5,7 @@
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Xenon" />
     <module name="carta" />
     <option name="PROGRAM_PARAMETERS" value="--noupdate --profile dev --log-level config --enable-mod com.avereon.carta" />
-    <option name="VM_PARAMETERS" value="-Xmx64m -Duser.language=es -Dprism.forceGPU=true" />
+    <option name="VM_PARAMETERS" value="-Xmx96m -Duser.language=es -Dprism.forceGPU=true" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../carta" />
     <method v="2">
       <option name="Make" enabled="true" />
