@@ -591,23 +591,29 @@ Derived from modena.css
 	-fx-pref-height: 1.5em;
 	-fx-max-width: 1.5em;
 	-fx-max-height: 1.5em;
-	-fx-border-width: 1px;
+	-fx-border-width: 0;
 }
 
 .paint-picker-pane .paint-swatch:hover {
-	-fx-background-color: -fx-faint-focus-color, white;
-	-fx-background-insets: -3, -1;
-	-fx-background-radius: 2, 0;
+	/* Make the hover swatch just a bit bigger */
 	-fx-scale-x: 1.2;
 	-fx-scale-y: 1.2;
+
+	/* The border insets should be the same as the border width, but negative */
+	-fx-border-insets: -0.15em;
+	-fx-border-width: 0.15em;
+	-fx-border-radius: 0.1em;
 	-fx-border-color: -fx-focus-color;
-	-fx-border-insets: -1, -1;
+
+	/* Change the view order so the swatch hovers over the other swatches */
 	-fx-view-order: -1;
 }
 
 .paint-palette-box {
-	-fx-padding: 0.2em;
-	-fx-spacing: 0.2em;
+	-fx-alignment: BASELINE_CENTER;
+	-fx-padding: 0.5em;
+	-fx-hgap: 0.1em;
+	-fx-vgap: 0.1em;
 }
 
 /*******************************************************************************
