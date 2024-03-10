@@ -50,6 +50,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
 	exports com.avereon.xenon.tool.settings;
+	exports com.avereon.xenon.tool.settings.editor;
 	exports com.avereon.xenon.undo;
 	exports com.avereon.xenon.util;
 	exports com.avereon.xenon.ui.util;
