@@ -1,12 +1,13 @@
 package com.avereon.xenon.tool.settings.editor.paint;
 
+import com.avereon.xenon.ui.PropertyListCell;
 import com.avereon.zarra.color.PaintSwatch;
 import com.avereon.zarra.color.Paints;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -17,14 +18,18 @@ public class PaintPickerPane extends VBox {
 
 	private final ComboBox<PaintMode> mode;
 
-	private final TextField paintField;
+	private final ComboBox<PaintPalette> palette;
 
-	private final Map<PaintMode, PaintPaletteBox> paletteBoxes;
+	private final TextField paintField;
 
 	private StringProperty paint;
 
 	private String prior;
 
+	@Deprecated
+	private final Map<PaintMode, PaintPaletteBox> paletteBoxes;
+
+	@Deprecated
 	private PaintPaletteBox paletteBox;
 
 	public PaintPickerPane() {
@@ -52,27 +57,31 @@ public class PaintPickerPane extends VBox {
 		// FIXME This is a hack to get the palettes to work.
 		mode.getItems().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC, PaintMode.NONE );
 
+		// The paint palette chooser
+		palette = new ComboBox<>();
+		palette.setMaxWidth( Double.MAX_VALUE );
+		palette.getItems().addAll( new MaterialPaintPalette(), new StandardPalette(), new BasicPaintPalette() );
+
+		// TODO palette.setCellFactory( new PropertyValueFactory<PaintPalette, String>( "name" ) );
+
+		palette.setCellFactory( new PropertyListCell<>( PaintPalette.class, "name" ) );
+
 		// The initial color palette
 		paletteBox = paletteBoxes.get( PaintMode.PALETTE_MATERIAL );
-
-		// The paint stop editor
-		//RangeSlider paintStopEditor = new RangeSlider();
-
-		// The color selection tabs
-		// Apparently tab pane does not do well in a popup
-		TabPane colorTabs = new TabPane();
-		colorTabs.getTabs().add( new Tab( "Palette", new Label( "DONT JITTER" ) ) );
 
 		// The paint text field for manual entry
 		paintField = new TextField();
 
 		// Add the children
-		getChildren().addAll( mode, paletteBox, paintField );
+		getChildren().addAll( mode, palette, paletteBox, paintField );
 
 		// The mode change handler
-		mode.valueProperty().addListener( this::doModeChanged );
+		mode.valueProperty().addListener( ( p, o, n ) -> doSetMode( n ) );
 
-		// The text field change handler
+		// The palette change handler
+		palette.valueProperty().addListener( ( p, o, n ) -> doSetPalette( n ) );
+
+		// The paint text field change handler
 		paintField.textProperty().addListener( ( p, o, n ) -> doSetPaint( n ) );
 	}
 
@@ -104,7 +113,7 @@ public class PaintPickerPane extends VBox {
 		paintProperty().set( paint );
 	}
 
-	private void doModeChanged( ObservableValue<? extends PaintMode> p, PaintMode o, PaintMode n ) {
+	private void doSetMode( PaintMode n ) {
 		if( n == null || n == PaintMode.NONE ) {
 			if( paletteBox != null ) paletteBox.setVisible( false );
 			prior = getPaint();
@@ -113,11 +122,17 @@ public class PaintPickerPane extends VBox {
 			// FIXME This is a hack to get the palettes to work.
 			// If n is a palette mode, change the palette box
 			if( n.isPalette() ) {
-				getChildren().set( 1, paletteBox = paletteBoxes.get( n ) );
+				getChildren().set( 2, paletteBox = paletteBoxes.get( n ) );
 				paletteBox.setVisible( true );
 			}
 			if( prior != null ) doSetPaint( prior );
 		}
+	}
+
+	private void doSetPalette( PaintPalette n ) {
+		//		if( n != null ) {
+		//			getChildren().set( 1, paletteBox = new PaintPaletteBox( n ) );
+		//		}
 	}
 
 	private void updateMode( String paint ) {
