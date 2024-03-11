@@ -37,11 +37,11 @@ public class PaintSettingEditor extends SettingEditor {
 		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
 		for( SettingOption option : setting.getOptions()  ) {
 			switch( option.getKey() ) {
-				case "solid" -> paintPicker.getOptions().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_BASIC );
+				case "solid" -> paintPicker.getOptions().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC );
 				case "linear" -> paintPicker.getOptions().addAll( PaintMode.LINEAR );
 				case "radial" -> paintPicker.getOptions().addAll( PaintMode.RADIAL );
 				case "none" -> paintPicker.getOptions().addAll( PaintMode.NONE );
-				default -> log.atWarn().log( "Unknown paint mode: %s", setting.getOptions().get( 0 ).getKey() );
+				default -> log.atWarn().log( "Unknown paint mode: %s", setting.getOptions().getFirst().getKey() );
 			}
 		}
 	}

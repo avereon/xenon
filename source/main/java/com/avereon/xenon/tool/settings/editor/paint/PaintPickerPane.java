@@ -19,13 +19,13 @@ public class PaintPickerPane extends VBox {
 
 	private final TextField paintField;
 
-	private final Map<PaintMode, PaintPaletteBox2> paletteBoxes;
+	private final Map<PaintMode, PaintPaletteBox> paletteBoxes;
 
 	private StringProperty paint;
 
 	private String prior;
 
-	private PaintPaletteBox2 paletteBox;
+	private PaintPaletteBox paletteBox;
 
 	public PaintPickerPane() {
 		getStyleClass().add( "paint-picker-pane" );
@@ -35,18 +35,27 @@ public class PaintPickerPane extends VBox {
 		// Opacity can be a slider on the right or the bottom
 		// Below that the OK and Cancel buttons
 
-		this.paletteBoxes = Map.of( PaintMode.PALETTE_BASIC, new PaintPaletteBox2( new BasicPaintPalette() ), PaintMode.PALETTE_MATERIAL, new PaintPaletteBox2( new MaterialPaintPalette() ), PaintMode.NONE, new PaintPaletteBox2( new EmptyPaintPalette() ) );
+		this.paletteBoxes = Map.of(
+			PaintMode.PALETTE_BASIC,
+			new PaintPaletteBox( new BasicPaintPalette() ),
+			PaintMode.PALETTE_MATERIAL,
+			new PaintPaletteBox( new MaterialPaintPalette() ),
+			PaintMode.PALETTE_STANDARD,
+			new PaintPaletteBox( new StandardPalette() ),
+			PaintMode.NONE,
+			new PaintPaletteBox( new EmptyPaintPalette() )
+		);
 
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
-		mode.getItems().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_BASIC, PaintMode.NONE );
+		mode.getItems().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC, PaintMode.NONE );
+
+		// The initial color palette
+		paletteBox = paletteBoxes.get( PaintMode.PALETTE_MATERIAL );
 
 		// The paint stop editor
 		//RangeSlider paintStopEditor = new RangeSlider();
-
-		// The color palette
-		paletteBox = paletteBoxes.get( PaintMode.PALETTE_BASIC );
 
 		// The color selection tabs
 		// Apparently tab pane does not do well in a popup
@@ -96,13 +105,13 @@ public class PaintPickerPane extends VBox {
 
 	private void doModeChanged( ObservableValue<? extends PaintMode> p, PaintMode o, PaintMode n ) {
 		if( n == null || n == PaintMode.NONE ) {
-			if(paletteBox != null) paletteBox.setVisible( false );
+			if( paletteBox != null ) paletteBox.setVisible( false );
 			prior = getPaint();
 			doSetPaint( null );
 		} else {
-			// If n is a palette mode, set the paint to the first color in the palette
+			// FIXME This is a hack to get the palettes to work.
+			// If n is a palette mode, change the palette box
 			if( n.isPalette() ) {
-				// Change the palette box to the new palette
 				getChildren().set( 1, paletteBox = paletteBoxes.get( n ) );
 				paletteBox.setVisible( true );
 			}
@@ -114,16 +123,20 @@ public class PaintPickerPane extends VBox {
 		mode.getSelectionModel().select( PaintMode.getPaintMode( paint ) );
 	}
 
-	private class PaintPaletteBox2 extends GridPane {
+	private class PaintPaletteBox extends GridPane {
 
-		public PaintPaletteBox2( PaintPalette palette ) {
+		public PaintPaletteBox( PaintPalette palette ) {
 			getStyleClass().addAll( "paint-palette-box" );
+
+			managedProperty().bind( visibleProperty() );
+
 			for( int row = 0; row < palette.rowCount(); row++ ) {
 				for( int column = 0; column < palette.columnCount(); column++ ) {
 					add( getSwatch( palette.getPaint( row, column ) ), column, row );
 				}
 			}
 		}
+
 	}
 
 	private PaintSwatch getSwatch( Paint paint ) {

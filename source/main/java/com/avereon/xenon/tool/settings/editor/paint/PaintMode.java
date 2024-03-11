@@ -20,6 +20,8 @@ public class PaintMode {
 
 	public static final PaintMode PALETTE_MATERIAL;
 
+	public static final PaintMode PALETTE_STANDARD;
+
 	public static final PaintMode DEFAULT_PALETTE_MODE;
 
 	private final String key;
@@ -33,8 +35,11 @@ public class PaintMode {
 		LAYER = new PaintMode( "layer", Rb.text( RbKey.LABEL, "layer" ), false );
 		LINEAR = new PaintMode( "linear", Rb.text( RbKey.LABEL, "linear" ), false );
 		RADIAL = new PaintMode( "radial", Rb.text( RbKey.LABEL, "radial" ), false );
+
+		// FIXME Modes and palettes really are different things. This is a hack to get the palettes to work.
 		PALETTE_BASIC = new PaintMode( "basic", Rb.text( RbKey.LABEL, "palette-basic" ), true );
 		PALETTE_MATERIAL = new PaintMode( "material", Rb.text( RbKey.LABEL, "palette-material" ), true );
+		PALETTE_STANDARD = new PaintMode( "standard", Rb.text( RbKey.LABEL, "palette-standard" ), true );
 		DEFAULT_PALETTE_MODE = PALETTE_MATERIAL;
 	}
 
