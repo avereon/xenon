@@ -49,6 +49,7 @@ public class PaintPickerPane extends VBox {
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
+		// FIXME This is a hack to get the palettes to work.
 		mode.getItems().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC, PaintMode.NONE );
 
 		// The initial color palette

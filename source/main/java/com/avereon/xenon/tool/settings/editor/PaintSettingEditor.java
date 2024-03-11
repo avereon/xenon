@@ -37,6 +37,7 @@ public class PaintSettingEditor extends SettingEditor {
 		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
 		for( SettingOption option : setting.getOptions()  ) {
 			switch( option.getKey() ) {
+				// FIXME This is a hack to get the palettes to work.
 				case "solid" -> paintPicker.getOptions().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC );
 				case "linear" -> paintPicker.getOptions().addAll( PaintMode.LINEAR );
 				case "radial" -> paintPicker.getOptions().addAll( PaintMode.RADIAL );
