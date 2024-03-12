@@ -37,7 +37,7 @@ public class PaintPickerPane extends BorderPane {
 		// The paint palette chooser
 		ComboBox<PaintPalette> palette = new ComboBox<>();
 		palette.setMaxWidth( Double.MAX_VALUE );
-		palette.getItems().addAll( new MaterialPaintPalette(), new StandardPalette(), new BasicPaintPalette() );
+		palette.getItems().addAll( new MaterialPaintPalette(), new GoogleSheetsPalette(), new StandardPalette(), new BasicPaintPalette() );
 		palette.getSelectionModel().selectFirst();
 
 		// The initial color palette
