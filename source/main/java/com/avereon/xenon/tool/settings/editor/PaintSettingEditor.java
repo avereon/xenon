@@ -1,13 +1,13 @@
 package com.avereon.xenon.tool.settings.editor;
 
-import com.avereon.xenon.tool.settings.editor.paint.PaintMode;
-import com.avereon.xenon.tool.settings.editor.paint.PaintPicker;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
+import com.avereon.xenon.tool.settings.editor.paint.PaintMode;
+import com.avereon.xenon.tool.settings.editor.paint.PaintPicker;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -34,15 +34,13 @@ public class PaintSettingEditor extends SettingEditor {
 		paintPicker = new PaintPicker();
 
 		// If the settings page has options for the picker, use them
-		if( !setting.getOptions().isEmpty() ) paintPicker.getOptions().clear();
-		for( SettingOption option : setting.getOptions()  ) {
-			switch( option.getKey() ) {
-				// FIXME This is a hack to get the palettes to work.
-				case "solid" -> paintPicker.getOptions().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC );
-				case "linear" -> paintPicker.getOptions().addAll( PaintMode.LINEAR );
-				case "radial" -> paintPicker.getOptions().addAll( PaintMode.RADIAL );
-				case "none" -> paintPicker.getOptions().addAll( PaintMode.NONE );
-				default -> log.atWarn().log( "Unknown paint mode: %s", setting.getOptions().getFirst().getKey() );
+		var options = setting.getOptions();
+		if( !options.isEmpty() ) paintPicker.getOptions().clear();
+		for( SettingOption option : options ) {
+			try {
+				paintPicker.getOptions().add( PaintMode.parse( option.getKey() ) );
+			} catch( IllegalArgumentException exception ) {
+				log.atWarn().log( "Unknown paint mode: %s", option.getKey() );
 			}
 		}
 	}

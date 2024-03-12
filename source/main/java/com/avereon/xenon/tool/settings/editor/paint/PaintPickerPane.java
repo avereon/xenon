@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.settings.editor.paint;
 
-import com.avereon.xenon.ui.PropertyListCell;
 import com.avereon.zarra.color.PaintSwatch;
 import com.avereon.zarra.color.Paints;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,29 +7,21 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
-import java.util.Map;
-
-public class PaintPickerPane extends VBox {
+public class PaintPickerPane extends BorderPane {
 
 	private final ComboBox<PaintMode> mode;
 
-	private final ComboBox<PaintPalette> palette;
+	private final BorderPane solidColorBox;
 
 	private final TextField paintField;
 
 	private StringProperty paint;
 
 	private String prior;
-
-	@Deprecated
-	private final Map<PaintMode, PaintPaletteBox> paletteBoxes;
-
-	@Deprecated
-	private PaintPaletteBox paletteBox;
 
 	public PaintPickerPane() {
 		getStyleClass().add( "paint-picker-pane" );
@@ -40,40 +31,27 @@ public class PaintPickerPane extends VBox {
 		// Opacity can be a slider on the right or the bottom
 		// Below that the OK and Cancel buttons
 
-		this.paletteBoxes = Map.of(
-			PaintMode.PALETTE_BASIC,
-			new PaintPaletteBox( new BasicPaintPalette() ),
-			PaintMode.PALETTE_MATERIAL,
-			new PaintPaletteBox( new MaterialPaintPalette() ),
-			PaintMode.PALETTE_STANDARD,
-			new PaintPaletteBox( new StandardPalette() ),
-			PaintMode.NONE,
-			new PaintPaletteBox( new EmptyPaintPalette() )
-		);
+		// The paint text field for manual entry
+		paintField = new TextField();
+
+		// The paint palette chooser
+		ComboBox<PaintPalette> palette = new ComboBox<>();
+		palette.setMaxWidth( Double.MAX_VALUE );
+		palette.getItems().addAll( new MaterialPaintPalette(), new StandardPalette(), new BasicPaintPalette() );
+		palette.getSelectionModel().selectFirst();
+
+		// The initial color palette
+		solidColorBox = new BorderPane( new PaintPaletteBox( palette.getItems().getFirst() ), palette, null, paintField, null );
 
 		// The paint mode chooser
 		mode = new ComboBox<>();
 		mode.setMaxWidth( Double.MAX_VALUE );
-		// FIXME This is a hack to get the palettes to work.
-		mode.getItems().addAll( PaintMode.PALETTE_MATERIAL, PaintMode.PALETTE_STANDARD, PaintMode.PALETTE_BASIC, PaintMode.NONE );
-
-		// The paint palette chooser
-		palette = new ComboBox<>();
-		palette.setMaxWidth( Double.MAX_VALUE );
-		palette.getItems().addAll( new MaterialPaintPalette(), new StandardPalette(), new BasicPaintPalette() );
-
-		// TODO palette.setCellFactory( new PropertyValueFactory<PaintPalette, String>( "name" ) );
-
-		palette.setCellFactory( new PropertyListCell<>( PaintPalette.class, "name" ) );
-
-		// The initial color palette
-		paletteBox = paletteBoxes.get( PaintMode.PALETTE_MATERIAL );
-
-		// The paint text field for manual entry
-		paintField = new TextField();
+		mode.getItems().addAll( PaintMode.SOLID, PaintMode.NONE );
+		mode.getSelectionModel().selectFirst();
 
 		// Add the children
-		getChildren().addAll( mode, palette, paletteBox, paintField );
+		setCenter( solidColorBox );
+		setTop( mode );
 
 		// The mode change handler
 		mode.valueProperty().addListener( ( p, o, n ) -> doSetMode( n ) );
@@ -83,6 +61,9 @@ public class PaintPickerPane extends VBox {
 
 		// The paint text field change handler
 		paintField.textProperty().addListener( ( p, o, n ) -> doSetPaint( n ) );
+
+		// Set defaults
+		doSetMode( PaintMode.SOLID );
 	}
 
 	@Override
@@ -106,36 +87,33 @@ public class PaintPickerPane extends VBox {
 	public void setPaint( String paint ) {
 		// Do not call doSetPaint() here, changing the paintField will do that if needed
 		paintField.setText( paint );
-		updateMode( paint );
 	}
 
 	private void doSetPaint( String paint ) {
 		paintProperty().set( paint );
+		updateModeFromPaintValue( paint );
 	}
 
 	private void doSetMode( PaintMode n ) {
 		if( n == null || n == PaintMode.NONE ) {
-			if( paletteBox != null ) paletteBox.setVisible( false );
 			prior = getPaint();
 			doSetPaint( null );
-		} else {
-			// FIXME This is a hack to get the palettes to work.
-			// If n is a palette mode, change the palette box
-			if( n.isPalette() ) {
-				getChildren().set( 2, paletteBox = paletteBoxes.get( n ) );
-				paletteBox.setVisible( true );
-			}
+			setCenter( null );
+		} else if( n == PaintMode.SOLID ) {
 			if( prior != null ) doSetPaint( prior );
+			setCenter( solidColorBox );
+		} else {
+			// TODO If the mode is LINEAR or RADIAL, show a gradient paint box
+			setCenter( null );
 		}
 	}
 
 	private void doSetPalette( PaintPalette n ) {
-		//		if( n != null ) {
-		//			getChildren().set( 1, paletteBox = new PaintPaletteBox( n ) );
-		//		}
+		if( n == null ) return;
+		solidColorBox.setCenter( new PaintPaletteBox( n ) );
 	}
 
-	private void updateMode( String paint ) {
+	private void updateModeFromPaintValue( String paint ) {
 		mode.getSelectionModel().select( PaintMode.getPaintMode( paint ) );
 	}
 
@@ -143,8 +121,6 @@ public class PaintPickerPane extends VBox {
 
 		public PaintPaletteBox( PaintPalette palette ) {
 			getStyleClass().addAll( "paint-palette-box" );
-
-			managedProperty().bind( visibleProperty() );
 
 			for( int row = 0; row < palette.rowCount(); row++ ) {
 				for( int column = 0; column < palette.columnCount(); column++ ) {

@@ -10,53 +10,54 @@ public class PaintMode {
 
 	public static final PaintMode NONE;
 
+	// FIXME This is a Cartesia concept
 	public static final PaintMode LAYER;
+
+	public static final PaintMode SOLID;
 
 	public static final PaintMode LINEAR;
 
 	public static final PaintMode RADIAL;
 
-	public static final PaintMode PALETTE_BASIC;
-
-	public static final PaintMode PALETTE_MATERIAL;
-
-	public static final PaintMode PALETTE_STANDARD;
-
-	public static final PaintMode DEFAULT_PALETTE_MODE;
+	public static final PaintMode DEFAULT_PAINT_MODE;
 
 	private final String key;
 
 	private final String label;
 
-	private final boolean palette;
-
 	static {
-		NONE = new PaintMode( "none", Rb.text( RbKey.LABEL, "none" ), false );
-		LAYER = new PaintMode( "layer", Rb.text( RbKey.LABEL, "layer" ), false );
-		LINEAR = new PaintMode( "linear", Rb.text( RbKey.LABEL, "linear" ), false );
-		RADIAL = new PaintMode( "radial", Rb.text( RbKey.LABEL, "radial" ), false );
-
-		// FIXME Modes and palettes really are different things. This is a hack to get the palettes to work.
-		PALETTE_BASIC = new PaintMode( "basic", Rb.text( RbKey.LABEL, "palette-basic" ), true );
-		PALETTE_MATERIAL = new PaintMode( "material", Rb.text( RbKey.LABEL, "palette-material" ), true );
-		PALETTE_STANDARD = new PaintMode( "standard", Rb.text( RbKey.LABEL, "palette-standard" ), true );
-		DEFAULT_PALETTE_MODE = PALETTE_MATERIAL;
+		NONE = new PaintMode( "none", Rb.text( RbKey.LABEL, "none" ) );
+		LAYER = new PaintMode( "layer", Rb.text( RbKey.LABEL, "layer" ) );
+		LINEAR = new PaintMode( "linear", Rb.text( RbKey.LABEL, "linear" ) );
+		RADIAL = new PaintMode( "radial", Rb.text( RbKey.LABEL, "radial" ) );
+		SOLID = new PaintMode( "solid", Rb.text( RbKey.LABEL, "solid" ) );
+		DEFAULT_PAINT_MODE = SOLID;
 	}
 
-	public PaintMode( String key, String label, boolean palette ) {
+	public PaintMode( String key, String label ) {
 		this.key = key;
 		this.label = label;
-		this.palette = palette;
+	}
+
+	public static PaintMode parse(String name ) {
+		return switch( name ) {
+			case "none" -> NONE;
+			case "layer" -> LAYER;
+			case "linear" -> LINEAR;
+			case "radial" -> RADIAL;
+			case "solid" -> SOLID;
+			default -> throw new IllegalArgumentException( "Unknown paint mode: " + name );
+		};
 	}
 
 	public static PaintMode getPaintMode( String paint ) {
 		if( TextUtil.isEmpty( paint ) ) return PaintMode.NONE;
 
 		if( PaintMode.LAYER.getKey().equals( paint ) ) return PaintMode.LAYER;
-		if( paint.startsWith( "0x" ) ) return DEFAULT_PALETTE_MODE;
+		if( paint.startsWith( "0x" ) ) return SOLID;
 
 		return switch( paint.charAt( 0 ) ) {
-			case '#' -> PaintMode.DEFAULT_PALETTE_MODE;
+			case '#' -> PaintMode.SOLID;
 			case '[' -> PaintMode.LINEAR;
 			case '(' -> PaintMode.RADIAL;
 			default -> throw new IllegalStateException( "Unexpected paint mode: " + paint );

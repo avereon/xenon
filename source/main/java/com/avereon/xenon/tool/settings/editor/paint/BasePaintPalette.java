@@ -74,4 +74,8 @@ public abstract class BasePaintPalette implements PaintPalette {
 		return paints[ row ][ column ];
 	}
 
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

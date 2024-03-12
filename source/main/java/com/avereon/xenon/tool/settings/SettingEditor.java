@@ -31,6 +31,7 @@ public abstract class SettingEditor {
 		addType( "infoline", InfoLineSettingEditor.class );
 		addType( "infoarea", InfoAreaSettingEditor.class );
 		addType( "color", ColorSettingEditor.class );
+		addType( "paint", PaintSettingEditor.class );
 		addType( "file", FileSettingEditor.class );
 		addType( "folder", FolderSettingEditor.class );
 		addType( "font", FontSettingEditor.class );
