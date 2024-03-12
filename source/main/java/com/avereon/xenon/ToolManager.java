@@ -52,6 +52,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		aliases = new ConcurrentHashMap<>();
 	}
 
+	public ToolRegistration getToolRegistration( Class<? extends ProgramTool> toolClass ) {
+		return toolClassMetadata.get( toolClass );
+	}
+
+	public ToolRegistration getToolRegistration( ProgramTool tool ) {
+		return toolClassMetadata.get( tool.getClass() );
+	}
+
 	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
