@@ -5,6 +5,11 @@ import javafx.scene.paint.Paint;
 public class EmptyPaintPalette implements PaintPalette{
 
 	@Override
+	public String getName() {
+		return "EMPTY";
+	}
+
+	@Override
 	public int columnCount() {
 		return 0;
 	}

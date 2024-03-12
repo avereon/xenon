@@ -8,17 +8,20 @@ import java.util.List;
 
 public abstract class BasePaintPalette implements PaintPalette {
 
+	private final String name;
+
 	private final Paint[][] paints;
 
 	private final int rowCount;
 
 	private final int columnCount;
 
-	public BasePaintPalette( List<Color> colors ) {
-		this( colors, 4, 4 );
+	public BasePaintPalette( String name, List<Color> colors ) {
+		this( name, colors, 4, 4 );
 	}
 
-	public BasePaintPalette( List<Color> colors, int shadeCount, int tintCount ) {
+	public BasePaintPalette( String name, List<Color> colors, int shadeCount, int tintCount ) {
+		this.name = name;
 		rowCount = shadeCount + 1 + tintCount;
 		columnCount = colors.size();
 
@@ -49,6 +52,11 @@ public abstract class BasePaintPalette implements PaintPalette {
 			column++;
 			row = 0;
 		}
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

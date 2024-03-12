@@ -1,5 +1,7 @@
 package com.avereon.xenon.tool.settings.editor.paint;
 
+import com.avereon.product.Rb;
+import com.avereon.xenon.RbKey;
 import com.avereon.zarra.color.MaterialColor;
 import javafx.scene.paint.Color;
 
@@ -21,7 +23,7 @@ public class MaterialPaintPalette extends BasePaintPalette {
 	}
 
 	public MaterialPaintPalette() {
-		super( BASE_COLORS );
+		super( Rb.text( RbKey.LABEL, "palette-material" ), BASE_COLORS );
 	}
 
 }
