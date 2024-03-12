@@ -656,12 +656,12 @@ public class AboutTool extends GuidedTool {
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );
 		threads.sort( new ThreadInfoNameComparator() );
-		for( ThreadInfo thread : threads ) {
+		threads.stream().filter( Objects::nonNull ).forEach( thread -> {
 			builder.append( TextUtil.leftJustify( thread.getThreadState().toString(), 15 ) );
 			builder.append( "  " );
 			builder.append( thread.getThreadName() );
 			builder.append( "\n" );
-		}
+		} );
 
 		return builder.toString();
 	}
