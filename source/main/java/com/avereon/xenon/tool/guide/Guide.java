@@ -125,7 +125,7 @@ public class Guide {
 	}
 
 	/**
-	 * This method can be overridden to capture when the nodes are moved in the guide
+	 * This method can be overridden to capture when the nodes are moved in the guide.
 	 *
 	 * @param item The guide node that was moved
 	 * @param target The guide node that the item was dropped on
