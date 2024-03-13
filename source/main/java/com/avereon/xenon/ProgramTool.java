@@ -264,6 +264,16 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		} ).run( tool.getProgram() );
 	}
 
+	public static void waitForReady( Asset asset, ProgramTool tool ) {
+		TaskChain.of( "wait for ready", () -> {
+			waitForTool( tool );
+			return null;
+		} ).link( () -> {
+			waitForAsset( asset );
+			return null;
+		} ).run( tool.getProgram() );
+	}
+
 	private static void waitForTool( ProgramTool tool ) throws TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
 		javafx.event.EventHandler<ToolEvent> handler = e -> latch.countDown();
