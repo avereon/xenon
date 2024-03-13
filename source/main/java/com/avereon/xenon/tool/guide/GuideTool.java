@@ -27,6 +27,12 @@ import lombok.CustomLog;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The guide tool is a tool that provides a tree view  guide. The guide is
+ * used to provide a hierarchical view of the data in a tool. The guide tool
+ * listens for tool changes and updates the guide as tools are activated and
+ * concealed.
+ */
 @CustomLog
 public class GuideTool extends ProgramTool {
 
@@ -52,6 +58,8 @@ public class GuideTool extends ProgramTool {
 
 	private final EventHandler<TreeItem.TreeModificationEvent<Object>> treeToGuideExpandedItemsListener;
 
+	private EventHandler<KeyEvent> keyEventHandler;
+
 	private GuideContext context;
 
 	private ContextMenu contextMenu;
@@ -76,6 +84,8 @@ public class GuideTool extends ProgramTool {
 		guideToTreeSelectedItemsListener = new GuideToTreeSelectedItemsListener();
 		treeToGuideSelectedItemsListener = new TreeToGuideSelectedItemsListener();
 		treeToGuideExpandedItemsListener = e -> updateExpandedItems();
+
+		// NEXT Enhance the guide tool to support forwarding key events to the tool
 	}
 
 	@Override
@@ -159,6 +169,9 @@ public class GuideTool extends ProgramTool {
 
 		// Disconnect the old guide
 		if( oldGuide != null ) {
+			// Remove the key event handler
+			if( keyEventHandler != null ) guideTree.removeEventHandler( KeyEvent.ANY, keyEventHandler );
+
 			// Remove the tree to guide expansion listener
 			TreeItem<?> root = guideTree.getRoot();
 			if( root != null ) {
@@ -232,6 +245,9 @@ public class GuideTool extends ProgramTool {
 				root.addEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
 				root.addEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
 			}
+
+			// Set the key event handler
+			guideTree.addEventHandler( KeyEvent.ANY, keyEventHandler = newGuide::keyEvent );
 		}
 
 		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
