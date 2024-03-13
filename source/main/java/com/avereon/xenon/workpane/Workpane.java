@@ -504,7 +504,7 @@ public class Workpane extends Control implements WritableIdentity {
 		while( (event = events.poll()) != null ) fireEvent( event );
 	}
 
-	WorkpaneEvent queueEvent( WorkpaneEvent event ) {
+	protected WorkpaneEvent queueEvent( WorkpaneEvent event ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + event.getEventType() );
 		events.offer( event );
 		return event;

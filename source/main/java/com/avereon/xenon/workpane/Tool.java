@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import lombok.CustomLog;
+import lombok.Getter;
 
 /**
  * The Tool class is a pane that "works on" an asset.
@@ -36,22 +37,23 @@ public abstract class Tool extends StackPane {
 
 	private static final ToolInfo toolInfo = new ToolInfo();
 
-	private ObjectProperty<Node> graphicProperty;
+	private final ObjectProperty<Node> graphicProperty;
 
-	private StringProperty titleProperty;
+	private final StringProperty titleProperty;
 
-	private ObjectProperty<Node> contextGraphicProperty;
+	private final ObjectProperty<Node> contextGraphicProperty;
 
-	private ObjectProperty<Node> closeGraphicProperty;
+	private final ObjectProperty<Node> closeGraphicProperty;
 
-	private ObjectProperty<CloseOperation> closeOperation;
+	private final ObjectProperty<CloseOperation> closeOperation;
 
-	private Asset asset;
+	private final Asset asset;
 
 	private WorkpaneView parent;
 
 	private boolean allocated;
 
+	@Getter
 	private boolean displayed;
 
 	private EventHandler<AssetEvent> closer;
@@ -72,7 +74,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e ->  getWorkpane().setActiveTool( this ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> getWorkpane().setActiveTool( this ) );
 	}
 
 	public final Asset getAsset() {
@@ -230,10 +232,6 @@ public abstract class Tool extends StackPane {
 		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
 	}
 
-	public boolean isDisplayed() {
-		return displayed;
-	}
-
 	public boolean isActive() {
 		return parent != null && parent.getActiveTool() == this;
 	}
@@ -311,7 +309,7 @@ public abstract class Tool extends StackPane {
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Determine if this tool is the the last tool of its type for the tool asset.
+	 * Determine if this tool is the last tool of its type for the tool asset.
 	 *
 	 * @return True if this is the last tool of its type, false otherwise.
 	 */
@@ -331,7 +329,7 @@ public abstract class Tool extends StackPane {
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
 		}
@@ -347,7 +345,7 @@ public abstract class Tool extends StackPane {
 		try {
 			display();
 			displayed = true;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error displaying tool" );
 		}
@@ -362,7 +360,7 @@ public abstract class Tool extends StackPane {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error activating tool" );
 		}
@@ -377,7 +375,7 @@ public abstract class Tool extends StackPane {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deactivating tool" );
 		}
@@ -393,7 +391,7 @@ public abstract class Tool extends StackPane {
 		try {
 			conceal();
 			displayed = false;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error concealing tool" );
 		}
@@ -409,11 +407,15 @@ public abstract class Tool extends StackPane {
 		try {
 			deallocate();
 			allocated = false;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) );
 			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deallocating tool" );
 		}
+	}
+
+	private void triggerEvent( ToolEvent event ) {
+		fireEvent( getWorkpane().queueEvent( event ) );
 	}
 
 	private void doClose() {

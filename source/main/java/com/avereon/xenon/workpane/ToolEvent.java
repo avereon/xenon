@@ -2,7 +2,11 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.util.JavaUtil;
 import javafx.event.EventType;
+import lombok.Getter;
 
+import java.io.Serial;
+
+@Getter
 public class ToolEvent extends WorkpaneEvent {
 
 	public static final EventType<ToolEvent> TOOL = new EventType<>( WorkpaneEvent.ANY, "TOOL" );
@@ -31,17 +35,14 @@ public class ToolEvent extends WorkpaneEvent {
 
 	public static final EventType<ToolEvent> CLOSED = new EventType<>( TOOL, "CLOSED" );
 
+	@Serial
 	private static final long serialVersionUID = -4975302925133248236L;
 
-	private Tool tool;
+	private final Tool tool;
 
 	public ToolEvent( Object source, EventType<? extends ToolEvent> type, Workpane workpane, Tool tool ) {
 		super( source, type, workpane );
 		this.tool = tool;
-	}
-
-	public Tool getTool() {
-		return tool;
 	}
 
 	@SuppressWarnings( "unchecked" )
