@@ -70,6 +70,7 @@ public class ActionLibrary {
 		//		register( bundle, "view-merge-west" );
 		register( product, "statusbar-show" );
 		register( product, "settings" );
+		register( product, "settings-toggle" );
 
 		register( product, "tool" );
 		register( product, "tools" );
@@ -77,8 +78,10 @@ public class ActionLibrary {
 		register( product, "help" );
 		register( product, "help-content" );
 		register( product, "search" );
+		register( product, "search-toggle" );
 		register( product, "welcome" );
 		register( product, "notice" );
+		register( product, "notice-toggle" );
 		register( product, "product" );
 		register( product, "update" );
 		register( product, "about" );

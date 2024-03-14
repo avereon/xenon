@@ -68,6 +68,7 @@ public class NoticeTool extends ProgramTool {
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
+		getProgram().getNoticeManager().markAllAsRead();
 		updateNotices();
 	}
 

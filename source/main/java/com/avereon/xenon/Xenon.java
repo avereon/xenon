@@ -152,6 +152,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	private SettingsAction settingsAction;
 
+	private SettingsToggleAction settingsToggleAction;
+
 	private PropertiesAction propertiesAction;
 
 	private ThemesAction themesAction;
@@ -160,7 +162,11 @@ public class Xenon extends Application implements XenonProgram {
 
 	private NoticeAction noticeAction;
 
+	private NoticeToggleAction noticeToggleAction;
+
 	private SearchAction searchAction;
+
+	private SearchToggleAction searchToggleAction;
 
 	private ProductAction productAction;
 
@@ -1331,12 +1337,15 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "help-content" ).pushAction( helpAction = new HelpAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "settings-toggle" ).pushAction( settingsToggleAction = new SettingsToggleAction( this ) );
 		//getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
+		getActionLibrary().getAction( "notice-toggle" ).pushAction( noticeToggleAction = new NoticeToggleAction( this ) );
 		getActionLibrary().getAction( "search" ).pushAction( searchAction = new SearchAction( this ) );
+		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
@@ -1368,12 +1377,15 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "help-content" ).pullAction( helpAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
+		getActionLibrary().getAction( "settings-toggle" ).pullAction( settingsToggleAction );
 		//getActionLibrary().getAction( "properties" ).pullAction( propertiesAction );
 		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
+		getActionLibrary().getAction( "notice-toggle" ).pullAction( noticeToggleAction );
 		getActionLibrary().getAction( "search" ).pullAction( searchAction );
+		getActionLibrary().getAction( "search-toggle" ).pullAction( searchToggleAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
