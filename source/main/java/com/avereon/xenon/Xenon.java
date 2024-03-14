@@ -788,9 +788,11 @@ public class Xenon extends Application implements XenonProgram {
 	private void doStopSuccess() {
 		// Do not add this as a shutdown hook, it hangs the JVM.
 		new JvmSureStop( 5000 ).start();
+
+		// Dispatch the program stopped event
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 
-		// Unregister the event watcher
+		// Unregister the program event watcher
 		getFxEventHub().unregister( Event.ANY, watcher );
 	}
 
@@ -799,10 +801,13 @@ public class Xenon extends Application implements XenonProgram {
 	@Override
 	public void requestRestart( RestartHook.Mode mode, String... commands ) {
 		RestartHook hook = new RestartHook( this, mode, commands );
-		Runtime.getRuntime().addShutdownHook( hook );
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( hook );
-		}
+		if( requestExit( true ) ) Runtime.getRuntime().addShutdownHook( hook );
+
+		//		Runtime.getRuntime().addShutdownHook( hook );
+		//		if( !requestExit( true ) ) {
+		//			log.atInfo().log( "Unregistering shutdown hook because user cancelled exit" );
+		//			Runtime.getRuntime().removeShutdownHook( hook );
+		//		}
 	}
 
 	@Override
@@ -850,9 +855,8 @@ public class Xenon extends Application implements XenonProgram {
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 
-		if( exiting ) {
-			Platform.exit();
-		}
+		// Shutdown the FX platform
+		if( exiting ) Platform.exit();
 
 		return exiting;
 	}

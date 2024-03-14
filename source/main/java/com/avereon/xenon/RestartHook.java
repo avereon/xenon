@@ -69,15 +69,14 @@ public class RestartHook extends Thread {
 		configure();
 	}
 
-	private void configure() {
-		if( this.mode == Mode.RESTART ) {
-			configureForRestart();
-		} else {
-			configureForUpdate();
-		}
+	@SuppressWarnings( "UnusedReturnValue" )
+	private RestartHook configure() {
+		return switch( mode ) {
+			case RESTART -> configureForRestart();
+			case UPDATE, MOCK_UPDATE -> configureForUpdate();
+		};
 	}
 
-	@SuppressWarnings( "UnusedReturnValue" )
 	private synchronized RestartHook configureForRestart() {
 		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
 
@@ -87,7 +86,6 @@ public class RestartHook extends Thread {
 		return this;
 	}
 
-	@SuppressWarnings( "UnusedReturnValue" )
 	private synchronized RestartHook configureForUpdate() {
 		UpdateManager manager = program.getUpdateManager();
 
@@ -97,13 +95,20 @@ public class RestartHook extends Thread {
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
 		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
+		boolean useDarkMode = getProgram().getWorkspaceManager().getThemeMetadata().isDark();
 
 		if( mode == Mode.MOCK_UPDATE ) {
 			updaterLaunchCommands = ProcessCommands.forLauncher();
 			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
 		}
 
-		boolean useDarkMode = getProgram().getWorkspaceManager().getThemeMetadata().isDark();
+		try {
+			log.atFiner().log( "Storing update commands..." );
+			Files.writeString( updateCommandFile, createUpdateCommands() );
+			log.atFine().log( "Update commands stored file=%s", updateCommandFile );
+		} catch( Throwable throwable ) {
+			log.atSevere().withCause( throwable ).log( "Error storing update commands" );
+		}
 
 		builder = new ProcessBuilder( updaterLaunchCommands );
 		builder.directory( updaterFolder.toFile() );
@@ -121,34 +126,13 @@ public class RestartHook extends Thread {
 
 		log.atFine().log( "%s command: %s", mode, TextUtil.toString( builder.command(), " " ) );
 
-		try {
-			log.atFiner().log( "Storing update commands..." );
-			Files.writeString( updateCommandFile, createUpdateCommands() );
-			log.atFine().log( "Update commands stored file=%s", updateCommandFile );
-		} catch( Throwable throwable ) {
-			log.atSevere().withCause( throwable ).log( "Error storing update commands" );
-		}
-
 		return this;
 	}
 
 	private String createUpdateCommands() {
-		boolean mock = mode == Mode.MOCK_UPDATE;
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 
-		if( mock ) {
-			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
-			for( String name : names ) {
-				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", name );
-				boolean isProgram = name.equals( program.getCard().getName() );
-				int steps = isProgram ? 15 : 3;
-				steps += random.nextInt( 5 );
-				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
-				for( int step = 0; step < steps; step++ ) {
-					ucb.add( (isProgram ? UpdateTask.ELEVATED_PAUSE : UpdateTask.PAUSE) + " 10 \"Step " + (step + 1) + "\"" );
-				}
-			}
-		} else {
+		if( mode == Mode.UPDATE ) {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
 				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
@@ -179,6 +163,18 @@ public class RestartHook extends Thread {
 				// Cleanup
 				ucb.add( UpdateTask.DELETE, deletePath );
 			}
+		} else {
+			String[] names = new String[]{ program.getCard().getName(), "Module W", "Module X", "Module Y", "Module Z" };
+			for( String name : names ) {
+				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", name );
+				boolean isProgram = name.equals( program.getCard().getName() );
+				int steps = isProgram ? 15 : 3;
+				steps += random.nextInt( 5 );
+				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
+				for( int step = 0; step < steps; step++ ) {
+					ucb.add( (isProgram ? UpdateTask.ELEVATED_PAUSE : UpdateTask.PAUSE) + " 10 \"Step " + (step + 1) + "\"" );
+				}
+			}
 		}
 
 		// Add parameters to restart program
@@ -186,7 +182,6 @@ public class RestartHook extends Thread {
 		launchCommands.add( System.getProperty( "user.dir" ) );
 		launchCommands.addAll( ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands );
-		//System.out.println( ucb.toString() );
 
 		return ucb.toString();
 	}
@@ -198,12 +193,14 @@ public class RestartHook extends Thread {
 		try {
 			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( "Starting " + mode + " process..." );
+			System.out.println( TextUtil.toString( builder.command(), " " ) );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
-			builder.start();
+			Process process = builder.start();
+
 			// NOTE Because this is running as a shutdown hook, normal logging does not work
-			System.out.println( mode + " process started!" );
+			System.out.println( mode + " process started! pid=" + process.pid() );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
 		}
