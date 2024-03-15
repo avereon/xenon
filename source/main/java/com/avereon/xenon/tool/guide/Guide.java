@@ -201,7 +201,6 @@ public class Guide {
 			GuideNode n1 = o1.getValue();
 			GuideNode n2 = o2.getValue();
 			return n1.getComparator().compare( n1, n2 );
-			//return n2.getOrder() - n1.getOrder();
 		}
 
 	}

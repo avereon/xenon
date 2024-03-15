@@ -70,9 +70,13 @@ public class GuideTool extends ProgramTool {
 	public GuideTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-guide" );
+
+		// Create the guide tree
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		guideTree.setCellFactory( new GuideCellFactory() );
+
+		// Put the guide tree in a scroll pane and add it to the tool
 		ScrollPane scroller = new ScrollPane( guideTree );
 		scroller.setFitToWidth( true );
 		scroller.setFitToHeight( true );
@@ -84,8 +88,6 @@ public class GuideTool extends ProgramTool {
 		guideToTreeSelectedItemsListener = new GuideToTreeSelectedItemsListener();
 		treeToGuideSelectedItemsListener = new TreeToGuideSelectedItemsListener();
 		treeToGuideExpandedItemsListener = e -> updateExpandedItems();
-
-		// NEXT Enhance the guide tool to support forwarding key events to the tool
 	}
 
 	@Override
@@ -287,7 +289,7 @@ public class GuideTool extends ProgramTool {
 		}
 
 		// If there are no selected items just return
-		if( indexList.size() == 0 ) return;
+		if( indexList.isEmpty() ) return;
 
 		// Set the selected indexes
 		int[] indexes = indexList.stream().mapToInt( value -> value ).toArray();
@@ -430,7 +432,7 @@ public class GuideTool extends ProgramTool {
 				items.add( guideTree.getTreeItem( index ) );
 			}
 
-			if( items.size() > 0 ) expandAndCollapsePaths( items.iterator().next() );
+			if( !items.isEmpty() ) expandAndCollapsePaths( items.iterator().next() );
 
 			getGuideContext().setSelectedItems( items );
 		}
