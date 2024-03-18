@@ -74,7 +74,7 @@
 		<zenna.version>0.10-SNAPSHOT</zenna.version>
 		<zarra.version>0.10-SNAPSHOT</zarra.version>
 		<zevra.version>0.10-SNAPSHOT</zevra.version>
-		<jackson.version>2.16.2</jackson.version>
+		<jackson.version>2.17.0</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
