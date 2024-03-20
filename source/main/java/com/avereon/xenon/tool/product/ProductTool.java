@@ -17,8 +17,11 @@ import lombok.CustomLog;
 
 import java.util.*;
 
-@CustomLog
+/**
+ * @deprecated This functionality has moved to the SettingsTool
+ */
 @Deprecated
+@CustomLog
 public class ProductTool extends GuidedTool {
 
 	public static final String INSTALLED = "installed";

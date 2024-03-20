@@ -4,6 +4,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.*;
 
+@Deprecated
 public class ProgramModuleType extends AssetType {
 
 	private static final String uriPattern = "program:/modules";
