@@ -72,6 +72,11 @@ public class SettingsTool extends GuidedTool {
 	private void selectPage( String pageId ) {
 		currentPageId = pageId;
 		if( pageId == null ) return;
+
+		// Select the node in the guide
+		getGuideContext().setExpandedIds( pageId );
+		getGuideContext().setSelectedIds( pageId );
+
 		setPage( getProgram().getSettingsManager().getSettingsPage( pageId ) );
 	}
 
