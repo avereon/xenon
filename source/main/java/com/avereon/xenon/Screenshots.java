@@ -5,7 +5,6 @@ import com.avereon.product.ProgramFlag;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
-import com.avereon.xenon.asset.type.ProgramModuleType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.Tool;
@@ -13,8 +12,8 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.event.FxEventWatcher;
+import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -70,7 +69,7 @@ abstract class Screenshots {
 			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 			screenshot( ProgramAboutType.URI, "about-tool" );
 			screenshotSettingsPages();
-			screenshotProductPages();
+			//screenshotProductPages();
 			screenshotThemes();
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
@@ -87,34 +86,24 @@ abstract class Screenshots {
 		}
 	}
 
-	private void screenshot( URI uri, String path ) throws InterruptedException, TimeoutException {
+	private void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		doScreenshotAndReset( path );
+		doScreenshotAndReset( output );
 	}
 
-	private void screenshot( URI uri, String extra, String path ) throws InterruptedException, TimeoutException {
-		screenshot( URI.create( uri.toString() + "#" + extra ), path );
+	private void screenshot( URI uri, String fragment, String output ) throws InterruptedException, TimeoutException {
+		screenshot( URI.create( uri.toString() + "#" + fragment ), output );
 	}
 
-	private void screenshotNoReset( String path ) {
-		doScreenshotNoReset( path );
+	private void screenshotNoReset( String output ) {
+		doScreenshotNoReset( output );
 	}
 
 	private void screenshotSettingsPages() throws InterruptedException, TimeoutException {
 		for( String id : program.getSettingsManager().getPageIds() ) {
 			screenshot( ProgramSettingsType.URI, id, "settings/settings-tool-" + id );
 		}
-	}
-
-	private void screenshotProductPages() throws InterruptedException, TimeoutException {
-		screenshot( ProgramModuleType.URI, "installed", "product-tool-installed" );
-		screenshot( ProgramModuleType.URI, "sources", "product-tool-sources" );
-
-		// NOTE This one requires time to determine the available mods
-		//screenshot( ProgramProductType.URI, "available", "product-tool-available" );
-		// NOTE This one requires time to determine the available updates
-		//screenshot( ProgramProductType.URI, "updates", "product-tool-updates" );
 	}
 
 	private void screenshotThemes() throws InterruptedException, TimeoutException {

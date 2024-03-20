@@ -59,7 +59,7 @@ public class SettingsTool extends GuidedTool {
 
 		URI uri = request.getUri();
 		if( uri != null ) {
-			String name = UriUtil.parseName( uri );
+			String name = UriUtil.parseFragment( uri );
 			if( name != null ) selectPage( name );
 		}
 	}
