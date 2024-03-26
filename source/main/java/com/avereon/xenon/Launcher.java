@@ -4,6 +4,11 @@ import com.avereon.weave.ElevatedFlag;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.Weave;
 
+/**
+ * The Launcher class is the entry point for the application. The Launcher is
+ * also responsible for determining if the application should be updated or
+ * if the application should be launched normally, based on the command line.
+ */
 public class Launcher {
 
 	public static void main( String[] commands ) {
@@ -16,9 +21,9 @@ public class Launcher {
 		boolean updating = update || callback;
 
 		if( updating ) {
-			new Weave().start( commands );
+			Weave.launch( commands );
 		} else {
-			Xenon.doLaunch( commands );
+			Xenon.launch( commands );
 		}
 	}
 

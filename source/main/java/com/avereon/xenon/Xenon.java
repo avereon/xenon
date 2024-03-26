@@ -209,7 +209,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
-	static void doLaunch( String[] commands ) {
+	public static void launch( String[] commands ) {
 		Application.launch( commands );
 	}
 
