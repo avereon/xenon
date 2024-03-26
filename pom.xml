@@ -632,6 +632,9 @@
 									</arguments>
 								</configuration>
 							</execution>
+
+							<!-- Can I put a small delay here for Windows? -->
+
 							<execution>
 								<id>jpackage-install-pack</id>
 								<phase>post-integration-test</phase>
