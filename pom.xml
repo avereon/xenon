@@ -454,12 +454,6 @@
 									<name>jsr305*.jar</name>
 								</jar>
 								<jar>
-									<name>jsoup*.jar</name>
-									<modules>
-										<module>jsr305</module>
-									</modules>
-								</jar>
-								<jar>
 									<name>image4j*.jar</name>
 								</jar>
 								<jar>
