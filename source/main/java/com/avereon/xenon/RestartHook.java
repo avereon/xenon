@@ -28,10 +28,20 @@ import java.util.concurrent.TimeUnit;
 @CustomLog
 public class RestartHook extends Thread {
 
+	@Getter
 	public enum Mode {
-		RESTART,
-		MOCK_UPDATE,
-		UPDATE
+		RESTART( false, false ),
+		UPDATE( true, false ),
+		MOCK_UPDATE( true, true );
+
+		private final boolean update;
+
+		private final boolean mock;
+
+		Mode( boolean update, boolean mock ) {
+			this.update = update;
+			this.mock = mock;
+		}
 	}
 
 	private static final String DELETE_SUFFIX = "delete";
@@ -57,7 +67,12 @@ public class RestartHook extends Thread {
 		this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
 		this.random = new Random();
 
-		if( mode == Mode.UPDATE || mode == Mode.MOCK_UPDATE ) {
+		configure();
+	}
+
+	@SuppressWarnings( "UnusedReturnValue" )
+	private RestartHook configure() {
+		if( mode.isUpdate() ) {
 			try {
 				// Ensure the updater is staged...even if we have to wait
 				program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
@@ -66,11 +81,6 @@ public class RestartHook extends Thread {
 			}
 		}
 
-		configure();
-	}
-
-	@SuppressWarnings( "UnusedReturnValue" )
-	private RestartHook configure() {
 		return switch( mode ) {
 			case RESTART -> configureForRestart();
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
@@ -97,7 +107,7 @@ public class RestartHook extends Thread {
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
 		boolean useDarkMode = getProgram().getWorkspaceManager().getThemeMetadata().isDark();
 
-		if( mode == Mode.MOCK_UPDATE ) {
+		if( mode.isMock() ) {
 			updaterLaunchCommands = ProcessCommands.forLauncher();
 			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
 		}
@@ -163,7 +173,7 @@ public class RestartHook extends Thread {
 				// Cleanup
 				ucb.add( UpdateTask.DELETE, deletePath );
 			}
-		} else {
+		} else if( mode == Mode.MOCK_UPDATE ) {
 			String[] names = new String[]{ program.getCard().getName(), "Module W", "Module X", "Module Y", "Module Z" };
 			for( String name : names ) {
 				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", name );
@@ -194,6 +204,7 @@ public class RestartHook extends Thread {
 			// NOTE Because this is running as a shutdown hook, normal logging does not work
 			System.out.println( "Starting " + mode + " process..." );
 			System.out.println( TextUtil.toString( builder.command(), " " ) );
+
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
