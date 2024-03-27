@@ -1,5 +1,7 @@
 package com.avereon.xenon;
 
+import com.avereon.util.OperatingSystem;
+import com.avereon.util.ThreadUtil;
 import com.avereon.weave.ElevatedFlag;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.Weave;
@@ -21,6 +23,7 @@ public class Launcher {
 		boolean updating = update || callback;
 
 		if( updating ) {
+			if( OperatingSystem.isWindows() ) ThreadUtil.pause( 2000 );
 			Weave.launch( commands );
 		} else {
 			Xenon.launch( commands );
