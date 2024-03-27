@@ -633,21 +633,6 @@
 								</configuration>
 							</execution>
 
-							<!-- Can I put a small delay here for Windows? -->
-							<execution>
-								<id>jpackage-pause</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<arguments>
-										<argument>--help</argument>
-									</arguments>
-								</configuration>
-							</execution>
-
 							<execution>
 								<id>jpackage-install-pack</id>
 								<phase>post-integration-test</phase>
