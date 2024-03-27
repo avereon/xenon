@@ -642,6 +642,9 @@
 								</goals>
 								<configuration>
 									<executable>java</executable>
+									<arguments>
+										<argument>--help</argument>
+									</arguments>
 								</configuration>
 							</execution>
 
