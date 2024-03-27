@@ -24,7 +24,7 @@ public class Launcher {
 
 		if( updating ) {
 			if( OperatingSystem.isWindows() ) ThreadUtil.pause( 2000 );
-			Weave.launch( commands );
+			new Weave().start( commands );
 		} else {
 			Xenon.launch( commands );
 		}
