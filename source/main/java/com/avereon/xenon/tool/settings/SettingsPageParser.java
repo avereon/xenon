@@ -140,7 +140,7 @@ public class SettingsPageParser {
 		page.setPanel( panel );
 		page.setOrder( order );
 
-		log.atConfig().log( "Parsing settings page=%s order=%s", page.getTitle(), order );
+		log.atDebug().log( "Parsing settings page=%s order=%s", page.getTitle(), order );
 
 		int childOrder = 0;
 		SettingGroup group = null;
