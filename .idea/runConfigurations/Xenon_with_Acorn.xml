@@ -2,7 +2,6 @@
   <configuration default="false" name="Xenon with Acorn" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
-    <module name="acorn" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.acorn" />
     <option name="VM_PARAMETERS" value="-Duser.language=es -Dprism.forceGPU=true" />
     <extension name="coverage">

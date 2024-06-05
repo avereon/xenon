@@ -197,24 +197,28 @@ public class RestartHook extends Thread {
 	}
 
 	@Override
+	@SuppressWarnings( "DontCatch" )
 	public void run() {
 		if( builder == null ) return;
 
 		try {
 			// NOTE Because this is running as a shutdown hook, normal logging does not work
-			System.out.println( "Starting " + mode + " process..." );
-			System.out.println( TextUtil.toString( builder.command(), " " ) );
+			log.atDebug().log( "Starting " + mode + " process..." );
+			log.atTrace().log( TextUtil.toString( builder.command(), " " ) );
 
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
-			Process process = builder.start();
 
+			//Process process = builder.start();
 			// NOTE Because this is running as a shutdown hook, normal logging does not work
-			System.out.println( mode + " process started! pid=" + process.pid() );
+			//log.atInfo().log( mode + " process started! pid=" + process.pid() );
 		} catch( Throwable throwable ) {
-			throwable.printStackTrace( System.err );
+			log.atWarn(throwable).log();
+		} finally {
+			log.flush();
 		}
+
 	}
 
 }

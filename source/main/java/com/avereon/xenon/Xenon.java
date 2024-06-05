@@ -186,6 +186,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	private Boolean isProgramUpdated;
 
+	private RestartHook restartHook;
+
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	public Xenon() {
@@ -800,28 +802,25 @@ public class Xenon extends Application implements XenonProgram {
 	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		RestartHook hook = new RestartHook( this, mode, commands );
-		if( requestExit( true ) ) Runtime.getRuntime().addShutdownHook( hook );
-
-		//		Runtime.getRuntime().addShutdownHook( hook );
-		//		if( !requestExit( true ) ) {
-		//			log.atInfo().log( "Unregistering shutdown hook because user cancelled exit" );
-		//			Runtime.getRuntime().removeShutdownHook( hook );
-		//		}
+		restartHook = new RestartHook( this, mode, commands );
+		requestExit( true );
 	}
 
 	@Override
 	public boolean requestExit( boolean skipChecks ) {
-		return requestExit( skipChecks, skipChecks );
+		boolean exiting = requestExit( skipChecks, skipChecks );
+
+		// Shutdown the FX platform
+		if( exiting ) {
+			if( restartHook != null ) Runtime.getRuntime().addShutdownHook( restartHook );
+			Platform.exit();
+		}
+
+		return exiting;
 	}
 
 	@Override
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
-		return doRequestExit( skipVerifyCheck, skipKeepAliveCheck );
-	}
-
-	@SuppressWarnings( "ConstantConditions" )
-	private boolean doRequestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) {
 			return false;
 		}
@@ -853,12 +852,7 @@ public class Xenon extends Application implements XenonProgram {
 			Fx.run( () -> workspaceManager.hideWindows() );
 		}
 
-		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
-
-		// Shutdown the FX platform
-		if( exiting ) Platform.exit();
-
-		return exiting;
+		return !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 	}
 
 	@Override
