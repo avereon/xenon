@@ -202,17 +202,15 @@ public class RestartHook extends Thread {
 		if( builder == null ) return;
 
 		try {
-			// NOTE Because this is running as a shutdown hook, normal logging does not work
+			log.atInfo().log( "%s command: %s", mode, TextUtil.toString( builder.command(), " " ) );
 			log.atDebug().log( "Starting " + mode + " process..." );
-			log.atTrace().log( TextUtil.toString( builder.command(), " " ) );
 
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 
-			//Process process = builder.start();
-			// NOTE Because this is running as a shutdown hook, normal logging does not work
-			//log.atInfo().log( mode + " process started! pid=" + process.pid() );
+			Process process = builder.start();
+			log.atInfo().log( mode + " process started! pid=" + process.pid() );
 		} catch( Throwable throwable ) {
 			log.atWarn(throwable).log();
 		} finally {
