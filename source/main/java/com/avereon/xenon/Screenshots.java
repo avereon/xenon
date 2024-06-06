@@ -185,7 +185,7 @@ abstract class Screenshots {
 					}
 				}
 			} );
-			programWatcher.waitForEvent( ProgramEvent.STOPPED, 1000 );
+			programWatcher.waitForEvent( ProgramEvent.STOPPED, programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
