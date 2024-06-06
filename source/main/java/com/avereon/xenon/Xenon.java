@@ -808,15 +808,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean requestExit( boolean skipChecks ) {
-		boolean exiting = requestExit( skipChecks, skipChecks );
-
-		// Shutdown the FX platform
-		if( exiting ) {
-			if( restartHook != null ) Runtime.getRuntime().addShutdownHook( restartHook );
-			Platform.exit();
-		}
-
-		return exiting;
+		return requestExit( skipChecks, skipChecks );
 	}
 
 	@Override
@@ -852,7 +844,15 @@ public class Xenon extends Application implements XenonProgram {
 			Fx.run( () -> workspaceManager.hideWindows() );
 		}
 
-		return !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+
+		// Shutdown the FX platform
+		if( exiting ) {
+			if( restartHook != null ) Runtime.getRuntime().addShutdownHook( restartHook );
+			Platform.exit();
+		}
+
+		return exiting;
 	}
 
 	@Override
