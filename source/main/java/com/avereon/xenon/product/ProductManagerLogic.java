@@ -14,6 +14,7 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.product.ProductTool;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zarra.javafx.Fx;
@@ -666,7 +667,7 @@ public class ProductManagerLogic {
 
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
-				getProgram().getWorkspaceManager().requestCloseTools( ProductTool.class );
+				getProgram().getWorkspaceManager().requestCloseTools( SettingsTool.class );
 				getProgram().getProductManager().applyStagedUpdates();
 			} else if( result.get() == discard ) {
 				getProgram().getProductManager().clearStagedUpdates();
