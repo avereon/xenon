@@ -207,6 +207,7 @@ public class RestartHook extends Thread {
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
+			builder.redirectInput( ProcessBuilder.Redirect.DISCARD );
 
 			Process process = builder.start();
 			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
