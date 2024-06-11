@@ -68,6 +68,7 @@ public class RestartHook extends Thread {
 		this.random = new Random();
 
 		configure();
+		log.atInfo().log( "Restart hook configured for %s", mode );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
