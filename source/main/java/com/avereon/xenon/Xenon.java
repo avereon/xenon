@@ -114,7 +114,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private ActionLibrary actionLibrary;
 
-	private ProgramServer programServer;
+	private PeerServer peerServer;
 
 	private SettingsManager settingsManager;
 
@@ -768,11 +768,11 @@ public class Xenon extends Application implements XenonProgram {
 			productManager.unregisterProgram( this );
 		}
 
-		// Stop the program server
-		if( programServer != null ) {
-			log.atFiner().log( "Stopping program server..." );
-			programServer.stop();
-			log.atFine().log( "Program server stopped." );
+		// Stop the peer server
+		if( peerServer != null ) {
+			log.atFiner().log( "Stopping peer server..." );
+			peerServer.stop();
+			log.atFine().log( "Peer server stopped." );
 		}
 
 		// Stop the task manager
@@ -1061,13 +1061,13 @@ public class Xenon extends Application implements XenonProgram {
 	 * </p>
 	 */
 	private boolean peerCheck( int port ) {
-		// If the program server starts this process is a host, not a peer
-		programServer = new ProgramServer( this, port ).start();
-		return !programServer.isRunning();
+		// If the peer server starts this process is a host, not a peer
+		peerServer = new PeerServer( this, port ).start();
+		return !peerServer.isRunning();
 	}
 
 	private boolean isHost() {
-		return programServer.isRunning();
+		return peerServer.isRunning();
 	}
 
 	private boolean isPeer() {

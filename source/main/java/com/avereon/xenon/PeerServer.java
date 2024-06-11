@@ -14,7 +14,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 @CustomLog
-public class ProgramServer implements Controllable<ProgramServer> {
+public class PeerServer implements Controllable<PeerServer> {
 
 	private final Xenon program;
 
@@ -24,7 +24,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	private SocketHandler handler;
 
-	ProgramServer( Xenon program, int requestedPort ) {
+	PeerServer( Xenon program, int requestedPort ) {
 		this.program = program;
 		this.requestedPort = requestedPort;
 	}
@@ -38,7 +38,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		return (server != null && server.isBound());
 	}
 
-	public ProgramServer start() {
+	public PeerServer start() {
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 
 		// Start the program server
@@ -49,7 +49,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
-			log.atFine().log( "Program server started on port %s", localPort );
+			log.atFine().log( "Peer server started on port %s", localPort );
 
 			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
 			serverThread.setDaemon( true );
@@ -63,7 +63,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		return this;
 	}
 
-	public ProgramServer stop() {
+	public PeerServer stop() {
 		if( server == null ) return this;
 		if( handler != null ) handler.stop();
 
@@ -106,6 +106,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 		public void stop() {
 			run = false;
+			int localPort = server.getLocalPort();
 			try {
 				server.close();
 			} catch( IOException exception ) {
@@ -113,7 +114,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			} finally {
 				server = null;
 			}
-			log.atFine().log( "Program server stopped listening" );
+			log.atFiner().log( "Peer server stopped on port %s", localPort );
 		}
 
 	}
