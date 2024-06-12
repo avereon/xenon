@@ -205,10 +205,10 @@ public class RestartHook extends Thread {
 		try {
 			log.atInfo().log( "%s process starting: command=%s", mode, TextUtil.toString( builder.command(), " " ) );
 
-			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
-			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
-			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
-			builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
+			//if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
+			//builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
+			//builder.redirectError( ProcessBuilder.Redirect.DISCARD );
+			//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
 
 			Process process = builder.start();
 			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
