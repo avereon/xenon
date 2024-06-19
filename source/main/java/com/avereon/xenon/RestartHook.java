@@ -49,39 +49,46 @@ public class RestartHook extends Thread {
 	@Getter
 	private final Xenon program;
 
-	private final Mode mode;
-
-	private final String[] additionalParameters;
-
 	private final Path updateCommandFile;
 
 	private final Random random;
 
+	private volatile Mode mode;
+
+	private volatile String[] additionalParameters;
+
 	private volatile ProcessBuilder builder;
 
-	RestartHook( Xenon program, Mode mode, String... additionalParameters ) {
+	RestartHook( Xenon program ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
-		this.mode = mode;
-		this.additionalParameters = additionalParameters;
 		this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
 		this.random = new Random();
 
-		configure();
-		log.atInfo().log( "Restart hook configured for %s", mode );
+		stageUpdater();
+
+		log.atInfo().log( "Restart hook created." );
+	}
+
+	public void setMode( Mode mode, String... additionalParameters ) {
+		if( this.mode == mode ) return;
+
+		this.mode = mode;
+		this.additionalParameters = additionalParameters;
+		configure( mode );
+	}
+
+	private void stageUpdater() {
+		try {
+			// Ensure the updater is staged...even if we have to wait
+			program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
+		} catch( Exception exception ) {
+			log.atSevere().withCause( exception ).log( "Error staging updater" );
+		}
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	private RestartHook configure() {
-		if( mode.isUpdate() ) {
-			try {
-				// Ensure the updater is staged...even if we have to wait
-				program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
-			} catch( Exception exception ) {
-				log.atSevere().withCause( exception ).log( "Error staging updater" );
-			}
-		}
-
+	private RestartHook configure( Mode mode ) {
 		return switch( mode ) {
 			case RESTART -> configureForRestart();
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
@@ -213,7 +220,7 @@ public class RestartHook extends Thread {
 			Process process = builder.start();
 			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
 		} catch( Throwable throwable ) {
-			log.atWarn(throwable).log();
+			log.atWarn( throwable ).log();
 		} finally {
 			// Request that the log handlers flush the messages
 			log.flush();

@@ -525,6 +525,7 @@ public class Xenon extends Application implements XenonProgram {
 		// Start the update manager, depends on product manager
 		log.atFiner().log( "Starting update manager..." );
 		updateManager = new UpdateManager( this );
+		restartHook = new RestartHook( this );
 		log.atFine().log( "Update manager started." );
 		time( "update-manager" );
 
@@ -802,7 +803,7 @@ public class Xenon extends Application implements XenonProgram {
 	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		restartHook = new RestartHook( this, mode, commands );
+		restartHook.setMode( mode, commands );
 		requestExit( true );
 	}
 
