@@ -712,7 +712,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		NoticePane pane = new NoticePane( program, notice, true );
 		noticeBox.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
-		noticeBox.getChildren().add( 0, pane );
+		noticeBox.getChildren().addFirst( pane );
 
 		pane.setOnMouseClicked( event -> {
 			getProgram().getNoticeManager().readNotice( notice );
