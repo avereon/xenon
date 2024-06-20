@@ -91,22 +91,23 @@ public class RestartHook extends Thread {
 
 	@SuppressWarnings( "UnusedReturnValue" )
 	private RestartHook configure( Mode mode ) {
-		return switch( mode ) {
+		switch( mode ) {
 			case RESTART -> configureForRestart();
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
-		};
-	}
+		}
 
-	private synchronized RestartHook configureForRestart() {
-		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
-
-		builder = new ProcessBuilder( commands );
-		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+		log.atInfo().log( "Restart hook configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
 
 		return this;
 	}
 
-	private synchronized RestartHook configureForUpdate() {
+	private synchronized void configureForRestart() {
+		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
+		builder = new ProcessBuilder( commands );
+		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+	}
+
+	private synchronized void configureForUpdate() {
 		UpdateManager manager = program.getUpdateManager();
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
@@ -123,11 +124,11 @@ public class RestartHook extends Thread {
 		}
 
 		try {
-			log.atFiner().log( "Storing update commands..." );
+			log.atTrace().log( "Storing update commands..." );
 			Files.writeString( updateCommandFile, createUpdateCommands() );
-			log.atFine().log( "Update commands stored file=%s", updateCommandFile );
+			log.atDebug().log( "Update commands file=%s", updateCommandFile );
 		} catch( Throwable throwable ) {
-			log.atSevere().withCause( throwable ).log( "Error storing update commands" );
+			log.atError().withCause( throwable ).log( "Error storing update commands" );
 		}
 
 		builder = new ProcessBuilder( updaterLaunchCommands );
@@ -143,10 +144,6 @@ public class RestartHook extends Thread {
 			builder.command().add( ProgramFlag.LOG_LEVEL );
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 		}
-
-		log.atFine().log( "%s command: %s", mode, TextUtil.toString( builder.command(), " " ) );
-
-		return this;
 	}
 
 	private String createUpdateCommands() {
@@ -210,23 +207,22 @@ public class RestartHook extends Thread {
 	public void run() {
 		if( builder == null ) return;
 
-		try {
-			log.atInfo().log( "%s process starting: command=%s", mode, TextUtil.toString( builder.command(), " " ) );
+		// *** 2024 Jun 20: The logger is not available in the run method. ***
+		// *** Using the logger in the run method does not work as expected. ***
 
+		// TODO Should this be in a retry loop?
+
+		try {
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
 
 			Process process = builder.start();
-			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
+
+			System.out.println( mode + " process started! pid=" + process.pid() );
 		} catch( Throwable throwable ) {
-			log.atWarn( throwable ).log();
-		} finally {
-			// Request that the log handlers flush the messages
-			log.flush();
-			// Give the log handlers time to finish
-			ThreadUtil.pause( 500 );
+			throwable.printStackTrace( System.err );
 		}
 
 	}
