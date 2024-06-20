@@ -205,7 +205,6 @@ public class RestartHook extends Thread {
 	}
 
 	@Override
-	@SuppressWarnings( "DontCatch" )
 	public void run() {
 		if( builder == null ) return;
 
