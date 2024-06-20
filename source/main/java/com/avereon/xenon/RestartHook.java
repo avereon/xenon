@@ -224,7 +224,7 @@ public class RestartHook extends Thread {
 			// Request that the log handlers flush the messages
 			log.flush();
 			// Give the log handlers time to finish
-			ThreadUtil.pause( 100 );
+			ThreadUtil.pause( 500 );
 		}
 
 	}
