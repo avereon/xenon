@@ -53,8 +53,10 @@ public class RestartHook extends Thread {
 
 	private final Random random;
 
+	@Getter
 	private volatile Mode mode;
 
+	@Getter
 	private volatile String[] additionalParameters;
 
 	private volatile ProcessBuilder builder;
@@ -182,11 +184,11 @@ public class RestartHook extends Thread {
 				ucb.add( UpdateTask.DELETE, deletePath );
 			}
 		} else if( mode == Mode.MOCK_UPDATE ) {
-			String[] names = new String[]{ program.getCard().getName(), "Module W", "Module X", "Module Y", "Module Z" };
+			String[] names = new String[]{ "Example Program", "Module W", "Module X", "Module Y", "Module Z" };
 			for( String name : names ) {
 				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", name );
 				boolean isProgram = name.equals( program.getCard().getName() );
-				int steps = isProgram ? 15 : 3;
+				int steps = isProgram ? 9 : 3;
 				steps += random.nextInt( 5 );
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 				for( int step = 0; step < steps; step++ ) {
