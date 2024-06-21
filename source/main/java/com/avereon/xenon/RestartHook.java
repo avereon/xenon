@@ -209,7 +209,7 @@ public class RestartHook extends Thread {
 		if( builder == null ) return;
 
 		// Pause a moment to allow things to settle down
-		ThreadUtil.pause( 800 );
+		ThreadUtil.pause( 1000 );
 
 		builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 		builder.redirectError( ProcessBuilder.Redirect.DISCARD );
@@ -222,19 +222,21 @@ public class RestartHook extends Thread {
 
 		int retryCount = 0;
 		int retryLimit = 20;
+		Process process = null;
 		do {
-			ThreadUtil.pause( 200 );
 			try {
 				if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
-				Process process = builder.start();
+				process = builder.start();
 				log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
 				System.out.println( mode + " process started! pid=" + process.pid() );
 			} catch( IOException exception ) {
 				log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
 				exception.printStackTrace( System.err );
+				ThreadUtil.pause( 200 );
 			} finally {
 				log.flush();
+				if( process == null ) ThreadUtil.pause( 200 );
 			}
 		} while( ++retryCount < retryLimit );
 	}
