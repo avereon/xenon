@@ -222,20 +222,23 @@ public class RestartHook extends Thread {
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
 
-			FileLock lock;
-			Process process;
-			int retryCount = 0;
-			int retryLimit = 5;
-			do {
-				lock = channel.tryLock( 0L, Long.MAX_VALUE, true );
-				if( lock != null ) {
-					lock.release();
-					process = builder.start();
-					System.out.println( mode + " process started! pid=" + process.pid() );
-				} else {
-					ThreadUtil.pause( 1000 );
-				}
-			} while( lock == null && ++retryCount < retryLimit );
+			Process process = builder.start();
+			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
+
+//			FileLock lock;
+//			Process process;
+//			int retryCount = 0;
+//			int retryLimit = 5;
+//			do {
+//				lock = channel.tryLock( 0L, Long.MAX_VALUE, true );
+//				if( lock != null ) {
+//					lock.release();
+//					process = builder.start();
+//					System.out.println( mode + " process started! pid=" + process.pid() );
+//				} else {
+//					ThreadUtil.pause( 1000 );
+//				}
+//			} while( lock == null && ++retryCount < retryLimit );
 		} catch( IOException exception ) {
 			exception.printStackTrace( System.err );
 		}
