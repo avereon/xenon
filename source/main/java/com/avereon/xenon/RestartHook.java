@@ -240,6 +240,7 @@ public class RestartHook extends Thread {
 //				}
 //			} while( lock == null && ++retryCount < retryLimit );
 		} catch( IOException exception ) {
+			log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
 			exception.printStackTrace( System.err );
 		}
 
