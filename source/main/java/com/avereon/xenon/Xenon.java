@@ -850,7 +850,8 @@ public class Xenon extends Application implements XenonProgram {
 		// Shutdown the FX platform
 		if( exiting ) {
 			if( restartHook != null ) {
-				Runtime.getRuntime().addShutdownHook( restartHook );
+				//Runtime.getRuntime().addShutdownHook( restartHook );
+				restartHook.run();
 				log.atInfo().log("Restart hook added!" );
 			}
 			Platform.exit();

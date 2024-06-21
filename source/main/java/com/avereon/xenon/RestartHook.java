@@ -12,6 +12,10 @@ import lombok.CustomLog;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -212,17 +216,40 @@ public class RestartHook extends Thread {
 
 		// TODO Should this be in a retry loop?
 
-		try {
+		try( RandomAccessFile file = new RandomAccessFile( builder.command().getFirst(), "r" ); FileChannel channel = file.getChannel() ) {
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
 
-			Process process = builder.start();
+			FileLock lock;
+			Process process;
+			int retryLimit = 5;
+			int retryCount = 0;
+			do {
+				lock = channel.tryLock( 0L, Long.MAX_VALUE, true );
+				if( lock != null ) {
+					lock.release();
+					process = builder.start();
+					System.out.println( mode + " process started! pid=" + process.pid() );
+				} else {
+					try {
+						Thread.sleep( 1000 );
+					} catch( InterruptedException exception ) {
+						exception.printStackTrace( System.err );
+					}
+				}
+			} while( lock == null && ++retryCount < retryLimit );
 
-			System.out.println( mode + " process started! pid=" + process.pid() );
-		} catch( Throwable throwable ) {
-			throwable.printStackTrace( System.err );
+//			try( FileLock lock = channel.lock(0L,Long.MAX_VALUE,true) ) {
+//				if( lock.isValid() ) {
+//					lock.release();
+//					process = builder.start();
+//					System.out.println( mode + " process started! pid=" + process.pid() );
+//				}
+//			}
+		} catch( IOException exception ) {
+			exception.printStackTrace( System.err );
 		}
 
 	}
