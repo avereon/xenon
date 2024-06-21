@@ -131,7 +131,7 @@ public class RestartHook extends Thread {
 			log.atTrace().log( "Storing update commands..." );
 			Files.writeString( updateCommandFile, createUpdateCommands() );
 			log.atDebug().log( "Update commands file=%s", updateCommandFile );
-		} catch( Throwable throwable ) {
+		} catch( IOException throwable ) {
 			log.atError().withCause( throwable ).log( "Error storing update commands" );
 		}
 
@@ -224,8 +224,8 @@ public class RestartHook extends Thread {
 
 			FileLock lock;
 			Process process;
-			int retryLimit = 5;
 			int retryCount = 0;
+			int retryLimit = 5;
 			do {
 				lock = channel.tryLock( 0L, Long.MAX_VALUE, true );
 				if( lock != null ) {
@@ -233,21 +233,9 @@ public class RestartHook extends Thread {
 					process = builder.start();
 					System.out.println( mode + " process started! pid=" + process.pid() );
 				} else {
-					try {
-						Thread.sleep( 1000 );
-					} catch( InterruptedException exception ) {
-						exception.printStackTrace( System.err );
-					}
+					ThreadUtil.pause( 1000 );
 				}
 			} while( lock == null && ++retryCount < retryLimit );
-
-//			try( FileLock lock = channel.lock(0L,Long.MAX_VALUE,true) ) {
-//				if( lock.isValid() ) {
-//					lock.release();
-//					process = builder.start();
-//					System.out.println( mode + " process started! pid=" + process.pid() );
-//				}
-//			}
 		} catch( IOException exception ) {
 			exception.printStackTrace( System.err );
 		}

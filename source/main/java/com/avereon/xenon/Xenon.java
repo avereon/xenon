@@ -783,6 +783,12 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFine().log( "Task manager stopped." );
 		}
 
+		if( restartHook != null ) {
+			//Runtime.getRuntime().addShutdownHook( restartHook );
+			restartHook.run();
+			log.atInfo().log("Restart hook added!" );
+		}
+
 		// NOTE Do not call Platform.exit() here, it was called already
 	}
 
@@ -796,7 +802,7 @@ public class Xenon extends Application implements XenonProgram {
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 
 		// Unregister the program event watcher
-		getFxEventHub().unregister( Event.ANY, watcher );
+		//getFxEventHub().unregister( Event.ANY, watcher );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -848,14 +854,7 @@ public class Xenon extends Application implements XenonProgram {
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 
 		// Shutdown the FX platform
-		if( exiting ) {
-			if( restartHook != null ) {
-				//Runtime.getRuntime().addShutdownHook( restartHook );
-				restartHook.run();
-				log.atInfo().log("Restart hook added!" );
-			}
-			Platform.exit();
-		}
+		if( exiting ) Platform.exit();
 
 		return exiting;
 	}
