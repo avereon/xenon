@@ -272,10 +272,14 @@ Derived from modena.css
 	/*-fx-background-color: blue;*/
 }
 
-/* The workspace actions toolbar */
+/* The workspace actions bar */
 .workspace-actions {
-	/* This fixes a problem with the workspace close button on Windows: https://github.com/avereon/xenon/issues/254 */
-	-fx-padding: 0.416667em 0.49em 0.416667em 0.49em;
+	/*
+	 * WORKAROUND This fixes a problem with the workspace close button on Windows.
+	 * https://github.com/avereon/xenon/issues/254
+	 * Using the value 0.49 in the padding seems to fix the problem.
+	 */
+	/*-fx-padding: 0.5em 0.49em;*/
 }
 
 .action-bar {
@@ -283,8 +287,15 @@ Derived from modena.css
 	-fx-padding: 0;
 }
 
+/* For all tool bars in the action bar */
 .action-bar .tool-bar {
 	-fx-background-color: transparent;
+	/*
+	 * WORKAROUND This fixes a problem with the workspace close button on Windows.
+	 * https://github.com/avereon/xenon/issues/254
+	 * Using the value 0.49 in the padding seems to fix the problem.
+	 */
+	-fx-padding: 0.5em 0.49em;
 }
 
 .action-bar .stage-mover {
