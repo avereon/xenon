@@ -249,7 +249,7 @@ public class Xenon extends Application implements XenonProgram {
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
 
-		// Check for the VERSION CL parameter, depends on program settings
+		// Check for the VERSION CLI parameter, depends on product card
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
 			printVersion( card );
 			requestExit( true );
@@ -257,7 +257,7 @@ public class Xenon extends Application implements XenonProgram {
 		}
 		time( "version-check" );
 
-		// Check for the HELP CL parameter, depends on program settings
+		// Check for the HELP CLI parameter, depends on program parameters
 		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
 			printHelp( getProgramParameters().get( ProgramFlag.HELP ) );
 			requestExit( true );
@@ -276,12 +276,8 @@ public class Xenon extends Application implements XenonProgram {
 		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
 		int port = programSettings.get( "program-port", Integer.class, 0 );
-		if( !TestUtil.isTest() && peerCheck( port ) ) {
-			//			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-			//				log.log( Log.ERROR, "Cannot run update in peer mode" );
-			//			} else {
+		if( !TestUtil.isTest() && isHostAlreadyRunning( port ) ) {
 			new ProgramPeer( this, port ).start();
-			//			}
 			requestExit( true );
 			return;
 		}
@@ -290,7 +286,7 @@ public class Xenon extends Application implements XenonProgram {
 		// NOTE At this point this instance is a host not a peer
 
 		// If this instance is a host, process the CLI actions before showing the splash screen
-		if( !processCliActions( getProgramParameters(), true ) ) {
+		if( processPeerCommands( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
@@ -785,7 +781,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		if( restartHook != null ) {
 			Runtime.getRuntime().addShutdownHook( restartHook );
-			log.atInfo().log("Restart hook added!" );
+			log.atInfo().log( "Restart hook added!" );
 		}
 
 		// NOTE Do not call Platform.exit() here, it was called already
@@ -1063,10 +1059,10 @@ public class Xenon extends Application implements XenonProgram {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck( int port ) {
+	private boolean isHostAlreadyRunning( int port ) {
 		// If the peer server starts this process is a host, not a peer
-		peerServer = new PeerServer( this, port ).start();
-		return !peerServer.isRunning();
+		if( peerServer == null ) peerServer = new PeerServer( this, port ).start();
+		return isPeer();
 	}
 
 	private boolean isHost() {
@@ -1083,17 +1079,17 @@ public class Xenon extends Application implements XenonProgram {
 	 * @param parameters The command line parameters
 	 * @return True if the program should continue to start when it is a host
 	 */
-	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
+	boolean processPeerCommands( com.avereon.util.Parameters parameters, boolean startup ) {
 		if( parameters.isSet( ProgramFlag.HELLO ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to say hello to, just talking to myself!" );
 			} else {
 				log.atWarning().log( "Hello peer. Good to hear from you!" );
 			}
-			return false;
+			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
 			printStatus( startup );
-			return false;
+			return true;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
 			if( startup ) {
 				if( isHost() ) {
@@ -1104,21 +1100,19 @@ public class Xenon extends Application implements XenonProgram {
 					Fx.run( () -> requestExit( true ) );
 				}
 			}
-			return false;
+			return true;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to watch, I'm out!" );
 			} else {
 				log.atWarning().log( "A watcher has connected!" );
 			}
-			return false;
+			return true;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
-			if( !startup ) {
-				getWorkspaceManager().showActiveWorkspace();
-			}
+			if( !startup ) getWorkspaceManager().showActiveWorkspace();
 		}
 
-		return true;
+		return false;
 	}
 
 	//	/**
@@ -1213,11 +1207,10 @@ public class Xenon extends Application implements XenonProgram {
 		log.atInfo().log( "Status: %s", status );
 	}
 
-	private void printHelp( String category ) {
-		if( "true".equals( category ) ) {
-			category = "general";
-		}
-		InputStream input = getClass().getResourceAsStream( "help/" + category + ".txt" );
+	private static void printHelp( String category ) {
+		if( "true".equals( category ) ) category = "general";
+
+		InputStream input = Xenon.class.getResourceAsStream( "help/" + category + ".txt" );
 
 		if( input == null ) {
 			System.out.println( "No help for category: " + category );

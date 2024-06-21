@@ -91,7 +91,7 @@ public class PeerServer implements Controllable<PeerServer> {
 					// Process the parameters and send messages to the peer
 					Handler peerLogHandler = new LogHandler( client );
 					LogManager.getLogManager().getLogger( "" ).addHandler( peerLogHandler );
-					program.processCliActions( parameters, false );
+					program.processPeerCommands( parameters, false );
 					program.processAssets( parameters );
 					//LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
 				} catch( ClassNotFoundException exception ) {
