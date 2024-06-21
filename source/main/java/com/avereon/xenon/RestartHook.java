@@ -13,9 +13,6 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -211,39 +208,33 @@ public class RestartHook extends Thread {
 	public void run() {
 		if( builder == null ) return;
 
+		// Pause a moment to allow things to settle down
+		ThreadUtil.pause( 800 );
+
+		builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
+		builder.redirectError( ProcessBuilder.Redirect.DISCARD );
+		//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
+
 		// *** 2024 Jun 20: The logger is not available in the run method. ***
 		// *** Using the logger in the run method does not work as expected. ***
 
 		// TODO Should this be in a retry loop?
 
-		try( RandomAccessFile file = new RandomAccessFile( builder.command().getFirst(), "r" ); FileChannel channel = file.getChannel() ) {
-			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
-			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
-			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
-			//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
+		int retryCount = 0;
+		int retryLimit = 20;
+		do {
+			ThreadUtil.pause( 200 );
+			try {
+				if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
-			Process process = builder.start();
-			log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
-
-//			FileLock lock;
-//			Process process;
-//			int retryCount = 0;
-//			int retryLimit = 5;
-//			do {
-//				lock = channel.tryLock( 0L, Long.MAX_VALUE, true );
-//				if( lock != null ) {
-//					lock.release();
-//					process = builder.start();
-//					System.out.println( mode + " process started! pid=" + process.pid() );
-//				} else {
-//					ThreadUtil.pause( 1000 );
-//				}
-//			} while( lock == null && ++retryCount < retryLimit );
-		} catch( IOException exception ) {
-			log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
-			exception.printStackTrace( System.err );
-		}
-
+				Process process = builder.start();
+				log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
+				System.out.println( mode + " process started! pid=" + process.pid() );
+			} catch( IOException exception ) {
+				log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
+				exception.printStackTrace( System.err );
+			}
+		} while( ++retryCount < retryLimit );
 	}
 
 }
