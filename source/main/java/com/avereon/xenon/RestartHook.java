@@ -208,6 +208,8 @@ public class RestartHook extends Thread {
 	public void run() {
 		if( builder == null ) return;
 
+		if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
+
 		// Pause a moment to allow things to settle down
 		ThreadUtil.pause( 1000 );
 
@@ -218,15 +220,12 @@ public class RestartHook extends Thread {
 		// *** 2024 Jun 20: The logger is not available in the run method. ***
 		// *** Using the logger in the run method does not work as expected. ***
 
-		// TODO Should this be in a retry loop?
-
 		int retryCount = 0;
 		int retryLimit = 20;
 		Process process = null;
 		do {
 			try {
-				if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
-
+				log.atDebug().log( "Attempt %s of %s starting %s process...", retryCount, retryLimit, mode );
 				process = builder.start();
 				log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
 				System.out.println( mode + " process started! pid=" + process.pid() );
