@@ -111,7 +111,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void addSettingsPages( Map<String, SettingsPage> pages, Settings settings ) {
 		synchronized( rootSettingsPages ) {
-			log.atFine().log( "Adding settings pages..." );
+			log.atTrace().log( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -120,18 +120,20 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			}
 
 			Fx.run( this::updateSettingsGuide );
+			log.atDebug().log( "Settings pages added" );
 		}
 	}
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.atFine().log( "Removing settings pages..." );
+			log.atTrace().log( "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );
 			}
 
 			Fx.run( this::updateSettingsGuide );
+			log.atDebug().log( "Settings pages removed" );
 		}
 	}
 
@@ -171,12 +173,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private void createGuide( GuideNode node, Map<String, SettingsPage> pages ) {
-		// Clear the guide nodes
-		guide.clear( node );
-
 		// Order the pages
 		List<SettingsPage> orderedPages = new ArrayList<>( pages.values() );
 		orderedPages.sort( new SettingsOrderComparator() );
+
+		// Clear the guide nodes
+		guide.clear( node );
 
 		for( SettingsPage page : pages.values() ) {
 			GuideNode pageNode = addGuideNode( node, pages.get( page.getId() ) );

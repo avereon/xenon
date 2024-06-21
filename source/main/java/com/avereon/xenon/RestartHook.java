@@ -230,6 +230,7 @@ public class RestartHook extends Thread {
 				process = builder.start();
 				log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
 				System.out.println( mode + " process started! pid=" + process.pid() );
+				break;
 			} catch( IOException exception ) {
 				log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
 				exception.printStackTrace( System.err );
