@@ -10,7 +10,11 @@ public class ProgramChecks {
 
 	public ProgramChecks( Xenon program ) {
 		this.program = program;
+	}
+
+	public ProgramChecks register() {
 		program.register( ProgramEvent.STARTED, ( e ) -> checkForHiDpi() );
+		return this;
 	}
 
 	private void checkForHiDpi() {

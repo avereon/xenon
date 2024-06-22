@@ -584,9 +584,10 @@ public class Xenon extends Application implements XenonProgram {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartSuccess() {
+		time( "program-started" );
+
 		// Program started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
-		time( "program-started" );
 
 		// Check for staged updates
 		getProductManager().checkForStagedUpdatesAtStart();
@@ -595,13 +596,13 @@ public class Xenon extends Application implements XenonProgram {
 		getProductManager().scheduleUpdateCheck( true );
 
 		// Check to see if the application was updated
-		if( isProgramUpdated() ) {
-			Fx.run( this::notifyProgramUpdated );
-		}
+		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
 
 		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
-		new ProgramChecks( this );
+
+		// Register the program checks
+		new ProgramChecks( this ).register();
 
 		// Index program documents
 		indexProgramDocuments();
