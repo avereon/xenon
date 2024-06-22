@@ -87,14 +87,18 @@ public class ActionLibrary {
 		register( product, "about" );
 
 		register( product, "development" );
+		register( product, "restart" );
+		register( product, "uireset" );
+		register( product, "mock-update" );
+
+		register( product, "show-updates-posted" );
+		register( product, "show-updates-staged" );
+
 		register( product, "test-action-1" );
 		register( product, "test-action-2" );
 		register( product, "test-action-3" );
 		register( product, "test-action-4" );
 		register( product, "test-action-5" );
-		register( product, "mock-update" );
-		register( product, "restart" );
-		register( product, "uireset" );
 
 		register( product, "workarea" );
 		register( product, "workarea-new" );

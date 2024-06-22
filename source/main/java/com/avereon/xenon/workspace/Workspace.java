@@ -30,7 +30,6 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
@@ -450,7 +449,12 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Menu generateDevMenu( Xenon program ) {
-		String development = "development[restart,uireset,mock-update|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String development = "";
+		development += "development[";
+		development += "restart,uireset,mock-update";
+		development += "|show-updates-posted,show-updates-staged";
+		development += "|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5";
+		development += "]";
 		return MenuFactory.createMenu( program, development, true );
 	}
 

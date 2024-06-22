@@ -1351,6 +1351,14 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pushAction( wallpaperTintToggleAction = new WallpaperTintToggleAction( this ) );
 
+		getActionLibrary().getAction("show-updates-posted").pushAction( new RunnableTestAction( this, () ->{
+			getProductManager().showPostedUpdates();
+		} ) );
+
+		getActionLibrary().getAction("show-updates-staged").pushAction( new RunnableTestAction( this, () ->{
+			getProductManager().showStagedUpdates();
+		} ) );
+
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log();
 		} ) );
