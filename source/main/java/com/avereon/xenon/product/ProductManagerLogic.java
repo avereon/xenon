@@ -85,7 +85,6 @@ public class ProductManagerLogic {
 	@Asynchronous
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
-
 		return createFindPostedUpdatesChain( force )
 			.link( ( cards ) -> cards.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ) )
 			.link( ( updates ) -> handlePostedUpdatesResult( updates, force ) )
@@ -615,7 +614,7 @@ public class ProductManagerLogic {
 	}
 
 	private void openUpdates() {
-		URI uri = URI.create( ProgramSettingsType.URI + "/modules/modules-updates" );
+		URI uri = URI.create( ProgramSettingsType.URI + "#modules-updates" );
 		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
