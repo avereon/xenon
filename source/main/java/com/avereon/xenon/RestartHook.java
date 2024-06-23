@@ -221,9 +221,13 @@ public class RestartHook extends Thread {
 		// *** 2024 Jun 20: The logger is not available in the run method. ***
 		// *** Using the logger in the run method does not work as expected. ***
 
+		int wait = 200;
+		int timeout = 5000;
 		int retryCount = 0;
-		int retryLimit = 20;
+		int retryLimit = timeout / wait;
+		long timeLimit = System.currentTimeMillis() + timeout;
 		Process process = null;
+
 		do {
 			try {
 				log.atDebug().log( "Attempt %s of %s starting %s process...", retryCount, retryLimit, mode );
@@ -237,9 +241,10 @@ public class RestartHook extends Thread {
 				ThreadUtil.pause( 200 );
 			} finally {
 				log.flush();
-				if( process == null ) ThreadUtil.pause( 200 );
+				if( process == null ) ThreadUtil.pause( wait );
 			}
-		} while( ++retryCount < retryLimit );
+			retryCount++;
+		} while( System.currentTimeMillis() < timeLimit );
 	}
 
 }
