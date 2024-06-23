@@ -622,7 +622,7 @@ public class ProductManagerLogic {
 		if( updates.isEmpty() ) return;
 		String title = Rb.text( RbKey.UPDATE, "updates-found" );
 		String message = Rb.text( RbKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramSettingsType.URI + "/modulesmodules-updates" );
+		URI uri = URI.create( ProgramSettingsType.URI + "#modules-updates" );
 
 		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) ).setBalloonStickiness( Notice.Balloon.ALWAYS ).setType( Notice.Type.INFO );
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );
