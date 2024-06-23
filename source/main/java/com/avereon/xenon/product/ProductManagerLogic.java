@@ -614,17 +614,17 @@ public class ProductManagerLogic {
 	}
 
 	private void openUpdates() {
-		URI uri = URI.create( ProgramSettingsType.URI + "#modules-updates" );
-		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
+		Fx.run( () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) );
 	}
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
 		if( updates.isEmpty() ) return;
 		String title = Rb.text( RbKey.UPDATE, "updates-found" );
 		String message = Rb.text( RbKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramSettingsType.URI + "#modules-updates" );
 
-		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) ).setBalloonStickiness( Notice.Balloon.ALWAYS ).setType( Notice.Type.INFO );
+		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
+			.setType( Notice.Type.INFO );
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );
 	}
 
