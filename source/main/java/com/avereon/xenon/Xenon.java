@@ -245,6 +245,10 @@ public class Xenon extends Application implements XenonProgram {
 		configureLogging();
 		time( "configure-logging" );
 
+		// Print the memory setup
+		long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+		log.atDebug().log( "JVM Max Memory: " + maxMemory + "MB" );
+
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
