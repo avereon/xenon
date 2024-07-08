@@ -24,7 +24,7 @@ env:
   DISPLAY: ":99"
   GITHUB_REF: ${{ github.ref }}
   JAVA_VERSION: "21"
-#  MAVEN_OPTS: "-Xms2g -Xmx8g"
+  MAVEN_OPTS: "-Xms1g -Xmx2g"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
 
@@ -173,7 +173,7 @@ jobs:
     needs: build
     name: Screenshots 1x
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
@@ -232,7 +232,7 @@ jobs:
     needs: build
     name: Screenshots 2x
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
