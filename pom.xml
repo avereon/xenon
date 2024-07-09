@@ -500,7 +500,7 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx128m</argument>
+										<argument>-Xmx256m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
