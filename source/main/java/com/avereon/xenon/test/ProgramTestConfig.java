@@ -1,6 +1,6 @@
 package com.avereon.xenon.test;
 
-import com.avereon.product.Profile;
+import com.avereon.product.ProgramMode;
 import com.avereon.product.ProgramFlag;
 
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ public interface ProgramTestConfig {
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
-		values.add( ProgramFlag.PROFILE );
-		values.add( Profile.TEST );
+		values.add( ProgramFlag.MODE );
+		values.add( ProgramMode.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
 		values.add( ProgramFlag.ERROR );
 		values.add( ProgramFlag.NOSPLASH );
