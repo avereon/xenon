@@ -3,8 +3,8 @@ package com.avereon.xenon;
 import com.avereon.skill.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
-import com.avereon.zarra.color.MaterialColor;
 import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.color.MaterialColor;
 import javafx.scene.paint.Color;
 import lombok.CustomLog;
 
@@ -65,10 +65,11 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	}
 
 	public ThemeMetadata getMetadata( String id ) {
-		return themes.get( id );
+		return id == null ? null : themes.get( id );
 	}
 
 	private void registerTheme( String id, String name, boolean isDark, String url ) {
+		if( id == null ) throw new NullPointerException( "Theme ID cannot be null" );
 		Path path = profileThemeFolder.resolve( url );
 		themes.put( id, new ThemeMetadata( id, name, isDark, path.toUri().toString() ) );
 		log.atFiner().log( "Theme registered: %s", name );
@@ -87,7 +88,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 					String url = p.toAbsolutePath().toString();
 					registerTheme( id, name, isDark, url );
 				} catch( IOException exception ) {
-					exception.printStackTrace();
+					//log.atWarn().withCause( exception ).log();
 				}
 			} );
 		} catch( IOException exception ) {
@@ -164,6 +165,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	private void createTheme( String name, Color base, Color accent, Color focus ) {
 		String id = name.replace( ' ', '-' ).toLowerCase();
 		Path path = profileThemeFolder.resolve( id + ".css" );
+		if( Files.exists( path ) ) return;
 		try( FileWriter writer = new FileWriter( path.toFile() ) ) {
 			new ThemeWriter( base, accent, focus ).write( id, name, writer );
 		} catch( IOException exception ) {
