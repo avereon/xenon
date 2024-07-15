@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
+private final String DEFAULT_THEME_ID = "xenon-dark";
+
 	private final Xenon program;
 
 	private final Map<String, ThemeMetadata> themes;
@@ -65,7 +67,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	}
 
 	public ThemeMetadata getMetadata( String id ) {
-		return id == null ? null : themes.get( id );
+		return themes.get( id == null ? DEFAULT_THEME_ID : id );
 	}
 
 	private void registerTheme( String id, String name, boolean isDark, String url ) {
