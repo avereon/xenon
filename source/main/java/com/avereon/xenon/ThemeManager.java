@@ -7,6 +7,7 @@ import com.avereon.zarra.color.Colors;
 import com.avereon.zarra.color.MaterialColor;
 import javafx.scene.paint.Color;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,12 +18,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
-private final String DEFAULT_THEME_ID = "xenon-dark";
+	private static final String DEFAULT_THEME_ID = "xenon-dark";
 
+	@Getter
 	private final Xenon program;
 
 	private final Map<String, ThemeMetadata> themes;
@@ -35,13 +38,9 @@ private final String DEFAULT_THEME_ID = "xenon-dark";
 		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
-	public Xenon getProgram() {
-		return program;
-	}
-
 	@Override
 	public boolean isRunning() {
-		return themes.size() > 0;
+		return !themes.isEmpty();
 	}
 
 	@Override
@@ -78,9 +77,9 @@ private final String DEFAULT_THEME_ID = "xenon-dark";
 	}
 
 	private void reloadProfileThemes() {
-		try {
+		try( Stream<Path> themeFiles = Files.list( profileThemeFolder ) ) {
 			themes.clear();
-			Files.list( profileThemeFolder ).forEach( p -> {
+			themeFiles.forEach( p -> {
 				if( Files.isDirectory( p ) ) return;
 				try {
 					List<String> lines = TextUtil.getLines( FileUtil.load( p ) );
@@ -90,7 +89,7 @@ private final String DEFAULT_THEME_ID = "xenon-dark";
 					String url = p.toAbsolutePath().toString();
 					registerTheme( id, name, isDark, url );
 				} catch( IOException exception ) {
-					//log.atWarn().withCause( exception ).log();
+					log.atWarn().withCause( exception ).log();
 				}
 			} );
 		} catch( IOException exception ) {
