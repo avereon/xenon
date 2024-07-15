@@ -32,11 +32,12 @@ public interface ProgramTestConfig {
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
+		values.add( ProgramFlag.NOSPLASH );
+		values.add( ProgramFlag.NOUPDATE );
 		values.add( ProgramFlag.MODE );
 		values.add( ProgramMode.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
 		values.add( ProgramFlag.ERROR );
-		values.add( ProgramFlag.NOSPLASH );
 		return values.toArray( new String[ 0 ] );
 	}
 
