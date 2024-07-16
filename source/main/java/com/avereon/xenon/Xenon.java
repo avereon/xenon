@@ -913,10 +913,20 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private String getProfileMode() {
-		String mode = getMode();
 		String profile = getProfile();
+		String mode = getMode();
+		return combineProfileMode( profile, mode );
+	}
 
+	/**
+	 * Get the profile and mode as a single string. If there is not a profile or
+	 * mode, the empty string is returned.
+	 *
+	 * @return The profile and mode as a single string
+	 */
+	String combineProfileMode(String profile, String mode) {
 		String profileModeString;
+
 		if( TextUtil.isEmpty( profile ) ) {
 			if( TextUtil.isEmpty( mode ) ) {
 				profileModeString = "";
@@ -1265,7 +1275,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private String getDataFolderSuffix() {
 		String profileMode = getProfileMode();
-		return profileMode == null ? "" : "-" + profileMode;
+		return TextUtil.isEmpty( profileMode ) ? "" : "-" + profileMode;
 	}
 
 	private void configureDataFolder() {

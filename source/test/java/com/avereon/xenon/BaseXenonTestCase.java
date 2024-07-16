@@ -32,6 +32,12 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 	protected void setup() throws Exception {
 		super.setup();
 
+		if( OperatingSystem.isWindows() ) {
+			System.setProperty( "jpackage.app-path", "C:\\Program Files\\Xenon\\Xenon.exe" );
+		} else {
+			System.setProperty( "jpackage.app-path", "/opt/xenon/bin/Xenon" );
+		}
+
 		// Remove the existing program data folder
 		String suffix = "-" + ProgramMode.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
