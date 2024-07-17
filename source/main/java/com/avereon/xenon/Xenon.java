@@ -226,6 +226,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
+		time( "uncaught-exception-handler" );
 
 		// Init the product card
 		card = ProgramConfig.loadProductInfo();
@@ -320,10 +321,6 @@ public class Xenon extends Application implements XenonProgram {
 			log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 		}
 
-		// Add the uncaught exception handler to the FX thread
-		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
-		time( "uncaught-exception-handler" );
-
 		// This must be set before the splash screen is shown
 		Application.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
 		time( "stylesheet" );
@@ -415,6 +412,10 @@ public class Xenon extends Application implements XenonProgram {
 		productManager = configureProductManager( new ProductManager( this ) );
 		time( "product-manager" );
 
+		// Update the product card
+		card = ProductCard.card( this );
+		time( "update-product-card" );
+
 		// Create the icon library
 		iconLibrary = new IconLibrary( this );
 		time( "icon-library" );
@@ -433,10 +434,6 @@ public class Xenon extends Application implements XenonProgram {
 		if( splashScreen != null ) {
 			Fx.run( () -> splashScreen.setSteps( steps ) );
 		}
-
-		// Update the product card
-		card = ProductCard.card( this );
-		time( "update-product-card" );
 
 		if( splashScreen != null ) {
 			Fx.run( () -> splashScreen.update() );
