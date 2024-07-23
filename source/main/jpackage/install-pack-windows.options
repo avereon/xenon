@@ -1,4 +1,4 @@
---type exe
+--type msi
 --icon "${basedir}/target/main/images/${project.artifactId}.ico"
 --description "${project.name}"
 --win-menu

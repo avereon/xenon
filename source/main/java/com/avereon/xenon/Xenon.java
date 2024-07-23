@@ -786,11 +786,8 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFine().log( "Task manager stopped." );
 		}
 
-		if( restartHook != null ) {
-			//Runtime.getRuntime().addShutdownHook( restartHook );
-			restartHook.run();
-			log.atInfo().log( "Restart hook added!" );
-		}
+		// Start the restart process, if requested
+		if( restartHook != null ) restartHook.run();
 
 		// NOTE Do not call Platform.exit() here, it was called already
 	}
@@ -922,7 +919,7 @@ public class Xenon extends Application implements XenonProgram {
 	 *
 	 * @return The profile and mode as a single string
 	 */
-	String combineProfileMode(String profile, String mode) {
+	String combineProfileMode( String profile, String mode ) {
 		String profileModeString;
 
 		if( TextUtil.isEmpty( profile ) ) {
