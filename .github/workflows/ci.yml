@@ -493,7 +493,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-#      # JPackage uses Wix 3.x in Java 11, 17, 21
+      # JPackage uses Wix 3.x in Java 11, 17, 21
       - name: Publish Install Pack
         shell: bash
         run: |
