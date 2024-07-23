@@ -266,6 +266,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		saveRepos();
 	}
 
+	public void showPostedUpdates() {
+		new ProductManagerLogic( getProgram() ).showPostedUpdates();
+	}
+
+	public void showStagedUpdates() {
+		new ProductManagerLogic( getProgram() ).showStagedUpdates();
+	}
+
 	/**
 	 * Get the set of available modules for this product.
 	 *

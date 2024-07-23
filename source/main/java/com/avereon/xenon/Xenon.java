@@ -110,6 +110,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	private String profile;
 
+	private String mode;
+
 	private IconLibrary iconLibrary;
 
 	private ActionLibrary actionLibrary;
@@ -224,6 +226,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
+		time( "uncaught-exception-handler" );
 
 		// Init the product card
 		card = ProgramConfig.loadProductInfo();
@@ -245,9 +248,16 @@ public class Xenon extends Application implements XenonProgram {
 		configureLogging();
 		time( "configure-logging" );
 
+		// Get the memory setup
+		long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
+
+		log.atDebug().log( "JVM Max Memory: " + maxMemory + "MB" );
+		log.atFine().log( "Program home: %s", getHomeFolder() );
+		log.atFine().log( "Program data: %s", getDataFolder() );
 
 		// Check for the VERSION CLI parameter, depends on product card
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
@@ -307,13 +317,9 @@ public class Xenon extends Application implements XenonProgram {
 	@Override
 	public void start( Stage stage ) {
 		time( "fx-start" );
-		if( !Profile.TEST.equals( profile ) && !isHardwareRendered() ) {
+		if( !ProgramMode.TEST.equals( mode ) && !isHardwareRendered() ) {
 			log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 		}
-
-		// Add the uncaught exception handler to the FX thread
-		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
-		time( "uncaught-exception-handler" );
 
 		// This must be set before the splash screen is shown
 		Application.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
@@ -406,6 +412,10 @@ public class Xenon extends Application implements XenonProgram {
 		productManager = configureProductManager( new ProductManager( this ) );
 		time( "product-manager" );
 
+		// Update the product card
+		card = ProductCard.card( this );
+		time( "update-product-card" );
+
 		// Create the icon library
 		iconLibrary = new IconLibrary( this );
 		time( "icon-library" );
@@ -424,10 +434,6 @@ public class Xenon extends Application implements XenonProgram {
 		if( splashScreen != null ) {
 			Fx.run( () -> splashScreen.setSteps( steps ) );
 		}
-
-		// Update the product card
-		card = ProductCard.card( this );
-		time( "update-product-card" );
 
 		if( splashScreen != null ) {
 			Fx.run( () -> splashScreen.update() );
@@ -584,9 +590,10 @@ public class Xenon extends Application implements XenonProgram {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartSuccess() {
+		time( "program-started" );
+
 		// Program started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
-		time( "program-started" );
 
 		// Check for staged updates
 		getProductManager().checkForStagedUpdatesAtStart();
@@ -595,13 +602,13 @@ public class Xenon extends Application implements XenonProgram {
 		getProductManager().scheduleUpdateCheck( true );
 
 		// Check to see if the application was updated
-		if( isProgramUpdated() ) {
-			Fx.run( this::notifyProgramUpdated );
-		}
+		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
 
 		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
-		new ProgramChecks( this );
+
+		// Register the program checks
+		new ProgramChecks( this ).register();
 
 		// Index program documents
 		indexProgramDocuments();
@@ -893,10 +900,46 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public String getProfile() {
-		if( profile == null ) {
-			profile = parameters.get( ProgramFlag.PROFILE );
-		}
+		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
 		return profile;
+	}
+
+	@Override
+	public String getMode() {
+		if( mode == null ) mode = parameters.get( ProgramFlag.MODE );
+		return mode;
+	}
+
+	private String getProfileMode() {
+		String profile = getProfile();
+		String mode = getMode();
+		return combineProfileMode( profile, mode );
+	}
+
+	/**
+	 * Get the profile and mode as a single string. If there is not a profile or
+	 * mode, the empty string is returned.
+	 *
+	 * @return The profile and mode as a single string
+	 */
+	String combineProfileMode(String profile, String mode) {
+		String profileModeString;
+
+		if( TextUtil.isEmpty( profile ) ) {
+			if( TextUtil.isEmpty( mode ) ) {
+				profileModeString = "";
+			} else {
+				profileModeString = mode;
+			}
+		} else {
+			if( TextUtil.isEmpty( mode ) ) {
+				profileModeString = profile;
+			} else {
+				profileModeString = profile + "-" + mode;
+			}
+		}
+
+		return profileModeString;
 	}
 
 	@Override
@@ -1176,13 +1219,12 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
-		String profile = getProfile();
-		if( Profile.TEST.equals( profile ) ) {
-			return;
-		}
+		String mode = getMode();
+		if( ProgramMode.TEST.equals( mode ) ) return;
 
+		String profileMode = getProfileMode();
 		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
-		String versionString = card.getVersion() + (profile == null ? "" : " [" + profile + "]");
+		String versionString = card.getVersion() + (TextUtil.isEmpty( profileMode ) ? "" : " [" + profileMode + "]");
 		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
 		String releaseString = "";
 
@@ -1229,12 +1271,13 @@ public class Xenon extends Application implements XenonProgram {
 		}
 	}
 
-	private String getProfileSuffix() {
-		return profile == null ? "" : "-" + profile;
+	private String getDataFolderSuffix() {
+		String profileMode = getProfileMode();
+		return TextUtil.isEmpty( profileMode ) ? "" : "-" + profileMode;
 	}
 
 	private void configureDataFolder() {
-		String suffix = getProfileSuffix();
+		String suffix = getDataFolderSuffix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
 		programTempFolder = programDataFolder.resolve( "temp" );
 	}
@@ -1270,8 +1313,8 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 			}
 
-			// However, when in development, don't use the java home
-			if( Profile.DEV.equals( getProfile() ) ) {
+			// However, when in development mode, don't use the java home
+			if( ProgramMode.DEV.equals( getMode() ) ) {
 				programHomeFolder = Paths.get( "target/program" );
 			}
 
@@ -1284,7 +1327,7 @@ public class Xenon extends Application implements XenonProgram {
 			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
-			if( Profile.DEV.equals( getProfile() ) ) {
+			if( ProgramMode.DEV.equals( getMode() ) ) {
 				Files.createDirectories( programHomeFolder );
 			}
 
@@ -1297,9 +1340,6 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Set install folder on product card
 		card.setInstallFolder( programHomeFolder );
-
-		log.atFine().log( "Program home: %s", getHomeFolder() );
-		log.atFine().log( "Program data: %s", getDataFolder() );
 	}
 
 	@Override
@@ -1350,6 +1390,14 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pushAction( wallpaperTintToggleAction = new WallpaperTintToggleAction( this ) );
+
+		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction( this, () -> {
+			getProductManager().showPostedUpdates();
+		} ) );
+
+		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction( this, () -> {
+			getProductManager().showStagedUpdates();
+		} ) );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log();

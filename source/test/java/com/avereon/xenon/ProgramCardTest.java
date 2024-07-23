@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.Profile;
+import com.avereon.product.ProgramMode;
 import com.avereon.util.OperatingSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ public class ProgramCardTest extends ProgramTestCase {
 
 	@Test
 	void testProgramDataFolder() {
-		String suffix = "-" + Profile.TEST;
+		String suffix = "-" + ProgramMode.TEST;
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( getProgram().getDataFolder() ).isEqualTo( programDataFolder );
 	}

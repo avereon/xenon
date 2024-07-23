@@ -8,12 +8,11 @@ import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramModuleType;
+import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
@@ -56,9 +55,13 @@ public class ProductManagerLogic {
 		this.repoClient = new V2RepoClient( program );
 	}
 
+	public void showPostedUpdates() {
+		openUpdates();
+	}
+
 	// This is a method for testing the update found dialog.
 	// It should not be used for production functionality.
-	public void showUpdateFoundDialog() {
+	public void showStagedUpdates() {
 		notifyUpdatesReadyToApply( true );
 	}
 
@@ -82,7 +85,6 @@ public class ProductManagerLogic {
 	@Asynchronous
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
-
 		return createFindPostedUpdatesChain( force )
 			.link( ( cards ) -> cards.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ) )
 			.link( ( updates ) -> handlePostedUpdatesResult( updates, force ) )
@@ -168,10 +170,10 @@ public class ProductManagerLogic {
 		Set<RepoState> repos = getProgram().getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
 		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
-		repos.forEach( ( r ) -> {
-			log.atDebug().log( "Creating catalog downloads for repo: %s", r );
-			URI uri = repoClient.getCatalogUri( r );
-			downloads.put( r, getProgram().getTaskManager().submit( new DownloadTask( getProgram(), uri ) ) );
+		repos.forEach( ( resource ) -> {
+			log.atDebug().log( "Creating catalog downloads for repo: %s", resource );
+			URI uri = repoClient.getCatalogUri( resource );
+			downloads.put( resource, getProgram().getTaskManager().submit( new DownloadTask( getProgram(), uri ) ) );
 		} );
 
 		return downloads;
@@ -239,7 +241,7 @@ public class ProductManagerLogic {
 				} catch( IOException | ExecutionException | InterruptedException exception ) {
 					// FIXME How to report this back to the user in a meaningful way?
 					productSet.add( PRODUCT_CONNECTION_ERROR );
-					exception.printStackTrace();
+					log.atError().withCause( exception ).log();
 				}
 			} );
 		} );
@@ -254,7 +256,7 @@ public class ProductManagerLogic {
 	public Set<ProductCard> determineUpdatableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
 		if( products == null ) throw new NullPointerException( "Product map cannot be null" );
 
-		boolean determineAvailable = installedProducts.size() == 0;
+		boolean determineAvailable = installedProducts.isEmpty();
 		boolean determineUpdates = !determineAvailable;
 
 		// Create a product/version map
@@ -271,7 +273,7 @@ public class ProductManagerLogic {
 			// Sort all the latest product versions to the top of each list
 			productVersionList.sort( comparator );
 
-			ProductCard latest = productVersionList.get( 0 );
+			ProductCard latest = productVersionList.getFirst();
 			RepoState repo = new RepoState( latest.getRepo() );
 			ProductCard installed = installedProducts.get( latest.getProductKey() );
 			boolean latestIsInstalled = installed != null && latest.getRelease().compareTo( installed.getRelease() ) <= 0;
@@ -290,8 +292,8 @@ public class ProductManagerLogic {
 		long connectionErrors = updates.stream().map( DownloadRequest::getCard ).filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
 
 		if( interactive ) {
-			if( updates.size() > 0 ) {
-				openProductTool();
+			if( !updates.isEmpty() ) {
+				openUpdates();
 			} else {
 				notifyUserOfNoUpdates( connectionErrors > 0 );
 			}
@@ -310,7 +312,7 @@ public class ProductManagerLogic {
 		try {
 			TaskChain.of( () -> startResourceDownloads( updates ) ).link( this::startProductResourceCollectors ).link( this::collectProductUpdates ).link( this::stageProductUpdates ).run( getProgram() );
 		} catch( Exception exception ) {
-			exception.printStackTrace();
+			log.atError().withCause( exception ).log();
 		}
 	}
 
@@ -440,7 +442,7 @@ public class ProductManagerLogic {
 		}
 
 		private boolean areAllResourcesValid( Set<ProductResource> resources ) {
-			return resources.stream().filter( ( r ) -> !r.isValid() ).collect( Collectors.toSet() ).size() == 0;
+			return resources.stream().filter( ( r ) -> !r.isValid() ).collect( Collectors.toSet() ).isEmpty();
 		}
 
 		private void stageResources( Path updatePack, LongConsumer progressCallback ) throws IOException {
@@ -508,7 +510,7 @@ public class ProductManagerLogic {
 	}
 
 	private Collection<ProductUpdate> stageProductUpdates( Collection<ProductUpdate> productUpdates ) {
-		if( productUpdates.size() == 0 ) return Set.of();
+		if( productUpdates.isEmpty() ) return Set.of();
 
 		Collection<ProductUpdate> stagedUpdates = new HashSet<>();
 		for( ProductUpdate update : productUpdates ) {
@@ -536,7 +538,7 @@ public class ProductManagerLogic {
 		}
 
 		getProgram().getTaskManager().submit( Task.of( "Store staged update settings", () -> getProgram().getProductManager().setStagedUpdates( stagedUpdates ) ) );
-		if( stagedUpdates.size() > 0 ) getProgram().getUpdateManager().stageUpdater();
+		if( !stagedUpdates.isEmpty() ) getProgram().getUpdateManager().stageUpdater();
 
 		log.atDebug().log( "Product update count: %s", LazyEval.of( stagedUpdates::size ) );
 
@@ -544,7 +546,7 @@ public class ProductManagerLogic {
 	}
 
 	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
-		if( productUpdates.size() == 0 ) return productUpdates;
+		if( productUpdates.isEmpty() ) return productUpdates;
 
 		ProductManager.FoundOption foundOption = getProgram().getProductManager().getFoundOption();
 		if( foundOption == ProductManager.FoundOption.NOTIFY || foundOption == ProductManager.FoundOption.APPLY ) {
@@ -555,7 +557,7 @@ public class ProductManagerLogic {
 	}
 
 	private Collection<InstalledProduct> installProductUpdates( Collection<ProductUpdate> products ) {
-		if( products.size() == 0 ) return Set.of();
+		if( products.isEmpty() ) return Set.of();
 
 		Set<InstalledProduct> installedProducts = new HashSet<>();
 
@@ -611,18 +613,18 @@ public class ProductManagerLogic {
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
-	private void openProductTool() {
-		URI uri = URI.create( ProgramModuleType.URI + "#" + ProductTool.UPDATES );
-		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
+	private void openUpdates() {
+		Fx.run( () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) );
 	}
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
-		if( updates.size() == 0 ) return;
+		if( updates.isEmpty() ) return;
 		String title = Rb.text( RbKey.UPDATE, "updates-found" );
 		String message = Rb.text( RbKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramModuleType.URI + "#" + ProductTool.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) ).setBalloonStickiness( Notice.Balloon.ALWAYS ).setType( Notice.Type.INFO );
+		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
+			.setType( Notice.Type.INFO );
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );
 	}
 

@@ -3,10 +3,11 @@ package com.avereon.xenon;
 import com.avereon.skill.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
-import com.avereon.zarra.color.MaterialColor;
 import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.color.MaterialColor;
 import javafx.scene.paint.Color;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,10 +18,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @CustomLog
 public class ThemeManager implements Controllable<ThemeManager> {
 
+	private static final String DEFAULT_THEME_ID = "xenon-dark";
+
+	@Getter
 	private final Xenon program;
 
 	private final Map<String, ThemeMetadata> themes;
@@ -33,13 +38,9 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
-	public Xenon getProgram() {
-		return program;
-	}
-
 	@Override
 	public boolean isRunning() {
-		return themes.size() > 0;
+		return !themes.isEmpty();
 	}
 
 	@Override
@@ -65,19 +66,20 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	}
 
 	public ThemeMetadata getMetadata( String id ) {
-		return themes.get( id );
+		return themes.get( id == null ? DEFAULT_THEME_ID : id );
 	}
 
 	private void registerTheme( String id, String name, boolean isDark, String url ) {
+		if( id == null ) throw new NullPointerException( "Theme ID cannot be null" );
 		Path path = profileThemeFolder.resolve( url );
 		themes.put( id, new ThemeMetadata( id, name, isDark, path.toUri().toString() ) );
 		log.atFiner().log( "Theme registered: %s", name );
 	}
 
 	private void reloadProfileThemes() {
-		try {
+		try( Stream<Path> themeFiles = Files.list( profileThemeFolder ) ) {
 			themes.clear();
-			Files.list( profileThemeFolder ).forEach( p -> {
+			themeFiles.forEach( p -> {
 				if( Files.isDirectory( p ) ) return;
 				try {
 					List<String> lines = TextUtil.getLines( FileUtil.load( p ) );
@@ -87,7 +89,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 					String url = p.toAbsolutePath().toString();
 					registerTheme( id, name, isDark, url );
 				} catch( IOException exception ) {
-					exception.printStackTrace();
+					log.atWarn().withCause( exception ).log();
 				}
 			} );
 		} catch( IOException exception ) {
@@ -164,6 +166,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	private void createTheme( String name, Color base, Color accent, Color focus ) {
 		String id = name.replace( ' ', '-' ).toLowerCase();
 		Path path = profileThemeFolder.resolve( id + ".css" );
+		if( Files.exists( path ) ) return;
 		try( FileWriter writer = new FileWriter( path.toFile() ) ) {
 			new ThemeWriter( base, accent, focus ).write( id, name, writer );
 		} catch( IOException exception ) {

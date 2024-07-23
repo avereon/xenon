@@ -7,17 +7,23 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProgramTest extends ProgramTestCase {
+public class XenonTest extends ProgramTestCase {
 
 	@Test
 	void testGetHomeFromLauncherPathForJPackage() {
 		if( OperatingSystem.isWindows() ) {
-			System.setProperty( "jpackage.app-path", "C:\\Program Files\\Xenon\\Xenon.exe" );
 			assertThat( getProgram().getHomeFromLauncherPath() ).isEqualTo( Path.of( "C:\\Program Files\\Xenon" ) );
 		} else {
-			System.setProperty( "jpackage.app-path", "/opt/xenon/bin/Xenon" );
 			assertThat( getProgram().getHomeFromLauncherPath() ).isEqualTo( Path.of( "/opt/xenon" ) );
 		}
+	}
+
+	@Test
+	void combineProfileMode() {
+		assertThat( getProgram().combineProfileMode( "profile", "mode" ) ).isEqualTo( "profile-mode" );
+		assertThat( getProgram().combineProfileMode( "profile", null ) ).isEqualTo( "profile" );
+		assertThat( getProgram().combineProfileMode( null, "mode" ) ).isEqualTo( "mode" );
+		assertThat( getProgram().combineProfileMode( null, null ) ).isEqualTo( "" );
 	}
 
 }

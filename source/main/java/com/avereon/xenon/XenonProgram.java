@@ -6,6 +6,7 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Program;
+import com.avereon.product.ProgramFlag;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
@@ -56,7 +57,19 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 	@Override
 	Xenon getProgram();
 
+	/**
+	 * Get the execution profile.
+	 *
+	 * @see ProgramFlag#PROFILE
+	 */
 	String getProfile();
+
+	/**
+	 * Get the execution mode.
+	 *
+	 * @see ProgramFlag#MODE
+	 */
+	String getMode();
 
 	/**
 	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like

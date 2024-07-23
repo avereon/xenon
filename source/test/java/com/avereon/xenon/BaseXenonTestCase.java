@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.Profile;
+import com.avereon.product.ProgramMode;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.ThreadUtil;
@@ -32,8 +32,14 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 	protected void setup() throws Exception {
 		super.setup();
 
+		if( OperatingSystem.isWindows() ) {
+			System.setProperty( "jpackage.app-path", "C:\\Program Files\\Xenon\\Xenon.exe" );
+		} else {
+			System.setProperty( "jpackage.app-path", "/opt/xenon/bin/Xenon" );
+		}
+
 		// Remove the existing program data folder
-		String suffix = "-" + Profile.TEST;
+		String suffix = "-" + ProgramMode.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();

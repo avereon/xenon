@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.product.Profile;
+import com.avereon.product.ProgramMode;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
@@ -30,7 +30,6 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
@@ -377,8 +376,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
 
 		// Add the dev menu if using the dev profile
-		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus );
-		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menus.get( menus.size() - 1 ) );
+		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.get( menus.size() - 1 ) );
 
 		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
 		bar.setId( "menu-bar-program" );
@@ -450,7 +448,12 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Menu generateDevMenu( Xenon program ) {
-		String development = "development[restart,uireset,mock-update|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5|mock-update]";
+		String development = "";
+		development += "development[";
+		development += "restart,uireset,mock-update";
+		development += "|show-updates-posted,show-updates-staged";
+		development += "|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5";
+		development += "]";
 		return MenuFactory.createMenu( program, development, true );
 	}
 
@@ -928,7 +931,7 @@ public class Workspace extends Stage implements WritableIdentity {
 							}
 
 						};
-						int delay = Profile.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
+						int delay = ProgramMode.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
 						timer.schedule( watcher.task, delay );
 					} else {
 						if( watcher.task != null ) watcher.task.cancel();

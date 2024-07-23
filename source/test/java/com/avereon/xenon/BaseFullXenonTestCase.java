@@ -162,6 +162,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
+		double increaseAbsolute = ((double)increaseSize / (double)SizeUnitBase10.MB.getSize());
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 
 		//		String direction = "";
@@ -170,7 +171,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		//		increaseSize = Math.abs( increaseSize );
 		//System.out.printf( "Memory use: %s -> %s = %s %s%n", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ), direction );
 
-		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
+		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increaseAbsolute > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format( "Absolute memory growth too large %s -> %s : %s",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),

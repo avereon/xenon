@@ -47,12 +47,10 @@ public class RestartHook extends Thread {
 
 	private static final String DELETE_SUFFIX = "delete";
 
+	private static final Random random = new Random();
+
 	@Getter
 	private final Xenon program;
-
-	private final Path updateCommandFile;
-
-	private final Random random;
 
 	@Getter
 	private volatile Mode mode;
@@ -62,19 +60,20 @@ public class RestartHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
+	private final Path updateCommandFile;
+
 	RestartHook( Xenon program ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
-		this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
-		this.random = new Random();
-
-		stageUpdater();
-
+		this.updateCommandFile = program.getUpdateManager().getUpdaterFolder().resolve( "update.commands.txt" );
+		//this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
 		log.atInfo().log( "Restart hook created." );
 	}
 
 	public void setMode( Mode mode, String... additionalParameters ) {
 		if( this.mode == mode ) return;
+
+		stageUpdater();
 
 		this.mode = mode;
 		this.additionalParameters = additionalParameters;
@@ -91,19 +90,19 @@ public class RestartHook extends Thread {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	private RestartHook configure( Mode mode ) {
+	private void configure( Mode mode ) {
 		switch( mode ) {
 			case RESTART -> configureForRestart();
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
 		}
 
 		log.atInfo().log( "Restart hook configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
-
-		return this;
 	}
 
 	private synchronized void configureForRestart() {
 		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
+
+		// Create and configure the RESTART process builder
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 	}
@@ -124,6 +123,7 @@ public class RestartHook extends Thread {
 			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
 		}
 
+		// Write the update commands to a file
 		try {
 			log.atTrace().log( "Storing update commands..." );
 			Files.writeString( updateCommandFile, createUpdateCommands() );
@@ -132,6 +132,7 @@ public class RestartHook extends Thread {
 			log.atError().withCause( throwable ).log( "Error storing update commands" );
 		}
 
+		// Create and configure the UPDATE process builder
 		builder = new ProcessBuilder( updaterLaunchCommands );
 		builder.directory( updaterFolder.toFile() );
 		if( useDarkMode ) builder.command().add( UpdateFlag.DARK );
@@ -220,9 +221,13 @@ public class RestartHook extends Thread {
 		// *** 2024 Jun 20: The logger is not available in the run method. ***
 		// *** Using the logger in the run method does not work as expected. ***
 
+		int wait = 200;
+		int timeout = 5000;
 		int retryCount = 0;
-		int retryLimit = 20;
+		int retryLimit = timeout / wait;
+		long timeLimit = System.currentTimeMillis() + timeout;
 		Process process = null;
+
 		do {
 			try {
 				log.atDebug().log( "Attempt %s of %s starting %s process...", retryCount, retryLimit, mode );
@@ -236,9 +241,10 @@ public class RestartHook extends Thread {
 				ThreadUtil.pause( 200 );
 			} finally {
 				log.flush();
-				if( process == null ) ThreadUtil.pause( 200 );
+				if( process == null ) ThreadUtil.pause( wait );
 			}
-		} while( ++retryCount < retryLimit );
+			retryCount++;
+		} while( System.currentTimeMillis() < timeLimit );
 	}
 
 }

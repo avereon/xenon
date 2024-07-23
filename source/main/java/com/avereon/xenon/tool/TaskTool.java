@@ -3,7 +3,7 @@ package com.avereon.xenon.tool;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.util.ThreadUtil;
-import com.avereon.product.Profile;
+import com.avereon.product.ProgramMode;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
@@ -67,7 +67,7 @@ public class TaskTool extends ProgramTool {
 
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		if( Profile.DEV.equals( getProgram().getProfile() ) ) layoutPane.setTop( buttonBox );
+		if( ProgramMode.DEV.equals( getProgram().getMode() ) ) layoutPane.setTop( buttonBox );
 		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}

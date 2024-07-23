@@ -26,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 
 abstract class Screenshots {
 
-	private static final String PROFILE = "screenshots";
+	private static final String MODE = "screenshots";
 
 	private static final int TIMEOUT = 5000;
 
@@ -61,7 +61,7 @@ abstract class Screenshots {
 		//System.setProperty( "glass.gtk.renderScale", String.valueOf( scale ) );
 
 		try {
-			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
+			this.screenshots = Paths.get( "target" ).resolve( MODE );
 			Files.createDirectories( screenshots );
 			startup( scale );
 
@@ -134,11 +134,11 @@ abstract class Screenshots {
 
 	private void startup( double scale ) throws InterruptedException, TimeoutException {
 		try {
-			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE );
+			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + MODE, "Xenon-" + MODE );
 			FileUtil.delete( config );
 
 			program = new Xenon();
-			String[] parameters = new String[]{ ProgramFlag.PROFILE, PROFILE, ProgramFlag.NOUPDATE, ProgramFlag.LOG_LEVEL, ProgramFlag.DEBUG };
+			String[] parameters = new String[]{ ProgramFlag.MODE, MODE, ProgramFlag.NOUPDATE, ProgramFlag.LOG_LEVEL, ProgramFlag.DEBUG };
 			program.setProgramParameters( com.avereon.util.Parameters.parse( parameters ) );
 			program.init();
 			Platform.startup( () -> {

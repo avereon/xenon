@@ -74,7 +74,7 @@
 		<zenna.version>0.10-SNAPSHOT</zenna.version>
 		<zarra.version>0.10-SNAPSHOT</zarra.version>
 		<zevra.version>0.10-SNAPSHOT</zevra.version>
-		<jackson.version>2.17.1</jackson.version>
+		<jackson.version>2.17.2</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
@@ -273,6 +273,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<!-- Version comes from parent -->
 				<configuration>
+					<forkCount>1</forkCount>
 					<argLine>-Xmx128m --add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</argLine>
 				</configuration>
 			</plugin>
@@ -500,7 +501,7 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx128m</argument>
+										<argument>-Xmx256m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>

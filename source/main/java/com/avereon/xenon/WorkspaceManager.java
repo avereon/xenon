@@ -4,6 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -118,6 +119,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void setTheme( String id ) {
+		if( TextUtil.isEmpty( id ) ) id = "xenon-dark";
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
 		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
 
