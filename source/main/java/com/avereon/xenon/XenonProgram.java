@@ -36,7 +36,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	void requestRestart( RestartHook.Mode mode, String... commands );
+	void requestRestart( RestartJob.Mode mode, String... commands );
 
 	boolean requestExit( boolean skipChecks );
 

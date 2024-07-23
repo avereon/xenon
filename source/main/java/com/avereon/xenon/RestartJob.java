@@ -22,12 +22,14 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This thread is used when a program restart is requested. Similar to a shutdown hook, this thread is run as the program (not the JVM) is exiting, and allows the JVM to terminate.
+ * This class is used when a program restart is requested. Similar to a
+ * shutdown hook, this class is run as the program (not the JVM) is exiting,
+ * and allows the JVM to terminate.
  *
  * @author Mark Soderquist
  */
 @CustomLog
-public class RestartHook extends Thread {
+public class RestartJob {
 
 	@Getter
 	public enum Mode {
@@ -62,12 +64,10 @@ public class RestartHook extends Thread {
 
 	private final Path updateCommandFile;
 
-	RestartHook( Xenon program ) {
-		super( program.getCard().getName() + " Shutdown Hook" );
+	RestartJob( Xenon program ) {
 		this.program = program;
 		this.updateCommandFile = program.getUpdateManager().getUpdaterFolder().resolve( "update.commands.txt" );
-		//this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
-		log.atInfo().log( "Restart hook created." );
+		log.atInfo().log( "Restart job initialized." );
 	}
 
 	public void setMode( Mode mode, String... additionalParameters ) {
@@ -96,7 +96,7 @@ public class RestartHook extends Thread {
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
 		}
 
-		log.atInfo().log( "Restart hook configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
+		log.atInfo().log( "Restart job configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
 	}
 
 	private synchronized void configureForRestart() {
@@ -205,21 +205,17 @@ public class RestartHook extends Thread {
 		return ucb.toString();
 	}
 
-	@Override
-	public void run() {
+	public void start() {
 		if( builder == null ) return;
 
 		if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
 		// Pause a moment to allow things to settle down
-		ThreadUtil.pause( 1000 );
+		ThreadUtil.pause( 200 );
 
 		builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 		builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 		//builder.redirectInput( ProcessBuilder.Redirect.INHERIT );
-
-		// *** 2024 Jun 20: The logger is not available in the run method. ***
-		// *** Using the logger in the run method does not work as expected. ***
 
 		int wait = 200;
 		int timeout = 5000;
@@ -237,7 +233,6 @@ public class RestartHook extends Thread {
 				break;
 			} catch( IOException exception ) {
 				log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
-				exception.printStackTrace( System.err );
 				ThreadUtil.pause( 200 );
 			} finally {
 				log.flush();
@@ -245,6 +240,8 @@ public class RestartHook extends Thread {
 			}
 			retryCount++;
 		} while( System.currentTimeMillis() < timeLimit );
+
+		log.atInfo().log( "Restart job complete." );
 	}
 
 }

@@ -188,7 +188,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private Boolean isProgramUpdated;
 
-	private RestartHook restartHook;
+	private RestartJob restartJob;
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
@@ -527,7 +527,7 @@ public class Xenon extends Application implements XenonProgram {
 		// Start the update manager, depends on product manager
 		log.atFiner().log( "Starting update manager..." );
 		updateManager = new UpdateManager( this );
-		restartHook = new RestartHook( this );
+		restartJob = new RestartJob( this );
 		log.atFine().log( "Update manager started." );
 		time( "update-manager" );
 
@@ -786,8 +786,8 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFine().log( "Task manager stopped." );
 		}
 
-		// Start the restart process, if requested
-		if( restartHook != null ) restartHook.run();
+		// Start the restart job, if requested
+		if( restartJob != null ) restartJob.start();
 
 		// NOTE Do not call Platform.exit() here, it was called already
 	}
@@ -808,8 +808,8 @@ public class Xenon extends Application implements XenonProgram {
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	@Override
-	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		restartHook.setMode( mode, commands );
+	public void requestRestart( RestartJob.Mode mode, String... commands ) {
+		restartJob.setMode( mode, commands );
 		requestExit( true );
 	}
 

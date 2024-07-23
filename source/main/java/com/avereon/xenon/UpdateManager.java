@@ -78,7 +78,7 @@ public class UpdateManager {
 	}
 
 	/**
-	 * Should only be called from {@link RestartHook} to ensure the
+	 * Should only be called from {@link RestartJob} to ensure the
 	 * updater is ready for use.
 	 *
 	 * @param timeout How long to wait
