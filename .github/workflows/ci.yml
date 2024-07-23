@@ -493,11 +493,12 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
+      # JPackage uses Wix 3.x in Java 11, 17, 21
       - name: Publish Install Pack
         shell: bash
         run: |
-#          scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
           scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.msi 2>&1
+        # scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
 
 #      # Originally implemented with IzPack
 #      - name: Publish Install Pack (izpack)
