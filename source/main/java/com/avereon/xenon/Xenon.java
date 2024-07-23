@@ -780,7 +780,8 @@ public class Xenon extends Application implements XenonProgram {
 		}
 
 		if( restartHook != null ) {
-			Runtime.getRuntime().addShutdownHook( restartHook );
+			//Runtime.getRuntime().addShutdownHook( restartHook );
+			restartHook.run();
 			log.atInfo().log( "Restart hook added!" );
 		}
 
