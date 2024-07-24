@@ -270,7 +270,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 	}
 
 	private void updateEnabled() {
-		setEnabled( actionStack.size() > 0 && actionStack.peek().isEnabled() );
+		setEnabled( !actionStack.isEmpty() && actionStack.peek().isEnabled() );
 	}
 
 	private void updateMnemonicName() {
