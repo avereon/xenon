@@ -11,6 +11,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class PaintPickerPane extends BorderPane {
 
 	private final ComboBox<PaintMode> mode;
@@ -18,6 +21,8 @@ public class PaintPickerPane extends BorderPane {
 	private final BorderPane solidColorBox;
 
 	private final TextField paintField;
+
+	private final Map<PaintPalette, PaintPaletteBox> paintPaletteBoxCache;
 
 	private StringProperty paint;
 
@@ -31,6 +36,8 @@ public class PaintPickerPane extends BorderPane {
 		// Opacity can be a slider on the right or the bottom
 		// Below that the OK and Cancel buttons
 
+		paintPaletteBoxCache = new ConcurrentHashMap<>();
+
 		// The paint text field for manual entry
 		paintField = new TextField();
 
@@ -41,7 +48,8 @@ public class PaintPickerPane extends BorderPane {
 		palette.getSelectionModel().selectFirst();
 
 		// The initial color palette
-		solidColorBox = new BorderPane( new PaintPaletteBox( palette.getItems().getFirst() ), palette, null, paintField, null );
+		solidColorBox = new BorderPane( null, palette, null, paintField, null );
+		doSetPalette( palette.getSelectionModel().getSelectedItem() );
 
 		// The paint mode chooser
 		mode = new ComboBox<>();
@@ -110,7 +118,9 @@ public class PaintPickerPane extends BorderPane {
 
 	private void doSetPalette( PaintPalette n ) {
 		if( n == null ) return;
-		solidColorBox.setCenter( new PaintPaletteBox( n ) );
+		// Caching the paint palette boxes seems to have resolved an OutOfMemoryError
+		PaintPaletteBox box = paintPaletteBoxCache.computeIfAbsent( n, PaintPaletteBox::new );
+		solidColorBox.setCenter( box );
 	}
 
 	private void updateModeFromPaintValue( String paint ) {

@@ -15,6 +15,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Popup;
+import lombok.Setter;
 
 public class PaintPicker extends Button {
 
@@ -26,6 +27,7 @@ public class PaintPicker extends Button {
 
 	private boolean priorNotSet = true;
 
+	@Setter
 	private String prior;
 
 	public PaintPicker() {
@@ -89,10 +91,6 @@ public class PaintPicker extends Button {
 		//			prior = paint;
 		//			priorNotSet = false;
 		//		}
-	}
-
-	public void setPrior( String paint ) {
-		this.prior = paint;
 	}
 
 	public ObservableList<PaintMode> getOptions() {
