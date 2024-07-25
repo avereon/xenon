@@ -3,9 +3,9 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
@@ -330,7 +330,7 @@ public class GuideTool extends ProgramTool {
 		draggedCell = target;
 
 		// Root node cannot be moved
-		if( target == null || target.getTreeItem().getParent() == null ) return;
+		if( target == null || target.getTreeItem() == null || target.getTreeItem().getParent() == null ) return;
 
 		ClipboardContent content = new ClipboardContent();
 		content.put( DATA_FORMAT, "" );
@@ -420,6 +420,7 @@ public class GuideTool extends ProgramTool {
 			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
 			doSetGuide( null );
 		}
+
 	}
 
 	private class TreeToGuideSelectedItemsListener implements ListChangeListener<Integer> {
