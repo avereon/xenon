@@ -1,11 +1,13 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Getter
 public class SettingGroup extends SettingDependant {
 
 	private static final String ID = "id";
@@ -27,10 +29,6 @@ public class SettingGroup extends SettingDependant {
 		return null;
 	}
 
-	public SettingsPage getPage() {
-		return page;
-	}
-
 	public String getId() {
 		return getValue( ID );
 	}
@@ -48,6 +46,7 @@ public class SettingGroup extends SettingDependant {
 		settings.add( setting );
 	}
 
+	@Override
 	public Settings getSettings() {
 		return getPage().getSettings();
 	}

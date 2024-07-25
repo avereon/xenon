@@ -4,6 +4,8 @@ import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SettingsPage extends Node {
 
 	public static final SettingsPage EMPTY = new SettingsPage( null );
+
+	public static final String SETTINGS = "settings";
 
 	public static final String ID = "id";
 
@@ -31,12 +35,12 @@ public class SettingsPage extends Node {
 
 	private static final String PRODUCT = "product";
 
-	private static final String SETTINGS = "settings";
-
 	private static final String PANEL = "panel";
 
 	private final SettingsPage parent;
 
+	@Setter
+	@Getter
 	private String rbKey = RbKey.SETTINGS;
 
 	static {
@@ -154,14 +158,6 @@ public class SettingsPage extends Node {
 
 	public void setPanel( String panel ) {
 		setValue( PANEL, panel );
-	}
-
-	public String getRbKey() {
-		return rbKey;
-	}
-
-	public void setRbKey( String rbKey ) {
-		this.rbKey = rbKey;
 	}
 
 }

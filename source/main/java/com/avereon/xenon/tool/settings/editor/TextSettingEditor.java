@@ -69,6 +69,7 @@ public abstract class TextSettingEditor extends SettingEditor {
 		pane.addRow( row, label, text );
 	}
 
+	@Override
 	public List<Node> getComponents() {
 		return nodes;
 	}
@@ -83,6 +84,10 @@ public abstract class TextSettingEditor extends SettingEditor {
 			if( Objects.equals( text.getText(), newValue ) ) return;
 			text.setText( newValue );
 		}
+	}
+
+	protected void pageSettingsChanged() {
+		text.setText( getCurrentValue() );
 	}
 
 	private void handleKeyEvent( KeyEvent event ) {

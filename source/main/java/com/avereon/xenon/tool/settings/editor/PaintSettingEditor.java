@@ -85,6 +85,11 @@ public class PaintSettingEditor extends SettingEditor {
 		paintPicker.setPaintAsString( paint );
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		paintPicker.setPaintAsString( getCurrentValue() );
+	}
+
 	private void doPickerValueChanged( ObservableValue<? extends String> property, String oldValue, String newValue ) {
 		setting.getSettings().set( setting.getKey(), newValue );
 	}

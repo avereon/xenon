@@ -71,7 +71,12 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		Fx.run( this::updateLabels );
+		updateLabels();
+	}
+
+	@Override
+	protected void pageSettingsChanged() {
+		updateLabels();
 	}
 
 	private void updateLabels() {
@@ -83,9 +88,14 @@ public class UpdateSettingViewer extends SettingEditor {
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
+		final long finalLastUpdateCheck = lastUpdateCheck;
+		final long finalNextUpdateCheck = nextUpdateCheck;
+
 		// Update the labels
-		lastUpdateCheckField.setText( (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
-		nextUpdateCheckField.setText( (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+		Fx.run( () -> {
+			lastUpdateCheckField.setText( (finalLastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( finalLastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+			nextUpdateCheckField.setText( (finalNextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( finalNextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+		} );
 	}
 
 }

@@ -63,6 +63,11 @@ public class FontSettingEditor extends SettingEditor {
 		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		updateFont( getCurrentValue() );
+	}
+
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
 		log.atFine().log( "Setting font updated: %s", font );

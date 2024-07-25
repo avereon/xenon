@@ -3,8 +3,8 @@ package com.avereon.xenon.tool.settings.editor;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.FileUtil;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ObservableValue;
@@ -83,6 +83,11 @@ public class FileSettingEditor extends SettingEditor {
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
 		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
+	}
+
+	@Override
+	protected void pageSettingsChanged() {
+		field.setText( getCurrentValue() );
 	}
 
 	/**

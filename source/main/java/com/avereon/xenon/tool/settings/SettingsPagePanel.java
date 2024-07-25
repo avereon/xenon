@@ -3,9 +3,11 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.product.Rb;
 import com.avereon.xenon.XenonProgramProduct;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.util.Map;
 
+@Getter
 @CustomLog
 public class SettingsPagePanel extends SettingsPanel {
 
@@ -63,10 +65,6 @@ public class SettingsPagePanel extends SettingsPanel {
 			String name = Rb.text( product, rbKey, group.getId() );
 			getChildren().add( createGroupPane( product, rbKey, page, name, group ) );
 		}
-	}
-
-	public SettingsPage getPage() {
-		return this.page;
 	}
 
 }

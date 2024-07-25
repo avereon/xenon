@@ -71,6 +71,17 @@ public class ColorSettingEditor extends SettingEditor {
 		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) colorPicker.setValue( color );
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		Color color;
+		try {
+			color = Colors.parse( getCurrentValue() );
+		} catch( Exception exception ) {
+			color = Color.BLACK;
+		}
+		colorPicker.setValue( color );
+	}
+
 	private void doPickerValueChanged( ActionEvent event ) {
 		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
 	}

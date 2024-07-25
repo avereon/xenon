@@ -5,6 +5,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
+import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,8 +17,10 @@ public abstract class SettingEditor {
 
 	protected final XenonProgramProduct product;
 
+	@Getter
 	protected final SettingData setting;
 
+	@Getter
 	protected final String rbKey;
 
 	static {
@@ -50,14 +53,6 @@ public abstract class SettingEditor {
 
 	protected XenonProgramProduct getProduct() {
 		return product;
-	}
-
-	public String getRbKey() {
-		return rbKey;
-	}
-
-	public SettingData getSetting() {
-		return setting;
 	}
 
 	public String getKey() {
@@ -113,6 +108,11 @@ public abstract class SettingEditor {
 	 */
 	protected abstract void doSettingValueChanged( SettingsEvent event );
 
+	/**
+	 * Called when the setting value changes in the SettingsPage.
+	 */
+	protected abstract void pageSettingsChanged();
+
 	public void setDisable( boolean disable ) {
 		getComponents().forEach( n -> n.setDisable( disable ) );
 	}
@@ -122,6 +122,11 @@ public abstract class SettingEditor {
 			n.setVisible( visible );
 			n.setManaged( visible );
 		} );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	protected <T> T getCurrentValue() {
+		return (T)setting.getSettings().get( getKey() );
 	}
 
 	// Setting listener
