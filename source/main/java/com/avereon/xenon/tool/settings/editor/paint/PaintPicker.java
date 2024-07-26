@@ -85,12 +85,6 @@ public class PaintPicker extends Button {
 
 	public void setPaintAsString( String paint ) {
 		pickerPane.setPaint( paint );
-		//swatch.setPaint( calcPaint() );
-		//doUpdateText(paint);
-		//		if( priorNotSet ) {
-		//			prior = paint;
-		//			priorNotSet = false;
-		//		}
 	}
 
 	public ObservableList<PaintMode> getOptions() {

@@ -87,7 +87,10 @@ public class PaintSettingEditor extends SettingEditor {
 
 	@Override
 	protected void pageSettingsChanged() {
-		paintPicker.setPaintAsString( getCurrentValue() );
+		// WORKAROUND To deal with the value coming back as the string null.
+		String value = getCurrentValue();
+		if( "null".equals( value ) ) value = null;
+		paintPicker.setPaintAsString( value );
 	}
 
 	private void doPickerValueChanged( ObservableValue<? extends String> property, String oldValue, String newValue ) {
