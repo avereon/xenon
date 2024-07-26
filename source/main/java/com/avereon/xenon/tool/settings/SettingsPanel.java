@@ -143,10 +143,7 @@ public class SettingsPanel extends VBox {
 			if( editor != null ) {
 				editor.addComponents( grid, row++ );
 				// Add a listener for when the settings change for the page
-				page.register( SettingsPage.SETTINGS, e -> {
-					log.atConfig().log( "Page settings changed: %s", page.getId() );
-					editor.pageSettingsChanged();
-				} );
+				page.register( SettingsPage.SETTINGS, e -> editor.pageSettingsChanged() );
 			} else {
 				log.atDebug().log( "Editor not created: %s", LazyEval.of( editorClass::getName ) );
 			}
