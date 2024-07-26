@@ -21,10 +21,10 @@ public class StageMover {
 
 	public StageMover( Node node ) {
 		new StageDragContext( node, this::handleDrag );
-		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handleClick );
+		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handlePress );
 	}
 
-	private void handleClick( MouseEvent event ) {
+	private void handlePress( MouseEvent event ) {
 		boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
 		if( shouldToggleMaximize ) toggleMaximize( Fx.getStage( event ) );
 	}
