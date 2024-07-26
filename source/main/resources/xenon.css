@@ -288,7 +288,7 @@ Derived from modena.css
 	 * https://github.com/avereon/xenon/issues/254
 	 * Using the value 0.49 in the padding seems to fix the problem.
 	 */
-	-fx-padding: 0.5em 0.49em;
+	-fx-padding: 0.5em 0.75em;
 }
 
 .action-bar .stage-mover {

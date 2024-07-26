@@ -19,9 +19,14 @@ public class StageMover {
 
 	private static final double DRAG_DISTANCE_THRESHOLD = 10;
 
-	public StageMover( Node node ) {
+	private StageMover( Node node ) {
 		new StageDragContext( node, this::handleDrag );
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handlePress );
+	}
+
+	public static <T extends Node> T of(T node) {
+		new StageMover( node );
+		return node;
 	}
 
 	private void handlePress( MouseEvent event ) {

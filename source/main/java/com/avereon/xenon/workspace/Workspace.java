@@ -195,11 +195,11 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		workareaMenu = createWorkareaMenu( program );
 		programMenuBar = createProgramMenuBar( program );
-		workspaceSelectionContainer = new StackPane();
-		workspaceSelectionContainer.getChildren().setAll( workareaMenu, programMenuBar );
 
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
+
+		workspaceSelectionContainer = new StackPane( workareaMenu, programMenuBar );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -322,19 +322,43 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
-		//		// The menu button
-		//		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
-		//		menuButton.setId( "menu-button-menu" );
+		//|-- combined ---|--             --|--						   --|--                   --|
+		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
+		//|-- workspace --|--             --|--						   --|--                   --|
 
+		//|-- combined ---|--              --|--					   --|--                   --|
+		//|-- program/ ---|-- tool actions --|-- stage mover --|-- workspace actions --|
+		//|-- workspace --|--              --|--						 --|--                   --|
+
+		// The left toolbar area
+		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
+		leftToolBar.getItems().add( workspaceSelectionContainer );
+		//HBox leftToolBarPane = new HBox( leftToolBar, toolbar );
+		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, leftToolBar );
+
+		// The stage mover
+		Pane stageMover = StageMover.of( new Pane() );
+		stageMover.getStyleClass().add( "stage-mover" );
+
+		// The workspace actions
+		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "search-toggle,settings-toggle,notice-toggle|minimize,maximize,workspace-close" );
+		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
+
+		// The action pane
+		Pane actionPane = new BorderPane( stageMover, null, workspaceActions, null, leftToolBarPane );
+		actionPane.getStyleClass().add( ACTION_BAR );
+
+		return actionPane;
+	}
+
+	private Pane createActionBar0( Xenon program ) {
 		// The left toolbar options
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
 
 		// The stage mover
-		Pane stageMover = new Pane();
+		Pane stageMover = StageMover.of( new Pane() );
 		stageMover.getStyleClass().add( "stage-mover" );
-		HBox.setHgrow( stageMover, Priority.ALWAYS );
-		new StageMover( stageMover );
 
 		// The workspace action pane
 		BorderPane workspaceActionPane = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
@@ -344,10 +368,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
 
 		// The action pane
-		Pane requiredActions = new BorderPane( workspaceActionPane, null, workspaceActions, null, leftToolBar );
-		requiredActions.getStyleClass().add( ACTION_BAR );
+		Pane actionPane = new BorderPane( workspaceActionPane, null, workspaceActions, null, leftToolBar );
+		actionPane.getStyleClass().add( ACTION_BAR );
 
-		return requiredActions;
+		return actionPane;
 	}
 
 	private static VBox createNoticeBox() {
@@ -558,11 +582,15 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void showProgramMenuBar() {
+		workspaceSelectionContainer.getChildren().clear();
+		workspaceSelectionContainer.getChildren().add( programMenuBar );
 		workareaMenu.setVisible( false );
 		programMenuBar.setVisible( true );
 	}
 
 	private void hideProgramMenuBar() {
+		workspaceSelectionContainer.getChildren().clear();
+		workspaceSelectionContainer.getChildren().add( workareaMenu );
 		programMenuBar.setVisible( false );
 		workareaMenu.setVisible( true );
 	}
@@ -587,7 +615,6 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	public void pushToolbarActions( String descriptor ) {
-		// FIXME Where is the toolbar?
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolEnd );
 		toolbar.getItems().add( index++, toolbarToolStart );
