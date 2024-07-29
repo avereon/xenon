@@ -172,7 +172,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
 
+		setUid( id );
 		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+
+		// Stage listeners
 		setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
@@ -180,8 +183,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		focusedProperty().addListener( ( p, o, n ) -> {
 			if( Boolean.TRUE.equals( n ) ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
-
-		setUid( id );
 
 		activeWorkareaProperty = new SimpleObjectProperty<>();
 		workareas = FXCollections.observableArrayList();
@@ -279,7 +280,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		// Show the first menu when the program menu bar shows
 		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
-			if( Boolean.TRUE.equals( n ) ) Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+			// FIXME Now this doesn't work correctly when the menu bar unmanaged used
+			if( Boolean.TRUE.equals( n ) ) programMenuBar.getMenus().getFirst().show();
 		} );
 		// This catches when the user presses ESC, but not when they select a menu item
 		programMenuBar.addEventHandler( MenuButton.ON_HIDING, e -> {
@@ -297,7 +299,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		//		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
 		//			if( Boolean.TRUE.equals( n ) ) {
 		//				ProgramMenuWatcher.attach( this, programMenuBar );
-		//				Fx.run( () -> programMenuBar.getMenus().get( 0 ).show() );
+		//				Fx.run( () -> programMenuBar.getMenus().getFirst().show() );
 		//			} else {
 		//				ProgramMenuWatcher.detach( programMenuBar );
 		//			}
@@ -587,15 +589,11 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void showProgramMenuBar() {
-//		workspaceSelectionContainer.getChildren().clear();
-//		workspaceSelectionContainer.getChildren().add( programMenuBar );
 		workareaMenu.setVisible( false );
 		programMenuBar.setVisible( true );
 	}
 
 	private void hideProgramMenuBar() {
-//		workspaceSelectionContainer.getChildren().clear();
-//		workspaceSelectionContainer.getChildren().add( workareaMenu );
 		programMenuBar.setVisible( false );
 		workareaMenu.setVisible( true );
 	}

@@ -280,6 +280,11 @@ Derived from modena.css
 	-fx-padding: 0;
 }
 
+.action-bar .menu-bar {
+	-fx-background-color: transparent;
+	-fx-padding: 0;
+}
+
 /* For all tool bars in the action bar */
 .action-bar .tool-bar {
 	-fx-background-color: transparent;
@@ -310,9 +315,10 @@ Derived from modena.css
 	-fx-background-color: -fx-selection-bar;
 }
 
-#menu-bar-program {
-	-fx-background-color: transparent;
-	-fx-padding: 0.0em -0.666667em 0.0em -0.666667em;}
+/*#menu-bar-program {*/
+/*	-fx-background-color: transparent;*/
+/*	-fx-padding: 0;*/
+/*}*/
 
 /* Program menu button */
 #menu-button-menu {
