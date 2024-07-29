@@ -42,7 +42,12 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		//assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
-		aggressiveDelete( programDataFolder );
+		//aggressiveDelete( programDataFolder );
+		try {
+			FileUtil.delete( programDataFolder );
+		} catch( IOException exception ) {
+			// Ignore
+		}
 	}
 
 	@AfterEach
