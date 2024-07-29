@@ -193,6 +193,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
+		// Create components for the action bar
 		workareaMenu = createWorkareaMenu( program );
 		programMenuBar = createProgramMenuBar( program );
 
@@ -322,18 +323,22 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private Pane createActionBar( Xenon program ) {
-		//|-- combined ---|--             --|--						   --|--                   --|
-		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
-		//|-- workspace --|--             --|--						   --|--                   --|
-
+		// Style 1 - More familiar with the tool menu on the left
 		//|-- combined ---|--              --|--					   --|--                   --|
 		//|-- program/ ---|-- tool actions --|-- stage mover --|-- workspace actions --|
 		//|-- workspace --|--              --|--						 --|--                   --|
 
+		// Style 2
+		//|-- combined ---|--             --|--						   --|--                   --|
+		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
+		//|-- workspace --|--             --|--						   --|--                   --|
+
+		// FIXME The interaction with the menu bar and the workspace actions is not
+		//  working as expected. This has to do with the menu bar size being
+
 		// The left toolbar area
 		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
 		leftToolBar.getItems().add( workspaceSelectionContainer );
-		//HBox leftToolBarPane = new HBox( leftToolBar, toolbar );
 		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, leftToolBar );
 
 		// The stage mover
@@ -400,12 +405,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
 
 		// Add the dev menu if using the dev profile
-		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.get( menus.size() - 1 ) );
+		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.getLast() );
 
 		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
 		bar.setId( "menu-bar-program" );
 		bar.setVisible( false );
-		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
 
 		return bar;
 	}
@@ -582,15 +587,15 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void showProgramMenuBar() {
-		workspaceSelectionContainer.getChildren().clear();
-		workspaceSelectionContainer.getChildren().add( programMenuBar );
+//		workspaceSelectionContainer.getChildren().clear();
+//		workspaceSelectionContainer.getChildren().add( programMenuBar );
 		workareaMenu.setVisible( false );
 		programMenuBar.setVisible( true );
 	}
 
 	private void hideProgramMenuBar() {
-		workspaceSelectionContainer.getChildren().clear();
-		workspaceSelectionContainer.getChildren().add( workareaMenu );
+//		workspaceSelectionContainer.getChildren().clear();
+//		workspaceSelectionContainer.getChildren().add( workareaMenu );
 		programMenuBar.setVisible( false );
 		workareaMenu.setVisible( true );
 	}

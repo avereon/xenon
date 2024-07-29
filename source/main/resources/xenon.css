@@ -312,8 +312,7 @@ Derived from modena.css
 
 #menu-bar-program {
 	-fx-background-color: transparent;
-	-fx-padding: 0;
-}
+	-fx-padding: 0.0em -0.666667em 0.0em -0.666667em;}
 
 /* Program menu button */
 #menu-button-menu {
