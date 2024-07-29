@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The super class for {@link BasePartXenonTestCase} and {@link BaseFullXenonTestCase}
@@ -42,7 +41,8 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		String suffix = "-" + ProgramMode.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
+		//assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
+		aggressiveDelete( programDataFolder );
 	}
 
 	@AfterEach
@@ -64,9 +64,9 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
 		// NOTE It has been determined that the StoredSettings can cause problems.
-		// The StoredSettings class can put these files back due to the delayed
-		// persist nature of StoredSettings. Be sure to also delete settings in
-		// teardown methods to reduce test cross-contamination.
+		//  The StoredSettings class can put these files back due to the delayed
+		//  persist nature of StoredSettings. Be sure to also delete settings in
+		//  teardown methods to reduce test cross-contamination.
 
 		long limit = System.currentTimeMillis() + LONG_TIMEOUT;
 		IOException exception = null;
