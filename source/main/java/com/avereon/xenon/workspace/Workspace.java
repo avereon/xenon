@@ -29,7 +29,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
@@ -98,13 +97,13 @@ public class Workspace extends Stage implements WritableIdentity {
 	@Getter
 	private final FxEventHub eventBus;
 
-	private final BorderPane workspaceLayout;
-
 	private final Pane railPane;
 
 	private final Set<Pane> rails;
 
-	private final Pane workspaceSelectionContainer;
+	private final Pane workspaceActionContainer;
+
+	private final BorderPane actionBar;
 
 	private final Node workareaMenu;
 
@@ -201,14 +200,14 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		workspaceSelectionContainer = new StackPane( workareaMenu, programMenuBar );
+		workspaceActionContainer = new StackPane( workareaMenu, programMenuBar );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
 		toolbar = createProgramToolBar( program );
 
 		// Create the action bar. Depends on workspaceSelectionContainer and toolbar.
-		Pane actionBar = createActionBar( program );
+		actionBar = createActionBar( program );
 
 		noticeBox = createNoticeBox();
 		BorderPane noticePane = new BorderPane( null, null, noticeBox, null, null );
@@ -230,7 +229,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Pane workspaceStack = new StackPane( workpaneContainer, noticePane );
 
 		// Create the workspace layout pane
-		workspaceLayout = new BorderPane();
+		BorderPane workspaceLayout = new BorderPane();
 		workspaceLayout.getStyleClass().add( "workspace" );
 		workspaceLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 
@@ -257,6 +256,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			}
 		} );
 
+		// Maximized property listener
 		maximizedProperty().addListener( ( p, o, n ) -> {
 			// Toggle the maximize/normalize icon
 			String icon = Boolean.TRUE.equals( n ) ? NORMALIZE : MAXIMIZE;
@@ -266,44 +266,24 @@ public class Workspace extends Stage implements WritableIdentity {
 			rails.forEach( r -> r.setVisible( !n ) );
 		} );
 
-		// NOTE This block is to watch events on the menu bar
-		programMenuBar.addEventFilter( Event.ANY, e -> {
-			//log.atConfig().log( "event={0} hover={1}", e.getEventType().getName(), programMenuBar.getProperties() );
-		} );
-
-		// USE THIS BLOCK TO TEST IDEAS
-		//		programMenuBar.addEventFilter( MouseEvent.MOUSE_EXITED_TARGET, e -> {
-		//			if( e.getTarget() instanceof MenuButton button ) {
-		//				if( !button.isShowing() ) Fx.run( this::toggleProgramWorkspaceActions );
-		//			}
-		//		} );
-
 		// Show the first menu when the program menu bar shows
 		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
-			// FIXME Now this doesn't work correctly when the menu bar unmanaged used
 			if( Boolean.TRUE.equals( n ) ) programMenuBar.getMenus().getFirst().show();
 		} );
+
 		// This catches when the user presses ESC, but not when they select a menu item
 		programMenuBar.addEventHandler( MenuButton.ON_HIDING, e -> {
 			// Pressing ESC causes an extra MenuButton.ON_HIDING event with the menu already hidden
 			MenuButton button = (MenuButton)e.getTarget();
 			if( !button.isShowing() ) Fx.run( this::hideProgramMenuBar );
 		} );
-		// This catches when menus are hidden and the mouse is not hovering over the menu bar
-		programMenuBar.addEventFilter( MenuButton.ON_HIDDEN, e -> {
-			// I wish this were, "if hidden because something else was shown"
-			if( !((MenuBar)e.getSource()).isHover() ) Fx.run( this::hideProgramMenuBar );
-		} );
 
-		// NOTE Don't really want to do all this if we can avoid it
-		//		programMenuBar.visibleProperty().addListener( ( p, o, n ) -> {
-		//			if( Boolean.TRUE.equals( n ) ) {
-		//				ProgramMenuWatcher.attach( this, programMenuBar );
-		//				Fx.run( () -> programMenuBar.getMenus().getFirst().show() );
-		//			} else {
-		//				ProgramMenuWatcher.detach( programMenuBar );
-		//			}
-		//		} );
+		// This catches when menus are hidden and the mouse is not hovering over the menu bar
+		programMenuBar.addEventFilter( MenuButton.ON_HIDDEN, e -> Fx.run( () -> {
+			// It's important that this run as a different runnable on the FX thread
+			// If no other menus are showing, hide the program menu bar
+			if( allMenusAreHidden(programMenuBar) ) Fx.run( this::hideProgramMenuBar );
+		} ) );
 
 		memoryMonitor.start();
 		taskMonitor.start();
@@ -324,7 +304,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
-	private Pane createActionBar( Xenon program ) {
+	private BorderPane createActionBar( Xenon program ) {
 		// Style 1 - More familiar with the tool menu on the left
 		//|-- combined ---|--              --|--					   --|--                   --|
 		//|-- program/ ---|-- tool actions --|-- stage mover --|-- workspace actions --|
@@ -335,13 +315,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
 		//|-- workspace --|--             --|--						   --|--                   --|
 
-		// FIXME The interaction with the menu bar and the workspace actions is not
-		//  working as expected. This has to do with the menu bar size being
-
 		// The left toolbar area
-		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
-		leftToolBar.getItems().add( workspaceSelectionContainer );
-		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, leftToolBar );
+		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, workspaceActionContainer );
 
 		// The stage mover
 		Pane stageMover = StageMover.of( new Pane() );
@@ -352,30 +327,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
 
 		// The action pane
-		Pane actionPane = new BorderPane( stageMover, null, workspaceActions, null, leftToolBarPane );
-		actionPane.getStyleClass().add( ACTION_BAR );
-
-		return actionPane;
-	}
-
-	private Pane createActionBar0( Xenon program ) {
-		// The left toolbar options
-		ToolBar leftToolBar = ToolBarFactory.createToolBar( program );
-		leftToolBar.getItems().add( workspaceSelectionContainer );
-
-		// The stage mover
-		Pane stageMover = StageMover.of( new Pane() );
-		stageMover.getStyleClass().add( "stage-mover" );
-
-		// The workspace action pane
-		BorderPane workspaceActionPane = new BorderPane( stageMover, null, toolbar, null, leftToolBar );
-
-		// The workspace actions
-		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "search-toggle,settings-toggle,notice-toggle|minimize,maximize,workspace-close" );
-		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
-
-		// The action pane
-		Pane actionPane = new BorderPane( workspaceActionPane, null, workspaceActions, null, leftToolBar );
+		BorderPane actionPane = new BorderPane( stageMover, null, workspaceActions, null, leftToolBarPane );
 		actionPane.getStyleClass().add( ACTION_BAR );
 
 		return actionPane;
@@ -412,54 +364,9 @@ public class Workspace extends Stage implements WritableIdentity {
 		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
 		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
 		bar.setId( "menu-bar-program" );
-		bar.setVisible( false );
 
 		return bar;
 	}
-
-	//	private ContextMenu createProgramContextMenu( Xenon program ) {
-	//		// Load the menu descriptors
-	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-	//
-	//		// Build the program menu
-	//		ContextMenu menu = MenuFactory.createContextMenu( program, customDescriptor, COMPACT_MENU );
-	//
-	//		// Add the dev menu if using the dev profile
-	//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-	//
-	//		return menu;
-	//	}
-
-	//	private MenuButton createProgramMenuButton( Xenon program ) {
-	//		// Load the menu descriptors
-	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-	//
-	//		// Build the program menu
-	//		MenuButton menu = MenuFactory.createMenuButton( program, "menu[" + customDescriptor + "]", COMPACT_MENU, false );
-	//
-	//		// Add the dev menu if using the dev profile
-	//		if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, menu );
-	//
-	//		return menu;
-	//	}
-
-	//	private HBox createProgramMenuButtons( Xenon program ) {
-	//		// Load the menu descriptors
-	//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-	//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-	//
-	//		// Build the program menu
-	//		List<MenuButton> buttons = MenuFactory.createMenuButtons( program, customDescriptor, true, true );
-	//
-	//		// Add the dev menu if using the dev profile
-	//		//if( Profile.DEV.equals( program.getProfile() ) ) insertDevMenu( program, buttons );
-	//
-	//		HBox box = new HBox();
-	//		box.getChildren().setAll( buttons );
-	//		return box;
-	//	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
 		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
@@ -489,14 +396,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private ToolBar createProgramToolBar( Xenon program ) {
-		//		// This implementation was the "standard" toolbar
-		//		String defaultDescriptor = program.getSettings().get( "workspace-toolbar" );
-		//		String descriptor = getSettings().get( "toolbar", defaultDescriptor );
-		//		ToolBar toolbar = ToolBarFactory.createToolBar( program, descriptor );
-
 		ToolBar toolbar = ToolBarFactory.createToolBar( program );
 		toolbar.getItems().add( toolbarToolEnd );
-
 		return toolbar;
 	}
 
@@ -541,7 +442,11 @@ public class Workspace extends Stage implements WritableIdentity {
 			workareaMenu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
 		} );
 
-		return new HBox( menuButton, workareaMenu );
+		// The menu button and workarea menu should be put in a toolbar for proper layout
+		ToolBar workareaToolbar = ToolBarFactory.createToolBar( program );
+		workareaToolbar.getItems().addAll( menuButton, workareaMenu );
+
+		return workareaToolbar;
 	}
 
 	private MenuItem createWorkareaMenuItem( Workarea workarea ) {
@@ -581,19 +486,29 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private void toggleProgramWorkspaceActions() {
-		if( workareaMenu.isVisible() ) {
-			showProgramMenuBar();
-		} else {
+		if( programMenuBar.isVisible() ) {
 			hideProgramMenuBar();
+		} else {
+			showProgramMenuBar();
 		}
 	}
 
 	private void showProgramMenuBar() {
+		// Make sure all the menus are closed
+		// This has improved the behavior of the menu bar
+		programMenuBar.getMenus().forEach( Menu::hide );
+
 		workareaMenu.setVisible( false );
+		programMenuBar.setManaged( true );
 		programMenuBar.setVisible( true );
 	}
 
 	private void hideProgramMenuBar() {
+		// Make sure all the menus are closed
+		// This line improved the behavior of the menu bar
+		programMenuBar.getMenus().forEach( Menu::hide );
+
+		programMenuBar.setManaged( false );
 		programMenuBar.setVisible( false );
 		workareaMenu.setVisible( true );
 	}
@@ -939,6 +854,14 @@ public class Workspace extends Stage implements WritableIdentity {
 		Group container = monitor.getMonitorGroup();
 		container.getChildren().clear();
 		if( enabled ) container.getChildren().add( monitor );
+	}
+
+	private static boolean allMenusAreHidden( MenuBar menuBar ) {
+		return !isAnyMenuShowing( menuBar );
+	}
+
+	private static boolean isAnyMenuShowing( MenuBar menuBar ) {
+		return menuBar.getMenus().stream().anyMatch( Menu::isShowing );
 	}
 
 	private static class ProgramMenuWatcher {
