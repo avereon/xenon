@@ -37,7 +37,7 @@ public interface ProgramTestConfig {
 		values.add( ProgramFlag.MODE );
 		values.add( ProgramMode.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
-		values.add( ProgramFlag.ERROR );
+		values.add( ProgramFlag.WARN );
 		return values.toArray( new String[ 0 ] );
 	}
 

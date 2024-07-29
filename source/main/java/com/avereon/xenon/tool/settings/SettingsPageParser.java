@@ -76,8 +76,6 @@ public class SettingsPageParser {
 	}
 
 	private Map<String, SettingsPage> parse( InputStream input, String rbKey ) throws IOException {
-		if( input == null ) return null;
-
 		Map<String, SettingsPage> pages = new HashMap<>();
 		XMLStreamReader reader;
 		try( input ) {
