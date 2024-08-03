@@ -229,7 +229,6 @@ public class RestartJob {
 				log.atDebug().log( "Attempt %s of %s starting %s process...", retryCount, retryLimit, mode );
 				process = builder.start();
 				log.atInfo().log( "%s process started! pid=%s", mode, process.pid() );
-				System.out.println( mode + " process started! pid=" + process.pid() );
 				break;
 			} catch( IOException exception ) {
 				log.atWarn().withCause( exception ).log( "Error starting %s process", mode );
