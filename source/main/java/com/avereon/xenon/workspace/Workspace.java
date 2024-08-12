@@ -241,13 +241,18 @@ public class Workspace extends Stage implements WritableIdentity {
 		rails = new HashSet<>();
 		railPane = buildRailPane( workspaceLayout );
 
+		//visibleProperty().
+		showingProperty().addListener( (p, o, n) -> {
+			if( n ) hideProgramMenuBar();
+		} );
+
 		// Bind the stage title property to the active workarea name
 		activeWorkareaProperty.addListener( ( p, o, n ) -> {
 			if( n == null ) {
 				titleProperty().unbind();
 				actionBar.backgroundProperty().unbind();
 			} else {
-				titleProperty().bind( n.nameProperty().map( this::calcStageTitle ) );
+				titleProperty().bind( n.nameProperty().map( this::generateStageTitle ) );
 				actionBar.backgroundProperty().bind( n.colorProperty().map( c -> {
 					Color mix = Colors.mix( c, Color.TRANSPARENT, 0.6 );
 					LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, mix ), new Stop( 1, Color.TRANSPARENT ) );
@@ -797,7 +802,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		super.close();
 	}
 
-	private String calcStageTitle( String name ) {
+	private String generateStageTitle( String name ) {
 		return name + " - " + getProgram().getCard().getName();
 	}
 
