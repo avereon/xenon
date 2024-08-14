@@ -434,6 +434,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		return openAsset( asset, null, null, null );
 	}
 
+	public Future<ProgramTool> openAsset( Asset asset, Class<? extends ProgramTool> toolClass ) {
+		return openAsset( asset, null, null, toolClass );
+	}
+
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
 		return openAsset( asset, view, null, null );
 	}
@@ -1124,7 +1128,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) return false;
 
 		if( !asset.isNew() && !asset.exists() ) {
-			log.atWarn().log("Asset not found: " + asset );
+			log.atWarn().log( "Asset not found: " + asset );
 			return false;
 		}
 
