@@ -55,7 +55,7 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * The module {@link Program} instance.
 	 */
 	@Getter
-	@Setter
+	// Set by init()
 	private Xenon program;
 
 	/**
