@@ -1241,6 +1241,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Configure logging for the mod
 			Log.setPackageLogLevel( module.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
+			module.setProgram( getProgram() );
+
 			// This will need to change if nested mods are to be supported
 			// Set the parent product
 			module.setParent( getProgram() );
