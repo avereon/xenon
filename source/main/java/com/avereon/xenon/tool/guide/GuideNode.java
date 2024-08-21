@@ -94,7 +94,7 @@ public class GuideNode extends IdNode {
 	//	}
 
 	@Override
-	public <T extends Node> Comparator<T> getComparator() {
+	public <T extends Node> Comparator<T> getNaturalComparator() {
 		return new NodeOrderNameComparator<>();
 	}
 
