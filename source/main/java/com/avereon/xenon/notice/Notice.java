@@ -50,13 +50,17 @@ public class Notice extends IdNode {
 
 	private static final String MESSAGE = "message";
 
-	private static final String THROWABLE = "throwable";
+	private static final String CAUSE = "throwable";
 
 	private static final String ACTION = "action";
 
 	private static final String READ = "read";
 
 	private final Object[] parameters;
+
+	public Notice(  ) {
+		this( null, null, null, null, new Object[0] );
+	}
 
 	public Notice( Object title, Object message, Object... parameters ) {
 		this( title, message, null, null, parameters );
@@ -90,7 +94,7 @@ public class Notice extends IdNode {
 			setValue( TIMESTAMP, System.currentTimeMillis() );
 			setValue( TITLE, title );
 			setValue( MESSAGE, message );
-			setValue( THROWABLE, throwable );
+			setValue( CAUSE, throwable );
 			setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 
 			setType( Type.NORM );
@@ -106,16 +110,36 @@ public class Notice extends IdNode {
 		return getValue( TIMESTAMP );
 	}
 
+	public Notice setTimestamp( Long timestamp ) {
+		setValue( TIMESTAMP, timestamp );
+		return this;
+	}
+
 	public String getTitle() {
 		return getValue( TITLE );
+	}
+
+	public Notice setTitle( String title ) {
+		setValue( TITLE, title );
+		return this;
 	}
 
 	public Object getMessage() {
 		return getValue( MESSAGE );
 	}
 
-	public Throwable getThrowable() {
-		return getValue( THROWABLE );
+	public Notice setMessage( Object message ) {
+		setValue( MESSAGE, message );
+		return this;
+	}
+
+	public Throwable getCause() {
+		return getValue( CAUSE );
+	}
+
+	public Notice setCause( Throwable throwable ) {
+		setValue( CAUSE, throwable );
+		return this;
 	}
 
 	public Runnable getAction() {
@@ -157,7 +181,7 @@ public class Notice extends IdNode {
 	}
 
 	String getFormattedMessage() {
-		return formatMessage( getMessage(), getThrowable() );
+		return formatMessage( getMessage(), getCause() );
 	}
 
 	private String formatMessage( Object message, Throwable throwable ) {

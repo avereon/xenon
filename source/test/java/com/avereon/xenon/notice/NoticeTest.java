@@ -20,7 +20,7 @@ class NoticeTest {
 		Notice notice = new Notice( "title", "message", throwable );
 		assertThat( notice.getTitle() ).isEqualTo( "title" );
 		assertThat( notice.getMessage() ).isEqualTo( "message" );
-		assertThat( notice.getThrowable() ).isEqualTo( throwable );
+		assertThat( notice.getCause() ).isEqualTo( throwable );
 		assertThat( notice.getType() ).isEqualTo( Notice.Type.NORM );
 	}
 
