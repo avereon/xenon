@@ -225,8 +225,9 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Determine the current asset
-		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY );
 		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
 		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
 
 		// Select the current asset
