@@ -35,6 +35,9 @@ import lombok.CustomLog;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
@@ -376,7 +379,11 @@ public class AssetTool extends GuidedTool {
 			} else if( mode == Mode.SAVE ) {
 				if( asset.isFolder() ) {
 					loadFolder( asset );
-					uriField.setText( asset.getUri().resolve( currentFilename ).toString() );
+					// Encode the URI when creating it, to avoid issues with special characters
+					String encoded = URLEncoder.encode( currentFilename, StandardCharsets.UTF_8 );
+					URI uri = asset.getUri().resolve( encoded );
+					// Decode the URI when setting the text, to show the user the actual filename
+					uriField.setText( URLDecoder.decode( uri.toString(), StandardCharsets.UTF_8 ) );
 				} else {
 					currentFilename = asset.getFileName();
 					loadFolder( getProgram().getAssetManager().getParent( asset ) );
@@ -531,6 +538,7 @@ public class AssetTool extends GuidedTool {
 			Asset asset2 = (Asset)o2.getProperties().get( "asset" );
 			return assetComparator.compare( asset1, asset2 );
 		}
+
 	}
 
 	private final class PriorAction extends ProgramAction {
