@@ -3,7 +3,9 @@ package com.avereon.xenon.scheme;
 import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.*;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.StandardMediaTypes;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
@@ -136,6 +138,11 @@ public class FileScheme extends BaseScheme {
 		} catch( IOException exception ) {
 			throw new AssetException( asset, exception );
 		}
+	}
+
+	@Override
+	public boolean createFolder( Asset asset ) throws AssetException {
+		return getFile( asset ).mkdirs();
 	}
 
 	@Override

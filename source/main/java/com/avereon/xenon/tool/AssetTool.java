@@ -447,6 +447,41 @@ public class AssetTool extends GuidedTool {
 		} );
 	}
 
+	private void createNewFolder() throws AssetException {
+		if( currentFolder == null ) return;
+
+		Scheme scheme = currentFolder.getScheme();
+
+		// Start with the current folder
+		String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" );
+		URI newFolderUri = currentFolder.getUri().resolve( newFolderName );
+		Asset newFolder = getProgram().getAssetManager().createAsset( newFolderUri );
+
+		// Check if there is already a "New Folder" in the current folder
+		if( scheme.exists( newFolder ) ) {
+			// If there is, increment the number
+			int index = 1;
+		} else {
+			// If there is not, create a new folder
+			scheme.createFolder( newFolder );
+		}
+
+		// Select the new folder
+		// Start editing the new folder name
+	}
+
+	private Asset getNextIndexedAsset( Asset asset ) throws AssetException {
+		Scheme scheme = asset.getScheme();
+
+		// NEXT Continue work on new folder
+		while( scheme.exists( asset ) ) {
+			String name = FileUtil.removeExtension( asset.getName() );
+			//asset = scheme.getNextIndexedAsset( asset );
+		}
+
+		return asset;
+	}
+
 	private void notifyUser( String messageKey, String... parameters ) {
 		String message = Rb.text( "program", messageKey, (Object[])parameters );
 
