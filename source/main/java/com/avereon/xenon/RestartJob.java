@@ -67,7 +67,7 @@ public class RestartJob {
 	RestartJob( Xenon program ) {
 		this.program = program;
 		this.updateCommandFile = program.getUpdateManager().getUpdaterFolder().resolve( "update.commands.txt" );
-		log.atInfo().log( "Restart job initialized." );
+		log.atDebug().log( "Restart job initialized." );
 	}
 
 	public void setMode( Mode mode, String... additionalParameters ) {

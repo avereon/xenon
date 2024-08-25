@@ -46,6 +46,8 @@ public class ActionLibrary {
 		register( product, "maximize" );
 		register( product, "exit" );
 
+		register( product, "new-folder" );
+
 		register( product, "edit" );
 		register( product, "undo" );
 		register( product, "redo" );

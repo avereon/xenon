@@ -78,6 +78,8 @@ public class AssetTool extends GuidedTool {
 
 	private final ProgramAction parentAction;
 
+	private final NewFolderAction newFolderAction;
+
 	private Asset parentAsset;
 
 	private Asset currentFolder;
@@ -161,6 +163,7 @@ public class AssetTool extends GuidedTool {
 		priorAction = new PriorAction( getProgram() );
 		nextAction = new NextAction( getProgram() );
 		parentAction = new ParentAction( getProgram() );
+		newFolderAction = new NewFolderAction( getProgram() );
 
 		history = new LinkedList<>();
 		currentIndex = -1;
@@ -250,16 +253,22 @@ public class AssetTool extends GuidedTool {
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
+
 		pushAction( "prior", priorAction );
 		pushAction( "next", nextAction );
 		pushAction( "up", parentAction );
-		pushTools( "prior next up" );
+		pushAction( "new-folder", newFolderAction );
+
+		pushTools( "prior next up new-folder" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		super.conceal();
+
 		pullTools();
+
+		pullAction( "new-folder", newFolderAction );
 		pullAction( "up", parentAction );
 		pullAction( "next", nextAction );
 		pullAction( "prior", priorAction );
@@ -407,6 +416,7 @@ public class AssetTool extends GuidedTool {
 		priorAction.updateEnabled();
 		nextAction.updateEnabled();
 		parentAction.updateEnabled();
+		newFolderAction.updateEnabled();
 	}
 
 	private void loadFolder( Asset asset ) {
@@ -562,7 +572,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class NextAction extends ProgramAction {
 
-		protected NextAction( Xenon program ) {
+		private NextAction( Xenon program ) {
 			super( program );
 		}
 
@@ -581,7 +591,7 @@ public class AssetTool extends GuidedTool {
 
 	private final class ParentAction extends ProgramAction {
 
-		protected ParentAction( Xenon program ) {
+		private ParentAction( Xenon program ) {
 			super( program );
 		}
 
@@ -597,6 +607,24 @@ public class AssetTool extends GuidedTool {
 			} else if( mode == Mode.SAVE ) {
 				selectAsset( parentAsset.getUri().resolve( currentFilename ) );
 			}
+		}
+
+	}
+
+	private final class NewFolderAction extends ProgramAction {
+
+		private NewFolderAction( Xenon program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return currentFolder != null;
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+
 		}
 
 	}
