@@ -1,0 +1,40 @@
+<!--
+This is the Xenon action manual. It is formatted as a partial HTML document in
+order to be used with the DocViewer component on the Avereon website. The
+h1-h6 tags that are children of the root div element, and have an id, will be
+used as an outline when displayed. Note also that links are relative to the
+Avereon website or must be fully qualified.
+-->
+
+<div>
+
+	<h1>Tool Guide</h1>
+	<p>2024-08-25</p>
+	<p>
+		Actions are the basic user input activity in Xenon. Actions are used to
+		perform tasks such as opening a file, saving a file, or printing a file.
+		Actions are typically associated with a menu item or a toolbar button.
+	</p>
+
+	<p>
+		There are several steps to creating an action in Xenon:
+	</p>
+	<ol>
+		<li>Add the action data to the action resource bundles.
+			<ul>
+				<li>You may need to create a new icon for your new action</li>
+				<li>Be sure to register your new icon in the icon library</li>
+				<li>Be sure your translations are clear in other languages</li>
+			</ul>
+		</li>
+		<li>Register the action with the program action manager.</li>
+		<li>Create an action class that extends Action.
+			<ul>
+				<li>Implement the isEnabled() method.</li>
+				<li>Implement the execute() method.</li>
+			</ul>
+		</li>
+		<li>Push and pull the action in the tool.</li>
+	</ol>
+
+</div>
