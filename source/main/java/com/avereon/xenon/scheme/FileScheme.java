@@ -11,6 +11,8 @@ import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -274,7 +276,8 @@ public class FileScheme extends BaseScheme {
 
 		if( file == null ) {
 			try {
-				asset.setValue( FILE, file = new File( asset.getUri() ).getCanonicalFile() );
+				String fileString = URLDecoder.decode( asset.getUri().getPath(), StandardCharsets.UTF_8 );
+				asset.setValue( FILE, file = new File( fileString ).getCanonicalFile() );
 			} catch( IOException exception ) {
 				throw new AssetException( asset, exception );
 			}
