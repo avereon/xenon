@@ -68,11 +68,11 @@ public class AssetTool extends GuidedTool {
 
 	private final TableColumn<Asset, Node> iconColumn;
 
-	private final TableColumn<Asset, String> nameColumn;
+	private final TableColumn<Asset, Node> nameColumn;
 
 	private final TableColumn<Asset, String> uriColumn;
 
-	private final TableColumn<Asset, String> sizeColumn;
+	private final TableColumn<Asset, Node> sizeColumn;
 
 	private final TableView<Asset> assetTable;
 
@@ -157,9 +157,8 @@ public class AssetTool extends GuidedTool {
 
 		// FIXME This column is not editable
 		nameColumn = new TableColumn<>( nameColumnHeader );
-		nameColumn.setCellValueFactory( new PropertyValueFactory<>( "name" ) );
-		//nameColumn.setCellValueFactory( new NameValueFactory( getProgram() ) );
-		//nameColumn.setComparator( new AssetLabelComparator() );
+		nameColumn.setCellValueFactory( new NameValueFactory( getProgram() ) );
+		nameColumn.setComparator( new AssetLabelComparator() );
 		nameColumn.setSortType( TableColumn.SortType.ASCENDING );
 		nameColumn.setEditable( true );
 
@@ -168,6 +167,7 @@ public class AssetTool extends GuidedTool {
 
 		sizeColumn = new TableColumn<>( sizeColumnHeader );
 		sizeColumn.setCellValueFactory( new SizeValueFactory() );
+		sizeColumn.setComparator( new AssetSizeComparator() );
 		sizeColumn.setStyle( "-fx-alignment: CENTER-RIGHT;" );
 
 		// Asset table -------------------------------------------------------------
@@ -595,7 +595,7 @@ public class AssetTool extends GuidedTool {
 	/**
 	 * A table value factory for the asset icon.
 	 */
-	private static class IconValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
+	private static class IconValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
 
 		private final Xenon program;
 
@@ -608,50 +608,57 @@ public class AssetTool extends GuidedTool {
 			Asset asset = assetStringCellDataFeatures.getValue();
 			Node icon = program.getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
 			Label label = new Label( "", icon );
+			// Add the asset, as a property on the label, so it can be used for sorting
 			label.getProperties().put( "asset", asset );
 			return new ReadOnlyObjectWrapper<>( label );
 		}
 
 	}
 
-//	/**
-//	 * A table value factory for the asset label.
-//	 */
-//	private static class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
-//
-//		private final Xenon program;
-//
-//		public NameValueFactory( Xenon program ) {
-//			this.program = program;
-//		}
-//
-//		@Override
-//		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
-//			Asset asset = assetStringCellDataFeatures.getValue();
-//			String name = asset.getName();
-//			Node icon = program.getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
-//			Label label = new Label( name, icon );
-//			label.getProperties().put( "asset", asset );
-//			return new ReadOnlyObjectWrapper<>( label );
-//		}
-//
-//	}
+	/**
+	 * A table value factory for the asset label.
+	 */
+	private static class NameValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
+
+		private final Xenon program;
+
+		public NameValueFactory( Xenon program ) {
+			this.program = program;
+		}
+
+		@Override
+		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
+			Asset asset = assetStringCellDataFeatures.getValue();
+			String name = asset.getName();
+			Label label = new Label( name );
+			// Add the asset, as a property on the label, so it can be used for sorting
+			label.getProperties().put( "asset", asset );
+			return new ReadOnlyObjectWrapper<>( label );
+		}
+
+	}
 
 	/**
 	 * A table value factory for the asset size.
 	 */
-	private static class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, String>, ObservableValue<String>> {
+	private static class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
 
 		@Override
-		public ObservableValue<String> call( TableColumn.CellDataFeatures<Asset, String> assetStringCellDataFeatures ) {
+		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
 			try {
 				Asset asset = assetStringCellDataFeatures.getValue();
 				long size = asset.getSize();
-				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( Rb.text( "asset", "asset-open-folder-size", size ) );
-				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
+
+				String text = Rb.text( "asset", "asset-open-folder-size", size );
+				if( !asset.isFolder() ) text = FileUtil.getHumanSize( size, false, true );
+
+				Label label = new Label( text );
+				// Add the asset, as a property on the label, so it can be used for sorting
+				label.getProperties().put( "asset", asset );
+				return new ReadOnlyObjectWrapper<>( label );
 			} catch( AssetException exception ) {
-				log.atSevere().withCause( exception ).log();
-				return new ReadOnlyObjectWrapper<>( "" );
+				log.atWarn().withCause( exception ).log();
+				return new ReadOnlyObjectWrapper<>( null );
 			}
 		}
 
@@ -660,6 +667,19 @@ public class AssetTool extends GuidedTool {
 	private static final class AssetLabelComparator implements Comparator<Node> {
 
 		private final Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
+
+		@Override
+		public int compare( Node o1, Node o2 ) {
+			Asset asset1 = (Asset)o1.getProperties().get( "asset" );
+			Asset asset2 = (Asset)o2.getProperties().get( "asset" );
+			return assetComparator.compare( asset1, asset2 );
+		}
+
+	}
+
+	private static final class AssetSizeComparator implements Comparator<Node> {
+
+		private final Comparator<Asset> assetComparator = new AssetTypeAndSizeComparator();
 
 		@Override
 		public int compare( Node o1, Node o2 ) {
