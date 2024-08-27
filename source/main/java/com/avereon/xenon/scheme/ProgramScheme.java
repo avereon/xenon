@@ -5,8 +5,8 @@ import com.avereon.product.Rb;
 import com.avereon.util.IoUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.exception.AssetException;
 import lombok.CustomLog;
 
 import java.io.ByteArrayInputStream;
@@ -30,14 +30,14 @@ public class ProgramScheme extends ProductScheme {
 
 	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
-		// Most assets don't actually load anything
+		// Most program assets don't actually load anything
 		// However, the following do:
 
 		// Help content
 		URI uri = URI.create( asset.getUri().getSchemeSpecificPart() );
 		if( uri.getScheme() != null ) {
-			switch( uri.getScheme() ) {
-				case "help" -> loadHelp( asset, codec );
+			if( uri.getScheme().equals( "help" ) ) {
+				loadHelp( asset, codec );
 			}
 		}
 	}

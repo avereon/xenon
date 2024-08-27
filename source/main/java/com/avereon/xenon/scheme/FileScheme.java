@@ -105,7 +105,7 @@ public class FileScheme extends BaseScheme {
 		} catch( IOException exception ) {
 			// Error recovery - move temp file back to real file
 			try {
-				Files.move( temp, file );
+				if( Files.exists( temp ) ) Files.move( temp, file );
 			} catch( IOException restoreException ) {
 				log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
 			}

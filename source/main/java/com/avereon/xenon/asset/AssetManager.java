@@ -28,6 +28,10 @@ import lombok.CustomLog;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -529,7 +533,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	/**
 	 * Create an asset from a string. This asset is considered to be an old asset. See {@link Asset#isNew()}
 	 *
-	 * @param string A asset string
+	 * @param string The asset string
 	 * @return A new asset based on the specified string.
 	 */
 	public Asset createAsset( String string ) throws AssetException {
@@ -1231,7 +1235,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		File folder = !source.isNew() ? new File( getParent( source ).getUri() ) : getCurrentFolder();
 		String filename = !source.isNew() ? source.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-		String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
+		String assetUri = URLDecoder.decode( folder.toURI().resolve( filename ).toString(), StandardCharsets.UTF_8 );
+		String uriString = ProgramAssetType.URI + "?uri=" + assetUri + ProgramAssetType.SAVE_FRAGMENT;
 		log.atTrace().log( "save asset uri=%s", uriString );
 
 		final Asset finalAsset = source;
@@ -1242,7 +1247,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
 				tool.getFilters().addAll( 0, filters.values() );
 				tool.setSelectedFilter( filters.get( finalCodec ) );
-				tool.setSaveActionConsumer( a -> doAfterAssetTool( tool, filters, source, a, saveAs, rename ) );
+				tool.setSaveActionConsumer( target -> doAfterAssetTool( tool, filters, source, target, saveAs, rename ) );
 			} catch( Exception exception ) {
 				log.atWarn().withCause( exception ).log();
 			}
@@ -1252,6 +1257,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	private void doAfterAssetTool( AssetTool tool, Map<Codec, AssetFilter> filters, Asset source, Asset target, boolean saveAs, boolean rename ) {
 		try {
 			Asset folder = target.isFolder() ? target : getParent( target );
+
+			// Store the current folder in the settings
 			getSettings().set( CURRENT_FOLDER_SETTING_KEY, String.valueOf( folder.getUri() ) );
 
 			// If the user specified a codec use it to set the codec and asset type
@@ -1347,9 +1354,13 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private File getCurrentFolder() {
-		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-		if( !folder.exists() || !folder.isDirectory() ) folder = new File( System.getProperty( "user.dir" ) );
-		return folder;
+		// Determine the current folder
+		// The current folder string is in URI format
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
+		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
+		return currentFolder.toFile();
 	}
 
 	private class NewOrOpenAssetTask extends Task<ProgramTool> {

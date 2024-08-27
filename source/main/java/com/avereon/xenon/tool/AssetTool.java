@@ -25,11 +25,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,9 +39,6 @@ import lombok.Setter;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
@@ -68,7 +67,7 @@ public class AssetTool extends GuidedTool {
 
 	private final TableColumn<Asset, Node> iconColumn;
 
-	private final TableColumn<Asset, Node> nameColumn;
+	private final TableColumn<Asset, Label> nameColumn;
 
 	private final TableColumn<Asset, String> uriColumn;
 
@@ -155,11 +154,12 @@ public class AssetTool extends GuidedTool {
 		iconColumn.setMaxWidth( columnWidth );
 		iconColumn.setMinWidth( iconColumn.getMaxWidth() );
 
-		// FIXME This column is not editable
 		nameColumn = new TableColumn<>( nameColumnHeader );
-		nameColumn.setCellValueFactory( new NameValueFactory( getProgram() ) );
+		nameColumn.setCellValueFactory( new NameValueFactory() );
 		nameColumn.setComparator( new AssetLabelComparator() );
 		nameColumn.setSortType( TableColumn.SortType.ASCENDING );
+		nameColumn.setCellFactory( TextFieldTableCell.forTableColumn( new StringLabelConverter() ) );
+		nameColumn.onEditCommitProperty().set( this::doUpdateAssetName );
 		nameColumn.setEditable( true );
 
 		uriColumn = new TableColumn<>( uriColumnHeader );
@@ -245,6 +245,7 @@ public class AssetTool extends GuidedTool {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		// Update the mode
+		// FIXME The tool did not switch modes when the mode was changed
 		mode = resolveMode( request.getFragment() );
 
 		// Set the title depending on the mode requested
@@ -317,8 +318,7 @@ public class AssetTool extends GuidedTool {
 
 	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
 		if( parameters == null ) return null;
-		String asset = parameters.get( "uri" );
-		return asset == null ? null : new URI( asset );
+		return URI.create( parameters.get( "uri" ) );
 	}
 
 	private void addSupportedFilters() {
@@ -375,13 +375,14 @@ public class AssetTool extends GuidedTool {
 		editAssetName( item );
 	}
 
-	private void doGoAction( ActionEvent e ) {
+	private void doGoAction( ActionEvent event ) {
+		selectAsset( uriField.getText() );
 		try {
-			selectAsset( uriField.getText() );
 			if( mode == Mode.SAVE ) requestSaveAsset();
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
 		}
+		event.consume();
 	}
 
 	private void selectAsset( Asset asset ) {
@@ -409,7 +410,8 @@ public class AssetTool extends GuidedTool {
 
 		try {
 			Asset asset = getProgram().getAssetManager().createAsset( path );
-			uriField.setText( URLDecoder.decode( path, StandardCharsets.UTF_8 ) );
+
+			uriField.setText( UriUtil.decode( path ) );
 
 			if( mode == Mode.OPEN ) {
 				if( !asset.exists() ) {
@@ -433,13 +435,14 @@ public class AssetTool extends GuidedTool {
 				if( asset.isFolder() ) {
 					loadFolder( asset );
 					// Encode the URI when creating it, to avoid issues with special characters
-					String encoded = URLEncoder.encode( currentFilename, StandardCharsets.UTF_8 );
-					URI uri = asset.getUri().resolve( encoded );
+					String encodedFilename = UriUtil.encode( currentFilename );
+					URI uri = asset.getUri().resolve( encodedFilename );
 					// Decode the URI when setting the text, to show the user the actual filename
-					uriField.setText( URLDecoder.decode( uri.toString(), StandardCharsets.UTF_8 ) );
+					uriField.setText( UriUtil.decode( uri.toString() ) );
 				} else {
+					currentFolder = getProgram().getAssetManager().getParent( asset );
 					currentFilename = asset.getFileName();
-					loadFolder( getProgram().getAssetManager().getParent( asset ) );
+					loadFolder( currentFolder );
 				}
 			}
 
@@ -466,7 +469,14 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void requestSaveAsset() throws AssetException {
-		if( saveActionConsumer != null ) saveActionConsumer.accept( getProgram().getAssetManager().resolve( getCurrentFolder(), currentFilename ) );
+		// NEXT Why is the current folder incorrect here?
+		log.atConfig().log( "requestSaveAsset folder=%s filename=%s", currentFolder, currentFilename );
+
+		Asset target = getProgram().getAssetManager().resolve( currentFolder, currentFilename );
+
+		log.atConfig().log( "Save target: %s", target );
+
+		if( saveActionConsumer != null ) saveActionConsumer.accept( target );
 		close();
 	}
 
@@ -479,10 +489,11 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void loadFolder( Asset asset ) {
-		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri().toString() );
 		currentFolder = asset;
 		updateActionState();
 		closeUserNotice();
+
+		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri() );
 
 		// FIXME Also add a folder watcher to update the asset list when the folder changes
 
@@ -516,7 +527,7 @@ public class AssetTool extends GuidedTool {
 
 			// Start with the current folder
 			String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" );
-			URI newFolderUri = currentFolder.getUri().resolve( URLEncoder.encode( newFolderName, StandardCharsets.UTF_8 ) );
+			URI newFolderUri = currentFolder.getUri().resolve( UriUtil.encode( newFolderName ) );
 			Asset newFolder = getNextIndexedAsset( getProgram().getAssetManager().createAsset( newFolderUri ) );
 
 			// Get next indexed asset
@@ -587,6 +598,21 @@ public class AssetTool extends GuidedTool {
 		return node;
 	}
 
+	private void doUpdateAssetName( TableColumn.CellEditEvent<Asset, Label> event ) {
+		Asset asset = event.getRowValue();
+
+		try {
+			String newName = UriUtil.encode( event.getNewValue().getText() );
+			URI parent = UriUtil.getParent( asset.getUri() );
+			URI uri = parent.resolve( newName );
+
+			Asset newAsset = getProgram().getAssetManager().createAsset( uri );
+			asset.getScheme().rename( asset, newAsset );
+		} catch( AssetException exception ) {
+			handleAssetException( exception );
+		}
+	}
+
 	private void handleAssetException( AssetException exception ) {
 		notifyUser( "asset-error", exception.getMessage() );
 		log.atSevere().withCause( exception ).log();
@@ -618,16 +644,10 @@ public class AssetTool extends GuidedTool {
 	/**
 	 * A table value factory for the asset label.
 	 */
-	private static class NameValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
-
-		private final Xenon program;
-
-		public NameValueFactory( Xenon program ) {
-			this.program = program;
-		}
+	private static class NameValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, Label>, ObservableValue<Label>> {
 
 		@Override
-		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
+		public ObservableValue<Label> call( TableColumn.CellDataFeatures<Asset, Label> assetStringCellDataFeatures ) {
 			Asset asset = assetStringCellDataFeatures.getValue();
 			String name = asset.getName();
 			Label label = new Label( name );
@@ -664,12 +684,12 @@ public class AssetTool extends GuidedTool {
 
 	}
 
-	private static final class AssetLabelComparator implements Comparator<Node> {
+	private static final class AssetLabelComparator implements Comparator<Label> {
 
 		private final Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
 
 		@Override
-		public int compare( Node o1, Node o2 ) {
+		public int compare( Label o1, Label o2 ) {
 			Asset asset1 = (Asset)o1.getProperties().get( "asset" );
 			Asset asset2 = (Asset)o2.getProperties().get( "asset" );
 			return assetComparator.compare( asset1, asset2 );
@@ -690,6 +710,20 @@ public class AssetTool extends GuidedTool {
 
 	}
 
+	private static final class StringLabelConverter extends StringConverter<Label> {
+
+		@Override
+		public String toString( Label object ) {
+			return object.getText();
+		}
+
+		@Override
+		public Label fromString( String string ) {
+			return new Label( string );
+		}
+
+	}
+
 	private final class RefreshAction extends ProgramAction {
 
 		private RefreshAction( Xenon program ) {
@@ -704,7 +738,6 @@ public class AssetTool extends GuidedTool {
 		@Override
 		public void handle( ActionEvent event ) {
 			loadFolder( currentFolder );
-			// TODO Be sure to scroll to the prior location
 		}
 
 	}
