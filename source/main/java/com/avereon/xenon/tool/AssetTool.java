@@ -400,6 +400,10 @@ public class AssetTool extends GuidedTool {
 	private void selectAsset( final String path, boolean updateHistory ) {
 		Objects.requireNonNull( path );
 
+		if( countHits( path, ":" ) > 1 ) {
+			log.atConfig().withCause( new Throwable() ).log( "Load folder: %s", path );
+		}
+
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
@@ -409,7 +413,9 @@ public class AssetTool extends GuidedTool {
 		}
 
 		try {
+			log.atConfig().log( "Asset path: %s", path );
 			Asset asset = getProgram().getAssetManager().createAsset( path );
+			log.atConfig().log( "Asset URI: %s", asset.getUri() );
 
 			uriField.setText( UriUtil.decode( path ) );
 
@@ -434,18 +440,12 @@ public class AssetTool extends GuidedTool {
 			} else if( mode == Mode.SAVE ) {
 				if( asset.isFolder() ) {
 					loadFolder( asset );
-					// Encode the URI when creating it, to avoid issues with special characters
-					String encodedFilename = UriUtil.encode( currentFilename );
-					URI uri = asset.getUri().resolve( encodedFilename );
-					// Decode the URI when setting the text, to show the user the actual filename
-					uriField.setText( UriUtil.decode( uri.toString() ) );
+					uriField.setText( UriUtil.resolveToString( asset.getUri(), currentFilename ) );
 				} else {
-					currentFolder = getProgram().getAssetManager().getParent( asset );
 					currentFilename = asset.getFileName();
-					loadFolder( currentFolder );
+					loadFolder( getProgram().getAssetManager().getParent( asset ) );
 				}
 			}
-
 			activateUriField();
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
@@ -488,8 +488,19 @@ public class AssetTool extends GuidedTool {
 		newFolderAction.updateEnabled();
 	}
 
+	private int countHits( String text, String target ) {
+		int count = 0;
+		int index = 0;
+		while( (index = text.indexOf( target, index)) != -1 ) {
+			count++;
+			index += target.length();
+		}
+		return count;
+	}
+
 	private void loadFolder( Asset asset ) {
 		currentFolder = asset;
+
 		updateActionState();
 		closeUserNotice();
 
@@ -504,7 +515,7 @@ public class AssetTool extends GuidedTool {
 				Fx.run( () -> {
 					this.assets.clear();
 					this.assets.addAll( assets );
-					this.assetTable.sort();
+					//this.assetTable.sort();
 				} );
 			} catch( AssetException exception ) {
 				handleAssetException( exception );

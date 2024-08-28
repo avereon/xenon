@@ -102,7 +102,7 @@ public class WelcomeTool extends ProgramTool {
 
 		button.setOnAction( e -> getProgram().getTaskManager().submit( Task.of( "", () -> {
 			try {
-				Desktop.getDesktop().browse( new URI( uri ) );
+				Desktop.getDesktop().browse( new URI( uri.replace( " ", "%20" ) ) );
 			} catch( IOException | URISyntaxException ioException ) {
 				log.atWarn().log( "Unable to open uri=%s", uri );
 			}
