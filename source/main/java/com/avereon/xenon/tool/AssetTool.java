@@ -226,7 +226,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	public void setSelectedFilter( AssetFilter filter ) {
-		this.filters.getSelectionModel().select( filter );
+		Fx.run( () -> this.filters.getSelectionModel().select( filter ) );
 	}
 
 	public ObservableValue<AssetFilter> selectedFilter() {
@@ -318,7 +318,7 @@ public class AssetTool extends GuidedTool {
 
 	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
 		if( parameters == null ) return null;
-		return URI.create( parameters.get( "uri" ) );
+		return URI.create( parameters.getOrDefault( "uri", System.getProperty( "user.dir" ) ).replace( " ", "%20" ) );
 	}
 
 	private void addSupportedFilters() {
@@ -400,10 +400,6 @@ public class AssetTool extends GuidedTool {
 	private void selectAsset( final String path, boolean updateHistory ) {
 		Objects.requireNonNull( path );
 
-		if( countHits( path, ":" ) > 1 ) {
-			log.atConfig().withCause( new Throwable() ).log( "Load folder: %s", path );
-		}
-
 		if( updateHistory ) {
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
@@ -413,9 +409,7 @@ public class AssetTool extends GuidedTool {
 		}
 
 		try {
-			log.atConfig().log( "Asset path: %s", path );
 			Asset asset = getProgram().getAssetManager().createAsset( path );
-			log.atConfig().log( "Asset URI: %s", asset.getUri() );
 
 			uriField.setText( UriUtil.decode( path ) );
 
@@ -455,27 +449,12 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void editAssetName( Asset asset ) {
-		// Find the asset in the table, just return if not found
 		int index = assetTable.getItems().indexOf( asset );
-
-		log.atConfig().log( "Edit asset from table index=%s", index );
-
-		// Start editing the asset name
 		assetTable.edit( index, nameColumn );
-
-		log.atConfig().log( "Edit asset from table index=%s", assetTable.getEditingCell() );
-
-		// Update the asset name and reload the table
 	}
 
 	private void requestSaveAsset() throws AssetException {
-		// NEXT Why is the current folder incorrect here?
-		log.atConfig().log( "requestSaveAsset folder=%s filename=%s", currentFolder, currentFilename );
-
 		Asset target = getProgram().getAssetManager().resolve( currentFolder, currentFilename );
-
-		log.atConfig().log( "Save target: %s", target );
-
 		if( saveActionConsumer != null ) saveActionConsumer.accept( target );
 		close();
 	}
@@ -488,17 +467,15 @@ public class AssetTool extends GuidedTool {
 		newFolderAction.updateEnabled();
 	}
 
-	private int countHits( String text, String target ) {
-		int count = 0;
-		int index = 0;
-		while( (index = text.indexOf( target, index)) != -1 ) {
-			count++;
-			index += target.length();
-		}
-		return count;
-	}
-
 	private void loadFolder( Asset asset ) {
+		// TODO Unregister the current folder from the watcher
+		if( Objects.equals( FileScheme.ID, asset.getScheme().getName() ) ) {
+			// unregister
+			Path path = Path.of( asset.getUri() );
+			//path.register( getProgram().getWatchService(), ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY );
+			// NOTE https://docs.oracle.com/javase/tutorial/essential/io/notification.html
+		}
+
 		currentFolder = asset;
 
 		updateActionState();
@@ -506,7 +483,10 @@ public class AssetTool extends GuidedTool {
 
 		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri() );
 
-		// FIXME Also add a folder watcher to update the asset list when the folder changes
+		// TODO Register the current folder with the watcher
+		if( Objects.equals( FileScheme.ID, asset.getScheme().getName() ) ) {
+			// register
+		}
 
 		getProgram().getTaskManager().submit( Task.of( "load-asset", () -> {
 			try {
@@ -515,7 +495,6 @@ public class AssetTool extends GuidedTool {
 				Fx.run( () -> {
 					this.assets.clear();
 					this.assets.addAll( assets );
-					//this.assetTable.sort();
 				} );
 			} catch( AssetException exception ) {
 				handleAssetException( exception );
@@ -538,17 +517,19 @@ public class AssetTool extends GuidedTool {
 
 			// Start with the current folder
 			String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" );
-			URI newFolderUri = currentFolder.getUri().resolve( UriUtil.encode( newFolderName ) );
-			Asset newFolder = getNextIndexedAsset( getProgram().getAssetManager().createAsset( newFolderUri ) );
+			Asset asset = getProgram().getAssetManager().resolve( currentFolder, newFolderName );
+			Asset newFolder = getNextIndexedAsset( asset );
 
 			// Get next indexed asset
 			scheme.createFolder( newFolder );
 
-			// Select the new folder
+			// Reload the current folder
 			loadFolder( currentFolder );
 
 			// Start editing the new folder name
-			//editAssetName( newFolder );
+			// FIXME Race condition with the loadFolder method
+			//  loadFolder does not load new folder before requesting the edit
+			editAssetName( newFolder );
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
 		}
@@ -557,13 +538,12 @@ public class AssetTool extends GuidedTool {
 	private Asset getNextIndexedAsset( Asset asset ) throws AssetException {
 		Scheme scheme = asset.getScheme();
 
-		// NEXT Continue work on new folder
-		while( scheme.exists( asset ) ) {
-			String name = FileUtil.removeExtension( asset.getName() );
-			//asset = scheme.getNextIndexedAsset( asset );
-		}
+		if( !scheme.exists( asset ) ) return asset;
 
-		return asset;
+		Asset parent = getProgram().getAssetManager().getParent( asset );
+		List<String> children = scheme.listAssets( parent ).stream().map( Asset::getName ).toList();
+		String nextName = FileUtil.getNextIndexedName( children, asset.getName() );
+		return getProgram().getAssetManager().resolve( parent, nextName );
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {

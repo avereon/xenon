@@ -46,6 +46,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,9 +55,7 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -89,6 +88,8 @@ public class Xenon extends Application implements XenonProgram {
 	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
 
 	private com.avereon.util.Parameters parameters;
+
+	private boolean daemonRequested;
 
 	private SplashScreenPane splashScreen;
 
@@ -134,8 +135,11 @@ public class Xenon extends Application implements XenonProgram {
 
 	private IndexService indexService;
 
+	private WatchService watchService;
+
 	private ProgramEventWatcher watcher;
 
+	@Getter
 	private FxEventHub fxEventHub;
 
 	private ActionMenuAction actionMenuAction;
@@ -328,9 +332,9 @@ public class Xenon extends Application implements XenonProgram {
 		// Show the splash screen, depends stylesheet
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UNDECORATED ) stage.initStyle( StageStyle.UNDECORATED );
-		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
+		daemonRequested = parameters.isSet( ProgramFlag.DAEMON ) && !parameters.isSet( ProgramFlag.NODAEMON );
 		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
-		if( !daemon && !nosplash ) {
+		if( !daemonRequested && !nosplash ) {
 			splashScreen = new SplashScreenPane( card.getName() );
 			splashScreen.show( stage );
 			time( "splash-displayed" );
@@ -429,15 +433,12 @@ public class Xenon extends Application implements XenonProgram {
 		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 
 		// Set the number of startup steps
-		int service = 7;
-		int steps = service + uiRegenerator.getToolCount();
+		int serviceCount = 8;
 		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.setSteps( steps ) );
+			Fx.run( () -> splashScreen.setExpectedSteps( serviceCount ) );
 		}
 
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 
 		// Start the asset manager
 		log.atFiner().log( "Starting asset manager..." );
@@ -448,20 +449,23 @@ public class Xenon extends Application implements XenonProgram {
 		assetManager.start();
 		//program-asset-type-provider
 		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Asset manager started." );
 		time( "asset-manager" );
 
 		// Start the index service
 		log.atFiner().log( "Starting index service..." );
 		indexService = new IndexService( Xenon.this ).start();
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Index service started." );
 		time( "index-service" );
+
+		// Start the index service
+		log.atFiner().log( "Starting folder watch service..." );
+		watchService = FileSystems.getDefault().newWatchService();
+		if( splashScreen != null ) splashScreen.update();
+		log.atFine().log( "Folder watch service started." );
+		time( "folder-watch-service" );
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
@@ -476,9 +480,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFiner().log( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
 		registerTools( toolManager );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Tool manager started." );
 		time( "tool-manager" );
 
@@ -486,9 +488,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFiner().log( "Starting theme manager..." );
 		themeManager = new ThemeManager( Xenon.this ).start();
 		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Theme manager started." );
 		time( "theme-manager" );
 
@@ -496,9 +496,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFiner().log( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Xenon.this ).start();
 		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Workspace manager started." );
 		time( "workspace-manager" );
 
@@ -506,9 +504,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFiner().log( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Xenon.this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Notice manager started." );
 		time( "notice-manager" );
 
@@ -549,25 +545,17 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Finish the splash screen
 		if( splashScreen != null ) {
-			int totalSteps = splashScreen.getSteps();
-			int completedSteps = splashScreen.getCompletedSteps();
-			if( completedSteps != totalSteps ) {
-				log.atWarning().log( "Startup step mismatch: %s of %s", completedSteps, totalSteps );
-			}
 			Fx.run( () -> splashScreen.done() );
 			time( "splash-done" );
 
 			// Give the slash screen time to render and the user to see it
-			if( splashScreen.isVisible() ) {
-				Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
-			}
+			if( splashScreen.isVisible() ) Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
 
 			Fx.run( () -> splashScreen.hide() );
 			time( "splash-hidden" );
 		}
 
-		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
-		if( !daemon ) {
+		if( !daemonRequested ) {
 			Fx.run( () -> {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
@@ -1042,6 +1030,11 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	@Override
+	public WatchService getWatchService() {
+		return watchService;
+	}
+
+	@Override
 	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {
 		return fxEventHub.register( type, handler );
 	}
@@ -1054,10 +1047,6 @@ public class Xenon extends Application implements XenonProgram {
 	@Override
 	public String toString() {
 		return getCard().getName();
-	}
-
-	public FxEventHub getFxEventHub() {
-		return fxEventHub;
 	}
 
 	private static void time( String markerName ) {

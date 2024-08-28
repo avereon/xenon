@@ -17,6 +17,7 @@ import com.avereon.xenon.task.TaskManager;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
+import java.nio.file.WatchService;
 
 public interface XenonProgram extends Program, ProgramProduct, XenonProgramProduct {
 
@@ -116,6 +117,8 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 	NoticeManager getNoticeManager();
 
 	IndexService getIndexService();
+
+	WatchService getWatchService();
 
 	<T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler );
 

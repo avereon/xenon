@@ -870,7 +870,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public Asset resolve( Asset asset, String name ) throws AssetException {
 		if( !asset.isFolder() ) return asset;
-		return createAsset( asset.getUri().resolve( name ) );
+		if( name == null ) return asset;
+		return createAsset( asset.getUri().resolve( name.replace( " ", "%20" ) ) );
 	}
 
 	private Settings getSettings() {
