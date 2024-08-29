@@ -28,7 +28,6 @@ import lombok.CustomLog;
 
 import java.io.File;
 import java.net.URI;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
@@ -170,8 +169,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Determine the current folder
 		// The current folder string is in URI format
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
-		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
-		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
+		log.atConfig().log( "Stored current folder: %s", currentFolderString );
+		URI currentFolderUri = URI.create( currentFolderString );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderUri.toString() );
+		//if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
+		log.atConfig().log( "Result current folder: %s", currentFolderString );
 		setCurrentFileFolder( currentFolder.toUri() );
 		return currentFolder;
 	}

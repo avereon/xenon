@@ -265,7 +265,7 @@ public class AssetTool extends GuidedTool {
 		// Select the current asset
 		URI uri;
 		try {
-			uri = resolveAsset( request.getQueryParameters() );
+			uri = resolveUri( request.getQueryParameters() );
 			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
 			if( uri == null ) uri = currentFolder.toUri();
 			selectAsset( uri );
@@ -317,9 +317,10 @@ public class AssetTool extends GuidedTool {
 		}
 	}
 
-	private static URI resolveAsset( Map<String, String> parameters ) throws URISyntaxException {
+	private static URI resolveUri( Map<String, String> parameters ) throws URISyntaxException {
 		if( parameters == null ) return null;
-		return URI.create( parameters.getOrDefault( "uri", System.getProperty( "user.dir" ) ).replace( " ", "%20" ) );
+		String uriString = parameters.get( "uri" );
+		return uriString == null ? null : URI.create( uriString.replace( " ", "%20" ) );
 	}
 
 	private void addSupportedFilters() {

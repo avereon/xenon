@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.skill.Controllable;
+import com.avereon.xenon.ProgramThreadFactory;
 import com.avereon.xenon.XenonProgram;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.FileScheme;
@@ -59,7 +60,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 	public AssetWatchService start() {
 		try {
 			watchService = FileSystems.getDefault().newWatchService();
-			executor = Executors.newCachedThreadPool();
+			executor = Executors.newCachedThreadPool( new ProgramThreadFactory() );
 			executor.submit( this::doWatch );
 		} catch( IOException exception ) {
 			log.atWarn( exception ).log();
@@ -83,70 +84,62 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 	}
 
 	private void doWatch() {
-		try {
-			Path path;
-			WatchKey key = null;
-			while( isExecutable() ) {
+		Path path;
+		WatchKey key = null;
+		while( isExecutable() ) {
+			try {
 				try {
-					try {
-						key = watchService.take();
-					} catch( InterruptedException exception ) {
-						continue;
-					} catch( ClosedWatchServiceException exception ) {
-						return;
-					}
+					key = watchService.take();
+				} catch( InterruptedException exception ) {
+					continue;
+				} catch( ClosedWatchServiceException exception ) {
+					return;
+				}
 
-					path = watchServicePaths.get( key );
-					if( path == null ) continue;
+				path = watchServicePaths.get( key );
+				if( path == null ) continue;
 
-					// It is common to have multiple events for a single asset.
-					for( WatchEvent<?> event : key.pollEvents() ) {
-						WatchEvent.Kind<?> kind = event.kind();
+				// It is common to have multiple events for a single asset.
+				for( WatchEvent<?> event : key.pollEvents() ) {
+					WatchEvent.Kind<?> kind = event.kind();
 
-						//log.atConfig().log( "Watch event: %s %s %s", event.kind(), event.context(), event.count() );
+					//log.atConfig().log( "Watch event: %s %s %s", event.kind(), event.context(), event.count() );
 
-						if( kind == OVERFLOW ) continue;
-						if( event.context() == null ) continue;
-						if( event.context() instanceof Path eventPath ) {
-							try {
-								Asset asset = getProgram().getAssetManager().createAsset( eventPath );
+					if( kind == OVERFLOW ) continue;
+					if( event.context() == null ) continue;
+					if( event.context() instanceof Path eventPath ) {
+						try {
+							Asset asset = getProgram().getAssetManager().createAsset( eventPath );
 
-								// FIXME Asset open flag is not true
-								//if( !asset.isOpen() ) continue;
+							// This logic is intended to catch double events and events from our own save.
+							long lastSavedTime = asset.getLastSaved();
 
-								// This logic is intended to catch double events and events from our own save.
-								long lastSavedTime = asset.getLastSaved();
-								asset.setLastSaved( System.currentTimeMillis() );
+							// This timeout needs to be long enough for the OS to react.
+							// In the case of network assets it can take a couple of seconds.
+							if( System.currentTimeMillis() - lastSavedTime < OS_REACTION_TIME ) continue;
+							asset.setLastSaved( System.currentTimeMillis() );
 
-								// This timeout needs to be long enough for the OS to react.
-								// In the case of network assets it can take a couple of seconds.
-								if( System.currentTimeMillis() - lastSavedTime < OS_REACTION_TIME ) continue;
+							// Update the externally modified flag
+							asset.setExternallyModified( true );
 
-								// Update the externally modified flag
-								asset.setExternallyModified( true );
-
-								// Dispatch the event
-								dispatch( asset, event );
-							} catch( AssetException exception ) {
-								log.atWarn( exception ).log();
-							}
+							// Dispatch the event
+							dispatch( asset, event );
+						} catch( AssetException exception ) {
+							log.atWarn( exception ).log();
 						}
 					}
-				} finally {
-					if( key != null ) key.reset();
 				}
+			} finally {
+				if( key != null ) key.reset();
 			}
-		} catch( Exception exception ) {
-			log.atWarn( exception ).log();
 		}
 	}
 
 	private void dispatch( Asset asset, WatchEvent<?> event ) {
+		// NEXT Should we dispatch the event to the asset parents?
+
 		log.atConfig().log( "Dispatching watch event: %s %s %s", event.kind(), event.context(), event.count() );
-
-		// NEXT Events are still not getting dispatched to the callbacks
-
-		for( Callback<WatchEvent<?>, ?> callback : callbacks.getOrDefault( asset, Set.of() ) ) {
+		for( Callback<WatchEvent<?>, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
 			// Don't let an individual callback stop the rest of the callbacks
 			try {
 				callback.call( event );
