@@ -160,14 +160,14 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 			WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
 			watchServicePaths.put( key, path );
 			asset.setValue( JAVA_NIO_FILE_WATCH_KEY, key );
-			log.atConfig().log( "Registered watch for %s", asset );
 		} catch( IOException exception ) {
 			throw new AssetException( asset, exception );
 		}
+		//log.atConfig().log( "Registered watch for %s", asset );
 	}
 
 	public void removeWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) {
-		log.atConfig().log( "Removing watch for %s", asset );
+		//log.atConfig().log( "Removing watch for %s", asset );
 		WatchKey key = asset.getValue( JAVA_NIO_FILE_WATCH_KEY );
 		if( key == null ) return;
 		key.cancel();

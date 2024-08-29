@@ -451,7 +451,7 @@ public class AssetTool extends GuidedTool {
 
 	private void editAssetName( Asset asset ) {
 		int index = assetTable.getItems().indexOf( asset );
-		assetTable.edit( index, nameColumn );
+		if( index >= 0 ) assetTable.edit( index, nameColumn );
 	}
 
 	private void requestSaveAsset() throws AssetException {
@@ -484,6 +484,12 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void loadFolder( Asset asset ) {
+		loadFolder( asset, null );
+	}
+
+	private void loadFolder( Asset asset, Asset editAsset ) {
+		if( isEditing() ) return;
+
 		try {
 			// Unregister the asset from the watcher
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
@@ -513,8 +519,8 @@ public class AssetTool extends GuidedTool {
 				parentAsset = getProgram().getAssetManager().getParent( asset );
 				List<Asset> assets = asset.getChildren();
 				Fx.run( () -> {
-					this.assets.clear();
-					this.assets.addAll( assets );
+					this.assets.setAll( assets );
+					if( editAsset != null ) editAssetName( editAsset );
 				} );
 			} catch( AssetException exception ) {
 				handleAssetException( exception );
@@ -536,20 +542,15 @@ public class AssetTool extends GuidedTool {
 			Scheme scheme = currentFolder.getScheme();
 
 			// Start with the current folder
-			String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" );
+			String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" ) + "/";
 			Asset asset = getProgram().getAssetManager().resolve( currentFolder, newFolderName );
 			Asset newFolder = getNextIndexedAsset( asset );
 
 			// Get next indexed asset
 			scheme.createFolder( newFolder );
 
-			// Reload the current folder
-			loadFolder( currentFolder );
-
-			// Start editing the new folder name
-			// FIXME Race condition with the loadFolder method
-			//  loadFolder does not load new folder before requesting the edit
-			editAssetName( newFolder );
+			// Reload the current folder, and start editing the new folder name
+			loadFolder( currentFolder, newFolder );
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
 		}
@@ -560,9 +561,10 @@ public class AssetTool extends GuidedTool {
 
 		if( !scheme.exists( asset ) ) return asset;
 
+		boolean isFolder = asset.isFolder();
 		Asset parent = getProgram().getAssetManager().getParent( asset );
 		List<String> children = scheme.listAssets( parent ).stream().map( Asset::getName ).toList();
-		String nextName = FileUtil.getNextIndexedName( children, asset.getName() );
+		String nextName = FileUtil.getNextIndexedName( children, asset.getName() ) + (isFolder ? "/" : "");
 		return getProgram().getAssetManager().resolve( parent, nextName );
 	}
 
@@ -609,10 +611,13 @@ public class AssetTool extends GuidedTool {
 		return node;
 	}
 
-	private void doUpdateAssetName( TableColumn.CellEditEvent<Asset, Label> event ) {
-		Asset asset = event.getRowValue();
+	private boolean isEditing() {
+		return assetTable.getEditingCell() != null;
+	}
 
+	private void doUpdateAssetName( TableColumn.CellEditEvent<Asset, Label> event ) {
 		try {
+			Asset asset = event.getRowValue();
 			String newName = UriUtil.encode( event.getNewValue().getText() );
 			URI parent = UriUtil.getParent( asset.getUri() );
 			URI uri = parent.resolve( newName );
@@ -725,11 +730,13 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public String toString( Label object ) {
+			if( object == null ) return null;
 			return object.getText();
 		}
 
 		@Override
 		public Label fromString( String string ) {
+			if( string == null ) return null;
 			return new Label( string );
 		}
 
