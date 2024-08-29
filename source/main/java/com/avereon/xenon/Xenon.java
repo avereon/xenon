@@ -13,6 +13,7 @@ import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.AssetWatchService;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -135,7 +136,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private IndexService indexService;
 
-	private WatchService watchService;
+	private AssetWatchService assetWatchService;
 
 	private ProgramEventWatcher watcher;
 
@@ -453,19 +454,19 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFine().log( "Asset manager started." );
 		time( "asset-manager" );
 
+		// Start the asset watch service
+		log.atFiner().log( "Starting asset watch service..." );
+		assetWatchService = new AssetWatchService( Xenon.this ).start();
+		if( splashScreen != null ) splashScreen.update();
+		log.atFine().log( "Asset watch service started." );
+		time( "asset-watch-service" );
+
 		// Start the index service
 		log.atFiner().log( "Starting index service..." );
 		indexService = new IndexService( Xenon.this ).start();
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Index service started." );
 		time( "index-service" );
-
-		// Start the index service
-		log.atFiner().log( "Starting folder watch service..." );
-		watchService = FileSystems.getDefault().newWatchService();
-		if( splashScreen != null ) splashScreen.update();
-		log.atFine().log( "Folder watch service started." );
-		time( "folder-watch-service" );
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
@@ -732,6 +733,13 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFiner().log( "Stopping index service..." );
 			indexService.stop();
 			log.atFine().log( "Index service stopped." );
+		}
+
+		// Stop the file watch service
+		if( assetWatchService != null ) {
+			log.atFiner().log( "Stopping asset watch service..." );
+			assetWatchService.stop();
+			log.atFine().log( "Asset watch service stopped." );
 		}
 
 		// Stop the asset manager
@@ -1029,9 +1037,8 @@ public class Xenon extends Application implements XenonProgram {
 		return indexService;
 	}
 
-	@Override
-	public WatchService getWatchService() {
-		return watchService;
+	public AssetWatchService getAssetWatchService() {
+		return assetWatchService;
 	}
 
 	@Override

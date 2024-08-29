@@ -41,6 +41,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.WatchEvent;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -53,7 +54,7 @@ public class AssetTool extends GuidedTool {
 		SAVE
 	}
 
-	private Mode mode = Mode.OPEN;
+	private final Callback<WatchEvent<?>, Void> eventCallback;
 
 	private final TextField uriField;
 
@@ -91,6 +92,10 @@ public class AssetTool extends GuidedTool {
 
 	private final NewFolderAction newFolderAction;
 
+	private final LinkedList<String> history;
+
+	private Mode mode = Mode.OPEN;
+
 	private Asset parentAsset;
 
 	@Getter
@@ -98,8 +103,6 @@ public class AssetTool extends GuidedTool {
 
 	@Getter
 	private String currentFilename;
-
-	private final LinkedList<String> history;
 
 	private int currentIndex;
 
@@ -109,6 +112,8 @@ public class AssetTool extends GuidedTool {
 	public AssetTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-asset" );
+
+		this.eventCallback = this::handleExternalAssetEvent;
 
 		// URI input bar
 		uriField = new TextField();
@@ -255,11 +260,7 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Determine the current folder
-		// The current folder string is in URI format
-		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY );
-		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
-		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
-		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
+		Path currentFolder = getProgram().getAssetManager().getCurrentFileFolder();
 
 		// Select the current asset
 		URI uri;
@@ -467,25 +468,35 @@ public class AssetTool extends GuidedTool {
 		newFolderAction.updateEnabled();
 	}
 
+	private Void handleExternalAssetEvent( WatchEvent<?> event ) {
+		// TODO Handle the event
+		log.atConfig().log( "External asset event: %s %s %s", event.kind(), event.context(), event.count() );
+		return null;
+	}
+
 	private void loadFolder( Asset asset ) {
-		// TODO Unregister the current folder from the watcher
-		if( Objects.equals( FileScheme.ID, asset.getScheme().getName() ) ) {
-			// unregister
-			Path path = Path.of( asset.getUri() );
-			//path.register( getProgram().getWatchService(), ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY );
-			// NOTE https://docs.oracle.com/javase/tutorial/essential/io/notification.html
-		}
+		try {
+			// Unregister the asset from the watcher
+			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
+				getProgram().getAssetWatchService().removeWatch( asset, eventCallback );
+			}
 
-		currentFolder = asset;
+			currentFolder = asset;
 
-		updateActionState();
-		closeUserNotice();
+			// Set the current folder with the asset manager
+			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
+				getProgram().getAssetManager().setCurrentFileFolder( asset );
+			}
 
-		if( FileScheme.ID.equals( asset.getUri().getScheme() ) ) getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getUri() );
+			updateActionState();
+			closeUserNotice();
 
-		// TODO Register the current folder with the watcher
-		if( Objects.equals( FileScheme.ID, asset.getScheme().getName() ) ) {
-			// register
+			// Register the asset with the watcher
+			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
+				getProgram().getAssetWatchService().registerWatch( asset, eventCallback );
+			}
+		} catch( AssetException exception ) {
+			handleAssetException( exception );
 		}
 
 		getProgram().getTaskManager().submit( Task.of( "load-asset", () -> {

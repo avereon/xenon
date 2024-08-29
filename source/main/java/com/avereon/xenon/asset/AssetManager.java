@@ -28,8 +28,6 @@ import lombok.CustomLog;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
@@ -39,11 +37,11 @@ import java.util.stream.Collectors;
 @CustomLog
 public class AssetManager implements Controllable<AssetManager> {
 
-	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
+	private static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
 
-	public static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
+	private static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
 
-	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
+	private static final String CURRENT_FILE_FOLDER_SETTING_KEY = "current-file-folder";
 
 	private final Xenon program;
 
@@ -166,6 +164,26 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public FxEventHub getEventBus() {
 		return eventBus;
+	}
+
+	public Path getCurrentFileFolder() {
+		// Determine the current folder
+		// The current folder string is in URI format
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
+		setCurrentFileFolder( currentFolder.toUri() );
+		return currentFolder;
+	}
+
+	public void setCurrentFileFolder( Asset asset ) {
+		setCurrentFileFolder( asset.getUri() );
+	}
+
+	private void setCurrentFileFolder( URI uri ) {
+		if( !FileScheme.ID.equals( uri.getScheme() ) ) return;
+		// Current folder value is store in URI format
+		getProgram().getSettings().set( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY, uri );
 	}
 
 	public Asset getCurrentAsset() {
@@ -525,6 +543,8 @@ public class AssetManager implements Controllable<AssetManager> {
 			return (createAsset( (URI)descriptor ));
 		} else if( descriptor instanceof File ) {
 			return (createAsset( ((File)descriptor).toURI() ));
+		} else if( descriptor instanceof Path ) {
+			return (createAsset( ((Path)descriptor).toUri() ));
 		} else {
 			return (createAsset( descriptor.toString() ));
 		}
@@ -567,8 +587,19 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param file The file to create an asset from
 	 * @return The asset created from the file
 	 */
+	@Deprecated
 	public Asset createAsset( File file ) throws AssetException {
 		return doCreateAsset( null, file.toURI() );
+	}
+
+	/**
+	 * Create an asset from a path. This asset is considered to be an old asset. See {@link Asset#isNew()}
+	 *
+	 * @param path The path to create an asset from
+	 * @return The asset created from the path
+	 */
+	public Asset createAsset( Path path ) throws AssetException {
+		return doCreateAsset( null, path.toUri() );
 	}
 
 	/**
@@ -1234,9 +1265,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		Codec codec = source.getCodec();
 		if( codec == null ) codec = source.getType().getDefaultCodec();
 
-		File folder = !source.isNew() ? new File( getParent( source ).getUri() ) : getCurrentFolder();
+		Path folder = !source.isNew() ? Path.of( getParent( source ).getUri() ) : getCurrentFileFolder();
 		String filename = !source.isNew() ? source.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-		String assetUri = URLDecoder.decode( folder.toURI().resolve( filename ).toString(), StandardCharsets.UTF_8 );
+		String assetUri = UriUtil.decode( folder.toUri().resolve( filename ).toString() );
 		String uriString = ProgramAssetType.URI + "?uri=" + assetUri + ProgramAssetType.SAVE_FRAGMENT;
 		log.atTrace().log( "save asset uri=%s", uriString );
 
@@ -1260,7 +1291,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			Asset folder = target.isFolder() ? target : getParent( target );
 
 			// Store the current folder in the settings
-			getSettings().set( CURRENT_FOLDER_SETTING_KEY, String.valueOf( folder.getUri() ) );
+			setCurrentFileFolder( folder );
 
 			// If the user specified a codec use it to set the codec and asset type
 			Map<AssetFilter, Codec> filterCodecs = MapUtil.mirror( filters );
@@ -1352,16 +1383,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		updateActionState();
 		return true;
-	}
-
-	private File getCurrentFolder() {
-		// Determine the current folder
-		// The current folder string is in URI format
-		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY );
-		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
-		if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
-		getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, currentFolder.toString() );
-		return currentFolder.toFile();
 	}
 
 	private class NewOrOpenAssetTask extends Task<ProgramTool> {

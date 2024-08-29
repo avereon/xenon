@@ -53,6 +53,8 @@ public class Asset extends Node {
 
 	private static final String LAST_SAVED_KEY = "last-saved";
 
+	private static final String LAST_WATCHED_KEY = "last-watched";
+
 	//	private static final String EDITABLE = "editable";
 
 	//	private static final String UNDO_MANAGER = "undo-manager";
@@ -166,7 +168,7 @@ public class Asset extends Node {
 	public Scheme getScheme() {
 		Scheme scheme = getValue( SCHEME );
 		//if( scheme == null ) log.atWarn().log( "Asset missing scheme: " + this );
-		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this);
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this );
 		return scheme;
 	}
 
@@ -231,11 +233,19 @@ public class Asset extends Node {
 	}
 
 	public long getLastSaved() {
-		return getValue( LAST_SAVED_KEY );
+		return getValue( LAST_SAVED_KEY, 0L );
 	}
 
 	public void setLastSaved( long timestamp ) {
 		setValue( LAST_SAVED_KEY, timestamp );
+	}
+
+	public long getLastWatched() {
+		return getValue( LAST_WATCHED_KEY );
+	}
+
+	public void setLastWatched( long timestamp ) {
+		setValue( LAST_WATCHED_KEY, timestamp );
 	}
 
 	//	public File getFile() {
@@ -431,8 +441,7 @@ public class Asset extends Node {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( !(object instanceof Asset) ) return false;
-		Asset that = (Asset)object;
+		if( !(object instanceof Asset that) ) return false;
 		return this == that || Objects.equals( this.getUri(), that.getUri() );
 	}
 
@@ -440,8 +449,8 @@ public class Asset extends Node {
 	public String toString() {
 		URI uri = getUri();
 		AssetType type = getType();
-		String assetTypeName = type == null ? "Unknown asset type" : type.getName();
-		return isNew() ? assetTypeName : String.valueOf( uri );
+		String assetTypeName = type == null ? "Unknown" : type.getName();
+		return "[" + assetTypeName + "]" + (isNew() ? "" : " uri=" + uri);
 	}
 
 	private String getDefaultName() {

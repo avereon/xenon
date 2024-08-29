@@ -10,6 +10,7 @@ import com.avereon.product.ProgramFlag;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.AssetWatchService;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
@@ -17,7 +18,6 @@ import com.avereon.xenon.task.TaskManager;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
-import java.nio.file.WatchService;
 
 public interface XenonProgram extends Program, ProgramProduct, XenonProgramProduct {
 
@@ -118,7 +118,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	IndexService getIndexService();
 
-	WatchService getWatchService();
+	AssetWatchService getAssetWatchService();
 
 	<T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler );
 

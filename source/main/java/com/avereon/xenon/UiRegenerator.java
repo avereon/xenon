@@ -84,10 +84,10 @@ class UiRegenerator {
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
 			if( !shouldOpenExisting || workspaceIds.isEmpty() ) {
 				createDefaultWorkspace();
-				log.atConfig().log( "Created default workspace" );
+				log.atDebug().log( "Created default workspace" );
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
-				log.atConfig().log( "Restored previous workspaces" );
+				log.atDebug().log( "Restored previous workspaces" );
 			}
 
 			// Ensure there is an active workarea
