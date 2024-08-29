@@ -41,7 +41,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.WatchEvent;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -54,7 +53,7 @@ public class AssetTool extends GuidedTool {
 		SAVE
 	}
 
-	private final Callback<WatchEvent<?>, Void> eventCallback;
+	private final Callback<AssetWatchEvent, Void> eventCallback;
 
 	private final TextField uriField;
 
@@ -469,9 +468,18 @@ public class AssetTool extends GuidedTool {
 		newFolderAction.updateEnabled();
 	}
 
-	private Void handleExternalAssetEvent( WatchEvent<?> event ) {
-		// TODO Handle the event
-		log.atConfig().log( "External asset event: %s %s %s", event.kind(), event.context(), event.count() );
+	private Void handleExternalAssetEvent( AssetWatchEvent event ) {
+		log.atConfig().log( "External asset event: %s %s", event.type(), event.asset() );
+		try {
+			Asset folder = event.asset();
+			if( !event.asset().isFolder() ) folder = getProgram().getAssetManager().getParent( event.asset() );
+
+			// If the event is for the current folder...reload the folder
+			if( folder.equals( currentFolder ) ) loadFolder( currentFolder );
+		} catch( AssetException exception ) {
+			handleAssetException( exception );
+		}
+
 		return null;
 	}
 
@@ -489,8 +497,8 @@ public class AssetTool extends GuidedTool {
 				getProgram().getAssetManager().setCurrentFileFolder( asset );
 			}
 
-			updateActionState();
-			closeUserNotice();
+			Fx.run( this::updateActionState );
+			Fx.run( this::closeUserNotice );
 
 			// Register the asset with the watcher
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {

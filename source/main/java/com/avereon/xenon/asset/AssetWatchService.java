@@ -42,7 +42,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 
 	private WatchService watchService;
 
-	private final Map<Asset, Set<Callback<WatchEvent<?>, ?>>> callbacks;
+	private final Map<Asset, Set<Callback<AssetWatchEvent, ?>>> callbacks;
 
 	public AssetWatchService( XenonProgram program ) {
 		this.program = program;
@@ -109,7 +109,9 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 					if( event.context() == null ) continue;
 					if( event.context() instanceof Path eventPath ) {
 						try {
-							Asset asset = getProgram().getAssetManager().createAsset( eventPath );
+							Path parentPath = (Path)key.watchable();
+							Path assetPath = parentPath.resolve( eventPath );
+							Asset asset = getProgram().getAssetManager().createAsset( assetPath );
 
 							// This logic is intended to catch double events and events from our own save.
 							long lastSavedTime = asset.getLastSaved();
@@ -123,7 +125,8 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 							asset.setExternallyModified( true );
 
 							// Dispatch the event
-							dispatch( asset, event );
+							AssetWatchEvent.Type type = AssetWatchEvent.Type.valueOf( kind.name().substring( "ENTRY_".length() ));
+							dispatch( asset, new AssetWatchEvent( type, asset ) );
 						} catch( AssetException exception ) {
 							log.atWarn( exception ).log();
 						}
@@ -135,11 +138,8 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		}
 	}
 
-	private void dispatch( Asset asset, WatchEvent<?> event ) {
-		// NEXT Should we dispatch the event to the asset parents?
-
-		log.atConfig().log( "Dispatching watch event: %s %s %s", event.kind(), event.context(), event.count() );
-		for( Callback<WatchEvent<?>, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
+	private void dispatch( Asset asset,  AssetWatchEvent event ) throws AssetException {
+		for( Callback<AssetWatchEvent, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
 			// Don't let an individual callback stop the rest of the callbacks
 			try {
 				callback.call( event );
@@ -147,9 +147,12 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 				log.atWarn( exception ).log();
 			}
 		}
+
+		// Dispatch to the parent folder if the asset is a file
+		if( !asset.isFolder() ) dispatch( getProgram().getAssetManager().getParent( asset ), event );
 	}
 
-	public void registerWatch( Asset asset, Callback<WatchEvent<?>, ?> callback ) throws AssetException {
+	public void registerWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) throws AssetException {
 		Path path = getFileScheme().getFile( asset ).toPath();
 		try {
 			callbacks.computeIfAbsent( asset, k -> ConcurrentHashMap.newKeySet() ).add( callback );
@@ -163,7 +166,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		}
 	}
 
-	public void removeWatch( Asset asset, Callback<WatchEvent<?>, ?> callback ) {
+	public void removeWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) {
 		log.atConfig().log( "Removing watch for %s", asset );
 		WatchKey key = asset.getValue( JAVA_NIO_FILE_WATCH_KEY );
 		if( key == null ) return;

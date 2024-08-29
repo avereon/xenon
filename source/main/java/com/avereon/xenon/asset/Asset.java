@@ -450,7 +450,7 @@ public class Asset extends Node {
 		URI uri = getUri();
 		AssetType type = getType();
 		String assetTypeName = type == null ? "Unknown" : type.getName();
-		return "[" + assetTypeName + "]" + (isNew() ? "" : " uri=" + uri);
+		return "[" + assetTypeName + "](" + System.identityHashCode( this ) + ")" + (isNew() ? "" : " uri=" + uri);
 	}
 
 	private String getDefaultName() {
