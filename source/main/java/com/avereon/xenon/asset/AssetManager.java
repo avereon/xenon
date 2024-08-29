@@ -140,8 +140,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		//program.getEventHub().register( ToolEvent.ANY, activeToolWatcher );
 
-		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
-
 		program.getSettings().register( "autosave-trigger-min", e -> autosave.setMinTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
 		program.getSettings().register( "autosave-trigger-max", e -> autosave.setMaxTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
 
@@ -153,8 +151,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	@Override
 	public AssetManager stop() {
 		running = false;
-
-		// TODO ((FileScheme)Schemes.getScheme( "file" )).stopAssetWatching();
 
 		//program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
 
