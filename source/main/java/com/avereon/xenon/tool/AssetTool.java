@@ -91,6 +91,8 @@ public class AssetTool extends GuidedTool {
 
 	private final NewFolderAction newFolderAction;
 
+	private final DeleteAction deleteAction;
+
 	private final LinkedList<String> history;
 
 	private Mode mode = Mode.OPEN;
@@ -202,6 +204,7 @@ public class AssetTool extends GuidedTool {
 		nextAction = new NextAction( getProgram() );
 		parentAction = new ParentAction( getProgram() );
 		newFolderAction = new NewFolderAction( getProgram() );
+		deleteAction = new DeleteAction( getProgram() );
 
 		history = new LinkedList<>();
 		currentIndex = -1;
@@ -213,6 +216,7 @@ public class AssetTool extends GuidedTool {
 		uriField.setOnAction( e -> selectAsset( uriField.getText() ) );
 		goButton.setOnAction( this::doGoAction );
 		assetTable.setOnMousePressed( this::doMousePressed );
+		assetTable.getSelectionModel().selectedItemProperty().addListener( ( p, o, n ) -> updateActionState() );
 
 		Guide guide = createGuide();
 		getGuideContext().getGuides().add( guide );
@@ -284,8 +288,9 @@ public class AssetTool extends GuidedTool {
 		pushAction( "next", nextAction );
 		pushAction( "up", parentAction );
 		pushAction( "new-folder", newFolderAction );
+		pushAction( "delete", deleteAction );
 
-		pushTools( "refresh | prior next up | new-folder" );
+		pushTools( "new-folder | delete | refresh | prior next up" );
 	}
 
 	@Override
@@ -294,6 +299,7 @@ public class AssetTool extends GuidedTool {
 
 		pullTools();
 
+		pullAction( "delete", deleteAction );
 		pullAction( "new-folder", newFolderAction );
 		pullAction( "up", parentAction );
 		pullAction( "next", nextAction );
@@ -535,7 +541,7 @@ public class AssetTool extends GuidedTool {
 		} );
 	}
 
-	private void createNewFolder() {
+	private void doCreateNewFolder() {
 		if( currentFolder == null ) return;
 
 		try {
@@ -554,6 +560,11 @@ public class AssetTool extends GuidedTool {
 		} catch( AssetException exception ) {
 			handleAssetException( exception );
 		}
+	}
+
+	private void doDeleteSelectedFiles() {
+		List<Asset> selectedAssets = new ArrayList<>( assetTable.getSelectionModel().getSelectedItems() );
+		getProgram().getAssetManager().deleteAssets( selectedAssets );
 	}
 
 	private Asset getNextIndexedAsset( Asset asset ) throws AssetException {
@@ -833,7 +844,25 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			createNewFolder();
+			doCreateNewFolder();
+		}
+
+	}
+
+	private final class DeleteAction extends ProgramAction {
+
+		private DeleteAction( Xenon program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return !assetTable.getSelectionModel().getSelectedItems().isEmpty();
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			doDeleteSelectedFiles();
 		}
 
 	}

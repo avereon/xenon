@@ -882,6 +882,30 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
+	 * Request that the specified assets be deleted. This method submits a task to
+	 * the task manager and returns immediately.
+	 *
+	 * @param assets The assets to close.
+	 */
+	public void deleteAssets( Collection<Asset> assets ) {
+		program.getTaskManager().submit( new DeleteAssetTask( assets ) );
+	}
+
+	/**
+	 * Request that the specified assets be deleted and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 *
+	 * @param assets The assets to delete.
+	 * @throws ExecutionException If there was an exception deleting the assets
+	 * @throws InterruptedException If the process of deleting the assets was interrupted
+	 * @implNote Do not call from a UI thread
+	 */
+	public void deleteAssetsAndWait( Collection<Asset> assets ) throws ExecutionException, InterruptedException {
+		program.getTaskManager().submit( new DeleteAssetTask( assets ) ).get();
+	}
+
+	/**
 	 * Get a collection of the supported codecs.
 	 *
 	 * @return A collection of all supported codecs
@@ -1223,7 +1247,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets.remove( asset );
 		identifiedAssets.remove( asset.getUri() );
 
-		if( openAssets.size() == 0 ) doSetCurrentAsset( null );
+		if( openAssets.isEmpty() ) doSetCurrentAsset( null );
 
 		// TODO Delete the asset settings?
 		// Should the settings be removed? Or left for later?
@@ -1232,6 +1256,20 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.atDebug().log( "Asset closed: %s", asset );
+
+		updateActionState();
+		return true;
+	}
+
+	private boolean doDeleteAsset( Asset asset ) throws AssetException {
+		if( asset == null ) return false;
+		if( asset.isOpen() ) doCloseAsset( asset );
+
+		// Delete the asset
+		asset.delete();
+
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.DELETED, asset ) );
+		log.atDebug().log( "Asset deleted: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1721,6 +1759,19 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public boolean doOperation( Asset asset ) throws AssetException {
 			return doCloseAsset( asset );
+		}
+
+	}
+
+	private class DeleteAssetTask extends AssetTask {
+
+		private DeleteAssetTask( Collection<Asset> assets ) {
+			super( assets );
+		}
+
+		@Override
+		public boolean doOperation( Asset asset ) throws AssetException {
+			return doDeleteAsset( asset );
 		}
 
 	}
