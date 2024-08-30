@@ -475,7 +475,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private Void handleExternalAssetEvent( AssetWatchEvent event ) {
-		log.atConfig().log( "External asset event: %s %s", event.type(), event.asset() );
+		//log.atConfig().log( "External asset event: %s %s", event.type(), event.asset() );
 		try {
 			Asset folder = event.asset();
 			if( !event.asset().isFolder() ) folder = getProgram().getAssetManager().getParent( event.asset() );
