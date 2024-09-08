@@ -17,7 +17,7 @@ public interface ProgramTestConfig {
 	 *  | Faster computers
 	 * 1000 - AMD Threadripper, Intel i9</pre>
 	 */
-	int TIMEOUT = 2000;
+	int TIMEOUT = 3000;
 
 	/**
 	 * The wait timeout for many operations. Common values are:
