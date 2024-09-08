@@ -88,6 +88,9 @@ public class Xenon extends Application implements XenonProgram {
 
 	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
 
+	@Getter
+	private final FxEventHub fxEventHub;
+
 	private com.avereon.util.Parameters parameters;
 
 	private boolean daemonRequested;
@@ -139,9 +142,6 @@ public class Xenon extends Application implements XenonProgram {
 	private AssetWatchService assetWatchService;
 
 	private ProgramEventWatcher watcher;
-
-	@Getter
-	private FxEventHub fxEventHub;
 
 	private ActionMenuAction actionMenuAction;
 
@@ -214,6 +214,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Create the event hub
 		fxEventHub = new FxEventHub();
+		time( "fx-event-hub" );
 	}
 
 	// THREAD main
