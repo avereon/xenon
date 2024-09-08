@@ -32,6 +32,7 @@ public interface ProgramTestConfig {
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
+		values.add( ProgramFlag.RESET );
 		values.add( ProgramFlag.NOSPLASH );
 		values.add( ProgramFlag.NOUPDATE );
 		values.add( ProgramFlag.MODE );

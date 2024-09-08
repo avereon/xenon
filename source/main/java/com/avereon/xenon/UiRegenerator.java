@@ -78,11 +78,11 @@ class UiRegenerator {
 
 		try {
 			// Get the restore workspaces setting
-			boolean shouldOpenExisting = Boolean.parseBoolean( program.getSettings().get( "workspace-open-existing-on-start", false ) );
+			//boolean forceDefaultWorkspace = Boolean.parseBoolean( program.getSettings().get( FORCE_DEFAULT_WORKSPACE, false ) );
 
 			// Restore the workspaces or generate the default workspace
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			if( !shouldOpenExisting || workspaceIds.isEmpty() ) {
+			if( workspaceIds.isEmpty() ) {
 				createDefaultWorkspace();
 				log.atDebug().log( "Created default workspace" );
 			} else {
