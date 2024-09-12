@@ -16,7 +16,7 @@ public class XenonScreenshots extends ProgramScreenshots {
 
 	@Override
 	protected void generateScreenshots() throws InterruptedException, TimeoutException {
-		doScreenshotAndReset( "default-workarea" );
+		screenshot( "default-workarea" );
 		screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 		screenshot( ProgramAboutType.URI, "about-tool" );
 		screenshotSettingsPages();

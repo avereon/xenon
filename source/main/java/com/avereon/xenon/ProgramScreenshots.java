@@ -94,6 +94,10 @@ public abstract class ProgramScreenshots {
 		}
 	}
 
+	protected void screenshot( String output ) throws InterruptedException, TimeoutException {
+		doScreenshotAndReset( output );
+	}
+
 	protected void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
@@ -105,16 +109,16 @@ public abstract class ProgramScreenshots {
 	}
 
 	protected void screenshotNoReset( String output ) {
-		doScreenshotNoReset( output );
+		doScreenshot( output );
 	}
 
-	protected void doScreenshotAndReset( String path ) throws InterruptedException, TimeoutException {
-		doScreenshotNoReset( path );
-		reset();
-	}
-
-	protected void doScreenshotNoReset( String path ) {
+	private void doScreenshot( String path ) {
 		workspace.screenshot( getPath( path ) );
+	}
+
+	private void doScreenshotAndReset( String path ) throws InterruptedException, TimeoutException {
+		doScreenshot( path );
+		reset();
 	}
 
 	private Path getPath( String name ) {
