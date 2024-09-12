@@ -174,13 +174,13 @@ public abstract class ProgramScreenshots {
 					try {
 						program.stop();
 					} catch( Exception exception ) {
-						exception.printStackTrace();
+						exception.printStackTrace( System.err );
 					}
 				}
 			} );
 			programWatcher.waitForEvent( ProgramEvent.STOPPED, programWatcher.getTimeout() );
 		} catch( Exception exception ) {
-			exception.printStackTrace();
+			exception.printStackTrace( System.err );
 		}
 	}
 
