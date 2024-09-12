@@ -21,11 +21,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public abstract class ProgramScreenshots {
 
-	private static final String MODE = "screenshots";
+	protected static final String MODE = "screenshots";
 
 	private static final int TIMEOUT = 5000;
 
@@ -57,7 +58,7 @@ public abstract class ProgramScreenshots {
 		workpaneWatcher = new FxEventWatcher( TIMEOUT );
 	}
 
-	public void generate( String[] args ) {
+	public final void generate( String[] args ) {
 		this.scale = 1;
 		if( args.length > 0 ) {
 			try {
@@ -82,6 +83,18 @@ public abstract class ProgramScreenshots {
 		} finally {
 			shutdown();
 		}
+	}
+
+	protected String getExecutionMode() {
+		return MODE;
+	}
+
+	protected String getLogLevel() {
+		return ProgramFlag.INFO;
+	}
+
+	protected List<String> getProgramParameters() {
+		return List.of( ProgramFlag.NOUPDATE, ProgramFlag.MODE, getExecutionMode(), ProgramFlag.LOG_LEVEL, getLogLevel() );
 	}
 
 	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException;
@@ -131,8 +144,7 @@ public abstract class ProgramScreenshots {
 			FileUtil.delete( config );
 
 			program = new Xenon();
-			String[] parameters = new String[]{ ProgramFlag.MODE, MODE, ProgramFlag.NOUPDATE, ProgramFlag.LOG_LEVEL, ProgramFlag.DEBUG };
-			program.setProgramParameters( com.avereon.util.Parameters.parse( parameters ) );
+			program.setProgramParameters( com.avereon.util.Parameters.parse( getProgramParameters() ) );
 			program.init();
 			Platform.startup( () -> {
 				try {

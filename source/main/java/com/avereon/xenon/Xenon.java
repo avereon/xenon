@@ -55,8 +55,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -261,15 +264,16 @@ public class Xenon extends Application implements XenonProgram {
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
 
-		log.atDebug().log( "JVM Max Memory: " + maxMemory + "MB" );
-		log.atFine().log( "Program home: %s", getHomeFolder() );
-		log.atFine().log( "Program data: %s", getDataFolder() );
-
 		// Check for the VERSION CLI parameter, depends on product card
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
 			printVersion( card );
 			requestExit( true );
 			return;
+		} else {
+			log.atDebug().log( "JVM Max Memory: %sMB", maxMemory );
+			log.atDebug().log( "Parameters: %s", parameters );
+			log.atDebug().log( "Program home: %s", getHomeFolder() );
+			log.atDebug().log( "Program data: %s", getDataFolder() );
 		}
 		time( "version-check" );
 
@@ -1232,7 +1236,7 @@ public class Xenon extends Application implements XenonProgram {
 		System.out.println( card.getName() + " data=" + getDataFolder() );
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
-		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
+		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + Charset.defaultCharset().displayName() );
 		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
 	}
 
