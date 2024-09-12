@@ -2,6 +2,7 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.ProgramTestCase;
+import com.avereon.xenon.mod.MockMod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProductManagerLogicTest extends ProgramTestCase {
 
-	private final String group = "eg.provider";
+	private final String group = "example.provider";
 
 	private final String timestamp = "2018-06-11 06:30:07";
 
@@ -26,7 +27,9 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	private Map<RepoState, Set<ProductCard>> repos;
 
 	@BeforeEach
-	public void setup() {
+	public void setup() throws Exception {
+		super.setup();
+
 		logic = new ProductManagerLogic( getProgram() );
 		generateRepoProductMap();
 

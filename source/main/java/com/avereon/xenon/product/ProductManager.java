@@ -9,8 +9,8 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.weave.Weave;
-import com.avereon.xenon.*;
 import com.avereon.xenon.Module;
+import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
@@ -126,8 +126,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private Path userModuleFolder;
 
+	@Getter
 	private CheckOption checkOption;
 
+	@Getter
 	private FoundOption foundOption;
 
 	private Map<String, Product> products;
@@ -350,7 +352,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		setRemovable( card, false );
 	}
 
-	private void registerMod( Module module ) {
+	void registerMod( Module module ) {
 		registerProduct( module );
 		ProductCard card = module.getCard();
 
@@ -374,7 +376,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		unregisterProduct( program );
 	}
 
-	private void unregisterMod( Module module ) {
+	void unregisterMod( Module module ) {
 		ProductCard card = module.getCard();
 
 		// Remove the module.
@@ -483,14 +485,19 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public void setModEnabled( ProductCard card, boolean enabled ) {
 		Module module = getMod( card.getProductKey() );
-		if( module != null ) setModEnabled( module, enabled );
+		if( module != null ) {
+			// Should be called before setting the enabled flag
+			if( !enabled ) callModShutdown( module );
+
+			setModEnabled( module, enabled );
+
+			// Should be called after setting the enabled flag
+			if( enabled ) callModStart( module );
+		}
 	}
 
-	private void setModEnabled( Module module, boolean enabled ) {
+	void setModEnabled( Module module, boolean enabled ) {
 		if( isModEnabled( module ) == enabled ) return;
-
-		// Should be called before setting the enabled flag
-		if( !enabled ) callModShutdown( module );
 
 		Settings settings = getProgram().getSettingsManager().getProductSettings( module.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
@@ -498,21 +505,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, module.getCard() ) );
 		log.atDebug().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
 
-		// Should be called after setting the enabled flag
-		if( enabled ) callModStart( module );
-	}
-
-	public CheckOption getCheckOption() {
-		return checkOption;
 	}
 
 	public void setCheckOption( CheckOption checkOption ) {
 		this.checkOption = checkOption;
 		settings.set( CHECK, checkOption.name().toLowerCase() );
-	}
-
-	public FoundOption getFoundOption() {
-		return foundOption;
 	}
 
 	public void setFoundOption( FoundOption foundOption ) {
@@ -953,9 +950,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
 		if( !enableMods.isEmpty() ) log.atDebug().log( "Enabled mods: %s", enableMods );
 
-		// Allow the mods to register resources
-		modules.values().forEach( this::callModRegister );
-
 		return this;
 	}
 
@@ -1051,16 +1045,16 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		log.atDebug().log( "Mod copied to: %s", installFolder );
 
 		// Load the mod
-		loadModules( getUserModuleFolder() );
-		log.atDebug().log( "Mod loaded from: ", LazyEval.of( this::getUserModuleFolder ) );
+		loadModules( installFolder );
+		log.atDebug().log( "Mod loaded from: %s", installFolder );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
-		log.atDebug().log( "Mod registered: ", LazyEval.of( card::getProductKey ) );
+		log.atDebug().log( "Mod registered: %s", LazyEval.of( card::getProductKey ) );
 
 		// Set the enabled state
 		setModEnabled( getMod( card.getProductKey() ), true );
-		log.atDebug().log( "Mod enabled: ", LazyEval.of( card::getProductKey ) );
+		log.atDebug().log( "Mod enabled: %s", LazyEval.of( card::getProductKey ) );
 	}
 
 	void doRemoveMod( Module module ) {
@@ -1086,8 +1080,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		getProgram().getSettingsManager().getProductSettings( card ).delete();
 	}
 
-	private void callModRegister( Module module ) {
+	void callModRegister( Module module ) {
+		if( module.getStatus() != Module.Status.UNREGISTERED ) return;
 		try {
+			module.setStatus( Module.Status.REGISTERING );
 			module.register();
 			module.setStatus( Module.Status.REGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, module.getCard() ) );
@@ -1096,20 +1092,24 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void callModStart( Module module ) {
-		if( !isEnabled( module.getCard() ) ) return;
+	void callModStart( Module module ) {
+		if( module.getStatus() == Module.Status.UNREGISTERED ) callModRegister( module );
+		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.REGISTERED ) return;
 		try {
+			module.setStatus( Module.Status.STARTING );
 			module.startup();
 			module.setStatus( Module.Status.STARTED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, module.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atWarn().log( "module=%s  status=%s", System.identityHashCode( module ), module.getStatus() );
 	}
 
-	private void callModShutdown( Module module ) {
-		if( !isEnabled( module.getCard() ) ) return;
+	void callModShutdown( Module module ) {
+		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.STARTED ) return;
 		try {
+			module.setStatus( Module.Status.STOPPING );
 			module.shutdown();
 			module.setStatus( Module.Status.STOPPED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, module.getCard() ) );
@@ -1118,8 +1118,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void callModUnregister( Module module ) {
+	void callModUnregister( Module module ) {
+		if( module.getStatus() == Module.Status.STARTED ) callModShutdown( module );
 		try {
+			module.setStatus( Module.Status.UNREGISTERING );
 			module.unregister();
 			module.setStatus( Module.Status.UNREGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, module.getCard() ) );

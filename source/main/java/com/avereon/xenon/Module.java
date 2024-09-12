@@ -34,9 +34,13 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * Module lifecycle status values.
 	 */
 	public enum Status {
+		REGISTERING,
 		REGISTERED,
+		STARTING,
 		STARTED,
+		STOPPING,
 		STOPPED,
+		UNREGISTERING,
 		UNREGISTERED
 	}
 
@@ -75,7 +79,8 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	private Map<String, SettingsPage> settingsPages;
 
 	public Module() {
-		card = ProductCard.card( this );
+		this.status = Status.UNREGISTERED;
+		this.card = ProductCard.card( this );
 	}
 
 	/**
