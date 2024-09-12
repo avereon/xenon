@@ -495,8 +495,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		Settings settings = getProgram().getSettingsManager().getProductSettings( module.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.atTrace().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, module.getCard() ) );
+		log.atDebug().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
 
 		// Should be called after setting the enabled flag
 		if( enabled ) callModStart( module );
@@ -946,10 +946,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Disable mods specified on the command line
 		List<String> disableMods = getProgram().getProgramParameters().getValues( ProgramFlag.DISABLE_MOD );
 		modules.values().stream().filter( mod -> disableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, false ) );
+		if( !disableMods.isEmpty() ) log.atDebug().log( "Disabled mods: %s", disableMods );
 
 		// Enable mods specified on the command line
 		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
 		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
+		if( !enableMods.isEmpty() ) log.atDebug().log( "Enabled mods: %s", enableMods );
 
 		// Allow the mods to register resources
 		modules.values().forEach( this::callModRegister );
@@ -1044,7 +1046,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 		log.atDebug().log( "Install product to: %s", installFolder );
 
-		// Install all the resource files to the install folder
+		// Install all the resource files to the installation folder
 		copyProductResources( resources, installFolder );
 		log.atDebug().log( "Mod copied to: %s", installFolder );
 
