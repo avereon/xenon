@@ -505,7 +505,8 @@
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.XenonScreenshots</argument>
+										<argument>1</argument>
 									</arguments>
 								</configuration>
 							</execution>
@@ -538,7 +539,8 @@
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.XenonScreenshots</argument>
+										<argument>2</argument>
 									</arguments>
 								</configuration>
 							</execution>

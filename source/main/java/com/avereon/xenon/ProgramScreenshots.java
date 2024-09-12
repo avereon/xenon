@@ -4,9 +4,6 @@ import com.avereon.event.EventWatcher;
 import com.avereon.product.ProgramFlag;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.asset.type.ProgramAboutType;
-import com.avereon.xenon.asset.type.ProgramSettingsType;
-import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -16,7 +13,9 @@ import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import lombok.Getter;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +23,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
-abstract class Screenshots {
+public abstract class ProgramScreenshots {
 
 	private static final String MODE = "screenshots";
 
@@ -34,51 +33,60 @@ abstract class Screenshots {
 
 	private static final double HEIGHT = 500;
 
-	private int scale;
-
-	private Path screenshots;
-
+	@Getter
 	private Xenon program;
 
+	@Getter
 	private Workspace workspace;
 
+	@Getter
 	private Workpane workpane;
 
+	@Getter
 	private final EventWatcher programWatcher;
 
+	@Getter
 	private final FxEventWatcher workpaneWatcher;
 
-	public Screenshots() {
+	private int scale;
+
+	private Path screenshotPath;
+
+	public ProgramScreenshots() {
 		programWatcher = new EventWatcher( TIMEOUT );
 		workpaneWatcher = new FxEventWatcher( TIMEOUT );
 	}
 
-	public void generate( int scale ) {
-		this.scale = scale;
+	public void generate( String[] args ) {
+		this.scale = 1;
+		if( args.length > 0 ) {
+			try {
+				this.scale = Integer.parseInt( args[ 0 ] );
+			} catch( NumberFormatException exception ) {
+				exception.printStackTrace( System.err );
+			}
+		}
 
 		System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
 		//System.setProperty( "glass.gtk.forceIntegerRenderScale", "false" );
 		//System.setProperty( "glass.gtk.renderScale", String.valueOf( scale ) );
 
 		try {
-			this.screenshots = Paths.get( "target" ).resolve( MODE );
-			Files.createDirectories( screenshots );
+			this.screenshotPath = Paths.get( "target" ).resolve( MODE );
+			Files.createDirectories( screenshotPath );
 			startup( scale );
 
-			doScreenshotAndReset( "default-workarea" );
-			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
-			screenshot( ProgramAboutType.URI, "about-tool" );
-			screenshotSettingsPages();
-			//screenshotProductPages();
-			screenshotThemes();
-		} catch( Throwable throwable ) {
-			throwable.printStackTrace( System.err );
+			generateScreenshots();
+		} catch( IOException | TimeoutException | InterruptedException exception ) {
+			exception.printStackTrace( System.err );
 		} finally {
 			shutdown();
 		}
 	}
 
-	private void reset() throws InterruptedException, TimeoutException {
+	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException;
+
+	protected void reset() throws InterruptedException, TimeoutException {
 		Collection<Tool> tools = workpane.getTools();
 		Fx.run( () -> workpane.closeTools( tools ) );
 		for( int index = 0; index < tools.size(); index++ ) {
@@ -86,50 +94,31 @@ abstract class Screenshots {
 		}
 	}
 
-	private void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
+	protected void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		doScreenshotAndReset( output );
 	}
 
-	private void screenshot( URI uri, String fragment, String output ) throws InterruptedException, TimeoutException {
+	protected void screenshot( URI uri, String fragment, String output ) throws InterruptedException, TimeoutException {
 		screenshot( URI.create( uri.toString() + "#" + fragment ), output );
 	}
 
-	private void screenshotNoReset( String output ) {
+	protected void screenshotNoReset( String output ) {
 		doScreenshotNoReset( output );
 	}
 
-	private void screenshotSettingsPages() throws InterruptedException, TimeoutException {
-		for( String id : program.getSettingsManager().getPageIds() ) {
-			screenshot( ProgramSettingsType.URI, id, "settings/settings-tool-" + id );
-		}
-	}
-
-	private void screenshotThemes() throws InterruptedException, TimeoutException {
-		// Set an example tool
-		program.getAssetManager().openAsset( ProgramAboutType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-
-		program.getThemeManager().getThemes().stream().map( ThemeMetadata::getId ).forEach( id -> {
-			Fx.run( () -> program.getWorkspaceManager().setTheme( id ) );
-			screenshotNoReset( "themes/" + id );
-		} );
-
-		reset();
-	}
-
-	private void doScreenshotAndReset( String path ) throws InterruptedException, TimeoutException {
+	protected void doScreenshotAndReset( String path ) throws InterruptedException, TimeoutException {
 		doScreenshotNoReset( path );
 		reset();
 	}
 
-	private void doScreenshotNoReset( String path ) {
+	protected void doScreenshotNoReset( String path ) {
 		workspace.screenshot( getPath( path ) );
 	}
 
 	private Path getPath( String name ) {
-		return screenshots.resolve( name + (scale == 1 ? "" : "@" + scale + "x") + ".png" );
+		return screenshotPath.resolve( name + (scale == 1 ? "" : "@" + scale + "x") + ".png" );
 	}
 
 	private void startup( double scale ) throws InterruptedException, TimeoutException {
