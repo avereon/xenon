@@ -113,13 +113,14 @@ class TaskChainTest extends ProgramTestCase {
 			return 0;
 		} ).link( this::inc ).link( this::inc ).run( getProgram() );
 
-		Throwable thrown = catchThrowable( task::get );
-
-		assertThat( thrown ).isInstanceOf( ExecutionException.class );
-		assertThat( thrown.getCause() ).isInstanceOf( Task.InternalException.class );
-		assertThat( thrown.getCause().getCause() ).isInstanceOf( RuntimeException.class );
-		assertThat( thrown.getCause().getCause() ).isEqualTo( expected );
-		assertThat( thrown.getCause().getCause().getCause() ).isNull();
+		Throwable cause = catchThrowable( task::get );
+		assertThat( cause ).isInstanceOf( ExecutionException.class );
+		cause = cause.getCause();
+		assertThat( cause ).isInstanceOf( Task.InternalException.class );
+		cause = cause.getCause();
+		assertThat( cause ).isEqualTo( expected );
+		cause = cause.getCause();
+		assertThat( cause ).isNull();
 	}
 
 	private Integer inc( Integer value ) {

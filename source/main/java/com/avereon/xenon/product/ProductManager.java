@@ -1103,7 +1103,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
-		log.atWarn().log( "module=%s  status=%s", System.identityHashCode( module ), module.getStatus() );
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
 	void callModShutdown( Module module ) {
@@ -1116,6 +1116,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
 	void callModUnregister( Module module ) {
@@ -1128,6 +1129,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		} catch( Throwable throwable ) {
 			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
 	private void purgeRemovedProducts() {

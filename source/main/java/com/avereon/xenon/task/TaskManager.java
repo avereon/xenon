@@ -4,6 +4,7 @@ import com.avereon.skill.Controllable;
 import com.avereon.xenon.Xenon;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +45,14 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private TaskManagerExecutor executorP3;
 
-	private ThreadGroup group;
+	private final ThreadGroup group;
 
-	private int maxThreadCount;
+	private final Map<Task<?>, Task<?>> taskMap;
 
-	private Map<Task<?>, Task<?>> taskMap;
+	private final Queue<Task<?>> taskQueue;
 
-	private Queue<Task<?>> taskQueue;
-
-	private FxEventHub eventBus;
+	@Getter
+	private final FxEventHub eventBus;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>();
@@ -122,19 +122,13 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	public TaskManager setMaxThreadCount( int count ) {
-		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-
-		redistributeThreadCounts( maxThreadCount );
+		redistributeThreadCounts( Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT ) );
 
 		if( executorP3 != null ) executorP3.setCorePoolSize( p3ThreadCount );
 		if( executorP2 != null ) executorP2.setCorePoolSize( p2ThreadCount );
 		if( executorP1 != null ) executorP1.setCorePoolSize( p1ThreadCount );
 
 		return this;
-	}
-
-	public FxEventHub getEventBus() {
-		return eventBus;
 	}
 
 	public int getThreadIdleTimeout() {
@@ -186,7 +180,8 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		log.atWarn( throwable ).log( "Task failed" );
+		// No need to be noisy here
+		//log.atWarn( throwable ).log( "Task failed" );
 	}
 
 	public int getP1ThreadCount() {
@@ -280,13 +275,9 @@ public class TaskManager implements Controllable<TaskManager> {
 
 		@Override
 		protected void afterExecute( Runnable runnable, Throwable throwable ) {
-			if( runnable instanceof Task ) {
-				Task<?> task = (Task<?>)runnable;
+			if( runnable instanceof Task<?> task ) {
 				taskQueue.remove( task );
 				taskMap.remove( task );
-
-				// TODO submit the next task in the chain
-				//task.getChain();
 			}
 		}
 
