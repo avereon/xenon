@@ -69,8 +69,6 @@ public abstract class ProgramScreenshots {
 		}
 
 		System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
-		//System.setProperty( "glass.gtk.forceIntegerRenderScale", "false" );
-		//System.setProperty( "glass.gtk.renderScale", String.valueOf( scale ) );
 
 		try {
 			this.screenshotPath = Paths.get( "target" ).resolve( MODE );
@@ -107,13 +105,17 @@ public abstract class ProgramScreenshots {
 		}
 	}
 
+	protected void openAsset( URI uri ) throws InterruptedException, TimeoutException {
+		program.getAssetManager().openAsset( uri );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+	}
+
 	protected void screenshot( String output ) throws InterruptedException, TimeoutException {
 		doScreenshotAndReset( output );
 	}
 
 	protected void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
-		program.getAssetManager().openAsset( uri );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		openAsset( uri );
 		doScreenshotAndReset( output );
 	}
 
@@ -154,7 +156,7 @@ public abstract class ProgramScreenshots {
 				}
 			} );
 			program.register( ProgramEvent.ANY, programWatcher );
-			// NOTE Startup can take a while so give it more time than usual
+			// Startup can take a while so give it more time than usual
 			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
 			Fx.run( () -> {
 				program.getWorkspaceManager().getActiveStage().setWidth( WIDTH );
