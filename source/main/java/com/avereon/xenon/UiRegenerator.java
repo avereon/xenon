@@ -6,11 +6,10 @@ import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.AssetNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
-import com.avereon.xenon.workpane.Tool;
-import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneEdge;
-import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.javafx.Fx;
@@ -86,8 +85,13 @@ class UiRegenerator {
 				createDefaultWorkspace();
 				log.atDebug().log( "Created default workspace" );
 			} else {
-				restoreWorkspaces( splashScreen, workspaceIds );
+				List<Exception> exceptions = restoreWorkspaces( splashScreen, workspaceIds );
 				log.atDebug().log( "Restored previous workspaces" );
+
+				// If there are exceptions restoring the UI notify the user
+				for( Exception exception : exceptions) {
+					log.atWarn().log( exception.getMessage() );
+				}
 			}
 
 			// Ensure there is an active workarea
@@ -102,6 +106,7 @@ class UiRegenerator {
 			if( workspace != null && workspace.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
 			if( workspace != null && workspace.getActiveWorkarea() == null ) log.atError().log( "No active workarea" );
 
+			// FIXME Notify the workspace manager that the UI is ready with an event
 			// Notify the workspace manager the UI is ready
 			getProgram().getWorkspaceManager().setUiReady( true );
 		} finally {
@@ -150,7 +155,9 @@ class UiRegenerator {
 		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}
 
-	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
+	private List<Exception> restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
+		List<Exception> exceptions = new ArrayList<>();
+
 		// Create the workspaces (includes the window)
 		workspaceIds.forEach( this::restoreWorkspace );
 
@@ -164,11 +171,19 @@ class UiRegenerator {
 		getUiSettingsIds( ProgramSettings.VIEW ).forEach( this::restoreWorkpaneView );
 
 		// Create the tools
-		getUiSettingsIds( ProgramSettings.TOOL ).forEach( this::restoreWorktool );
+		getUiSettingsIds( ProgramSettings.TOOL ).forEach( id -> {
+			try {
+				restoreWorktool( id );
+			} catch( Exception exception ) {
+				exceptions.add( exception );
+			}
+		} );
 
 		linkWorkareas();
 		linkEdgesAndViews();
 		linkTools();
+
+		return exceptions;
 	}
 
 	private void linkWorkareas() {
@@ -406,42 +421,49 @@ class UiRegenerator {
 		}
 	}
 
-	private void restoreWorktool( String id ) {
+	private void restoreWorktool( String id ) throws AssetNotFoundException, ToolInstantiationException {
 		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-		String toolType = settings.get( Tool.SETTINGS_TYPE_KEY );
+		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
 		AssetType assetType = assetTypeKey == null ? null : getProgram().getAssetManager().getAssetType( assetTypeKey );
 		WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
-		try {
-			// If the view is not found, then the tool is orphaned...delete the settings
-			if( view == null || uri == null ) {
-				log.atWarn().log( "Removing orphaned tool: id=%s type=%s", id, toolType );
-				settings.delete();
-				return;
-			}
-
-			// Create the open asset request
-			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
-			openAssetRequest.setAsset( getProgram().getAssetManager().createAsset( assetType, uri ) );
-			openAssetRequest.setToolId( id );
-
-			// Restore the tool
-			ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest, toolType );
-			if( tool == null ) {
-				log.atWarn().log( "Removing unknown tool: id=%s type=%s", id, toolType );
-				settings.delete();
-				return;
-			}
-
-			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
-			viewToolSet.add( tool );
-
-			tools.put( tool.getUid(), tool );
-		} catch( Exception exception ) {
-			log.atError( exception ).log( "Error restoring tool: type=%s", toolType );
+		// If the view is not found, then the tool is orphaned...delete the settings
+		if( view == null || uri == null ) {
+			// TODO Do we need to report this situation to the user?
+			log.atWarn().log( "Removing orphaned tool: id=%s type=%s", id, toolClassName );
+			settings.delete();
+			return;
 		}
+
+		// Create the asset
+		Asset asset;
+		try {
+			// NOTE The exception was thrown here
+			asset = getProgram().getAssetManager().createAsset( assetType, uri );
+		} catch( AssetException exception ) {
+			throw new AssetNotFoundException( new Asset( assetType, uri ), exception );
+		}
+
+		// Create the open asset request
+		OpenAssetRequest openAssetRequest = new OpenAssetRequest();
+		openAssetRequest.setAsset( asset );
+		openAssetRequest.setToolId( id );
+
+		// Restore the tool
+		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest, toolClassName );
+		if( tool == null ) {
+			// FIXME Move this logic to where the user chooses what to do
+			log.atWarn().log( "Removing unknown tool: id=%s type=%s", id, toolClassName );
+			settings.delete();
+			throw new ToolInstantiationException( id, toolClassName );
+		}
+
+		Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
+		viewToolSet.add( tool );
+
+		tools.put( tool.getUid(), tool );
 	}
 
 }

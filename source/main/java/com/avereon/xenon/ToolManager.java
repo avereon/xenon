@@ -260,7 +260,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	public void setDefaultTool( AssetType assetType, Class<? extends ProgramTool> tool ) {
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
-		if( toolClasses.remove( tool ) ) toolClasses.add( 0, tool );
+		if( toolClasses.remove( tool ) ) toolClasses.addFirst( tool );
 
 		// Set the default tool setting
 		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );

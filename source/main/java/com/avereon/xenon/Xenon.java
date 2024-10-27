@@ -435,9 +435,6 @@ public class Xenon extends Application implements XenonProgram {
 		registerActionHandlers();
 		time( "program-actions" );
 
-		// Create the UI factory
-		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
-
 		// Set the number of startup steps
 		int serviceCount = 8;
 		if( splashScreen != null ) {
@@ -520,18 +517,18 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFine().log( "Product manager started." );
 		time( "product-manager" );
 
-		// Start the mods, depends on product manager
-		log.atFiner().log( "Starting mods..." );
-		productManager.startMods();
-		log.atFine().log( "Mods started." );
-		time( "product-mods" );
-
 		// Start the update manager, depends on product manager
 		log.atFiner().log( "Starting update manager..." );
 		updateManager = new UpdateManager( this );
 		restartJob = new RestartJob( this );
 		log.atFine().log( "Update manager started." );
 		time( "update-manager" );
+
+		// Start the mods, depends on product manager
+		log.atFiner().log( "Starting mods..." );
+		productManager.startMods();
+		log.atFine().log( "Mods started." );
+		time( "product-mods" );
 
 		// Before restoring the UI, update the default tools
 		log.atFiner().log( "Updating default tools..." );
@@ -541,6 +538,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
+		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		if( workspaceManager.getActiveWorkpane() == null ) {
@@ -561,7 +559,8 @@ public class Xenon extends Application implements XenonProgram {
 			time( "splash-hidden" );
 		}
 
-		if( !daemonRequested ) {
+		Stage activeStage = getWorkspaceManager().getActiveStage();
+		if( activeStage != null ) {
 			Fx.run( () -> {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
