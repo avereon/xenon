@@ -559,6 +559,12 @@ public class Xenon extends Application implements XenonProgram {
 			time( "splash-hidden" );
 		}
 
+		// Set the workarea actions
+		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Xenon.this ) );
+		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Xenon.this ) );
+		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Xenon.this ) );
+
+		// Show the active stage
 		Stage activeStage = getWorkspaceManager().getActiveStage();
 		if( activeStage != null ) {
 			Fx.run( () -> {
@@ -568,13 +574,11 @@ public class Xenon extends Application implements XenonProgram {
 			} );
 		}
 
+		// Notify listeners the UI is ready
+		getProgram().getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.UI_READY ) );
+
 		// Initiate asset loading
 		uiRegenerator.startAssetLoading();
-
-		// Set the workarea actions
-		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Xenon.this ) );
-		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Xenon.this ) );
-		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Xenon.this ) );
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );

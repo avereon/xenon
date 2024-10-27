@@ -17,6 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
+	@Getter
 	private final Xenon program;
 
 	private final Set<Workspace> workspaces;
@@ -35,6 +37,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Workspace activeWorkspace;
 
+	@Getter
 	private boolean uiReady;
 
 	WorkspaceManager( Xenon program ) {
@@ -46,17 +49,14 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		} );
 	}
 
-	public Xenon getProgram() {
-		return program;
-	}
-
 	@Override
 	public boolean isRunning() {
-		return workspaces.size() > 0;
+		return !workspaces.isEmpty();
 	}
 
 	@Override
 	public WorkspaceManager start() {
+		program.getFxEventHub().register( ProgramEvent.UI_READY, e -> setUiReady( true ) );
 		return this;
 	}
 
@@ -102,11 +102,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	//		return this;
 	//	}
 
-	public boolean isUiReady() {
-		return uiReady;
-	}
-
-	void setUiReady( boolean uiReady ) {
+	private void setUiReady( boolean uiReady ) {
 		this.uiReady = uiReady;
 	}
 

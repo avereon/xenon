@@ -11,6 +11,8 @@ public class ProgramEvent extends Event {
 
 	public static final EventType<ProgramEvent> STARTING = new EventType<>( PROGRAM, "STARTING" );
 
+	public static final EventType<ProgramEvent> UI_READY = new EventType<>( PROGRAM, "UI_READY" );
+
 	public static final EventType<ProgramEvent> STARTED = new EventType<>( PROGRAM, "STARTED" );
 
 	public static final EventType<ProgramEvent> STOPPING = new EventType<>( PROGRAM, "STOPPING" );

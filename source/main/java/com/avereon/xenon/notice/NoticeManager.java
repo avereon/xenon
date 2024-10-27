@@ -17,6 +17,7 @@ import com.avereon.zarra.javafx.Fx;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.net.URI;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class NoticeManager implements Controllable<NoticeManager> {
 
+	@Getter
 	private final Xenon program;
 
 	private final List<Notice> startupNotices;
@@ -39,6 +41,35 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		this.program = program;
 		this.startupNotices = new CopyOnWriteArrayList<>();
 		this.unreadCount = new SimpleIntegerProperty();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return true;
+	}
+
+	@Override
+	public NoticeManager start() {
+		log.atTrace().log( "Notice manager starting..." );
+		try {
+			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
+			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
+			getProgram().getAssetManager().loadAssets( asset );
+			unreadCountProperty().addListener( ( p, o, n ) -> updateNoticeIcon( n.intValue() ) );
+		} catch( AssetException exception ) {
+			log.atWarn( exception ).log( "Error starting notice manager." );
+		}
+		log.atDebug().log( "Notice manager started." );
+
+		return this;
+	}
+
+	@Override
+	public NoticeManager stop() {
+		log.atTrace().log( "Notice manager stopping..." );
+		getProgram().getAssetManager().saveAssets( asset );
+		log.atDebug().log( "Notice manager stopped." );
+		return this;
 	}
 
 	public List<Notice> getNotices() {
@@ -69,6 +100,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 		if( !getProgram().getWorkspaceManager().isUiReady() ) {
 			startupNotices.add( notice );
+			log.atConfig().log( "Notice added to startup list: %s", notice );
 			return;
 		}
 
@@ -100,7 +132,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return unreadCount;
 	}
 
-	public Notice.Type getUnreadNoticeType() {
+	public Notice.Type getHighestUnreadNoticeType() {
 		return Notice.Type.values()[ getUnreadNotices().stream().mapToInt( ( n ) -> n.getType().ordinal() ).max().orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
@@ -114,40 +146,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		updateUnreadCount();
 	}
 
-	public Xenon getProgram() {
-		return this.program;
-	}
-
 	public Settings getSettings() {
 		return getProgram().getSettingsManager().getSettings( ManagerSettings.NOTICE );
-	}
-
-	@Override
-	public boolean isRunning() {
-		return true;
-	}
-
-	@Override
-	public NoticeManager start() {
-		log.atTrace().log( "Notice manager starting..." );
-		try {
-			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
-			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
-			getProgram().getAssetManager().loadAssets( asset );
-		} catch( AssetException exception ) {
-			exception.printStackTrace();
-		}
-		log.atDebug().log( "Notice manager started." );
-
-		return this;
-	}
-
-	@Override
-	public NoticeManager stop() {
-		log.atTrace().log( "Notice manager stopping..." );
-		getProgram().getAssetManager().saveAssets( asset );
-		log.atDebug().log( "Notice manager stopped." );
-		return this;
 	}
 
 	String getThrowableTitle( Throwable throwable ) {
@@ -168,7 +168,9 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		int unreadNoticeCount = getUnreadNotices().size();
 
 		unreadCount.setValue( unreadNoticeCount );
+	}
 
+	private void updateNoticeIcon( int unreadNoticeCount ) {
 		// Update the action icon
 		String actionIcon = "notice";
 		if( unreadNoticeCount == 0 ) {

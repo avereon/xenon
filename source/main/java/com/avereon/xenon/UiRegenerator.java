@@ -9,6 +9,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.exception.AssetNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
+import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
@@ -76,6 +77,8 @@ class UiRegenerator {
 		restoreLock.lock();
 
 		try {
+			List<Exception> exceptions = Collections.emptyList();
+
 			// Get the restore workspaces setting
 			//boolean forceDefaultWorkspace = Boolean.parseBoolean( program.getSettings().get( FORCE_DEFAULT_WORKSPACE, false ) );
 
@@ -85,13 +88,8 @@ class UiRegenerator {
 				createDefaultWorkspace();
 				log.atDebug().log( "Created default workspace" );
 			} else {
-				List<Exception> exceptions = restoreWorkspaces( splashScreen, workspaceIds );
+				exceptions = restoreWorkspaces( splashScreen, workspaceIds );
 				log.atDebug().log( "Restored previous workspaces" );
-
-				// If there are exceptions restoring the UI notify the user
-				for( Exception exception : exceptions) {
-					log.atWarn().log( exception.getMessage() );
-				}
 			}
 
 			// Ensure there is an active workarea
@@ -106,9 +104,15 @@ class UiRegenerator {
 			if( workspace != null && workspace.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
 			if( workspace != null && workspace.getActiveWorkarea() == null ) log.atError().log( "No active workarea" );
 
-			// FIXME Notify the workspace manager that the UI is ready with an event
-			// Notify the workspace manager the UI is ready
-			getProgram().getWorkspaceManager().setUiReady( true );
+			if( !exceptions.isEmpty() ) {
+				for( Exception exception : exceptions ) {
+					log.atWarn().log( exception.getMessage() );
+				}
+
+				// TODO If there are exceptions restoring the UI notify the user
+				Notice notice = new Notice( "Error restoring the UI", "There was an error restoring the UI. Some settings may not have been restored." );
+				getProgram().getNoticeManager().addNotice( notice );
+			}
 		} finally {
 			restored = true;
 			restoredCondition.signalAll();
