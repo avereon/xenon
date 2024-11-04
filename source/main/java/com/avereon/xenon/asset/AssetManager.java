@@ -1297,15 +1297,22 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 	}
 
+	private String generateFilename() {
+		return "asset" + (currentAsset == null ? "" : "." + currentAsset.getCodec().getDefaultExtension());
+	}
+
 	private void askForTargetAsset( Asset source, boolean saveAs, boolean rename ) throws AssetException {
 		Codec codec = source.getCodec();
 		if( codec == null ) codec = source.getType().getDefaultCodec();
 
-		Path folder = !source.isNew() ? Path.of( getParent( source ).getUri() ) : getCurrentFileFolder();
-		String filename = !source.isNew() ? source.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-		String assetUri = UriUtil.decode( folder.toUri().resolve( filename ).toString() );
-		String uriString = ProgramAssetType.URI + "?uri=" + assetUri + ProgramAssetType.SAVE_FRAGMENT;
-		log.atTrace().log( "save asset uri=%s", uriString );
+		// Determine the asset path
+		Path folder = source.isNew() ? getCurrentFileFolder() : Path.of( getParent( source ).getUri() );
+		String filename = source.isNew() ? generateFilename() : source.getFileName();
+		Path assetPath = folder.resolve( filename );
+
+		// Build a URI to open the asset tool
+		String uriString = ProgramAssetType.URI + "?mode=" + AssetTool.Mode.SAVE + "&uri=" + assetPath.toUri();
+		log.atTrace().log( "save asset uri=%s", URI.create( uriString ) );
 
 		final Asset finalAsset = source;
 		final Codec finalCodec = codec;
@@ -1506,7 +1513,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return !isHandling && getUserAssetTypes().size() > 0;
+			return !isHandling && !getUserAssetTypes().isEmpty();
 		}
 
 		@Override

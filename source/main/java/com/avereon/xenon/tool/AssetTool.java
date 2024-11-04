@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class AssetTool extends GuidedTool {
 
-	private enum Mode {
+	public enum Mode {
 		OPEN,
 		SAVE
 	}
@@ -254,7 +254,9 @@ public class AssetTool extends GuidedTool {
 	protected void open( OpenAssetRequest request ) {
 		// Update the mode
 		// FIXME The tool did not switch modes when the mode was changed
-		mode = resolveMode( request.getFragment() );
+		String uriString = UriUtil.decode( request.getUri().toString() );
+		mode = resolveMode( request.getUri() );
+		log.atConfig().log( "mode=%s", mode );
 
 		// Set the title depending on the mode requested
 		String action = mode.name().toLowerCase();
@@ -272,9 +274,12 @@ public class AssetTool extends GuidedTool {
 			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
 			if( uri == null ) uri = currentFolder.toUri();
 			selectAsset( uri );
+			log.atConfig().log( "uri=%s", uri );
 		} catch( URISyntaxException exception ) {
 			log.atWarn( exception ).log();
 		}
+
+		log.atConfig().log( "mode=%s", mode );
 
 		if( mode == Mode.OPEN ) addSupportedFilters();
 	}
@@ -313,6 +318,21 @@ public class AssetTool extends GuidedTool {
 		selectAsset( newNodes.stream().findAny().get().getId() );
 	}
 
+	private static Mode resolveMode( URI uri ) {
+		if( uri == null ) return Mode.OPEN;
+
+		Map<String, String> query = UriUtil.parseQuery( UriUtil.decode( uri.getQuery() ) );
+		String parameter = query.get( "mode" );
+		if( parameter == null ) return Mode.OPEN;
+
+		try {
+			return Mode.valueOf( parameter.toUpperCase() );
+		} catch( IllegalArgumentException exception ) {
+			return Mode.OPEN;
+		}
+	}
+
+	@Deprecated
 	private static Mode resolveMode( String fragment ) {
 		if( fragment == null ) return Mode.OPEN;
 		try {
