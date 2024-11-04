@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 @CustomLog
 public class XenonScheme extends ProgramScheme {
 
-	public static final String ID = "program";
+	public static final String ID = "xenon";
 
 	public XenonScheme( Xenon program ) {
 		super( program, ID );

@@ -3,10 +3,11 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.notice.NoticeModel;
+import com.avereon.xenon.scheme.XenonScheme;
 import lombok.CustomLog;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class ProgramNoticeType extends AssetType {
 
 	private static final String mediaTypePattern = BASE_MEDIA_TYPE + ".notice";
 
-	private static final String uriPattern = "program:/notice";
+	private static final String uriPattern = XenonScheme.ID + ":/notice";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
