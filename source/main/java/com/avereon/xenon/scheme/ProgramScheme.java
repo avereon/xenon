@@ -34,9 +34,9 @@ public class ProgramScheme extends ProductScheme {
 		// However, the following do:
 
 		// Help content
-		URI uri = URI.create( asset.getUri().getSchemeSpecificPart() );
-		if( uri.getScheme() != null ) {
-			if( uri.getScheme().equals( "help" ) ) {
+		URI uri = asset.getUri();
+		if( uri.getScheme().equals( ID ) ) {
+			if( uri.getSchemeSpecificPart().equals( "help" ) ) {
 				loadHelp( asset, codec );
 			}
 		}
