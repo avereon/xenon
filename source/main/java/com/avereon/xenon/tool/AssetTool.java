@@ -253,10 +253,7 @@ public class AssetTool extends GuidedTool {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		// Update the mode
-		// FIXME The tool did not switch modes when the mode was changed
-		String uriString = UriUtil.decode( request.getUri().toString() );
 		mode = resolveMode( request.getUri() );
-		log.atConfig().log( "mode=%s", mode );
 
 		// Set the title depending on the mode requested
 		String action = mode.name().toLowerCase();
@@ -274,12 +271,9 @@ public class AssetTool extends GuidedTool {
 			if( uri != null && !uri.isAbsolute() ) uri = currentFolder.resolve( uri.getPath() ).toUri();
 			if( uri == null ) uri = currentFolder.toUri();
 			selectAsset( uri );
-			log.atConfig().log( "uri=%s", uri );
 		} catch( URISyntaxException exception ) {
 			log.atWarn( exception ).log();
 		}
-
-		log.atConfig().log( "mode=%s", mode );
 
 		if( mode == Mode.OPEN ) addSupportedFilters();
 	}
