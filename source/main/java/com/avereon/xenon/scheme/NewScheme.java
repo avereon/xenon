@@ -4,7 +4,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.exception.AssetException;
 
-public class NewScheme extends BaseScheme {
+public class NewScheme extends ProgramScheme {
 
 	public static final String ID = "new";
 

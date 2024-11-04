@@ -8,6 +8,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zarra.event.FxEventHub;
@@ -23,7 +24,7 @@ import java.util.Objects;
 @CustomLog
 public class Asset extends Node {
 
-	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
+	public static final Asset NONE = new Asset( java.net.URI.create( XenonScheme.ID + ":none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 

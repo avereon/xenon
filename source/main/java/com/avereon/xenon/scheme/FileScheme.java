@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @CustomLog
-public class FileScheme extends BaseScheme {
+public class FileScheme extends ProgramScheme {
 
 	public static final String ID = "file";
 

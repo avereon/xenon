@@ -1444,7 +1444,7 @@ public class Xenon extends Application implements XenonProgram {
 	private void registerSchemes( AssetManager manager ) {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
-		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new XenonScheme( this ) );
 		//manager.addScheme( new ProgramHelpScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new HttpsScheme( this ) );
@@ -1456,7 +1456,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
 		//manager.removeScheme( ProgramHelpScheme.ID );
-		manager.removeScheme( ProgramScheme.ID );
+		manager.removeScheme( XenonScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( NewScheme.ID );
 	}
