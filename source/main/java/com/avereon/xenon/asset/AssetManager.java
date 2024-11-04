@@ -96,11 +96,12 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// FIXME This is pretty dangerous for a couple of reasons
 		// 1. It saves all assets, not just the current one
-		// 2. In the even there was an error loading an asset, it can save the asset in a bad state
+		// 2. In the event there was an error loading an asset, it can save the asset in a bad state
 		// ?. Maybe this should be changed to save assets that submit themselves for autosave?
 		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
 		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
 		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
+
 		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
 		generalAssetWatcher = new GeneralAssetWatcher();
@@ -1004,9 +1005,16 @@ public class AssetManager implements Controllable<AssetManager> {
 		return filteredAssets;
 	}
 
-	// FIXME Need to check if callers really need to know if it is open or identified
 	private boolean isManagedAssetOpen( Asset asset ) {
-		return openAssets.contains( asset );
+		// FIXME If this method is consistent with the asset open flag, then remove it.
+		// NOTE The asset open flag should match this set
+		//  So why is this method needed?
+		boolean isAssetOpen = asset.isOpen();
+		boolean isInOpenAssets = openAssets.contains( asset );
+
+		if( isAssetOpen != isInOpenAssets ) log.atWarn().log( "Asset open: %s, %s", isAssetOpen, isInOpenAssets );
+
+		return isInOpenAssets;
 	}
 
 	private void updateActionState() {
@@ -1448,7 +1456,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Open the asset
 			openAssetsAndWait( asset, 5, TimeUnit.SECONDS );
-			if( !asset.isOpen() || !isManagedAssetOpen( asset ) ) return null;
+			if( !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
 			ProgramTool tool;
