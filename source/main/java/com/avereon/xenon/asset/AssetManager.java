@@ -1124,7 +1124,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 
-		// NOTE Many assets require query parameters in the URI
+		// Many assets use query parameters and fragments in the URI,
+		// so we need to clean up the URI before using it
 		uri = uriCleanup( uri );
 
 		Asset asset = identifiedAssets.get( uri );
@@ -1180,11 +1181,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.atDebug().log( "Asset opened: %s", asset );
-
-		// NOTE Loading a new asset here does nothing
-		// since the ProgramAssetNewType just uses a placeholder codec
-		// FIXME If this call was to set the loaded flag on a new asset it should be done differently
-		//if( asset.isNew() ) doLoadAsset( asset );
 
 		updateActionState();
 		return true;
@@ -1403,8 +1399,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return filters;
 	}
 
-	private URI uriCleanup( URI uri ) {
-		return UriUtil.removeFragment( uri ).normalize();
+	URI uriCleanup( URI uri ) {
+		return UriUtil.removeQueryAndFragment( uri ).normalize();
 	}
 
 	private boolean doSetCurrentAsset( Asset asset ) {

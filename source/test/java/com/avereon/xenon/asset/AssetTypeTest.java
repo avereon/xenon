@@ -1,44 +1,32 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.BasePartXenonTestCase;
-import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.mod.MockMod;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AssetTypeTest extends BasePartXenonTestCase {
-
-	private XenonProgramProduct product;
-
-	@BeforeEach
-	@Override
-	public void setup() throws Exception {
-		product = new MockMod();
-	}
+public class AssetTypeTest extends BaseAssetTestCase {
 
 	@Test
 	void testGetDefaultCodec() {
-		AssetType type = new MockAssetType( product );
+		AssetType type = new MockAssetType( getProduct() );
 		assertThat( type.getDefaultCodec() ).isNotNull();
 	}
 
 	@Test
 	void testGetCodecs() {
-		AssetType type = new MockAssetType( product );
+		AssetType type = new MockAssetType( getProduct() );
 		assertThat( type.getCodecs() ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetName() {
-		AssetType type = new MockAssetType( product );
+		AssetType type = new MockAssetType( getProduct() );
 		assertThat( type.getName() ).isEqualTo( "Mock Asset (mock)" );
 	}
 
 	@Test
 	void testAddCodec() {
-		AssetType type = new MockAssetType( product );
+		AssetType type = new MockAssetType( getProduct() );
 		assertThat( type.getCodecs().size() ).isEqualTo( 1 );
 		Codec codec1 = type.getDefaultCodec();
 
@@ -50,7 +38,7 @@ public class AssetTypeTest extends BasePartXenonTestCase {
 
 	@Test
 	void testRemoveCodec() {
-		AssetType type = new MockAssetType( product );
+		AssetType type = new MockAssetType( getProduct() );
 		assertThat( type.getCodecs().size() ).isEqualTo( 1 );
 		Codec codec1 = type.getDefaultCodec();
 
@@ -65,38 +53,38 @@ public class AssetTypeTest extends BasePartXenonTestCase {
 
 	@Test
 	void testGetCodecByUri() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.URI, "mock:test" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.URI, "mock:test" ) ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetCodecByScheme() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.SCHEME, "mock:test.mock" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.SCHEME, "mock:test.mock" ) ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetCodecByMediaType() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.MEDIATYPE, "application/mock" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.MEDIATYPE, "application/mock" ) ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetCodecByExtension() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.EXTENSION, "test.mock" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.EXTENSION, "test.mock" ) ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetCodecByFileName() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.FILENAME, "test.mock" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.FILENAME, "test.mock" ) ).contains( type.getDefaultCodec() );
 	}
 
 	@Test
 	void testGetCodecByFirstLine() {
-		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.FIRSTLINE, "?mock" ).contains( type.getDefaultCodec() ) );
+		AssetType type = new MockAssetType( getProduct() );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.FIRSTLINE, "?mock" ) ).contains( type.getDefaultCodec() );
 	}
 
 }

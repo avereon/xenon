@@ -27,7 +27,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testNewAsset() throws Exception {
-		// New assets have a asset type when created.
+		// New assets have an asset type when created.
 		// The URI is assigned when the asset is saved.
 		Asset newAsset = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
 		assertThat( newAsset.isNew() ).isTrue();
@@ -228,6 +228,18 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );
+	}
+
+	@Test
+	void isNew() {
+
+	}
+
+	@Test
+	void cleanupUri() {
+		URI provided = URI.create( "mock:///home/user/temp/test.txt?param1=one&param2=two#readwrite" );
+		URI expected = URI.create( "mock:/home/user/temp/test.txt" );
+		assertThat( manager.uriCleanup( provided ) ).isEqualTo( expected );
 	}
 
 }
