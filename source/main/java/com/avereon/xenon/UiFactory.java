@@ -36,13 +36,13 @@ public final class UiFactory {
 
 	public static final String PARENT_WORKPANEVIEW_ID = "workpaneview-id";
 
-	private static final String DOCK_TOP_SIZE = "dock-top-size";
+	public static final String DOCK_TOP_SIZE = "dock-top-size";
 
-	private static final String DOCK_LEFT_SIZE = "dock-left-size";
+	public static final String DOCK_LEFT_SIZE = "dock-left-size";
 
-	private static final String DOCK_RIGHT_SIZE = "dock-right-size";
+	public static final String DOCK_RIGHT_SIZE = "dock-right-size";
 
-	private static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
+	public static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
 
 	public static final String ACTIVE = "active";
 
@@ -54,15 +54,27 @@ public final class UiFactory {
 
 	private final Xenon program;
 
+	/**
+	 * Flag to indicate this UI factory is being used to restore a previous state.
+	 * This flag is used to prevent the factory from overwriting the state of the
+	 * UI in the settings.
+	 */
+	private final boolean restore;
+
 	public UiFactory( Xenon program ) {
+		this( program, false );
+	}
+
+	public UiFactory( Xenon program, boolean restore ) {
 		this.program = program;
+		this.restore = restore;
 	}
 
 	public Workarea newWorkarea() {
-		return newWorkarea( IdGenerator.getId(), false );
+		return newWorkarea( IdGenerator.getId() );
 	}
 
-	Workarea newWorkarea( String id, boolean restore ) {
+	Workarea newWorkarea( String id ) {
 		LinearGradient paint = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
 
 		Workarea workarea = new Workarea();
@@ -73,7 +85,7 @@ public final class UiFactory {
 
 		Workpane workpane = workarea.getWorkpane();
 		workpane.setUid( id );
-		setupWorkpaneSettings( workarea.getWorkpane(), id, restore );
+		setupWorkpaneSettings( workarea.getWorkpane(), id );
 
 		return workarea;
 	}
@@ -100,19 +112,11 @@ public final class UiFactory {
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
 	}
 
-	private void setupWorkpaneSettings( Workpane workpane, String id, boolean restore ) {
+	private void setupWorkpaneSettings( Workpane workpane, String id ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
 		settings.set( PARENT_WORKAREA_ID, id );
 
-		if( restore ) {
-			// Restore state from settings
-			// NOTE Views and edges are restored in the UiRegenerator
-			// NOTE The active, default and maximized views are restored in UiRegenerator
-			workpane.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
-			workpane.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
-			workpane.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
-			workpane.setBottomDockSize( settings.get( DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
-		} else {
+		if( !restore ) {
 			// Save new state to settings
 			settings.set( "view-active", workpane.getActiveView() == null ? null : workpane.getActiveView().getUid() );
 			settings.set( "view-default", workpane.getDefaultView() == null ? null : workpane.getDefaultView().getUid() );

@@ -29,6 +29,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.avereon.xenon.UiFactory.*;
+
 /**
  * This class is intended only to regenerate the UI before
  */
@@ -61,7 +63,7 @@ class UiRegenerator {
 
 	UiRegenerator( Xenon program ) {
 		this.program = program;
-		this.factory = new UiFactory( program );
+		this.factory = new UiFactory( program, true );
 	}
 
 	private Xenon getProgram() {
@@ -121,12 +123,11 @@ class UiRegenerator {
 
 				List<String> sortedMessages = new ArrayList<>( messages );
 				Collections.sort( sortedMessages );
-
-				// TODO If there are exceptions restoring the UI notify the user
-				Rb.text( RbKey.PROGRAM, "ui-restore-error-title" );
-				Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );
 				StringBuilder builder = new StringBuilder();
 				for( String message : sortedMessages ) builder.append( "\n" ).append( message );
+
+				// TODO If there are exceptions restoring the UI notify the user
+				Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );
 				notice.setMessage( builder.toString().trim() );
 				getProgram().getNoticeManager().addNotice( notice );
 			}
@@ -261,7 +262,9 @@ class UiRegenerator {
 			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
 			pane.restoreNodes( localEdges, localViews );
 
-			// FIXME Default view has already been overwritten in the settings and is getting lost
+			// UIFactory gets sent a flag to not set the defaults when restoring the UI.
+			// This works around the problem of the default view being overwritten.
+
 			// Active, default and maximized views
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getUid() );
 			setView( settings, "view-active", pane::setActiveView );
@@ -274,7 +277,13 @@ class UiRegenerator {
 		String viewId = settings.get( key );
 		WorkpaneView view = viewId == null ? null : views.get( viewId );
 		if( view != null ) handler.accept( view );
-		if( "view-default".equals( key ) && view == null ) log.atError().log( "The default view was not restored. This will cause a UI problem." );
+		if( "view-default".equals( key ) && view == null ) {
+			log.atError().log( "The default view was not restored. This will cause a UI problem." );
+
+			Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );
+			notice.setMessage( Rb.text( RbKey.PROGRAM, "ui-restore-error-default-view" ) );
+			getProgram().getNoticeManager().addNotice( notice );
+		}
 	}
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
@@ -392,9 +401,24 @@ class UiRegenerator {
 			return;
 		}
 
-		Workarea workarea = factory.newWorkarea( id, true );
+		Workarea workarea = factory.newWorkarea( id );
 		panes.put( id, workarea.getWorkpane() );
 		areas.put( id, workarea );
+
+		restoreWorkpane( workarea, id );
+	}
+
+	private void restoreWorkpane( Workarea workarea, String id ) {
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
+		settings.set( PARENT_WORKAREA_ID, id );
+
+		Workpane workpane = workarea.getWorkpane();
+		workpane.setUid( id );
+
+		workpane.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
+		workpane.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
+		workpane.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
+		workpane.setBottomDockSize( settings.get( DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
 	}
 
 	private void restoreWorkpaneEdge( String id ) {
