@@ -1,11 +1,13 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.xenon.scheme.XenonScheme;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MockCodec extends Codec {
 
-	public static final java.net.URI URI = java.net.URI.create( "program:/mock" );
+	public static final java.net.URI URI = java.net.URI.create( XenonScheme.ID + ":/mock" );
 
 	static final String EXTENSION = "mock";
 
@@ -18,7 +20,7 @@ public class MockCodec extends Codec {
 	public MockCodec( String key ) {
 		this.key = key;
 		addSupported( Pattern.URI, "mock:test" );
-		addSupported( Pattern.URI, "program:/mock" );
+		addSupported( Pattern.URI, XenonScheme.ID + ":/mock" );
 		addSupported( Pattern.SCHEME, "mock" );
 		addSupported( Pattern.MEDIATYPE, "application/mock" );
 		addSupported( Pattern.EXTENSION, EXTENSION );

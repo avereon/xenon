@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.log.LazyEval;
+import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.Asset;
@@ -105,12 +106,28 @@ class UiRegenerator {
 			if( workspace != null && workspace.getActiveWorkarea() == null ) log.atError().log( "No active workarea" );
 
 			if( !exceptions.isEmpty() ) {
+				Set<String> messages = new HashSet<>();
 				for( Exception exception : exceptions ) {
 					log.atWarn().log( exception.getMessage() );
+
+					if( exception instanceof ToolInstantiationException toolException ) {
+						messages.add( Rb.text( RbKey.PROGRAM, "tool-missing", toolException.getToolClass() ) );
+					} else if( exception instanceof AssetNotFoundException assetException ) {
+						messages.add( Rb.text( RbKey.PROGRAM, "asset-missing", assetException.getAsset().getUri() ) );
+					} else {
+						messages.add( exception.getMessage() );
+					}
 				}
 
+				List<String> sortedMessages = new ArrayList<>( messages );
+				Collections.sort( sortedMessages );
+
 				// TODO If there are exceptions restoring the UI notify the user
-				Notice notice = new Notice( "Error restoring the UI", "There was an error restoring the UI. Some settings may not have been restored." );
+				Rb.text( RbKey.PROGRAM, "ui-restore-error-title" );
+				Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );
+				StringBuilder builder = new StringBuilder();
+				for( String message : sortedMessages ) builder.append( "\n" ).append( message );
+				notice.setMessage( builder.toString().trim() );
 				getProgram().getNoticeManager().addNotice( notice );
 			}
 		} finally {

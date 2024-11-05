@@ -5,10 +5,11 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 import com.avereon.xenon.scheme.FaultScheme;
+import com.avereon.xenon.scheme.XenonScheme;
 
 public class ProgramFaultType extends AssetType {
 
-	private static final String uriPattern = "program:/fault";
+	private static final String uriPattern = XenonScheme.ID + ":/fault";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

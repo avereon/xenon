@@ -4,10 +4,11 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
+import com.avereon.xenon.scheme.XenonScheme;
 
 public class ProgramTaskType extends AssetType {
 
-	private static final String uriPattern = "program:/task";
+	private static final String uriPattern = XenonScheme.ID + ":/task";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

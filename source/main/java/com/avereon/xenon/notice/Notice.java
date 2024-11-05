@@ -62,6 +62,10 @@ public class Notice extends IdNode {
 		this( null, null, null, null, new Object[0] );
 	}
 
+	public Notice( Object title ) {
+		this( title, null, null, null, new Object[0] );
+	}
+
 	public Notice( Object title, Object message, Object... parameters ) {
 		this( title, message, null, null, parameters );
 	}

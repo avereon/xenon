@@ -4,10 +4,11 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
+import com.avereon.xenon.scheme.XenonScheme;
 
 public class ProgramAssetType extends AssetType {
 
-	public static final String URI = "program:/asset";
+	public static final String URI = XenonScheme.ID + ":/asset";
 
 	public static final String MODE_OPEN = "?mode=open";
 
