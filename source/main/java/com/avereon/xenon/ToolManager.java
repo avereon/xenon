@@ -212,7 +212,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open asset request for restoring the tool
 	 * @param toolClassName The tool class name
 	 * @return The restored tool
-	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
+	 * @apiNote Could be called from a {@code task thread} or an {@code FX application thread}
 	 */
 	ProgramTool restoreTool( OpenAssetRequest request, String toolClassName ) {
 		// Run this class through the alias map
@@ -301,11 +301,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
 			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
-			toolClass = toolClasses.get( 0 );
+			toolClass = toolClasses.getFirst();
 		} else {
 			// There is more than one tool registered for the asset type
 			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
-			toolClass = toolClasses.get( 0 );
+			toolClass = toolClasses.getFirst();
 		}
 
 		return toolClass;
