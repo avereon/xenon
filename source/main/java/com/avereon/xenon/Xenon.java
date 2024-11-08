@@ -1359,7 +1359,6 @@ public class Xenon extends Application implements XenonProgram {
 		} else if( OperatingSystem.isLinux() ) {
 			return path.getParent();
 		} else if( OperatingSystem.isMac() ) {
-			// FIXME Unchecked, may be incorrect. Please review on actual platform.
 			return path.getParent();
 		}
 
