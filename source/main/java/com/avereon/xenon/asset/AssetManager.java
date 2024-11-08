@@ -86,6 +86,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean running;
 
+	private Map<URI,URI> aliases;
+
 	public AssetManager( Xenon program ) {
 		this.program = program;
 		openAssets = new CopyOnWriteArraySet<>();
@@ -93,6 +95,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		schemes = new ConcurrentHashMap<>();
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
+		aliases = new ConcurrentHashMap<>();
 
 		// FIXME This is pretty dangerous for a couple of reasons
 		// 1. It saves all assets, not just the current one
@@ -1113,6 +1116,20 @@ public class AssetManager implements Controllable<AssetManager> {
 		return asset.isOpen();
 	}
 
+	public void registerAssetAlias( URI alias, URI uri ) {
+		aliases.put( alias, uri );
+	}
+
+	public void unregisterAssetAlias( URI alias ) {
+		aliases.remove( alias );
+	}
+
+	private URI resolveAssetAlias( URI uri ) {
+		URI resolved = aliases.get( uri );
+		if( resolved == null ) return uri;
+		return resolved;
+	}
+
 	/**
 	 * Create an asset from an asset type and/or a URI. The asset is considered to be a new asset if the URI is null. Otherwise, the asset is
 	 * considered an old asset. See {@link Asset#isNew()}
@@ -1123,6 +1140,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
+
+		uri = resolveAssetAlias( uri );
 
 		// Many assets use query parameters and fragments in the URI,
 		// so we need to clean up the URI before using it

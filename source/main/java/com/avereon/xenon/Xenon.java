@@ -1475,9 +1475,13 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
 		manager.addAssetType( new PropertiesType( this ) );
+
+		manager.registerAssetAlias( URI.create( "program:/guide" ), ProgramGuideType.URI );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.unregisterAssetAlias( URI.create( "program:/guide" ) );
+
 		manager.removeAssetType( new PropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
