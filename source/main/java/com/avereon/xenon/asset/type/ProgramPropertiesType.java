@@ -6,13 +6,13 @@ import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 import com.avereon.xenon.scheme.XenonScheme;
 
-public class PropertiesType extends AssetType {
+public class ProgramPropertiesType extends AssetType {
 
 	private static final String uriPattern = XenonScheme.ID + ":/properties";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public PropertiesType( XenonProgramProduct product ) {
+	public ProgramPropertiesType( XenonProgramProduct product ) {
 		super( product, "properties" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -1474,15 +1475,32 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addAssetType( new ProgramAssetType( this ) );
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
-		manager.addAssetType( new PropertiesType( this ) );
+		manager.addAssetType( new ProgramPropertiesType( this ) );
 
-		manager.registerAssetAlias( URI.create( "program:/guide" ), ProgramGuideType.URI );
+		registerProgramAssetAliases( manager );
+	}
+
+	private void registerProgramAssetAliases( AssetManager manager ) {
+		// This is a reflection way of going through all the current program asset types
+		List<String> programAliases = List.of( "about", "asset", "fault", "guide", "help", "new", "notice", "properties", "search", "settings", "task", "welcome" );
+		for( String alias : programAliases ) {
+			URI aliasUri = URI.create( "program:/" + alias );
+			char[] targetChars = alias.toCharArray();
+			targetChars[ 0 ] = Character.toUpperCase( targetChars[ 0 ] );
+			String targetClassName = "Program" + new String( targetChars ) + "Type";
+			try {
+				Class<?> targetClass = Class.forName( AssetType.class.getPackageName() + ".type." + targetClassName );
+				Field uriField = targetClass.getField( "URI" );
+				URI targetUri = (URI)uriField.get( null );
+				manager.registerAssetAlias( aliasUri, targetUri );
+			} catch( ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignore ) {
+				// Intentionally ignore exception
+			}
+		}
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
-		manager.unregisterAssetAlias( URI.create( "program:/guide" ) );
-
-		manager.removeAssetType( new PropertiesType( this ) );
+		manager.removeAssetType( new ProgramPropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
 		manager.removeAssetType( new ProgramAssetType( this ) );
@@ -1512,7 +1530,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.UNLIMITED, "help", "help" );
-		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
+		registerTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
@@ -1521,7 +1539,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
+		unregisterTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
 		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
