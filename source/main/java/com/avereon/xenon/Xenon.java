@@ -567,7 +567,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Show the active stage
 		Stage activeStage = getWorkspaceManager().getActiveStage();
-		if( activeStage != null ) {
+		if( !daemonRequested && activeStage != null ) {
 			Fx.run( () -> {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
