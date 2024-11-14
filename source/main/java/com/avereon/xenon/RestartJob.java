@@ -7,6 +7,7 @@ import com.avereon.util.*;
 import com.avereon.weave.UpdateCommandBuilder;
 import com.avereon.weave.UpdateFlag;
 import com.avereon.weave.UpdateTask;
+import com.avereon.weave.Weave;
 import com.avereon.xenon.product.ProductUpdate;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -115,7 +116,7 @@ public class RestartJob {
 		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
 		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
-		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
+		String logFile = PathUtil.resolve( logFolder, Weave.DEFAULT_LOG_FILE_PATTERN );
 		boolean useDarkMode = getProgram().getWorkspaceManager().getThemeMetadata().isDark();
 
 		if( mode.isMock() ) {

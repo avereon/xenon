@@ -76,6 +76,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	public static final long MANAGER_ACTION_SECONDS = 10;
 
+	public static final String DEFAULT_LOG_FILE_PATTERN = "program.%u.log";
+
 	private static final String PROGRAM_RELEASE = "product-release";
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
@@ -1286,13 +1288,14 @@ public class Xenon extends Application implements XenonProgram {
 
 	private void configureLogging() {
 		programLogFolder = getDataFolder().resolve( "logs" );
-		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		Log.configureLogging( this, parameters, programLogFolder, DEFAULT_LOG_FILE_PATTERN );
 		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL, LogFlag.INFO ) );
 		//Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL, LogFlag.WARN ) );
 	}
 
 	/**
-	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
+	 * Find the home directory. This method expects the program jar file to be
+	 * installed in a subdirectory of the home directory. Example:
 	 * <code>$HOME/lib/program.jar</code>
 	 *
 	 * @param parameters The command line parameters
