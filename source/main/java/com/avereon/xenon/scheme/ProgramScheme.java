@@ -18,7 +18,6 @@ public abstract class ProgramScheme extends BaseScheme {
 		return true;
 	}
 
-
 	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		if( codec != null ) {

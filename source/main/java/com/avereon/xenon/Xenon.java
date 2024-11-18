@@ -964,6 +964,11 @@ public class Xenon extends Application implements XenonProgram {
 		return card;
 	}
 
+	/**
+	 * The program data folder. See {@link #configureDataFolder()} for details.
+	 *
+	 * @return The program data folder
+	 */
 	@Override
 	public Path getDataFolder() {
 		return programDataFolder;

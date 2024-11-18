@@ -3,7 +3,6 @@ package com.avereon.xenon.asset;
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.asset.exception.AssetException;
@@ -95,11 +94,10 @@ public class Asset extends Node {
 	}
 
 	public Asset( AssetType type, URI uri ) {
-		if( uri == null ) uri = java.net.URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
-		setUri( uri );
+		setUri( uri == null ? NewScheme.uri() : uri );
 		setType( type );
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
