@@ -85,7 +85,7 @@ public class NewScheme extends ProgramScheme {
 		Path path = asset.getValue( "new-asset-temp-path" );
 		if( path != null ) return path;
 
-		Path tempPath = getProgram().getTempFolder().resolve( id ).resolve( "content" );
+		Path tempPath = getProgram().getDataFolder().resolve( "storage" ).resolve( id ).resolve( "content" );
 		asset.setValue( "new-asset-temp-path", tempPath );
 		return tempPath;
 	}
