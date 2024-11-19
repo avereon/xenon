@@ -18,6 +18,12 @@ public class NewScheme extends ProgramScheme {
 
 	public static final String ID = "new";
 
+	public static final String NEW_ASSET_TEMP_PATH = "new-asset-temp-path";
+
+	public static final String NEW_ASSET_TEMP_STORAGE_FOLDER = "storage";
+
+	public static final String NEW_ASSET_TEMP_STORAGE_CONTENT = "content";
+
 	public NewScheme( Xenon program ) {
 		super( program, ID );
 	}
@@ -73,7 +79,7 @@ public class NewScheme extends ProgramScheme {
 		}
 	}
 
-	private Path getTemporaryPath( Asset asset ) {
+	Path getTemporaryPath( Asset asset ) {
 		if( asset == null ) return null;
 
 		// The URI should have a unique ID in the uri fragment
@@ -82,11 +88,11 @@ public class NewScheme extends ProgramScheme {
 		String id = uri.getSchemeSpecificPart();
 		if( id == null ) return null;
 
-		Path path = asset.getValue( "new-asset-temp-path" );
+		Path path = asset.getValue( NEW_ASSET_TEMP_PATH );
 		if( path != null ) return path;
 
-		Path tempPath = getProgram().getDataFolder().resolve( "storage" ).resolve( id ).resolve( "content" );
-		asset.setValue( "new-asset-temp-path", tempPath );
+		Path tempPath = getProgram().getDataFolder().resolve( NEW_ASSET_TEMP_STORAGE_FOLDER ).resolve( id ).resolve( NEW_ASSET_TEMP_STORAGE_CONTENT );
+		asset.setValue( NEW_ASSET_TEMP_PATH, tempPath );
 		return tempPath;
 	}
 
