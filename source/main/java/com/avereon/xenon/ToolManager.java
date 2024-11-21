@@ -305,6 +305,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		} else {
 			// There is more than one tool registered for the asset type
 			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
+			toolClasses.forEach( c -> log.atConfig().log( "  %s", c.getName() ) );
 			toolClass = toolClasses.getFirst();
 		}
 
