@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * files.
  */
 @CustomLog
-public class ProductManager implements Controllable<ProductManager>, Configurable {
+public class ProductManager implements Controllable<ProductManager> {
 
 	public enum CheckOption {
 		MANUAL,
@@ -112,6 +112,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private Xenon program;
 
+	@Getter
 	private Settings settings;
 
 	private Settings updateSettings;
@@ -195,15 +196,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		includedProducts.add( new Weave().getCard() );
 
 		getEventBus().parent( program.getFxEventHub() );
+		registerProgram( program );
 		try {
 			registerProviderRepos( RepoState.forProduct( getClass() ) );
 		} catch( IOException exception ) {
 			log.atError().withCause( exception ).log( "Error loading program repos" );
 		}
-		// FIXME Do I want the update settings in the program settings?
-		//  See {@link #setSettings(Settings)} for details
-		setSettings( program.getSettingsManager().getProductSettings( program.getCard() ) );
-		registerProgram( program );
+		loadSettings();
 	}
 
 	private Xenon getProgram() {
@@ -871,36 +870,31 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return delay;
 	}
 
-	@Override
-	public void setSettings( Settings settings ) {
-		if( settings == null || this.settings != null ) return;
+	private void loadSettings() {
+		Settings programSettings = getProgram().getSettingsManager().getProductSettings( program.getCard() );
+		if( programSettings == null || this.settings != null ) return;
 
 		// FIXME The settings passed in serve two purposes (config and updates) but should not
 
 		// What are these settings if the update node is retrieved below?
-		this.settings = settings;
+		this.settings = programSettings;
 
-		if( "STAGE".equalsIgnoreCase( settings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
-			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
+		if( "STAGE".equalsIgnoreCase( programSettings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
+			programSettings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
-		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
+		this.checkOption = CheckOption.valueOf( programSettings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( programSettings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
 
 		// FIXME These settings are apparently used to store the catalogs and updates
-		// Maybe the catalogs and updates should be stored in a different location
-		this.updateSettings = settings.getNode( "update" );
+		//  Maybe the catalogs and updates should be stored in a different location
+		this.updateSettings = programSettings.getNode( "update" );
 
 		// Load the module sources
 		loadRepos();
 
 		// Load the module updates
 		loadUpdates();
-	}
-
-	@Override
-	public Settings getSettings() {
-		return settings;
 	}
 
 	protected boolean isEnabled() {

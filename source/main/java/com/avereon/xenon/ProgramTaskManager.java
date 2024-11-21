@@ -4,7 +4,9 @@ import com.avereon.settings.Settings;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import lombok.CustomLog;
+import lombok.Getter;
 
+@Getter
 @CustomLog
 public class ProgramTaskManager extends TaskManager {
 
@@ -12,10 +14,7 @@ public class ProgramTaskManager extends TaskManager {
 
 	public ProgramTaskManager( Xenon program ) {
 		this.program = program;
-	}
-
-	public Xenon getProgram() {
-		return program;
+		getEventBus().parent( program.getFxEventHub() );
 	}
 
 	@Override

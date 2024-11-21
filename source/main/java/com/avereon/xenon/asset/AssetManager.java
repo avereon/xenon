@@ -106,6 +106,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
 
 		eventBus = new FxEventHub();
+		eventBus.parent( program.getFxEventHub() );
 		currentAssetWatcher = new CurrentAssetWatcher();
 		generalAssetWatcher = new GeneralAssetWatcher();
 

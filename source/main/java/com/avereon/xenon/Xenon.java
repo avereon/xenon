@@ -102,7 +102,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private SplashScreenPane splashScreen;
 
-	private ProgramTaskManager taskManager;
+	private TaskManager taskManager;
 
 	private ProductCard card;
 
@@ -288,7 +288,8 @@ public class Xenon extends Application implements XenonProgram {
 		time( "help-check" );
 
 		// Create the settings manager, depends on program data folder, FX event hub
-		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
+		settingsManager = new SettingsManager( this ).start();
+		time( "settings-manager" );
 
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
@@ -314,11 +315,9 @@ public class Xenon extends Application implements XenonProgram {
 		}
 		time( "cli-actions" );
 
+		// NOTE The task manager is created in the init() method, so it is available during tests
 		// Create the task manager, depends on program settings
-		// The task manager is created in the init() method, so it is available during tests
-		log.atFiner().log( "Starting task manager..." );
-		taskManager = (ProgramTaskManager)configureTaskManager( new ProgramTaskManager( this ) ).start();
-		log.atFine().log( "Task manager started." );
+		taskManager = new ProgramTaskManager( this ).start();
 		time( "task-manager" );
 
 		// NOTE The start( Stage ) method is called next
@@ -443,14 +442,9 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Start the asset manager
 		log.atFiner().log( "Starting asset manager..." );
-		assetManager = new AssetManager( Xenon.this );
-		// NEXT This can be moved to the AssetManager constructor
-		assetManager.getEventBus().parent( getFxEventHub() );
+		assetManager = new AssetManager( Xenon.this ).start();
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
-		assetManager.start();
-		//program-asset-type-provider
-		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Asset manager started." );
 		time( "asset-manager" );
@@ -468,6 +462,9 @@ public class Xenon extends Application implements XenonProgram {
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Index service started." );
 		time( "index-service" );
+
+		// Register the AssetTypeOptionProvider before loading settings pages
+		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
 
 		// Load the settings pages
 		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
@@ -1396,26 +1393,38 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pushAction( wallpaperTintToggleAction = new WallpaperTintToggleAction( this ) );
 
-		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction( this, () -> {
+		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			getProductManager().showPostedUpdates();
-		} ) );
+		}
+		) );
 
-		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction( this, () -> {
+		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			getProductManager().showStagedUpdates();
-		} ) );
+		}
+		) );
 
-		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
+		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log();
-		} ) );
-		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
+		}
+		) );
+		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );
-		} ) );
-		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
+		}
+		) );
+		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) );
-		} ) );
-		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {
+		}
+		) );
+		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction(
+			this, () -> {
 			//
-		} ) );
+		}
+		) );
 	}
 
 	private void unregisterActionHandlers() {
@@ -1558,9 +1567,7 @@ public class Xenon extends Application implements XenonProgram {
 		unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
 	}
 
-	private void registerTool(
-		ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey
-	) {
+	private void registerTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		// The problem with using the class name is it can change if the class package or name is changed.
 		AssetType type = assetManager.getAssetType( assetType.getKey() );
 		String name = Rb.text( "tool", toolRbKey + "-name" );
@@ -1573,17 +1580,6 @@ public class Xenon extends Application implements XenonProgram {
 
 	private void unregisterTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
 		manager.unregisterTool( assetManager.getAssetType( assetType.getKey() ), toolClass );
-	}
-
-	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
-		settingsManager.getEventBus().parent( fxEventHub );
-		return settingsManager;
-	}
-
-	@Deprecated
-	private TaskManager configureTaskManager( TaskManager taskManager ) {
-		taskManager.getEventBus().parent( fxEventHub );
-		return taskManager;
 	}
 
 	private void notifyProgramUpdated() {

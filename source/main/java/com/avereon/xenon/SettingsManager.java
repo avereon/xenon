@@ -52,6 +52,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.rootSettingsPages = new ConcurrentHashMap<>();
 		this.optionProviders = new ConcurrentHashMap<>();
 		this.eventBus = new FxEventHub();
+		eventBus.parent( program.getFxEventHub() );
 
 		guide.setSelectionMode( SelectionMode.MULTIPLE );
 
@@ -72,6 +73,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public Settings getProductSettings( ProductCard card ) {
 		return getSettings( getSettingsPath( card ) );
+	}
+
+	public Settings getManagerSettings( String name ) {
+		return getSettings( ProgramSettings.MANAGER, name );
 	}
 
 	private static String getSettingsPath( ProductCard card ) {
