@@ -193,6 +193,17 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new Weave().getCard() );
+
+		getEventBus().parent( program.getFxEventHub() );
+		try {
+			registerProviderRepos( RepoState.forProduct( getClass() ) );
+		} catch( IOException exception ) {
+			log.atError().withCause( exception ).log( "Error loading program repos" );
+		}
+		// FIXME Do I want the update settings in the program settings?
+		//  See {@link #setSettings(Settings)} for details
+		setSettings( program.getSettingsManager().getProductSettings( program.getCard() ) );
+		registerProgram( program );
 	}
 
 	private Xenon getProgram() {

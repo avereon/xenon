@@ -21,7 +21,6 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
-import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.scheme.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -421,10 +420,6 @@ public class Xenon extends Application implements XenonProgram {
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTING ) );
 		time( "program-starting-event" );
 
-		// Create the product manager, depends on icon library
-		productManager = configureProductManager( new ProductManager( this ) );
-		time( "product-manager" );
-
 		// Update the product card
 		card = ProductCard.card( this );
 		time( "update-product-card" );
@@ -449,6 +444,7 @@ public class Xenon extends Application implements XenonProgram {
 		// Start the asset manager
 		log.atFiner().log( "Starting asset manager..." );
 		assetManager = new AssetManager( Xenon.this );
+		// NEXT This can be moved to the AssetManager constructor
 		assetManager.getEventBus().parent( getFxEventHub() );
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
@@ -514,9 +510,9 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFine().log( "Notice manager started." );
 		time( "notice-manager" );
 
-		// Start the product manager
+		// Start the product manager, depends on icon library
 		log.atFiner().log( "Starting product manager..." );
-		productManager.start();
+		productManager = new ProductManager( this ).start();
 		log.atFine().log( "Product manager started." );
 		time( "product-manager" );
 
@@ -1584,64 +1580,11 @@ public class Xenon extends Application implements XenonProgram {
 		return settingsManager;
 	}
 
+	@Deprecated
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
 		taskManager.getEventBus().parent( fxEventHub );
 		return taskManager;
 	}
-
-	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
-		productManager.getEventBus().parent( fxEventHub );
-
-		// Register the provider repos
-		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );
-
-		// FIXME Do I want the update settings in the program settings?
-		// There is also a set of comments regarding this issue in the ProductManager class
-		productManager.setSettings( programSettings );
-
-		// Register the product
-		productManager.registerProgram( this );
-
-		return productManager;
-	}
-
-	//	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
-	//		// Required to set values needed for:
-	//		// - the title of the progress window to have the product name
-	//		// - the updater to launch an elevated updater with the correct launcher name
-	//		// - the proper location for the log file
-	//		config();
-	//
-	//		log.log( Log.WARN, "Starting the update process!" );
-	//
-	//		// All the update commands should be in a file
-	//		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-	//		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
-	//			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
-	//			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
-	//		}
-	//
-	//		// The progress window title
-	//		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
-	//
-	//		// Force the location of the updater log file
-	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
-	//		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
-	//
-	//		List<String> commands = new ArrayList<>();
-	//		commands.add( UpdateFlag.TITLE );
-	//		commands.add( updatingProgramText );
-	//		commands.add( UpdateFlag.FILE );
-	//		commands.add( parameters.get( ProgramFlag.UPDATE ) );
-	//		commands.add( ProgramFlag.LOG_FILE );
-	//		commands.add( logFile );
-	//		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
-	//			commands.add( LogFlag.LOG_LEVEL );
-	//			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
-	//		}
-	//
-	//		return commands.toArray( new String[]{} );
-	//	}
 
 	private void notifyProgramUpdated() {
 		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );
