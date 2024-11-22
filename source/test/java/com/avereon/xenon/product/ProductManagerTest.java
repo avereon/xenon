@@ -29,19 +29,32 @@ class ProductManagerTest extends ProgramTestCase {
 	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
-		productManager = new ProductManager( getProgram() );
+		productManager = new ProductManager( getProgram() ).start();
+	}
 
-		// Ensures updates are not checked during tests
-		productManager.setCheckOption( ProductManager.CheckOption.MANUAL );
-		productManager.setFoundOption( ProductManager.FoundOption.STORE );
+	@Test
+	void testGetLastUpdateCheck() {
+		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
+		assertThat( productManager.getLastUpdateCheck() ).isEqualTo( null );
 
-		productManager.start();
+		long now = System.currentTimeMillis();
+		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, now );
+		assertThat( productManager.getLastUpdateCheck() ).isEqualTo( now );
+	}
+
+	@Test
+	void testGetNextUpdateCheck() {
+		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, null );
+		assertThat( productManager.getNextUpdateCheck() ).isEqualTo( null );
+
+		long now = System.currentTimeMillis();
+		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, now );
+		assertThat( productManager.getNextUpdateCheck() ).isEqualTo( now );
 	}
 
 	@Test
 	void scheduleUpdateCheckWithManual() {
 		// given
-		assertThat( productManager ).isNotNull();
 		assertThat( getProgram().isProgramUpdated() ).isFalse();
 		assertThat( getProgram().isUpdateInProgress() ).isFalse();
 
@@ -54,21 +67,12 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		Long lastCheckTime = productManager.getLastUpdateCheck();
-		Long nextCheckTime = productManager.getNextUpdateCheck();
-
-		// There was not a last check time so it is null
-		assertThat( lastCheckTime ).isEqualTo( null );
-
-		// The next check time should be null
-		assertThat( nextCheckTime ).isEqualTo( null );
+		assertThat( productManager.getNextUpdateCheck() ).isEqualTo( null );
 	}
 
 	@Test
 	void scheduleUpdateCheckWithStartup() {
-		long now = System.currentTimeMillis();
 		// given
-		assertThat( productManager ).isNotNull();
 		assertThat( getProgram().isProgramUpdated() ).isFalse();
 		assertThat( getProgram().isUpdateInProgress() ).isFalse();
 
@@ -81,28 +85,21 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		Long lastCheckTime = productManager.getLastUpdateCheck();
-		Long nextCheckTime = productManager.getNextUpdateCheck();
-
-		// There was not a last check time so it is null
-//		assertThat( lastCheckTime ).isCloseTo( now, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
-		assertThat( lastCheckTime ).isEqualTo( null );
-
-		// The next check time should be null
-		assertThat( nextCheckTime ).isEqualTo( null );
+		assertThat( productManager.getNextUpdateCheck() ).isEqualTo( null );
 	}
 
 	@ParameterizedTest
 	@MethodSource( "provideCheckIntervalOptions" )
-	void scheduleUpdateCheckWithInterval( ProductManager.CheckInterval checkInterval, Long priorLastCheckTime, Long priorNextCheckTime, Long expectedLastCheckTime, Long expectedNextCheckTime ) {
+	void scheduleUpdateCheckWithInterval( ProductManager.CheckInterval checkInterval, Long priorLastCheckTime, Long priorNextCheckTime, Long expectedNextCheckTime ) {
 		// given
-		assertThat( productManager ).isNotNull();
 		assertThat( getProgram().isProgramUpdated() ).isFalse();
 		assertThat( getProgram().isUpdateInProgress() ).isFalse();
 
-		// These cause events to be fired that cause scheduleUpdateCheck to be called
+		// Momentarily set the check option to manual to avoid bad interaction
+		productManager.setCheckOption( ProductManager.CheckOption.MANUAL );
 		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, priorLastCheckTime );
 		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, priorNextCheckTime );
+
 		productManager.setCheckOption( ProductManager.CheckOption.INTERVAL );
 		getProgram().getSettings().set( ProductManager.INTERVAL_UNIT, checkInterval.name().toLowerCase() );
 
@@ -110,50 +107,35 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		Long lastCheckTime = productManager.getLastUpdateCheck();
-		Long nextCheckTime = productManager.getNextUpdateCheck();
-
-		// There was not a last check time so it is null
-		if( lastCheckTime != null ) {
-			assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
-		}
-
-		// The next check time should be some time in the future
-		assertThat( nextCheckTime ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
 	}
 
 	private static Stream<Arguments> provideCheckIntervalOptions() {
 		long now = System.currentTimeMillis();
 		return Stream.of(
-			Arguments.of( ProductManager.CheckInterval.HOUR, null, null, 0L, now ),
-			Arguments.of( ProductManager.CheckInterval.DAY, null, null, 0L, now ),
-			Arguments.of( ProductManager.CheckInterval.WEEK, null, null, 0L, now ),
-			Arguments.of( ProductManager.CheckInterval.MONTH, null, null, 0L, now ),
-			Arguments.of( ProductManager.CheckInterval.HOUR, now, null, now, now + TimeUnit.HOURS.toMillis( 1 ) ),
-			Arguments.of( ProductManager.CheckInterval.DAY, now, null, now, now + TimeUnit.DAYS.toMillis( 1 ) ),
-			Arguments.of( ProductManager.CheckInterval.WEEK, now, null, now, now + TimeUnit.DAYS.toMillis( 7 ) ),
-			Arguments.of( ProductManager.CheckInterval.MONTH, now, null, now, now + TimeUnit.DAYS.toMillis( 30 ) )
+			Arguments.of( ProductManager.CheckInterval.HOUR, null, null, now ),
+			Arguments.of( ProductManager.CheckInterval.DAY, null, null, now ),
+			Arguments.of( ProductManager.CheckInterval.WEEK, null, null, now ),
+			Arguments.of( ProductManager.CheckInterval.MONTH, null, null, now ),
+			Arguments.of( ProductManager.CheckInterval.HOUR, now, null, now + TimeUnit.HOURS.toMillis( 1 ) ),
+			Arguments.of( ProductManager.CheckInterval.DAY, now, null, now + TimeUnit.DAYS.toMillis( 1 ) ),
+			Arguments.of( ProductManager.CheckInterval.WEEK, now, null, now + TimeUnit.DAYS.toMillis( 7 ) ),
+			Arguments.of( ProductManager.CheckInterval.MONTH, now, null, now + TimeUnit.DAYS.toMillis( 30 ) )
 		);
 	}
 
 	@ParameterizedTest
 	@MethodSource( "provideCheckScheduleOptions" )
-	void scheduleUpdateCheckWithSchedule(
-		ProductManager.CheckWhen checkWhen,
-		Integer checkHour,
-		Long priorLastCheckTime,
-		Long priorNextCheckTime,
-		Long expectedLastCheckTime,
-		Long expectedNextCheckTime
-	) {
+	void scheduleUpdateCheckWithSchedule( ProductManager.CheckWhen checkWhen, Integer checkHour, Long priorLastCheckTime, Long priorNextCheckTime, Long expectedNextCheckTime ) {
 		// given
-		assertThat( productManager ).isNotNull();
 		assertThat( getProgram().isProgramUpdated() ).isFalse();
 		assertThat( getProgram().isUpdateInProgress() ).isFalse();
 
-		// These cause events to be fired that cause scheduleUpdateCheck to be called
+		// Momentarily set the check option to manual to avoid bad interaction
+		productManager.setCheckOption( ProductManager.CheckOption.MANUAL );
 		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, priorLastCheckTime );
 		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, priorNextCheckTime );
+
 		productManager.setCheckOption( ProductManager.CheckOption.SCHEDULE );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_WHEN, checkWhen.name().toLowerCase() );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_HOUR, checkHour );
@@ -162,16 +144,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		Long lastCheckTime = productManager.getLastUpdateCheck();
-		Long nextCheckTime = productManager.getNextUpdateCheck();
-
-		// The last check time may be null or the expected value
-		if( lastCheckTime != null ) {
-			assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
-		}
-
-		// The next check time should be some time in the future
-		assertThat( nextCheckTime ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
 	}
 
 	private static Stream<Arguments> provideCheckScheduleOptions() {
@@ -201,7 +174,7 @@ class ProductManagerTest extends ProgramTestCase {
 			calendar.set( Calendar.SECOND, 0 );
 			calendar.set( Calendar.MILLISECOND, 0 );
 
-			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, null, calendar.getTime().getTime() ) );
+			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, calendar.getTime().getTime() ) );
 		}
 
 		return arguments.stream();

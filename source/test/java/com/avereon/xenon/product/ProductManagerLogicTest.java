@@ -2,7 +2,6 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.ProgramTestCase;
-import com.avereon.xenon.mod.MockMod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -92,7 +91,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	@Test
 	void testDetermineUpdatableProductsWithLatestVersionInstalled() {
 		// In this test both product A and product B are installed and are the
-		// the latest version. Because they are both at the latest version there
+		// latest version. Because they are both at the latest version there
 		// should not be any updates available.
 		ProductCard installedA = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.5" ).setTimestamp( timestamp );
 		ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.2" ).setTimestamp( timestamp );
