@@ -533,9 +533,9 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public String getLastUpdateCheckText() {
-		long lastUpdateCheck = getLastUpdateCheck();
+		Long lastUpdateCheck = getLastUpdateCheck();
 		String unknown = Rb.text( RbKey.UPDATE, "unknown" );
-		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+		return (lastUpdateCheck == null ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	public Long getNextUpdateCheck() {
@@ -543,10 +543,10 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public String getNextUpdateCheckText() {
-		long nextUpdateCheck = getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		Long nextUpdateCheck = getNextUpdateCheck();
+		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 		String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
-		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+		return (nextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	void updateLastCheckTime() {
