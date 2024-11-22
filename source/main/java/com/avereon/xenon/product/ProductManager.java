@@ -94,9 +94,9 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	static final String INTERVAL_UNIT = CHECK + "-interval-unit";
 
-	private static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
+	static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
 
-	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
+	static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
 	private static final String FOUND = "product-update-found";
 
