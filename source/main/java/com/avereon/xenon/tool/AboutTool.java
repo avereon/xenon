@@ -321,14 +321,14 @@ public class AboutTool extends GuidedTool {
 		}
 
 		private void updateUpdateCheckInfo() {
-			long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
-			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
-			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+			Long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
+			Long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
+			if( nextUpdateCheck != null && nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 
 			String unknown = Rb.text( RbKey.UPDATE, "unknown" );
 			String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
-			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
-			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String lastUpdateCheckText = lastUpdateCheck == null ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String nextUpdateCheckText = nextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 
 			Fx.run( () -> {
 				lastUpdateTimestamp.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );

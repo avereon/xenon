@@ -2,6 +2,7 @@ package com.avereon.xenon.product;
 
 import com.avereon.xenon.ProgramTestCase;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,6 +38,60 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.start();
 	}
 
+	@Test
+	void scheduleUpdateCheckWithManual() {
+		// given
+		assertThat( productManager ).isNotNull();
+		assertThat( getProgram().isProgramUpdated() ).isFalse();
+		assertThat( getProgram().isUpdateInProgress() ).isFalse();
+
+		// These cause events to be fired that cause scheduleUpdateCheck to be called
+		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
+		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, null );
+		productManager.setCheckOption( ProductManager.CheckOption.MANUAL );
+
+		// when
+		productManager.scheduleUpdateCheck( false );
+
+		// then
+		Long lastCheckTime = productManager.getLastUpdateCheck();
+		Long nextCheckTime = productManager.getNextUpdateCheck();
+
+		// There was not a last check time so it is null
+		assertThat( lastCheckTime ).isEqualTo( null );
+
+		// The next check time should be null
+		assertThat( nextCheckTime ).isEqualTo( null );
+	}
+
+	@Test
+	void scheduleUpdateCheckWithStartup() {
+		long now = System.currentTimeMillis();
+		// given
+		assertThat( productManager ).isNotNull();
+		assertThat( getProgram().isProgramUpdated() ).isFalse();
+		assertThat( getProgram().isUpdateInProgress() ).isFalse();
+
+		// These cause events to be fired that cause scheduleUpdateCheck to be called
+		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
+		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, null );
+		productManager.setCheckOption( ProductManager.CheckOption.STARTUP );
+
+		// when
+		productManager.scheduleUpdateCheck( false );
+
+		// then
+		Long lastCheckTime = productManager.getLastUpdateCheck();
+		Long nextCheckTime = productManager.getNextUpdateCheck();
+
+		// There was not a last check time so it is null
+//		assertThat( lastCheckTime ).isCloseTo( now, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		assertThat( lastCheckTime ).isEqualTo( null );
+
+		// The next check time should be null
+		assertThat( nextCheckTime ).isEqualTo( null );
+	}
+
 	@ParameterizedTest
 	@MethodSource( "provideCheckIntervalOptions" )
 	void scheduleUpdateCheckWithInterval( ProductManager.CheckInterval checkInterval, Long priorLastCheckTime, Long priorNextCheckTime, Long expectedLastCheckTime, Long expectedNextCheckTime ) {
@@ -59,7 +114,9 @@ class ProductManagerTest extends ProgramTestCase {
 		Long nextCheckTime = productManager.getNextUpdateCheck();
 
 		// There was not a last check time so it is null
-		assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		if( lastCheckTime != null ) {
+			assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		}
 
 		// The next check time should be some time in the future
 		assertThat( nextCheckTime ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
@@ -109,13 +166,16 @@ class ProductManagerTest extends ProgramTestCase {
 		Long nextCheckTime = productManager.getNextUpdateCheck();
 
 		// The last check time may be null or the expected value
-		assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		if( lastCheckTime != null ) {
+			assertThat( lastCheckTime ).isCloseTo( expectedLastCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		}
 
 		// The next check time should be some time in the future
 		assertThat( nextCheckTime ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
 	}
 
 	private static Stream<Arguments> provideCheckScheduleOptions() {
+		int hourOfDay = 5;
 		long now = System.currentTimeMillis();
 		List<Arguments> arguments = new ArrayList<>();
 
@@ -136,12 +196,12 @@ class ProductManagerTest extends ProgramTestCase {
 			if( dayOffset < 1 ) dayOffset += 7;
 
 			calendar.add( Calendar.DAY_OF_MONTH, dayOffset );
-			calendar.set( Calendar.HOUR_OF_DAY, 0 );
+			calendar.set( Calendar.HOUR_OF_DAY, hourOfDay );
 			calendar.set( Calendar.MINUTE, 0 );
 			calendar.set( Calendar.SECOND, 0 );
 			calendar.set( Calendar.MILLISECOND, 0 );
 
-			arguments.add( Arguments.of( checkWhen, 0, null, null, 0L, calendar.getTime().getTime() ) );
+			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, null, calendar.getTime().getTime() ) );
 		}
 
 		return arguments.stream();

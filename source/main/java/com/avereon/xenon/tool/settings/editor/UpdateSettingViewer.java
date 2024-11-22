@@ -84,17 +84,17 @@ public class UpdateSettingViewer extends SettingEditor {
 		String unknown = Rb.text( getProduct(), RbKey.UPDATE, "unknown" );
 		String notScheduled = Rb.text( getProduct(), RbKey.UPDATE, "not-scheduled" );
 
-		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		Long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
+		Long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
+		if( nextUpdateCheck != null && nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 
-		final long finalLastUpdateCheck = lastUpdateCheck;
-		final long finalNextUpdateCheck = nextUpdateCheck;
+		final Long finalLastUpdateCheck = lastUpdateCheck;
+		final Long finalNextUpdateCheck = nextUpdateCheck;
 
 		// Update the labels
 		Fx.run( () -> {
-			lastUpdateCheckField.setText( (finalLastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( finalLastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
-			nextUpdateCheckField.setText( (finalNextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( finalNextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+			lastUpdateCheckField.setText( (finalLastUpdateCheck == null ? unknown : DateUtil.format( new Date( finalLastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+			nextUpdateCheckField.setText( (finalNextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( finalNextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
 		} );
 	}
 

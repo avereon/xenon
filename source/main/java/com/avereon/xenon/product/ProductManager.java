@@ -528,8 +528,8 @@ public class ProductManager implements Controllable<ProductManager> {
 		getSettings().set( FOUND, foundOption.name().toLowerCase() );
 	}
 
-	public long getLastUpdateCheck() {
-		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
+	public Long getLastUpdateCheck() {
+		return getSettings().get( LAST_CHECK_TIME, Long.class );
 	}
 
 	public String getLastUpdateCheckText() {
@@ -538,8 +538,8 @@ public class ProductManager implements Controllable<ProductManager> {
 		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
-	public long getNextUpdateCheck() {
-		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
+	public Long getNextUpdateCheck() {
+		return getSettings().get( NEXT_CHECK_TIME, Long.class );
 	}
 
 	public String getNextUpdateCheckText() {
@@ -584,7 +584,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			final long delay = computeCheckDelay( startup, now );
 
 			if( delay == NO_CHECK ) {
-				getSettings().set( NEXT_CHECK_TIME, 0 );
+				getSettings().set( NEXT_CHECK_TIME, null );
 				log.atDebug().log( "Future update check not scheduled." );
 				return;
 			}
@@ -604,12 +604,10 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private long computeCheckDelay( boolean startup, long instant ) {
+		Long lastUpdateCheck = getLastUpdateCheck();
+		Long nextUpdateCheck = getNextUpdateCheck();
 		long aMomentAgo = instant - 1000;
-		long lastUpdateCheck = getLastUpdateCheck();
-		long nextUpdateCheck = getNextUpdateCheck();
 		long delay = NO_CHECK;
-
-		System.out.println( "checkOption=" + checkOption );
 
 		switch( checkOption ) {
 			case STARTUP:
@@ -618,21 +616,18 @@ public class ProductManager implements Controllable<ProductManager> {
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.WEEK.name() ).toUpperCase() );
 
-				System.out.println( "intervalUnit=" + intervalUnit + " lastUpdateCheck="+lastUpdateCheck );
 				delay = getNextIntervalDelay( instant, intervalUnit, lastUpdateCheck );
-				if( nextUpdateCheck < aMomentAgo ) delay = 0;
+				if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = CheckWhen.valueOf( getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
-				if( nextUpdateCheck < aMomentAgo ) delay = 0;
+				if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
 				break;
 			}
 		}
-
-		System.out.println( "delay: " + delay );
 
 		return delay;
 	}
@@ -831,8 +826,8 @@ public class ProductManager implements Controllable<ProductManager> {
 		return true;
 	}
 
-	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck ) {
-		if( lastUpdateCheck == 0 ) return 0;
+	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
+		if( lastUpdateCheck == null ) return 0;
 
 		long intervalDelay = 0;
 		switch( intervalUnit ) {
@@ -853,8 +848,6 @@ public class ProductManager implements Controllable<ProductManager> {
 				break;
 			}
 		}
-
-		System.out.println( "intervalDelay: " + intervalDelay );
 
 		return (lastUpdateCheck + intervalDelay) - currentTime;
 	}
