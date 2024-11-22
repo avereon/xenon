@@ -67,16 +67,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return getSettings( PathUtil.resolve( root, path ) );
 	}
 
-	//	public Settings getProductSettings( Product product ) {
-	//		return getSettings( getSettingsPath( product.getCard() ) );
-	//	}
-
 	public Settings getProductSettings( ProductCard card ) {
 		return getSettings( getSettingsPath( card ) );
-	}
-
-	public Settings getManagerSettings( String name ) {
-		return getSettings( ProgramSettings.MANAGER, name );
 	}
 
 	private static String getSettingsPath( ProductCard card ) {

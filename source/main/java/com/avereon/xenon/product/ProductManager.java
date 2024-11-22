@@ -7,7 +7,10 @@ import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
-import com.avereon.util.*;
+import com.avereon.util.DateUtil;
+import com.avereon.util.FileUtil;
+import com.avereon.util.LogFlag;
+import com.avereon.util.TypeReference;
 import com.avereon.weave.Weave;
 import com.avereon.xenon.Module;
 import com.avereon.xenon.*;
@@ -30,6 +33,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -82,13 +86,13 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public static final String NEXT_CHECK_TIME = "product-update-next-check-time";
 
-	static final String UPDATE_FOLDER_NAME = "updates";
+	private static final String UPDATE_FOLDER_NAME = "updates";
 
 	private static final String MODULE_INSTALL_FOLDER_NAME = "modules";
 
-	private static final String CHECK = "product-update-check";
+	static final String CHECK = "product-update-check";
 
-	private static final String INTERVAL_UNIT = CHECK + "-interval-unit";
+	static final String INTERVAL_UNIT = CHECK + "-interval-unit";
 
 	private static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
 
@@ -108,14 +112,9 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private static final int MILLIS_IN_HOUR = 3600000;
 
-	private static final int NO_CHECK = -1;
+	private static final long NO_CHECK = Long.MIN_VALUE;
 
 	private Xenon program;
-
-	@Getter
-	private Settings settings;
-
-	private Settings updateSettings;
 
 	private Map<String, RepoState> providerRepos;
 
@@ -354,7 +353,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		productStates.put( productKey, new ProductState() );
 	}
 
-	public void registerProgram( Xenon program ) {
+	private void registerProgram( Xenon program ) {
 		registerProduct( program );
 		ProductCard card = program.getCard();
 
@@ -518,13 +517,15 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void setCheckOption( CheckOption checkOption ) {
+		if( this.checkOption == checkOption ) return;
 		this.checkOption = checkOption;
-		settings.set( CHECK, checkOption.name().toLowerCase() );
+		getSettings().set( CHECK, checkOption.name().toLowerCase() );
 	}
 
 	public void setFoundOption( FoundOption foundOption ) {
+		if( this.foundOption == foundOption ) return;
 		this.foundOption = foundOption;
-		settings.set( FOUND, foundOption.name().toLowerCase() );
+		getSettings().set( FOUND, foundOption.name().toLowerCase() );
 	}
 
 	public long getLastUpdateCheck() {
@@ -537,15 +538,15 @@ public class ProductManager implements Controllable<ProductManager> {
 		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
+	public long getNextUpdateCheck() {
+		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
+	}
+
 	public String getNextUpdateCheckText() {
 		long nextUpdateCheck = getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 		String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
 		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
-	}
-
-	public long getNextUpdateCheck() {
-		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
 	}
 
 	void updateLastCheckTime() {
@@ -567,47 +568,23 @@ public class ProductManager implements Controllable<ProductManager> {
 			// set, don't schedule update checks. This probably means there is a
 			// problem applying an update. Otherwise, it should be safe to schedule
 			// update checks.
-			if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
+			if( getProgram().isProgramUpdated() || getProgram().isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
 
 			if( task != null ) {
-				boolean alreadyRun = task.scheduledExecutionTime() < now;
-				task.cancel();
-				task = null;
-				if( !alreadyRun ) log.atTrace().log( "Current check for updates task cancelled for new schedule." );
-			}
-
-			Settings checkSettings = getSettings();
-
-			long lastUpdateCheck = getLastUpdateCheck();
-			long nextUpdateCheck = getNextUpdateCheck();
-			long delay = NO_CHECK;
-
-			// This is ensures updates are not checked during tests
-			if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
-
-			switch( checkOption ) {
-				case STARTUP:
-					if( startup ) delay = 0;
-					break;
-				case INTERVAL: {
-					CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-					delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
-					if( nextUpdateCheck < (now - 1000) ) delay = 0;
-					break;
-				}
-				case SCHEDULE: {
-					CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
-					int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-					delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
-					if( nextUpdateCheck < (now - 1000) ) delay = 0;
-					break;
+				boolean currentTaskWaiting = task.scheduledExecutionTime() > now;
+				if( currentTaskWaiting ) {
+					task.cancel();
+					task = null;
+					log.atTrace().log( "Current check for updates task cancelled for new schedule." );
 				}
 			}
+
+			final long delay = computeCheckDelay( startup, now );
 
 			if( delay == NO_CHECK ) {
-				checkSettings.set( NEXT_CHECK_TIME, 0 );
+				getSettings().set( NEXT_CHECK_TIME, 0 );
 				log.atDebug().log( "Future update check not scheduled." );
 				return;
 			}
@@ -615,16 +592,49 @@ public class ProductManager implements Controllable<ProductManager> {
 			// Set the next update check time before scheduling the
 			// task to prevent this method from looping rapidly
 			long nextCheckTime = now + delay;
-			checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
+			getSettings().set( NEXT_CHECK_TIME, nextCheckTime );
 
 			// Schedule the update check task
 			timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
 
 			// Log the next update check time
-			final long finalDelay = delay;
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.atDebug().log( "Next check scheduled for: %s", LazyEval.of( () -> (finalDelay == 0 ? "now" : date) ) );
+			log.atDebug().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
 		}
+	}
+
+	private long computeCheckDelay( boolean startup, long instant ) {
+		long aMomentAgo = instant - 1000;
+		long lastUpdateCheck = getLastUpdateCheck();
+		long nextUpdateCheck = getNextUpdateCheck();
+		long delay = NO_CHECK;
+
+		System.out.println( "checkOption=" + checkOption );
+
+		switch( checkOption ) {
+			case STARTUP:
+				if( startup ) delay = 0;
+				break;
+			case INTERVAL: {
+				CheckInterval intervalUnit = CheckInterval.valueOf( getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.WEEK.name() ).toUpperCase() );
+
+				System.out.println( "intervalUnit=" + intervalUnit + " lastUpdateCheck="+lastUpdateCheck );
+				delay = getNextIntervalDelay( instant, intervalUnit, lastUpdateCheck );
+				if( nextUpdateCheck < aMomentAgo ) delay = 0;
+				break;
+			}
+			case SCHEDULE: {
+				CheckWhen scheduleWhen = CheckWhen.valueOf( getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
+				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
+				if( nextUpdateCheck < aMomentAgo ) delay = 0;
+				break;
+			}
+		}
+
+		System.out.println( "delay: " + delay );
+
+		return delay;
 	}
 
 	/**
@@ -822,18 +832,20 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck ) {
+		if( lastUpdateCheck == 0 ) return 0;
+
 		long intervalDelay = 0;
 		switch( intervalUnit ) {
 			case MONTH: {
-				intervalDelay = 30L * 24L * MILLIS_IN_HOUR;
+				intervalDelay = TimeUnit.DAYS.toMillis( 30 );
 				break;
 			}
 			case WEEK: {
-				intervalDelay = 7L * 24L * MILLIS_IN_HOUR;
+				intervalDelay = TimeUnit.DAYS.toMillis( 7 );
 				break;
 			}
 			case DAY: {
-				intervalDelay = 24L * MILLIS_IN_HOUR;
+				intervalDelay = TimeUnit.DAYS.toMillis( 1 );
 				break;
 			}
 			case HOUR: {
@@ -841,6 +853,8 @@ public class ProductManager implements Controllable<ProductManager> {
 				break;
 			}
 		}
+
+		System.out.println( "intervalDelay: " + intervalDelay );
 
 		return (lastUpdateCheck + intervalDelay) - currentTime;
 	}
@@ -861,9 +875,9 @@ public class ProductManager implements Controllable<ProductManager> {
 		// If past the scheduled time, add a day or week.
 		if( delay < 0 ) {
 			if( scheduleWhen == CheckWhen.DAILY ) {
-				delay += 24 * MILLIS_IN_HOUR;
+				delay += TimeUnit.DAYS.toMillis( 1 );
 			} else {
-				delay += 7 * 24 * MILLIS_IN_HOUR;
+				delay += TimeUnit.DAYS.toMillis( 7 );
 			}
 		}
 
@@ -871,30 +885,69 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private void loadSettings() {
-		Settings programSettings = getProgram().getSettingsManager().getProductSettings( program.getCard() );
-		if( programSettings == null || this.settings != null ) return;
+		Settings programSettings = getProgram().getSettings();
+		Settings managerSettings = getSettings();
+		Settings updateCheckSettings = getUpdateCheckSettings();
 
-		// FIXME The settings passed in serve two purposes (config and updates) but should not
+		// Migrate check time settings from program settings to manager settings
+		managerSettings.set( LAST_CHECK_TIME, programSettings.get( LAST_CHECK_TIME, Long.class ) );
+		managerSettings.set( NEXT_CHECK_TIME, programSettings.get( NEXT_CHECK_TIME, Long.class ) );
+		programSettings.remove( LAST_CHECK_TIME );
+		programSettings.remove( NEXT_CHECK_TIME );
 
-		// What are these settings if the update node is retrieved below?
-		this.settings = programSettings;
-
-		if( "STAGE".equalsIgnoreCase( programSettings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
-			programSettings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
+		// Backward compatibility for old STAGE option
+		if( "STAGE".equalsIgnoreCase( updateCheckSettings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
+			updateCheckSettings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
-		this.checkOption = CheckOption.valueOf( programSettings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( programSettings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
-
-		// FIXME These settings are apparently used to store the catalogs and updates
-		//  Maybe the catalogs and updates should be stored in a different location
-		this.updateSettings = programSettings.getNode( "update" );
+		this.checkOption = CheckOption.valueOf( updateCheckSettings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( updateCheckSettings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
 
 		// Load the module sources
 		loadRepos();
 
 		// Load the module updates
 		loadUpdates();
+	}
+
+	/**
+	 * Get the product manager settings. The settings path is defined in
+	 * {@link ManagerSettings#PRODUCT}.
+	 *
+	 * @return The product manager settings
+	 */
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getSettings( ManagerSettings.PRODUCT );
+	}
+
+	/**
+	 * Get the product repository settings.
+	 * @return
+	 */
+	public Settings getRepositorySettings() {
+		return getSettings();
+	}
+
+	/**
+	 * Get the settings for update checking. These settings are stored in the
+	 * program settings because they are changeable by the user in the settings
+	 * tool.
+	 *
+	 * @return The settings for update checking
+	 */
+	public Settings getUpdateCheckSettings() {
+		return getProgram().getSettings();
+	}
+
+	/**
+	 * Get the settings for the product updates. These settings are stored
+	 * separately from the program settings and from the product manager settings
+	 * to avoid conflicts.
+	 *
+	 * @return The settings for the product updates
+	 */
+	public Settings getUpdatesSettings() {
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.UPDATES );
 	}
 
 	protected boolean isEnabled() {
@@ -963,7 +1016,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		modules.values().forEach( this::callModUnregister );
 
 		if( timer != null ) timer.cancel();
-		timer = null;
+
 		return this;
 	}
 
@@ -976,8 +1029,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private void loadRepos() {
-		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
+		Set<RepoState> repoStates = getRepositorySettings().get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
 		repoStates.forEach( ( state ) -> repos.put( state.getInternalId(), state ) );
 
 		// Remove old repos
@@ -1005,17 +1057,16 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private void saveRepos() {
-		updateSettings.set( REPOS_SETTINGS_KEY, repos.values() );
+		getRepositorySettings().set( REPOS_SETTINGS_KEY, repos.values() );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadUpdates() {
-		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
+		updates = getUpdatesSettings().get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
 	private void saveUpdates( Map<String, ProductUpdate> updates ) {
-		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
+		getUpdatesSettings().set( UPDATES_SETTINGS_KEY, updates );
 	}
 
 	private boolean isIncludedProduct( ProductCard card ) {
@@ -1224,11 +1275,13 @@ public class ProductManager implements Controllable<ProductManager> {
 			ServiceLoader<Module> loader = ServiceLoader.load( modLayer, Module.class );
 
 			// Load the mod
-			loader.stream().findFirst().ifPresentOrElse( m -> {
-				loadMod( m.get(), folder );
-			}, () -> {
-				log.atError().log( "Standard mod expected: %s", folder );
-			} );
+			loader.stream().findFirst().ifPresentOrElse(
+				m -> {
+					loadMod( m.get(), folder );
+				}, () -> {
+					log.atError().log( "Standard mod expected: %s", folder );
+				}
+			);
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error loading standard mods: %s", folder );
 		}

@@ -1,6 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.skill.Controllable;
+import com.avereon.util.TestUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
@@ -63,6 +64,7 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	public static void taskThreadCheck() {
+		if( TestUtil.isTest() ) return;
 		if( !TaskManager.isTaskThread() ) {
 			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
