@@ -289,6 +289,8 @@ public class ProductManagerLogic {
 	}
 
 	private Void handlePostedUpdatesResult( Set<DownloadRequest> updates, boolean interactive ) {
+		if( getProgram().getProductManager().updatesEnabled() ) updates.clear();
+
 		long connectionErrors = updates.stream().map( DownloadRequest::getCard ).filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
 
 		if( interactive ) {

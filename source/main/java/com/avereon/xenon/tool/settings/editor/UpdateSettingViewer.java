@@ -15,11 +15,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import lombok.CustomLog;
 
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+@CustomLog
 public class UpdateSettingViewer extends SettingEditor {
 
 	private Label lastUpdateCheckField;
@@ -86,7 +88,6 @@ public class UpdateSettingViewer extends SettingEditor {
 
 		Long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
 		Long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
-		if( nextUpdateCheck != null && nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 
 		final Long finalLastUpdateCheck = lastUpdateCheck;
 		final Long finalNextUpdateCheck = nextUpdateCheck;

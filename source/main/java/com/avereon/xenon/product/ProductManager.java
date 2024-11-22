@@ -544,7 +544,6 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public String getNextUpdateCheckText() {
 		Long nextUpdateCheck = getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 		String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
 		return (nextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
@@ -640,7 +639,6 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		if( !isEnabled() ) return;
 		new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
 	}
 
@@ -672,7 +670,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
 		log.atInfo().log( "Staged update count: %s", stagedUpdateCount );
-		if( !isEnabled() || stagedUpdateCount == 0 ) return;
+		if( !updatesEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {
 			getProgram().setUpdateInProgress( false );
@@ -782,8 +780,8 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * @return The number of updates applied.
 	 */
 	public int applyStagedUpdates() {
-		log.atInfo().log( "Update manager enabled: %s", LazyEval.of( this::isEnabled ) );
-		if( !isEnabled() ) return 0;
+		log.atInfo().log( "Updates enabled: %s", LazyEval.of( this::updatesEnabled ) );
+		if( !updatesEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
 		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, ProgramFlag.NODAEMON, ProgramFlag.LOG_APPEND ) );
@@ -943,7 +941,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.UPDATES );
 	}
 
-	protected boolean isEnabled() {
+	boolean updatesEnabled() {
 		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NOUPDATE );
 	}
 
