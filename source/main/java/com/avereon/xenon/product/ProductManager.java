@@ -594,7 +594,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			getSettings().set( NEXT_CHECK_TIME, nextCheckTime );
 
 			// Schedule the update check task
-			timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
+			if( updatesEnabled() ) timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
 
 			// Log the next update check time
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
@@ -605,7 +605,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	private long computeCheckDelay( boolean startup, long instant ) {
 		Long lastUpdateCheck = getLastUpdateCheck();
 		Long nextUpdateCheck = getNextUpdateCheck();
-		long aMomentAgo = instant - 1000;
+		long aMomentAgo = instant - TimeUnit.MINUTES.toMillis( 1 );
 		long delay = NO_CHECK;
 
 		switch( checkOption ) {
@@ -614,19 +614,17 @@ public class ProductManager implements Controllable<ProductManager> {
 				break;
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.WEEK.name() ).toUpperCase() );
-
 				delay = getNextIntervalDelay( instant, intervalUnit, lastUpdateCheck );
-				if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = CheckWhen.valueOf( getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
-				if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
 				break;
 			}
 		}
+		if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
 
 		return delay;
 	}
@@ -639,7 +637,12 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
+		if( updatesEnabled() ) {
+			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
+		} else {
+			getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+			scheduleUpdateCheck( false );
+		}
 	}
 
 	public void checkForStagedUpdatesAtStart() {
@@ -724,7 +727,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		}
 
 		// Remove updates that cannot be found
-		if( remove.size() > 0 ) {
+		if( !remove.isEmpty() ) {
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
 			}
@@ -913,6 +916,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	/**
 	 * Get the product repository settings.
+	 *
 	 * @return
 	 */
 	public Settings getRepositorySettings() {
@@ -941,7 +945,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.UPDATES );
 	}
 
-	boolean updatesEnabled() {
+	private boolean updatesEnabled() {
 		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NOUPDATE );
 	}
 
