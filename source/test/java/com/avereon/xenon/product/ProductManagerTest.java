@@ -105,6 +105,7 @@ class ProductManagerTest extends ProgramTestCase {
 
 		// when
 		productManager.scheduleUpdateCheck( false );
+		productManager.getSettings().flush();
 
 		// then
 		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
@@ -142,6 +143,7 @@ class ProductManagerTest extends ProgramTestCase {
 
 		// when
 		productManager.scheduleUpdateCheck( false );
+		productManager.getSettings().flush();
 
 		// then
 		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
@@ -179,5 +181,8 @@ class ProductManagerTest extends ProgramTestCase {
 
 		return arguments.stream();
 	}
+
+	// 1732424400000L 1732510800000L difference was 86400000L
+	// 1732424400000L 1733029200000L difference was 604800000L
 
 }
