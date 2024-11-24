@@ -268,12 +268,6 @@ public class Asset extends Node {
 	 * @return If the asset is "new"
 	 */
 	public final synchronized boolean isNew() {
-		// FIXME The isNew() logic may need improving
-		// This logic is problematic in the case of an asset that has been created
-		// but not yet saved. It can be in a tool, the program restarted and the
-		// tool restored. In this case it should be restored with any prior
-		// temporary state that should have been saved. The asset is not new but
-		// it does not yet have a "real" URI.
 		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 

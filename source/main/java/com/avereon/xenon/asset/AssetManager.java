@@ -86,7 +86,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean running;
 
-	private Map<URI,URI> aliases;
+	private Map<URI, URI> aliases;
 
 	public AssetManager( Xenon program ) {
 		this.program = program;
@@ -615,6 +615,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		return doCreateAsset( type, null );
 	}
 
+	public Asset createAsset( AssetType type, String uri) throws AssetException {
+		return doCreateAsset( type, UriUtil.resolve( uri ) );
+	}
+
 	/**
 	 * Create an asset from an asset type and uri.
 	 *
@@ -1058,10 +1062,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Determine if all of the assets can be saved.
+	 * Determine if all the assets can be saved.
 	 *
 	 * @param assets The set of assets to check
-	 * @return True if all of the assets can be saved
+	 * @return True if all the assets can be saved
 	 */
 	private boolean canSaveAllAssets( Collection<Asset> assets ) {
 		return assets.stream().mapToInt( a -> canSaveAsset( a ) ? 0 : 1 ).sum() == 0;
@@ -1112,9 +1116,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param asset The asset to check
 	 * @return True if the asset can be renamed, false otherwise.
 	 */
-	private boolean canRenameAsset( Asset asset ) {
-		if( asset == null || asset.isNew() ) return false;
-		return asset.isOpen();
+	boolean canRenameAsset( Asset asset ) {
+		return asset != null && !asset.isNew() && asset.isOpen();
 	}
 
 	public void registerAssetAlias( URI alias, URI uri ) {

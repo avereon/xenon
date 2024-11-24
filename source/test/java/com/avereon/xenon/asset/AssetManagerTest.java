@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProgramTestCase;
+import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -231,8 +232,21 @@ public class AssetManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	void isNew() {
+	void canRenameAssetWithNull() {
+		assertThat( manager.canRenameAsset( null ) ).isFalse();
+	}
 
+	@Test
+	void canRenameAssetWithNewAsset() throws Exception {
+		Asset asset = manager.createAsset( manager.getAssetType( FileScheme.ID ), "mock://test.mock" );
+		assertThat( manager.canRenameAsset( asset ) ).isFalse();
+	}
+
+	@Test
+	void canRenameAssetWithOldAsset() throws Exception {
+		Asset asset = manager.createAsset( "mock://test.mock" );
+		manager.openAssetsAndWait( asset, 100, TimeUnit.MILLISECONDS );
+		assertThat( manager.canRenameAsset( asset ) ).isTrue();
 	}
 
 	@Test
