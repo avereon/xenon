@@ -106,7 +106,6 @@ class ProductManagerTest extends ProgramTestCase {
 
 		// when
 		productManager.scheduleUpdateCheck( false );
-		productManager.getSettings().flush();
 
 		// then
 		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
@@ -141,14 +140,12 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.setCheckOption( ProductManager.CheckOption.SCHEDULE );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_WHEN, checkWhen.name().toLowerCase() );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_HOUR, checkHour );
-		getProgram().getSettings().flush();
 
 		// when
 		productManager.scheduleUpdateCheck( false );
-		productManager.getSettings().flush();
 
 		// then
-		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		assertThat( productManager.getNextUpdateCheck() ).withFailMessage( "When option=%s", checkWhen ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
 	}
 
 	private static Stream<Arguments> provideCheckScheduleOptions() {
@@ -163,13 +160,13 @@ class ProductManagerTest extends ProgramTestCase {
 			// Sunday = 1, Monday = 2, ..., Saturday = 7
 			int nowDayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
 
+			// Calculate the day offset to the next check day
 			int dayOffset;
 			if( checkWhen == ProductManager.CheckWhen.DAILY ) {
 				dayOffset = 1;
 			} else {
 				dayOffset = checkWhen.ordinal() - nowDayOfWeek;
 			}
-
 			if( dayOffset < 1 ) dayOffset += 7;
 
 			calendar.add( Calendar.DAY_OF_MONTH, dayOffset );
@@ -184,7 +181,7 @@ class ProductManagerTest extends ProgramTestCase {
 		return arguments.stream();
 	}
 
-	// 1732424400000L 1732510800000L difference was 86400000L
-	// 1732424400000L 1733029200000L difference was 604800000L
+	// 1732424400000L 1732510800000L difference was 86400000L (1 day)
+	// 1732424400000L 1733029200000L difference was 604800000L (7 days)
 
 }
