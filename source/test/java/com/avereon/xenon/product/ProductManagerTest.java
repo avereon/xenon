@@ -80,6 +80,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
 		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, null );
 		productManager.setCheckOption( ProductManager.CheckOption.STARTUP );
+		productManager.getSettings().flush();
 
 		// when
 		productManager.scheduleUpdateCheck( false );
@@ -140,6 +141,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.setCheckOption( ProductManager.CheckOption.SCHEDULE );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_WHEN, checkWhen.name().toLowerCase() );
 		getProgram().getSettings().set( ProductManager.SCHEDULE_HOUR, checkHour );
+		getProgram().getSettings().flush();
 
 		// when
 		productManager.scheduleUpdateCheck( false );
