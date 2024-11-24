@@ -1014,15 +1014,13 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private boolean isManagedAssetOpen( Asset asset ) {
-		// FIXME If this method is consistent with the asset open flag, then remove it.
-		// NOTE The asset open flag should match this set
-		//  So why is this method needed?
 		boolean isAssetOpen = asset.isOpen();
 		boolean isInOpenAssets = openAssets.contains( asset );
 
+		// This is a double check to ensure things are consistent
 		if( isAssetOpen != isInOpenAssets ) log.atWarn().log( "Asset open: %s, %s", isAssetOpen, isInOpenAssets );
 
-		return isInOpenAssets;
+		return isAssetOpen;
 	}
 
 	private void updateActionState() {
