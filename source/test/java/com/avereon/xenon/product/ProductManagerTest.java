@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -145,7 +146,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		assertThat( productManager.getNextUpdateCheck() ).withFailMessage( "When option=%s", checkWhen ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
+		assertThat( productManager.getNextUpdateCheck() ).isCloseTo( expectedNextCheckTime, within( TimeUnit.SECONDS.toMillis( TOLERANCE ) ) );
 	}
 
 	private static Stream<Arguments> provideCheckScheduleOptions() {
@@ -155,7 +156,7 @@ class ProductManagerTest extends ProgramTestCase {
 
 		// Days of the week
 		for( ProductManager.CheckWhen checkWhen : ProductManager.CheckWhen.values() ) {
-			Calendar calendar = Calendar.getInstance();
+			Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
 			calendar.setTimeInMillis( now );
 			// Sunday = 1, Monday = 2, ..., Saturday = 7
 			int nowDayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
@@ -175,7 +176,7 @@ class ProductManagerTest extends ProgramTestCase {
 			calendar.set( Calendar.SECOND, 0 );
 			calendar.set( Calendar.MILLISECOND, 0 );
 
-			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, calendar.getTime().getTime() ) );
+			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, calendar.getTimeInMillis() ) );
 		}
 
 		return arguments.stream();

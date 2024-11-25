@@ -827,7 +827,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return true;
 	}
 
-	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
+	private static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
 		if( lastUpdateCheck == null ) return 0;
 
 		long intervalDelay = 0;
@@ -853,29 +853,29 @@ public class ProductManager implements Controllable<ProductManager> {
 		return (lastUpdateCheck + intervalDelay) - currentTime;
 	}
 
-	public static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-		Calendar calendar = new GregorianCalendar( TimeZone.getDefault() );
+	private static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
+		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
+		calendar.setTimeInMillis( currentTime );
+
+		// Sunday = 1, Monday = 2, ..., Saturday = 7
+		// Calculate the day offset to the next check day
+		int dayOffset;
+		int nowDayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
+		if( scheduleWhen == ProductManager.CheckWhen.DAILY ) {
+			dayOffset = 1;
+		} else {
+			dayOffset = scheduleWhen.ordinal() - nowDayOfWeek;
+		}
+		if( dayOffset < 1 ) dayOffset += 7;
 
 		// Calculate the next update check.
-		calendar.setTimeInMillis( currentTime );
+		calendar.add( Calendar.DAY_OF_MONTH, dayOffset );
 		calendar.set( Calendar.HOUR_OF_DAY, scheduleHour );
 		calendar.set( Calendar.MINUTE, 0 );
 		calendar.set( Calendar.SECOND, 0 );
 		calendar.set( Calendar.MILLISECOND, 0 );
-		if( scheduleWhen != CheckWhen.DAILY ) calendar.set( Calendar.DAY_OF_WEEK, scheduleWhen.ordinal() );
 
-		long delay = calendar.getTimeInMillis() - currentTime;
-
-		// If past the scheduled time, add a day or week.
-		if( delay < 0 ) {
-			if( scheduleWhen == CheckWhen.DAILY ) {
-				delay += TimeUnit.DAYS.toMillis( 1 );
-			} else {
-				delay += TimeUnit.DAYS.toMillis( 7 );
-			}
-		}
-
-		return delay;
+		return calendar.getTimeInMillis() - currentTime;
 	}
 
 	private void loadSettings() {
