@@ -116,8 +116,6 @@ public class Xenon extends Application implements XenonProgram {
 
 	private UpdateManager updateManager;
 
-	private Settings programSettings;
-
 	private String profile;
 
 	private String mode;
@@ -292,13 +290,12 @@ public class Xenon extends Application implements XenonProgram {
 		time( "settings-manager" );
 
 		// Create the program settings, depends on settings manager and default settings values
-		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.loadDefaultValues( this, DEFAULT_SETTINGS );
+		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
 		time( "program-settings" );
 
 		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
-		int port = programSettings.get( "program-port", Integer.class, 0 );
+		int port = getSettings().get( "program-port", Integer.class, 0 );
 		if( !TestUtil.isTest() && isHostAlreadyRunning( port ) ) {
 			new ProgramPeer( this, port ).start();
 			requestExit( true );
@@ -472,7 +469,7 @@ public class Xenon extends Application implements XenonProgram {
 		getSettingsManager().putPagePanel( "modules-available", ModulesAvailableSettingsPanel.class );
 		getSettingsManager().putPagePanel( "modules-updates", ModulesUpdatesSettingsPanel.class );
 		getSettingsManager().putPagePanel( "modules-sources", ModulesSourcesSettingsPanel.class );
-		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
+		getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
 		time( "settings-pages" );
 
 		// Start the tool manager
@@ -494,7 +491,7 @@ public class Xenon extends Application implements XenonProgram {
 		// Create the workspace manager
 		log.atFiner().log( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Xenon.this ).start();
-		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
+		workspaceManager.setTheme( getSettings().get( "workspace-theme-id" ) );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Workspace manager started." );
 		time( "workspace-manager" );
@@ -826,9 +823,9 @@ public class Xenon extends Application implements XenonProgram {
 
 		boolean shutdownVerify = true;
 		boolean shutdownKeepAlive = false;
-		if( programSettings != null ) {
-			shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, shutdownVerify );
-			shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
+		if( getSettings() != null ) {
+			shutdownVerify = getSettings().get( "shutdown-verify", Boolean.class, shutdownVerify );
+			shutdownKeepAlive = getSettings().get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
 		}
 
 		// If the user desires, prompt to exit the program
@@ -871,12 +868,12 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean isUpdateInProgress() {
-		return programSettings.get( "update-in-progress", Boolean.class, false );
+		return getSettings().get( "update-in-progress", Boolean.class, false );
 	}
 
 	@Override
 	public void setUpdateInProgress( boolean updateInProgress ) {
-		programSettings.set( "update-in-progress", updateInProgress ).flush();
+		getSettings().set( "update-in-progress", updateInProgress ).flush();
 	}
 
 	@Override
@@ -1008,7 +1005,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public Settings getSettings() {
-		return programSettings;
+		return getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 	}
 
 	@Override
@@ -1583,7 +1580,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void notifyProgramUpdated() {
-		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );
+		Release prior = Release.decode( getSettings().get( PROGRAM_RELEASE_PRIOR, (String)null ) );
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
@@ -1598,15 +1595,15 @@ public class Xenon extends Application implements XenonProgram {
 
 	private boolean calcProgramUpdated() {
 		// Get the last release setting
-		Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
+		Release previous = Release.decode( getSettings().get( PROGRAM_RELEASE, (String)null ) );
 		Release runtime = this.getCard().getRelease();
 
 		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
 		if( programUpdated ) {
-			programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+			getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 		}
-		programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
+		getSettings().set( PROGRAM_RELEASE, Release.encode( runtime ) );
 
 		return programUpdated;
 	}
