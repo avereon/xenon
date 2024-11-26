@@ -85,7 +85,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
-	private static final boolean SHOW_TIMING = true;
+	private static final boolean SHOW_TIMING = false;
 
 	private static final int SPLASH_SCREEN_PAUSE_TIME_MS = 200;
 
