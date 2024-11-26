@@ -1289,9 +1289,14 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	/**
-	 * Find the home directory. This method expects the program jar file to be
-	 * installed in a subdirectory of the home directory. Example:
-	 * <code>$HOME/lib/program.jar</code>
+	 * Find the home directory. The home directory is resolved by using the first of:
+	 * <ul>
+	 *   <li>The HOME flag on the command line</li>
+	 *   <li>The launcher path</li>
+	 *   <li>The java home</li>
+	 *   <li>The user directory</li>
+	 *   <li>The current directory</li>
+	 * </ul>
 	 *
 	 * @param parameters The command line parameters
 	 */
@@ -1313,18 +1318,21 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 			}
 
-			// However, when in development mode, don't use the java home
-			if( ProgramMode.DEV.equals( getMode() ) ) {
-				programHomeFolder = Paths.get( "target/program" );
-			}
-
 			// Use the user folder as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) {
 				programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 			}
 
+			// However, when in development mode, use the target/program folder
+			if( ProgramMode.DEV.equals( getMode() ) ) {
+				programHomeFolder = Paths.get( "target/program" );
+			}
+
 			// Canonicalize the home path
 			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
+
+			// Set install folder on product card
+			card.setInstallFolder( programHomeFolder );
 
 			// Create the program home folder when in DEV mode
 			if( ProgramMode.DEV.equals( getMode() ) ) {
@@ -1337,9 +1345,6 @@ public class Xenon extends Application implements XenonProgram {
 		} catch( IOException exception ) {
 			log.atSevere().withCause( exception ).log( "Error configuring home folder" );
 		}
-
-		// Set install folder on product card
-		card.setInstallFolder( programHomeFolder );
 	}
 
 	@Override

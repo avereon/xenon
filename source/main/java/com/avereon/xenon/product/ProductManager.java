@@ -171,9 +171,9 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private long lastAvailableUpdateCheck;
 
-	private final RepoClient repoClient;
+	//private final RepoClient repoClient;
 
-	private boolean productReposRegistered;
+	//private boolean productReposRegistered;
 
 	public ProductManager( Xenon program ) {
 		this.program = program;
@@ -187,7 +187,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		postedUpdateCache = new CopyOnWriteArraySet<>();
 		eventBus = new FxEventHub();
 
-		repoClient = new V2RepoClient( program );
+		//repoClient = new V2RepoClient( program );
 
 		// Register included products
 		includedProducts = new HashSet<>();
@@ -345,20 +345,19 @@ public class ProductManager implements Controllable<ProductManager> {
 		return productCards;
 	}
 
+	private void registerProgram( Xenon program ) {
+		registerProduct( program );
+		ProductCard card = program.getCard();
+		setUpdatable( card, true );
+		setRemovable( card, false );
+	}
+
 	private void registerProduct( Product product ) {
 		ProductCard card = product.getCard();
 		String productKey = card.getProductKey();
 		products.put( productKey, product );
 		productCards.put( productKey, card );
 		productStates.put( productKey, new ProductState() );
-	}
-
-	private void registerProgram( Xenon program ) {
-		registerProduct( program );
-		ProductCard card = program.getCard();
-
-		setUpdatable( card, true );
-		setRemovable( card, false );
 	}
 
 	void registerMod( Module module ) {
@@ -1307,7 +1306,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			// Set the parent product
 			module.setParent( getProgram() );
 
-			// Set the mod install folder
+			// Set the mod installation folder
 			card.setInstallFolder( source );
 
 			// Add the product registration to the manager
