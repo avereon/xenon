@@ -10,7 +10,7 @@
   "provider": "${organization.name}",
   "providerUrl": "${organization.url}",
   "inception": "${inceptionYear}",
-  "summary": "Java application platform",
+  "summary": "Modular application platform",
   "description": "${description}",
   "copyrightSummary": "All rights reserved.",
   "licenseSummary": "${name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",

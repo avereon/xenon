@@ -56,7 +56,7 @@ public class ProgramCardTest extends ProgramTestCase {
 
 		assertThat( metadata.getSummary() ).isEqualTo( "Modular application platform" );
 		assertThat( metadata.getDescription() ).isEqualTo( description );
-		assertThat( metadata.getCopyrightSummary() ).isEqualTo( "All rights reserved" );
+		assertThat( metadata.getCopyrightSummary() ).isEqualTo( "All rights reserved." );
 		assertThat( metadata.getLicenseSummary() ).isEqualTo( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." );
 	}
 
