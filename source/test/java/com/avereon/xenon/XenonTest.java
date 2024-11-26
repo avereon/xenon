@@ -26,4 +26,10 @@ public class XenonTest extends ProgramTestCase {
 		assertThat( getProgram().combineProfileMode( null, null ) ).isEqualTo( "" );
 	}
 
+	@Test
+	void getHomeFromLauncherPath() {
+		assertThat( getProgram().getHomeFromLauncherPath("C:/Program Files/Xenon/Xenon.exe", true) ).isEqualTo( Path.of( "C:/Program Files/Xenon" ) );
+		assertThat( getProgram().getHomeFromLauncherPath("/opt/xenon/bin/xenon", false) ).isEqualTo( Path.of( "/opt/xenon" ) );
+	}
+
 }

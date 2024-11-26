@@ -35,6 +35,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -122,8 +123,10 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private Map<String, Module> modules;
 
+	@Getter
 	private Path homeModuleFolder;
 
+	@Getter
 	private Path userModuleFolder;
 
 	@Getter
@@ -187,6 +190,8 @@ public class ProductManager implements Controllable<ProductManager> {
 		postedUpdateCache = new CopyOnWriteArraySet<>();
 		eventBus = new FxEventHub();
 
+		registerProgram( program );
+
 		//repoClient = new V2RepoClient( program );
 
 		// Register included products
@@ -195,7 +200,6 @@ public class ProductManager implements Controllable<ProductManager> {
 		includedProducts.add( new Weave().getCard() );
 
 		getEventBus().parent( program.getFxEventHub() );
-		registerProgram( program );
 		try {
 			registerProviderRepos( RepoState.forProduct( getClass() ) );
 		} catch( IOException exception ) {
@@ -1077,8 +1081,8 @@ public class ProductManager implements Controllable<ProductManager> {
 
 		// Look for standard mods (most common)
 		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
-			try {
-				Files.list( folder ).filter( Files::isDirectory ).forEach( this::loadStandardMod );
+			try( Stream<Path> modFolder = Files.list( folder ).filter( Files::isDirectory ) ) {
+				modFolder.forEach( this::loadStandardMod );
 			} catch( IOException exception ) {
 				log.atError().withCause( exception ).log( "Error loading modules from: %s", folder );
 			}
@@ -1219,14 +1223,6 @@ public class ProductManager implements Controllable<ProductManager> {
 	@SuppressWarnings( "Convert2Diamond" )
 	private Set<InstalledProduct> getStoredRemovedProducts() {
 		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
-	}
-
-	public Path getHomeModuleFolder() {
-		return homeModuleFolder;
-	}
-
-	public Path getUserModuleFolder() {
-		return userModuleFolder;
 	}
 
 	public Path getUpdatesFolder() {

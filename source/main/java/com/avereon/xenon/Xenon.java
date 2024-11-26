@@ -85,7 +85,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
-	private static final boolean SHOW_TIMING = false;
+	private static final boolean SHOW_TIMING = true;
 
 	private static final int SPLASH_SCREEN_PAUSE_TIME_MS = 200;
 
@@ -238,7 +238,7 @@ public class Xenon extends Application implements XenonProgram {
 		time( "uncaught-exception-handler" );
 
 		// Init the product card
-		card = ProgramConfig.loadProductInfo();
+		card = XenonLauncherConfig.loadProductInfo();
 		time( "card" );
 
 		// Initialize the program parameters
@@ -417,7 +417,7 @@ public class Xenon extends Application implements XenonProgram {
 		time( "program-starting-event" );
 
 		// Update the product card
-		card = ProductCard.card( this );
+		card = XenonLauncherConfig.loadProductCard();
 		time( "update-product-card" );
 
 		// Create the icon library
@@ -474,7 +474,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Start the tool manager
 		log.atFiner().log( "Starting tool manager..." );
-		toolManager = new ToolManager( this );
+		toolManager = new ToolManager( this ).start();
 		registerTools( toolManager );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Tool manager started." );
@@ -482,7 +482,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Create the theme manager
 		log.atFiner().log( "Starting theme manager..." );
-		themeManager = new ThemeManager( Xenon.this ).start();
+		themeManager = new ThemeManager( this ).start();
 		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Theme manager started." );
@@ -490,7 +490,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Create the workspace manager
 		log.atFiner().log( "Starting workspace manager..." );
-		workspaceManager = new WorkspaceManager( Xenon.this ).start();
+		workspaceManager = new WorkspaceManager( this ).start();
 		workspaceManager.setTheme( getSettings().get( "workspace-theme-id" ) );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Workspace manager started." );
@@ -498,7 +498,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Create the notice manager, depends on workspace manager
 		log.atFiner().log( "Starting notice manager..." );
-		noticeManager = new NoticeManager( Xenon.this ).start();
+		noticeManager = new NoticeManager( this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Notice manager started." );
@@ -1062,10 +1062,14 @@ public class Xenon extends Application implements XenonProgram {
 		return getCard().getName();
 	}
 
+	/**
+	 * Simple method to show the number of milliseconds since the program started
+	 * using a marker to denote where the time is taken.
+	 *
+	 * @param markerName The marker name
+	 */
 	private static void time( String markerName ) {
-		if( !SHOW_TIMING ) {
-			return;
-		}
+		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
 	}
@@ -1302,7 +1306,7 @@ public class Xenon extends Application implements XenonProgram {
 	 */
 	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
-			// If the HOME flag was specified on the command line use it
+			// Check the command line HOME flag
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) {
 				programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 			}
@@ -1312,6 +1316,7 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = getHomeFromLauncherPath();
 			}
 
+			// Check Java home when running as a linked (jlink) program
 			// When running as a linked (jlink) program, there is not a jdk.module.path system property
 			// The java home can be used as the program home when running as a linked application
 			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
@@ -1323,7 +1328,7 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 			}
 
-			// However, when in development mode, use the target/program folder
+			// When in development mode, use the target/program folder
 			if( ProgramMode.DEV.equals( getMode() ) ) {
 				programHomeFolder = Paths.get( "target/program" );
 			}
@@ -1349,24 +1354,13 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath() );
+		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath(), OperatingSystem.isWindows() );
 	}
 
-	private Path getHomeFromLauncherPath( String launcherPath ) {
-		if( launcherPath == null ) {
-			return null;
-		}
-
+	Path getHomeFromLauncherPath( String launcherPath, boolean isWindows ) {
+		if( launcherPath == null ) return null;
 		Path path = Paths.get( launcherPath ).getParent();
-		if( OperatingSystem.isWindows() ) {
-			return path;
-		} else if( OperatingSystem.isLinux() ) {
-			return path.getParent();
-		} else if( OperatingSystem.isMac() ) {
-			return path.getParent();
-		}
-
-		return null;
+		return isWindows ? path : path.getParent();
 	}
 
 	private void registerActionHandlers() {
