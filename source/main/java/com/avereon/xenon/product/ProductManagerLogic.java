@@ -446,7 +446,7 @@ public class ProductManagerLogic {
 		}
 
 		private void stageResources( Path updatePack, LongConsumer progressCallback ) throws IOException {
-			// If there is only one resource and it is already an update pack then
+			// If there is only one resource, and it is already an update pack, then
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
 			if( resources.size() == 1 && resources.iterator().next().getType() == ProductResource.Type.PACK ) {

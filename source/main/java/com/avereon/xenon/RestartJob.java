@@ -154,34 +154,38 @@ public class RestartJob {
 
 		if( mode == Mode.UPDATE ) {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
-				String key = update.getCard().getProductKey();
-				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
-				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
-				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-" + DELETE_SUFFIX );
+				try {
+					String key = update.getCard().getProductKey();
+					String version = program.getProductManager().getProduct( key ).getCard().getVersion();
+					Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
+					Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-" + DELETE_SUFFIX );
 
-				String updatePath = update.getSource().toString().replace( File.separator, "/" );
-				String deletePath = delete.toString().replace( File.separator, "/" );
-				String backupPath = backup.toString().replace( File.separator, "/" );
-				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
-				String launchPath = OperatingSystem.getJavaLauncherPath();
-				String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
+					String updatePath = update.getSource().toString().replace( File.separator, "/" );
+					String deletePath = delete.toString().replace( File.separator, "/" );
+					String backupPath = backup.toString().replace( File.separator, "/" );
+					String targetPath = update.getTarget().toString().replace( File.separator, "/" );
+					String launchPath = OperatingSystem.getJavaLauncherPath();
+					String updatingProductText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
-				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
+					ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 
-				// Make sure the delete path is clear
-				ucb.add( UpdateTask.DELETE, deletePath );
-				// ...and move the backup to the delete path
-				ucb.add( UpdateTask.MOVE, backupPath, deletePath );
+					// Make sure the delete path is clear
+					ucb.add( UpdateTask.DELETE, deletePath );
+					// ...and move the backup to the delete path
+					ucb.add( UpdateTask.MOVE, backupPath, deletePath );
 
-				// Move the current product to the backup path
-				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
-				// ...and unpack the update
-				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
-				// ...and update the program launcher
-				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", launchPath );
+					// Move the current product to the backup path
+					ucb.add( UpdateTask.MOVE, targetPath, backupPath );
+					// ...and unpack the update
+					ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
+					// ...and update the program launcher
+					if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", launchPath );
 
-				// Cleanup
-				ucb.add( UpdateTask.DELETE, deletePath );
+					// Cleanup
+					ucb.add( UpdateTask.DELETE, deletePath );
+				} catch( Exception exception ) {
+					// Don't allow a single update failure stop the rest of the updates
+				}
 			}
 		} else if( mode == Mode.MOCK_UPDATE ) {
 			String[] names = new String[]{ "Example Program", "Module W", "Module X", "Module Y", "Module Z" };
