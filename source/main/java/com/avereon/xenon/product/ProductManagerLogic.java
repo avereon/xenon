@@ -433,7 +433,8 @@ public class ProductManagerLogic {
 			}
 
 			log.atDebug().log( "Update staged: %s %s", LazyEval.of( product::getProductKey ), LazyEval.of( product::getRelease ) );
-			log.atDebug().log( "           to: %s", localPackPath );
+			log.atDebug().log( "       source: %s", localPackPath );
+			log.atDebug().log( "       target: %s", installFolder );
 
 			// Notify listeners the update is staged
 			manager.getEventBus().dispatch( new ProductEvent( manager, ProductEvent.STAGED, product ) );
