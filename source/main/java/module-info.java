@@ -1,5 +1,3 @@
-import com.avereon.xenon.Module;
-
 // NOTE Multiple attempts have been made to consolidate test classes into this
 // module without success. There are several reasons this has not worked:
 // 1. JUnit does not like to be both a test-time library and a compile-time library.
@@ -64,5 +62,5 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
 
-	uses Module;
+	uses com.avereon.xenon.Module;
 }
