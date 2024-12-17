@@ -6,6 +6,7 @@ import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zarra.javafx.Fx;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 public class XenonScreenshots extends ProgramScreenshots {
@@ -15,7 +16,7 @@ public class XenonScreenshots extends ProgramScreenshots {
 	}
 
 	@Override
-	protected void generateScreenshots() throws InterruptedException, TimeoutException {
+	protected void generateScreenshots() throws InterruptedException, TimeoutException, ExecutionException {
 		screenshot( "default-workarea" );
 		screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 		screenshot( ProgramAboutType.URI, "about-tool" );
@@ -24,7 +25,7 @@ public class XenonScreenshots extends ProgramScreenshots {
 		screenshotThemes();
 	}
 
-	private void screenshotSettingsPages() throws InterruptedException, TimeoutException {
+	private void screenshotSettingsPages() throws InterruptedException, TimeoutException, ExecutionException {
 		for( String id : getProgram().getSettingsManager().getPageIds() ) {
 			screenshot( ProgramSettingsType.URI, id, "settings/settings-tool-" + id );
 		}

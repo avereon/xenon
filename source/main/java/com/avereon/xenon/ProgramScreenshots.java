@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 public abstract class ProgramScreenshots {
@@ -76,7 +77,7 @@ public abstract class ProgramScreenshots {
 			startup( scale );
 
 			generateScreenshots();
-		} catch( IOException | TimeoutException | InterruptedException exception ) {
+		} catch( ExecutionException | IOException | TimeoutException | InterruptedException exception ) {
 			exception.printStackTrace( System.err );
 		} finally {
 			shutdown();
@@ -95,7 +96,7 @@ public abstract class ProgramScreenshots {
 		return List.of( ProgramFlag.NOUPDATE, ProgramFlag.MODE, getExecutionMode(), ProgramFlag.LOG_LEVEL, getLogLevel() );
 	}
 
-	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException;
+	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException, ExecutionException;
 
 	protected void reset() throws InterruptedException, TimeoutException {
 		Collection<Tool> tools = workpane.getTools();
@@ -105,21 +106,23 @@ public abstract class ProgramScreenshots {
 		}
 	}
 
-	protected void openAsset( URI uri ) throws InterruptedException, TimeoutException {
+	protected void openAsset( URI uri ) throws InterruptedException, TimeoutException, ExecutionException {
 		program.getAssetManager().openAsset( uri );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		//workpaneWatcher.waitForEvent( ProgramToolEvent.ADDED );
+		//workpaneWatcher.waitForEvent( ProgramToolEvent.TOOL_OPEN_REQUEST_FINISHED );
+		workpaneWatcher.waitForEvent( ProgramToolEvent.READY );
 	}
 
 	protected void screenshot( String output ) throws InterruptedException, TimeoutException {
 		doScreenshotAndReset( output );
 	}
 
-	protected void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException {
+	protected void screenshot( URI uri, String output ) throws InterruptedException, TimeoutException, ExecutionException {
 		openAsset( uri );
 		doScreenshotAndReset( output );
 	}
 
-	protected void screenshot( URI uri, String fragment, String output ) throws InterruptedException, TimeoutException {
+	protected void screenshot( URI uri, String fragment, String output ) throws InterruptedException, TimeoutException, ExecutionException {
 		screenshot( URI.create( uri.toString() + "#" + fragment ), output );
 	}
 
