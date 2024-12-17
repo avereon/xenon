@@ -108,9 +108,8 @@ public abstract class ProgramScreenshots {
 
 	protected void openAsset( URI uri ) throws InterruptedException, TimeoutException, ExecutionException {
 		program.getAssetManager().openAsset( uri );
-		//workpaneWatcher.waitForEvent( ProgramToolEvent.ADDED );
-		//workpaneWatcher.waitForEvent( ProgramToolEvent.TOOL_OPEN_REQUEST_FINISHED );
 		workpaneWatcher.waitForEvent( ProgramToolEvent.READY );
+		getProgram().getTaskManager().waitFor( TIMEOUT );
 	}
 
 	protected void screenshot( String output ) throws InterruptedException, TimeoutException {
