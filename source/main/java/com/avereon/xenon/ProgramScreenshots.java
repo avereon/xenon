@@ -50,7 +50,7 @@ public abstract class ProgramScreenshots {
 	@Getter
 	private final FxEventWatcher workpaneWatcher;
 
-	private int scale;
+	private double scale;
 
 	private Path screenshotPath;
 
@@ -63,7 +63,7 @@ public abstract class ProgramScreenshots {
 		this.scale = 1;
 		if( args.length > 0 ) {
 			try {
-				this.scale = Integer.parseInt( args[ 0 ] );
+				this.scale = Double.parseDouble( args[ 0 ] );
 			} catch( NumberFormatException exception ) {
 				exception.printStackTrace( System.err );
 			}
@@ -82,6 +82,10 @@ public abstract class ProgramScreenshots {
 		} finally {
 			shutdown();
 		}
+	}
+
+	protected double getRenderScale() {
+		return scale;
 	}
 
 	protected String getExecutionMode() {
