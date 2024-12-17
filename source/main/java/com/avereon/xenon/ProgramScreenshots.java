@@ -143,7 +143,17 @@ public abstract class ProgramScreenshots {
 	}
 
 	private Path getPath( String name ) {
-		return screenshotPath.resolve( name + (scale == 1 ? "" : "@" + scale + "x") + ".png" );
+		String scaleText;
+		if( scale == 1.0 ) {
+			scaleText = "";
+		} else if( scale % 1.0 == 0.0 ) {
+			// If the scale is an integer, don't include the decimal point
+			scaleText = "@" + (int)scale + "x";
+		} else {
+			scaleText = "@" + scale + "x";
+		}
+
+		return screenshotPath.resolve( name + scaleText + ".png" );
 	}
 
 	private void startup( double scale ) throws InterruptedException, TimeoutException {
