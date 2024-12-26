@@ -240,6 +240,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handle( SettingsEvent event ) {
+			log.atConfig().log( "Setting dependency watcher: %s %s %s", event.getKey(), event.getOldValue(), event.getNewValue() );
 			if( Objects.equals( event.getKey(), dependencyKey ) ) setting.updateState();
 		}
 
@@ -252,8 +253,8 @@ public class SettingsPanel extends VBox {
 			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case SettingData.DISABLE -> setDisable( event.getNewValue() );
-				case SettingData.VISIBLE -> setVisible( event.getNewValue() );
+				case SettingData.VISIBLE -> Fx.run( () -> setVisible( event.getNewValue() ) );
+				case SettingData.DISABLE -> Fx.run( () -> setDisable( event.getNewValue() ) );
 			}
 		}
 
