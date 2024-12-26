@@ -123,7 +123,7 @@ public class SettingsPageParser {
 			List<String> icons = product.getCard().getIcons();
 			id = product.getCard().getProductKey();
 			title = product.getCard().getName();
-			icon = !icons.isEmpty() ? icons.get( 0 ) : PRODUCT_ICON;
+			icon = !icons.isEmpty() ? icons.getFirst() : PRODUCT_ICON;
 		}
 
 		// Special handling of empty titles
