@@ -240,7 +240,6 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			log.atConfig().log( "Setting dependency watcher: %s %s %s", event.getKey(), event.getOldValue(), event.getNewValue() );
 			if( Objects.equals( event.getKey(), dependencyKey ) ) setting.updateState();
 		}
 
