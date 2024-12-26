@@ -3,6 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
+import com.avereon.zarra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import lombok.Getter;
@@ -114,14 +115,14 @@ public abstract class SettingEditor {
 	protected abstract void pageSettingsChanged();
 
 	public void setDisable( boolean disable ) {
-		getComponents().forEach( n -> n.setDisable( disable ) );
+		Fx.run( () -> getComponents().forEach( n -> n.setDisable( disable ) ) );
 	}
 
 	public void setVisible( boolean visible ) {
-		getComponents().forEach( n -> {
+		Fx.run( () -> getComponents().forEach( n -> {
 			n.setVisible( visible );
 			n.setManaged( visible );
-		} );
+		} ) );
 	}
 
 	@SuppressWarnings( "unchecked" )

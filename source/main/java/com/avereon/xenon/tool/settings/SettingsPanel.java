@@ -253,17 +253,17 @@ public class SettingsPanel extends VBox {
 			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case SettingData.VISIBLE -> Fx.run( () -> setVisible( event.getNewValue() ) );
-				case SettingData.DISABLE -> Fx.run( () -> setDisable( event.getNewValue() ) );
+				case SettingData.DISABLE -> setDisable( event.getNewValue() );
+				case SettingData.VISIBLE -> setVisible( event.getNewValue() );
 			}
 		}
 
 		private void setDisable( boolean disable ) {
-			pane.setDisable( disable );
+			Fx.run( () -> pane.setDisable( disable ) );
 		}
 
 		private void setVisible( boolean visible ) {
-			pane.setVisible( visible );
+			Fx.run( () -> pane.setVisible( visible ) );
 		}
 
 	}
@@ -283,8 +283,8 @@ public class SettingsPanel extends VBox {
 
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
-				case SettingData.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
-				case SettingData.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
+				case SettingData.DISABLE -> editor.setDisable( event.getNewValue() );
+				case SettingData.VISIBLE -> editor.setVisible( event.getNewValue() );
 			}
 		}
 
