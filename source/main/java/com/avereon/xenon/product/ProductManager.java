@@ -123,13 +123,13 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private static final long NO_CHECK = Long.MIN_VALUE;
 
-	private Xenon program;
+	private final Xenon program;
 
-	private Map<String, RepoState> providerRepos;
+	private final Map<String, RepoState> providerRepos;
 
-	private Map<String, RepoState> repos;
+	private final Map<String, RepoState> repos;
 
-	private Map<String, Module> modules;
+	private final Map<String, Module> modules;
 
 	@Getter
 	private Path homeModuleFolder;
@@ -143,17 +143,17 @@ public class ProductManager implements Controllable<ProductManager> {
 	@Getter
 	private FoundOption foundOption;
 
-	private Map<String, Product> products;
+	private final Map<String, Product> products;
 
-	private Map<String, ProductCard> productCards;
+	private final Map<String, ProductCard> productCards;
 
-	private Map<String, ProductUpdate> updates;
+	private final Map<String, ProductUpdate> updates;
 
-	private Map<String, ProductState> productStates;
+	private final Map<String, ProductState> productStates;
 
-	private Set<ProductCard> postedUpdateCache;
+	private final Set<ProductCard> postedUpdateCache;
 
-	private Set<ProductCard> includedProducts;
+	private final Set<ProductCard> includedProducts;
 
 	private final Object updateProviderReposLock = new Object();
 
@@ -190,6 +190,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		this.program = program;
 
 		repos = new ConcurrentHashMap<>();
+		providerRepos = new ConcurrentHashMap<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
 		products = new ConcurrentHashMap<>();
@@ -260,11 +261,10 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void registerProviderRepos( Collection<RepoState> repos ) {
-		if( providerRepos != null ) return;
-		providerRepos = new ConcurrentHashMap<>();
 		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	public RepoCard addRepo( RepoCard repo ) {
 		log.atWarn().log( "upsert repo=%s", repo );
 		this.repos.put( repo.getInternalId(), new RepoState( repo ) );
@@ -272,6 +272,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return repo;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	public RepoCard removeRepo( RepoCard repo ) {
 		log.atWarn().log( "remove repo=%s", repo );
 		this.repos.remove( repo.getInternalId() );
@@ -431,8 +432,8 @@ public class ProductManager implements Controllable<ProductManager> {
 	/**
 	 * Determines if a product is installed regardless of release.
 	 *
-	 * @param card
-	 * @return
+	 * @param card The product card
+	 * @return If the product installed
 	 */
 	public boolean isInstalled( ProductCard card ) {
 		return getInstalledProductCard( card ) != null;
@@ -445,8 +446,8 @@ public class ProductManager implements Controllable<ProductManager> {
 	/**
 	 * Determines if a specific release of a product is installed.
 	 *
-	 * @param card
-	 * @return
+	 * @param card The product card
+	 * @return If the product release is installed
 	 */
 	public boolean isReleaseInstalled( ProductCard card ) {
 		return isInstalled( card ) && getInstalledProductCard( card ).getRelease().equals( card.getRelease() );
@@ -793,6 +794,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	 *
 	 * @return The number of updates applied.
 	 */
+	@SuppressWarnings( "UnusedReturnValue" )
 	public int applyStagedUpdates() {
 		log.atInfo().log( "Updates enabled: %s", LazyEval.of( this::updatesEnabled ) );
 		if( !updatesEnabled() ) return 0;
@@ -803,6 +805,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return count;
 	}
 
+	@SuppressWarnings( "unused" )
 	public Task<Collection<ProductUpdate>> updateProducts( DownloadRequest update, boolean interactive ) {
 		return updateProducts( Set.of( update ), interactive );
 	}
@@ -830,6 +833,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return null;
 	}
 
+	@SuppressWarnings( "unused" )
 	public static boolean areResourcesValid( Set<ProductResource> resources ) {
 		for( ProductResource resource : resources ) {
 			if( !resource.isValid() ) return false;
@@ -927,7 +931,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	/**
 	 * Get the product repository settings.
 	 *
-	 * @return
+	 * @return The product repository {@link Settings}
 	 */
 	public Settings getRepositorySettings() {
 		return getSettings();
@@ -1037,9 +1041,11 @@ public class ProductManager implements Controllable<ProductManager> {
 		Set<RepoState> repoStates = getRepositorySettings().get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
 		repoStates.forEach( ( state ) -> repos.put( state.getInternalId(), state ) );
 
-		// Remove old repos
-		//repos.remove( "https://avereon.com/download/stable" );
-		//repos.remove( "https://avereon.com/download/latest" );
+		// Remove old repos. These repositories were replaced with:
+		//   https://www.avereon.com/download/stable
+		//   https://www.avereon.com/download/latest
+		repos.remove( "https://avereon.com/download/stable" );
+		repos.remove( "https://avereon.com/download/latest" );
 
 		repos.values().forEach( ( repo ) -> {
 			if( providerRepos.containsKey( repo.getInternalId() ) ) {
@@ -1067,7 +1073,8 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadUpdates() {
-		updates = getUpdatesSettings().get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
+		updates.clear();
+		updates.putAll( getUpdatesSettings().get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates ) );
 	}
 
 	private void saveUpdates( Map<String, ProductUpdate> updates ) {
@@ -1148,7 +1155,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			module.register();
 			module.setStatus( Module.Status.REGISTERED );
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, module.getCard() ) );
-		} catch( Throwable throwable ) {
+		} catch( Exception throwable ) {
 			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
@@ -1272,13 +1279,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			ServiceLoader<Module> loader = ServiceLoader.load( modLayer, Module.class );
 
 			// Load the mod
-			loader.stream().findFirst().ifPresentOrElse(
-				m -> {
-					loadMod( m.get(), folder );
-				}, () -> {
-					log.atError().log( "Standard mod expected: %s", folder );
-				}
-			);
+			loader.stream().findFirst().ifPresentOrElse( m -> loadMod( m.get(), folder ), () -> log.atError().log( "Standard mod expected: %s", folder ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error loading standard mods: %s", folder );
 		}
