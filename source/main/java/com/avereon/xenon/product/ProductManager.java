@@ -839,21 +839,31 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	/**
-	 * Compute the delay needed from {@code currentTime} until the next update
-	 * check. The result of this method is commonly used to schedule the next
-	 * update check.
+	 * Compute the delay needed from {@code currentTime} until the next interval
+	 * update check. The result of this method is commonly used to schedule the
+	 * next update check.
 	 *
 	 * @param lastUpdateCheck The last time, in milliseconds, an update check was performed
 	 * @param currentTime The current time, in milliseconds
 	 * @param intervalUnit The check interval
-	 * @return
+	 * @return The delay, in milliseconds, until the next update check
 	 */
 	static long getNextIntervalDelay( Long lastUpdateCheck, long currentTime, CheckInterval intervalUnit ) {
 		if( lastUpdateCheck == null ) return 0;
 		return (lastUpdateCheck + intervalUnit.duration) - currentTime;
 	}
 
-	private static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
+	/**
+	 * Compute the delay needed from {@code currentTime} until the next scheduled
+	 * update check. The result of this method is commonly used to schedule the
+	 * next update check.
+	 *
+	 * @param currentTime The current time, in milliseconds
+	 * @param scheduleWhen The day of the week to check for updates
+	 * @param scheduleHour The hour of the day to check for updates
+	 * @return The delay, in milliseconds, until the next update check
+	 */
+	static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
 		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
 		calendar.setTimeInMillis( currentTime );
 

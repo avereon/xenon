@@ -209,4 +209,25 @@ class ProductManagerTest extends ProgramTestCase {
 		);
 	}
 
+	@ParameterizedTest
+	@MethodSource( "provideGetNextScheduleDelay" )
+	void getNextScheduleDelay( long currentTimestamp, ProductManager.CheckWhen when, int hour, long expectedDelay ) {
+		assertThat( ProductManager.getNextScheduleDelay( currentTimestamp, when, hour ) ).isEqualTo( expectedDelay );
+	}
+
+	private static Stream<Arguments> provideGetNextScheduleDelay() {
+		long now = 1732424400000L;
+
+		return Stream.of(
+			Arguments.of( now, ProductManager.CheckWhen.DAILY, 5, TimeUnit.DAYS.toMillis( 1 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.SUNDAY, 5, TimeUnit.DAYS.toMillis( 7 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.MONDAY, 5, TimeUnit.DAYS.toMillis( 1 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.TUESDAY, 5, TimeUnit.DAYS.toMillis( 2 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.WEDNESDAY, 5, TimeUnit.DAYS.toMillis( 3 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.THURSDAY, 5, TimeUnit.DAYS.toMillis( 4 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.FRIDAY, 5, TimeUnit.DAYS.toMillis( 5 ) ),
+			Arguments.of( now, ProductManager.CheckWhen.SATURDAY, 5, TimeUnit.DAYS.toMillis( 6 ) )
+		);
+	}
+
 }
