@@ -830,7 +830,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return true;
 	}
 
-	private static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
+	static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
 		if( lastUpdateCheck == null ) return 0;
 
 		long intervalDelay = 0;

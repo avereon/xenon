@@ -185,4 +185,15 @@ class ProductManagerTest extends ProgramTestCase {
 	// 1732424400000L 1732510800000L difference was 86400000L (1 day)
 	// 1732424400000L 1733029200000L difference was 604800000L (7 days)
 
+	@Test
+	void getNextIntervalDelay() {
+		long mock_now = 581825594;
+		long immediately = 0L;
+
+		assertThat( ProductManager.getNextIntervalDelay( mock_now, ProductManager.CheckInterval.HOUR, null ) ).isEqualTo( immediately );
+		assertThat( ProductManager.getNextIntervalDelay( mock_now, ProductManager.CheckInterval.HOUR, mock_now ) ).isEqualTo( 3600000L );
+
+		// NEXT Add some parameterized values
+	}
+
 }
