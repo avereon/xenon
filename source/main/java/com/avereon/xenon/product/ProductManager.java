@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -151,7 +150,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private final Map<String, ProductState> productStates;
 
-	private final Set<ProductCard> postedUpdateCache;
+	//private final Set<ProductCard> postedUpdateCache;
 
 	private final Set<ProductCard> includedProducts;
 
@@ -165,7 +164,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private Set<ProductCard> availableUpdates;
 
-	private long postedUpdateCacheTime;
+	//private long postedUpdateCacheTime;
 
 	private final Object scheduleLock = new Object();
 
@@ -182,10 +181,6 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private long lastAvailableUpdateCheck;
 
-	//private final RepoClient repoClient;
-
-	//private boolean productReposRegistered;
-
 	public ProductManager( Xenon program ) {
 		this.program = program;
 
@@ -196,7 +191,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		products = new ConcurrentHashMap<>();
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
-		postedUpdateCache = new CopyOnWriteArraySet<>();
+		//postedUpdateCache = new CopyOnWriteArraySet<>();
 		eventBus = new FxEventHub();
 
 		registerProgram( program );
@@ -229,11 +224,14 @@ public class ProductManager implements Controllable<ProductManager> {
 		TaskManager.taskThreadCheck();
 
 		synchronized( updateProviderReposLock ) {
-			if( !force && repos != null ) return new HashSet<>( repos.values() );
+			if( repos == null ) return Set.of();
+			if( !force ) return new HashSet<>( repos.values() );
+			if( System.currentTimeMillis() - lastProviderRepoCheck < 1000 ) return Set.of();
 
-			if( !force && System.currentTimeMillis() - lastProviderRepoCheck < 1000 ) return Set.of();
+			// Update the last provider repo check time
 			lastProviderRepoCheck = System.currentTimeMillis();
 
+			// Update the provider repos
 			try {
 				repos.values().forEach( this::updateRepo );
 			} catch( Exception exception ) {
