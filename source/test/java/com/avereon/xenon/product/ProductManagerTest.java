@@ -182,18 +182,31 @@ class ProductManagerTest extends ProgramTestCase {
 		return arguments.stream();
 	}
 
-	// 1732424400000L 1732510800000L difference was 86400000L (1 day)
-	// 1732424400000L 1733029200000L difference was 604800000L (7 days)
+	@ParameterizedTest
+	@MethodSource( "provideGetNextIntervalDelay" )
+	void getNextIntervalDelay( Long lastCheckTime, long currentTimestamp, ProductManager.CheckInterval interval, long expectedDelay ) {
+		assertThat( ProductManager.getNextIntervalDelay( lastCheckTime, currentTimestamp, interval ) ).isEqualTo( expectedDelay );
+	}
 
-	@Test
-	void getNextIntervalDelay() {
-		long mock_now = 581825594;
+	private static Stream<Arguments> provideGetNextIntervalDelay() {
+		long lastCheckTime = 1732424400000L;
 		long immediately = 0L;
 
-		assertThat( ProductManager.getNextIntervalDelay( mock_now, ProductManager.CheckInterval.HOUR, null ) ).isEqualTo( immediately );
-		assertThat( ProductManager.getNextIntervalDelay( mock_now, ProductManager.CheckInterval.HOUR, mock_now ) ).isEqualTo( 3600000L );
+		return Stream.of(
+			Arguments.of( null, lastCheckTime, ProductManager.CheckInterval.HOUR, immediately ),
 
-		// NEXT Add some parameterized values
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.MINUTES.toMillis( 55 ), ProductManager.CheckInterval.HOUR, TimeUnit.MINUTES.toMillis( 5 ) ),
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.MINUTES.toMillis( 65 ), ProductManager.CheckInterval.HOUR, TimeUnit.MINUTES.toMillis( -5 ) ),
+
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.HOURS.toMillis( 23 ), ProductManager.CheckInterval.DAY, TimeUnit.HOURS.toMillis( 1 ) ),
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.HOURS.toMillis( 25 ), ProductManager.CheckInterval.DAY, TimeUnit.HOURS.toMillis( -1 ) ),
+
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.DAYS.toMillis( 6 ), ProductManager.CheckInterval.WEEK, TimeUnit.DAYS.toMillis( 1 ) ),
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.DAYS.toMillis( 8 ), ProductManager.CheckInterval.WEEK, TimeUnit.DAYS.toMillis( -1 ) ),
+
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.DAYS.toMillis( 29 ), ProductManager.CheckInterval.MONTH, TimeUnit.DAYS.toMillis( 1 ) ),
+			Arguments.of( lastCheckTime, lastCheckTime + TimeUnit.DAYS.toMillis( 31 ), ProductManager.CheckInterval.MONTH, TimeUnit.DAYS.toMillis( -1 ) )
+		);
 	}
 
 }

@@ -59,11 +59,19 @@ public class ProductManager implements Controllable<ProductManager> {
 		SCHEDULE
 	}
 
+	@Getter
 	public enum CheckInterval {
-		MONTH,
-		WEEK,
-		DAY,
-		HOUR
+		MONTH( TimeUnit.DAYS.toMillis( 30 ) ),
+		WEEK( TimeUnit.DAYS.toMillis( 7 ) ),
+		DAY( TimeUnit.DAYS.toMillis( 1 ) ),
+		HOUR( TimeUnit.HOURS.toMillis( 1 ) );
+
+		private final long duration;
+
+		CheckInterval( long duration ) {
+			this.duration = duration;
+		}
+
 	}
 
 	public enum CheckWhen {
@@ -608,7 +616,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	private long computeCheckDelay( boolean startup, long instant ) {
 		Long lastUpdateCheck = getLastUpdateCheck();
 		Long nextUpdateCheck = getNextUpdateCheck();
-		long aMomentAgo = instant - TimeUnit.MINUTES.toMillis( 1 );
+		long aMomentPrior = instant - TimeUnit.MINUTES.toMillis( 1 );
 		long delay = NO_CHECK;
 
 		switch( checkOption ) {
@@ -617,7 +625,7 @@ public class ProductManager implements Controllable<ProductManager> {
 				break;
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.WEEK.name() ).toUpperCase() );
-				delay = getNextIntervalDelay( instant, intervalUnit, lastUpdateCheck );
+				delay = getNextIntervalDelay( lastUpdateCheck, instant, intervalUnit );
 				break;
 			}
 			case SCHEDULE: {
@@ -627,7 +635,7 @@ public class ProductManager implements Controllable<ProductManager> {
 				break;
 			}
 		}
-		if( nextUpdateCheck == null || nextUpdateCheck < aMomentAgo ) delay = 0;
+		if( nextUpdateCheck == null || nextUpdateCheck < aMomentPrior ) delay = 0;
 
 		return delay;
 	}
@@ -830,30 +838,19 @@ public class ProductManager implements Controllable<ProductManager> {
 		return true;
 	}
 
-	static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, Long lastUpdateCheck ) {
+	/**
+	 * Compute the delay needed from {@code currentTime} until the next update
+	 * check. The result of this method is commonly used to schedule the next
+	 * update check.
+	 *
+	 * @param lastUpdateCheck The last time, in milliseconds, an update check was performed
+	 * @param currentTime The current time, in milliseconds
+	 * @param intervalUnit The check interval
+	 * @return
+	 */
+	static long getNextIntervalDelay( Long lastUpdateCheck, long currentTime, CheckInterval intervalUnit ) {
 		if( lastUpdateCheck == null ) return 0;
-
-		long intervalDelay = 0;
-		switch( intervalUnit ) {
-			case MONTH: {
-				intervalDelay = TimeUnit.DAYS.toMillis( 30 );
-				break;
-			}
-			case WEEK: {
-				intervalDelay = TimeUnit.DAYS.toMillis( 7 );
-				break;
-			}
-			case DAY: {
-				intervalDelay = TimeUnit.DAYS.toMillis( 1 );
-				break;
-			}
-			case HOUR: {
-				intervalDelay = MILLIS_IN_HOUR;
-				break;
-			}
-		}
-
-		return (lastUpdateCheck + intervalDelay) - currentTime;
+		return (lastUpdateCheck + intervalUnit.duration) - currentTime;
 	}
 
 	private static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
