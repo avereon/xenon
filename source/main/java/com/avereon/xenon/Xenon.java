@@ -32,7 +32,6 @@ import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingGroup;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.tool.settings.panel.*;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
@@ -460,15 +459,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFine().log( "Index service started." );
 		time( "index-service" );
 
-		// Register the AssetTypeOptionProvider before loading settings pages
-		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
-
 		// Load the settings pages
-		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-installed", ModulesInstalledSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-available", ModulesAvailableSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-updates", ModulesUpdatesSettingsPanel.class );
-		getSettingsManager().putPagePanel( "modules-sources", ModulesSourcesSettingsPanel.class );
 		getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
 		time( "settings-pages" );
 

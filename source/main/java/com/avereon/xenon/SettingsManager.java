@@ -12,6 +12,7 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.*;
+import com.avereon.xenon.tool.settings.panel.*;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
@@ -53,6 +54,16 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.optionProviders = new ConcurrentHashMap<>();
 		this.eventBus = new FxEventHub();
 		eventBus.parent( program.getFxEventHub() );
+
+		// Add setting editors
+		putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
+		putPagePanel( "modules-installed", ModulesInstalledSettingsPanel.class );
+		putPagePanel( "modules-available", ModulesAvailableSettingsPanel.class );
+		putPagePanel( "modules-updates", ModulesUpdatesSettingsPanel.class );
+		putPagePanel( "modules-sources", ModulesSourcesSettingsPanel.class );
+
+		// Add options providers
+		putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( program ) );
 
 		guide.setSelectionMode( SelectionMode.MULTIPLE );
 
