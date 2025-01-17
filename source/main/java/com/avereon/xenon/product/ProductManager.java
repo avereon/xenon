@@ -945,7 +945,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * @return The product manager settings
 	 */
 	public Settings getSettings() {
-		// The settings under: /program/manager/product
+		// The settings are under: /program/manager/product
 		return getProgram().getSettingsManager().getSettings( ManagerSettings.PRODUCT );
 	}
 

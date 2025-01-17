@@ -154,8 +154,7 @@ public class SettingsPage extends Node {
 	}
 
 	public Settings getSettings() {
-		if( parent != null ) return parent.getSettings();
-		return getValue( SETTINGS );
+		return getValue( SETTINGS, getParentSettings() );
 	}
 
 	public void setSettings( Settings settings ) {
@@ -168,6 +167,10 @@ public class SettingsPage extends Node {
 
 	public void setPanel( String panel ) {
 		setValue( PANEL, panel );
+	}
+
+	private Settings getParentSettings() {
+		return parent == null ? null : parent.getSettings();
 	}
 
 }
