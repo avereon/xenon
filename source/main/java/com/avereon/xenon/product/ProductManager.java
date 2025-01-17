@@ -203,12 +203,10 @@ public class ProductManager implements Controllable<ProductManager> {
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new Weave().getCard() );
 
+		// Link the event bus to the parent event hub
 		getEventBus().parent( program.getFxEventHub() );
-		try {
-			registerProviderRepos( RepoState.forProduct( getClass() ) );
-		} catch( IOException exception ) {
-			log.atError().withCause( exception ).log( "Error loading program repos" );
-		}
+
+		registerProviderRepos();
 		loadSettings();
 	}
 
@@ -256,10 +254,6 @@ public class ProductManager implements Controllable<ProductManager> {
 		} catch( Exception exception ) {
 			log.atWarning().withCause( exception ).log( "Error loading repository metadata" );
 		}
-	}
-
-	public void registerProviderRepos( Collection<RepoState> repos ) {
-		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
@@ -906,6 +900,18 @@ public class ProductManager implements Controllable<ProductManager> {
 		return calendar.getTimeInMillis() - currentTime;
 	}
 
+	private void registerProviderRepos() {
+		try {
+			registerProviderRepos( RepoState.forProduct( getClass() ) );
+		} catch( IOException exception ) {
+			log.atError().withCause( exception ).log( "Error loading program repos" );
+		}
+	}
+
+	private void registerProviderRepos( Collection<RepoState> repos ) {
+		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
+	}
+
 	private void loadSettings() {
 		Settings programSettings = getProgram().getSettings();
 		Settings managerSettings = getSettings();
@@ -939,6 +945,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * @return The product manager settings
 	 */
 	public Settings getSettings() {
+		// The settings under: /program/manager/product
 		return getProgram().getSettingsManager().getSettings( ManagerSettings.PRODUCT );
 	}
 
@@ -1061,6 +1068,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		repos.remove( "https://avereon.com/download/stable" );
 		repos.remove( "https://avereon.com/download/latest" );
 
+		// TODO Can this logic be moved to registerProviderRepos(repos)?
 		repos.values().forEach( ( repo ) -> {
 			if( providerRepos.containsKey( repo.getInternalId() ) ) {
 				// Keep some values for provider repos
@@ -1364,6 +1372,11 @@ public class ProductManager implements Controllable<ProductManager> {
 
 		@Override
 		public void handle( SettingsEvent event ) {
+			// FIXME When the schedule settings change, a new schedule is not set
+			// The change handler was not triggered when the schedule settings changed
+			// Is it registered to the wrong settings object?
+
+			log.atConfig().log( "Setting change: key=%s value=%s", event.getKey(), event.getNewValue() );
 			switch( event.getKey() ) {
 				case CHECK -> {
 					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
