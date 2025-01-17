@@ -594,8 +594,6 @@ public class ProductManager implements Controllable<ProductManager> {
 
 			final long delay = computeCheckDelay( startup, now );
 
-			// NEXT Am I getting the correct values or are they in a new location?
-
 			if( delay == NO_CHECK ) {
 				getSettings().set( NEXT_CHECK_TIME, null );
 				log.atWarn().log( "Future update check not scheduled." );
@@ -659,6 +657,12 @@ public class ProductManager implements Controllable<ProductManager> {
 		}
 	}
 
+	/**
+	 * Check for staged updates at the start of the program. Staged updates are
+	 * those that have been downloaded and "staged" to be applied. This method
+	 * does not do any network operations and should not impact normal startup
+	 * procedures.
+	 */
 	public void checkForStagedUpdatesAtStart() {
 		if( getProgram().getHomeFolder() == null ) {
 			log.atWarn().log( "Program not running from updatable location." );

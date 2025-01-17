@@ -77,9 +77,9 @@ public class Xenon extends Application implements XenonProgram {
 
 	public static final String DEFAULT_LOG_FILE_PATTERN = "program.%u.log";
 
-	private static final String PROGRAM_RELEASE = "product-release";
+	static final String PROGRAM_RELEASE = "product-release";
 
-	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
+	static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
@@ -570,6 +570,9 @@ public class Xenon extends Application implements XenonProgram {
 		// Notify listeners the UI is ready
 		getProgram().getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.UI_READY ) );
 
+		// Register the program checks
+		new ProgramChecks( this ).register();
+
 		// Initiate asset loading
 		uiRegenerator.startAssetLoading();
 
@@ -591,14 +594,8 @@ public class Xenon extends Application implements XenonProgram {
 		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
 		getProductManager().scheduleUpdateCheck( true );
 
-		// Check to see if the application was updated
-		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
-
 		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
-
-		// Register the program checks
-		new ProgramChecks( this ).register();
 
 		// Index program documents
 		indexProgramDocuments();
@@ -1576,20 +1573,6 @@ public class Xenon extends Application implements XenonProgram {
 
 	private void unregisterTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
 		manager.unregisterTool( assetManager.getAssetType( assetType.getKey() ), toolClass );
-	}
-
-	private void notifyProgramUpdated() {
-		Release prior = Release.decode( getSettings().get( PROGRAM_RELEASE_PRIOR, (String)null ) );
-		Release runtime = this.getCard().getRelease();
-		String priorVersion = prior.getVersion().toHumanString();
-		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = Rb.text( RbKey.UPDATE, "updates" );
-		String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		Runnable action = () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
-
-		Notice notice = new Notice( title, message, action );
-		notice.setBalloonStickiness( Notice.Balloon.NEVER );
-		getNoticeManager().addNotice( notice );
 	}
 
 	private boolean calcProgramUpdated() {

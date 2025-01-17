@@ -184,6 +184,11 @@ public class Notice extends IdNode {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		return toString(TITLE, MESSAGE);
+	}
+
 	String getFormattedMessage() {
 		return formatMessage( getMessage(), getCause() );
 	}
