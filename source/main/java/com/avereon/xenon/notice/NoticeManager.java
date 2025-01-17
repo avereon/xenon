@@ -100,7 +100,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 		if( !getProgram().getWorkspaceManager().isUiReady() ) {
 			startupNotices.add( notice );
-			log.atConfig().log( "Notice added to startup list: %s", notice );
+			log.atDebug().log( "Notice added to startup list: %s", notice );
 			return;
 		}
 

@@ -97,7 +97,7 @@ public abstract class ProgramScreenshots {
 	}
 
 	protected List<String> getProgramParameters() {
-		return List.of( ProgramFlag.NOUPDATE, ProgramFlag.MODE, getExecutionMode(), ProgramFlag.LOG_LEVEL, getLogLevel() );
+		return List.of( ProgramFlag.NO_UPDATES, ProgramFlag.MODE, getExecutionMode(), ProgramFlag.LOG_LEVEL, getLogLevel() );
 	}
 
 	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException, ExecutionException;

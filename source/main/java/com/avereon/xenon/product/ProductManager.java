@@ -606,11 +606,16 @@ public class ProductManager implements Controllable<ProductManager> {
 			getSettings().set( NEXT_CHECK_TIME, nextCheckTime );
 
 			// Schedule the update check task
-			if( updatesEnabled() ) timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
+			if( updatesEnabled() ) {
+				// Log the next update check time
+				String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+				log.atInfo().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
 
-			// Log the next update check time
-			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.atWarn().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
+				// Schedule the update check
+				timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
+			} else {
+				log.atConfig().log( "Updates and update checks are disabled." );
+			}
 		}
 	}
 
@@ -649,9 +654,12 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
+		log.atConfig().log( "Request to check for updates..." );
 		if( updatesEnabled() ) {
+			log.atConfig().log( "Checking for updates..." );
 			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
 		} else {
+			log.atConfig().log( "Scheduling the next update..." );
 			getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
 			scheduleUpdateCheck( false );
 		}
@@ -806,7 +814,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		if( !updatesEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, ProgramFlag.NODAEMON, ProgramFlag.LOG_APPEND ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, ProgramFlag.NO_DAEMON, ProgramFlag.LOG_APPEND ) );
 
 		return count;
 	}
@@ -966,7 +974,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private boolean updatesEnabled() {
-		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NOUPDATE );
+		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NO_UPDATES );
 	}
 
 	@Override

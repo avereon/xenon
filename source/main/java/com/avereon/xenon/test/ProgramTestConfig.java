@@ -33,8 +33,8 @@ public interface ProgramTestConfig {
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
 		values.add( ProgramFlag.RESET );
-		values.add( ProgramFlag.NOSPLASH );
-		values.add( ProgramFlag.NOUPDATE );
+		values.add( ProgramFlag.NO_SPLASH );
+		values.add( ProgramFlag.NO_UPDATES );
 		values.add( ProgramFlag.MODE );
 		values.add( ProgramMode.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
