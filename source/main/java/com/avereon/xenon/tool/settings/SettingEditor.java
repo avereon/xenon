@@ -27,6 +27,8 @@ public abstract class SettingEditor {
 	static {
 		editors = new ConcurrentHashMap<>();
 
+		// TODO Add toggle setting editor
+
 		addType( "textline", TextLineSettingEditor.class );
 		addType( "textarea", TextAreaSettingEditor.class );
 		addType( "password", PasswordSettingEditor.class );

@@ -16,6 +16,8 @@ public class SettingData extends SettingDependant {
 
 	public static final String KEY = "key";
 
+	public static final String PATH = "path";
+
 	public static final String RBKEY = "rbkey";
 
 	public static final String VALUE = "value";
@@ -58,6 +60,14 @@ public class SettingData extends SettingDependant {
 
 	public void setKey( String key ) {
 		setValue( KEY, key );
+	}
+
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
 	}
 
 	public String getEditor() {

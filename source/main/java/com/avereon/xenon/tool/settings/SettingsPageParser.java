@@ -37,6 +37,8 @@ public class SettingsPageParser {
 
 	private static final String ID = "id";
 
+	private static final String PATH = "path";
+
 	private static final String KEY = "key";
 
 	private static final String VALUE = "value";
@@ -92,18 +94,16 @@ public class SettingsPageParser {
 	private void parse( XMLStreamReader reader, String rbKey, Map<String, SettingsPage> pages ) throws XMLStreamException {
 		if( !reader.hasNext() ) return;
 
-		reader.next();
-		if( !reader.getLocalName().equals( PAGES ) ) return;
-
-		int order = 0;
+		int pageOrder = 0;
 		while( reader.hasNext() ) {
 			reader.next();
+			if( reader.getEventType() == XMLStreamConstants.COMMENT ) continue;
 			if( reader.isEndElement() && reader.getLocalName().equals( PAGES ) ) break;
 
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					SettingsPage page = parsePage( reader, rbKey, null, order++ );
+					SettingsPage page = parsePage( reader, rbKey, null, pageOrder++ );
 					pages.put( page.getId(), page );
 				}
 			}
@@ -114,6 +114,7 @@ public class SettingsPageParser {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 		String id = attributes.get( ID );
+		String path = attributes.get( PATH );
 		String icon = attributes.getOrDefault( ICON, SETTING_ICON );
 		String title = attributes.get( TITLE );
 		String panel = attributes.get( PANEL );
@@ -132,6 +133,7 @@ public class SettingsPageParser {
 		SettingsPage page = new SettingsPage( parent );
 		page.setProduct( product );
 		page.setId( id );
+		page.setPath( path );
 		page.setIcon( icon );
 		page.setTitle( title );
 		page.setRbKey( rbKey );
@@ -173,12 +175,14 @@ public class SettingsPageParser {
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( ID );
+		String path = attributes.get( PATH );
 		String collapsible = attributes.get( SettingData.COLLAPSIBLE );
 		String expanded = attributes.get( SettingData.EXPANDED );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingGroup group = new SettingGroup( page );
 		group.setId( id );
+		group.setPath( path );
 		group.setFailDependencyAction( failDependencyAction );
 		group.setCollapsible( collapsible == null ? null : Boolean.parseBoolean( collapsible ) );
 		group.setExpanded( expanded == null ? null : Boolean.parseBoolean( expanded ) );
@@ -208,6 +212,8 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		// The setting key
 		String key = attributes.get( KEY );
+		// The setting path
+		String path = attributes.get( PATH );
 		String editor = attributes.get( SettingData.EDITOR );
 		String disable = attributes.get( SettingData.DISABLE );
 		String opaque = attributes.get( SettingData.OPAQUE );
@@ -218,6 +224,7 @@ public class SettingsPageParser {
 		SettingData setting = new SettingData( group );
 		setting.setId( id );
 		setting.setKey( key );
+		setting.setPath( path );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );

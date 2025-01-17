@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+	Settings pages definition.
+	Each page is defined by a unique id.
+	Each page can have multiple groups.
+	Each group can have multiple settings.
+	Each setting can have multiple options.
+-->
 <pages version="1.0">
 
 	<page id="general">
@@ -10,12 +17,27 @@
 				<option>10</option>
 				<option>20</option>
 				<option>30</option>
+				<!-- The 40 option -->
 				<option>40</option>
 				<option>50</option>
 				<option>60</option>
 			</setting>
 		</group>
 
+	</page>
+
+	<page id="deep-settings" path="manager/flags">
+		<group id="flags" path="manager/flags">
+			<setting path="manager/flags" key="flag-a" editor="checkbox">
+				<option>0</option>
+				<option>10</option>
+				<option>20</option>
+				<option>30</option>
+				<option>40</option>
+				<option>50</option>
+				<option>60</option>
+			</setting>
+		</group>
 	</page>
 
 </pages>

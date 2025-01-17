@@ -21,7 +21,7 @@ public class SettingsPage extends Node {
 
 	public static final String ID = "id";
 
-	private static final Map<String, Class<? extends SettingsPanel>> panels;
+	private static final String PATH = "path";
 
 	private static final String ICON = "icon";
 
@@ -36,6 +36,8 @@ public class SettingsPage extends Node {
 	private static final String PRODUCT = "product";
 
 	private static final String PANEL = "panel";
+
+	private static final Map<String, Class<? extends SettingsPanel>> panels;
 
 	private final SettingsPage parent;
 
@@ -84,6 +86,14 @@ public class SettingsPage extends Node {
 
 	public void setId( String id ) {
 		setValue( ID, id );
+	}
+
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
 	}
 
 	public String getIcon() {

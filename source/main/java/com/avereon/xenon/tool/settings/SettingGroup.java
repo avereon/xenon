@@ -12,6 +12,8 @@ public class SettingGroup extends SettingDependant {
 
 	private static final String ID = "id";
 
+	private static final String PATH = "path";
+
 	private static final String SETTINGS = "settings";
 
 	private final SettingsPage page;
@@ -35,6 +37,14 @@ public class SettingGroup extends SettingDependant {
 
 	public void setId( String id ) {
 		setValue( ID, id );
+	}
+
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
 	}
 
 	public List<SettingData> getSettingsList() {
