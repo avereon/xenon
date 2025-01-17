@@ -567,7 +567,8 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method is
+	 * thread safe.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -575,8 +576,9 @@ public class ProductManager implements Controllable<ProductManager> {
 		synchronized( scheduleLock ) {
 			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
 			// set, don't schedule update checks. This probably means there is a
-			// problem applying an update. Otherwise, it should be safe to schedule
-			// update checks.
+			// problem applying an update.
+			//
+			// Otherwise, it should be safe to schedule update checks.
 			if( getProgram().isProgramUpdated() || getProgram().isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
@@ -592,9 +594,11 @@ public class ProductManager implements Controllable<ProductManager> {
 
 			final long delay = computeCheckDelay( startup, now );
 
+			// NEXT Am I getting the correct values or are they in a new location?
+
 			if( delay == NO_CHECK ) {
 				getSettings().set( NEXT_CHECK_TIME, null );
-				log.atDebug().log( "Future update check not scheduled." );
+				log.atWarn().log( "Future update check not scheduled." );
 				return;
 			}
 
@@ -608,7 +612,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 			// Log the next update check time
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.atDebug().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
+			log.atWarn().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
 		}
 	}
 
