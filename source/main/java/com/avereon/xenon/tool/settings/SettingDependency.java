@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.util.TextUtil;
-import com.avereon.data.Node;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +19,8 @@ public class SettingDependency extends Node {
 
 	private static final String OPERATOR = "operator";
 
+	private static final String PATH = "path";
+
 	private static final String KEY = "key";
 
 	private static final String VALUE = "value";
@@ -28,8 +30,8 @@ public class SettingDependency extends Node {
 	public SettingDependency() {
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setOperator( Operator.AND );
-		definePrimaryKey( OPERATOR, KEY, VALUE );
-		defineNaturalKey( OPERATOR, KEY, VALUE );
+		definePrimaryKey( OPERATOR, PATH, KEY, VALUE );
+		defineNaturalKey( OPERATOR, PATH, KEY, VALUE );
 	}
 
 	public Operator getOperator() {
@@ -38,6 +40,14 @@ public class SettingDependency extends Node {
 
 	public void setOperator( Operator operator ) {
 		setValue( OPERATOR, operator );
+	}
+
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
 	}
 
 	public String getKey() {
@@ -65,16 +75,14 @@ public class SettingDependency extends Node {
 		dependencies.add( dependency );
 	}
 
-	public boolean evaluate( Settings settings ) {
-		return evaluate( settings, true );
-	}
-
 	public boolean evaluate( Settings settings, boolean pass ) {
+		String path = getPath();
 		String key = getKey();
 		String value = getDependencyValue();
 		Operator operator = getOperator();
 		if( operator == null ) operator = Operator.AND;
 
+		if( path != null ) settings = settings.getNode( path );
 		boolean match = TextUtil.areEqual( value, settings.get( key ) );
 
 		switch( operator ) {
@@ -99,10 +107,11 @@ public class SettingDependency extends Node {
 
 	@Override
 	public String toString() {
+		String path = getPath();
 		String key = getKey();
 		String value = getDependencyValue();
 		Operator operator = getOperator();
-		return operator + " " + key + " = " + value;
+		return operator + " " + (path == null ? " " : path + "/") + key + " = " + value;
 	}
 
 }
