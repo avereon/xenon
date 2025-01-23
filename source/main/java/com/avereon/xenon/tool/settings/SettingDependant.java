@@ -11,6 +11,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @CustomLog
 public abstract class SettingDependant extends Node {
 
+	public static final String ID = "id";
+
+	public static final String PATH = "path";
+
 	public static final String DISABLE = "disable";
 
 	public static final String VISIBLE = "visible";
@@ -30,6 +34,22 @@ public abstract class SettingDependant extends Node {
 	protected SettingDependant() {
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		addModifyingKeys( DISABLE, VISIBLE );
+	}
+
+	public String getId() {
+		return getValue( ID );
+	}
+
+	public void setId( String id ) {
+		setValue( ID, id );
+	}
+
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
 	}
 
 	public boolean isDisable() {
@@ -73,7 +93,17 @@ public abstract class SettingDependant extends Node {
 		dependencies.add( dependency );
 	}
 
-	public abstract Settings getSettings();
+	abstract Settings getParentSettings();
+
+	public Settings getSettings() {
+		Settings settings = getParentSettings();
+
+		// If the path is set, get the settings from the path
+		String path = getPath();
+		if( path != null ) settings = settings.getNode( path );
+
+		return settings;
+	}
 
 	public String getFailDependencyAction() {
 		return getValue( FAIL_DEPENDENCY_ACTION, DEPEDENCY_ACTION_DISABLE );

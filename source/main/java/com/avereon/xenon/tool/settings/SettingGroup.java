@@ -10,10 +10,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 public class SettingGroup extends SettingDependant {
 
-	private static final String ID = "id";
-
-	private static final String PATH = "path";
-
 	private static final String SETTINGS = "settings";
 
 	private final SettingsPage page;
@@ -31,22 +27,6 @@ public class SettingGroup extends SettingDependant {
 		return null;
 	}
 
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public void setId( String id ) {
-		setValue( ID, id );
-	}
-
-	public String getPath() {
-		return getValue( PATH );
-	}
-
-	public void setPath( String path ) {
-		setValue( PATH, path );
-	}
-
 	public List<SettingData> getSettingsList() {
 		return Collections.unmodifiableList( getValue( SETTINGS ) );
 	}
@@ -57,8 +37,8 @@ public class SettingGroup extends SettingDependant {
 	}
 
 	@Override
-	public Settings getSettings() {
-		return getPage().getSettings();
+	Settings getParentSettings() {
+		return page.getSettings();
 	}
 
 }

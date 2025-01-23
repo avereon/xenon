@@ -12,11 +12,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class SettingData extends SettingDependant {
 
-	public static final String ID = "id";
-
 	public static final String KEY = "key";
-
-	public static final String PATH = "path";
 
 	public static final String RBKEY = "rbkey";
 
@@ -46,28 +42,12 @@ public class SettingData extends SettingDependant {
 		return group;
 	}
 
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public void setId( String id ) {
-		setValue( ID, id );
-	}
-
 	public String getKey() {
 		return getValue( KEY );
 	}
 
 	public void setKey( String key ) {
 		setValue( KEY, key );
-	}
-
-	public String getPath() {
-		return getValue( PATH );
-	}
-
-	public void setPath( String path ) {
-		setValue( PATH, path );
 	}
 
 	public String getEditor() {
@@ -135,7 +115,8 @@ public class SettingData extends SettingDependant {
 		options.add( option );
 	}
 
-	public Settings getSettings() {
+	@Override
+	Settings getParentSettings() {
 		return getGroup().getSettings();
 	}
 

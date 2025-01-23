@@ -48,4 +48,15 @@ public class SettingsPageTest {
 		assertThat( child.getSettings() ).isEqualTo( childSettings );
 	}
 
+	@Test
+	void testGetSettingsWithPath() {
+		assertThat( parent.getSettings() ).isEqualTo( settings );
+
+		Settings flags = settings.getNode( "child/flags" );
+		assertThat( parent.getSettings() ).isEqualTo( settings );
+
+		parent.setPath( "child/flags" );
+		assertThat( parent.getSettings() ).isEqualTo( flags );
+	}
+
 }

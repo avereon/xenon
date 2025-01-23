@@ -154,9 +154,13 @@ public class SettingsPage extends Node {
 	}
 
 	public Settings getSettings() {
-		// NEXT Check if path is already supported in the key parameter
-		// NEXT If there is a path setting, use that to get the settings
-		return getValue( SETTINGS, getParentSettings() );
+		Settings settings = getValue( SETTINGS, getParentSettings() );
+
+		// If the path is set, get the settings from the path
+		String path = getPath();
+		if( path != null ) settings = settings.getNode( path );
+
+		return settings;
 	}
 
 	public void setSettings( Settings settings ) {
