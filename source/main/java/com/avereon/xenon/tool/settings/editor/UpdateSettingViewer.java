@@ -73,9 +73,6 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		// FIXME This doesn't update the values when the setting changes
-		//  because the setting location changed. The product-update-next-check-time
-		//  setting is now in the product manager settings.
 		updateLabels();
 	}
 

@@ -53,7 +53,7 @@ need a path attribute to specify the path to the settings node.
 			<setting key="shutdown-keepalive" editor="checkbox"/>
 		</group>
 
-		<page path="/manager/product" id="updates">
+		<page path="/program/manager/product" id="updates">
 			<group id="updates-schedule">
 				<setting key="product-update-check" editor="combobox">
 					<option key="interval"/>
