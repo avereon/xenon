@@ -27,9 +27,9 @@ public abstract class SettingDependant extends Node {
 
 	private static final String FAIL_DEPENDENCY_ACTION = "fail-dependency-action";
 
-	private static final String DEPEDENCY_ACTION_DISABLE = "disable";
+	private static final String DEPENDENCY_ACTION_DISABLE = "disable";
 
-	private static final String DEPEDENCY_ACTION_HIDE = "hide";
+	private static final String DEPENDENCY_ACTION_HIDE = "hide";
 
 	protected SettingDependant() {
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
@@ -96,17 +96,17 @@ public abstract class SettingDependant extends Node {
 	abstract Settings getParentSettings();
 
 	public Settings getSettings() {
+		String path = getPath();
 		Settings settings = getParentSettings();
 
 		// If the path is set, get the settings from the path
-		String path = getPath();
 		if( path != null ) settings = settings.getNode( path );
 
 		return settings;
 	}
 
 	public String getFailDependencyAction() {
-		return getValue( FAIL_DEPENDENCY_ACTION, DEPEDENCY_ACTION_DISABLE );
+		return getValue( FAIL_DEPENDENCY_ACTION, DEPENDENCY_ACTION_DISABLE );
 	}
 
 	public void setFailDependencyAction( String failDependencyAction ) {
@@ -114,12 +114,13 @@ public abstract class SettingDependant extends Node {
 	}
 
 	public void updateState() {
-		if( SettingDependency.evaluate( getDependencies(), getSettings() ) ) {
+		boolean success = SettingDependency.evaluate( getDependencies(), getSettings() );
+		if( success ) {
 			setDisable( false );
 			setVisible( true );
 		} else {
 			setDisable( true );
-			setVisible( !DEPEDENCY_ACTION_HIDE.equals( getFailDependencyAction() ) );
+			setVisible( !DEPENDENCY_ACTION_HIDE.equals( getFailDependencyAction() ) );
 		}
 	}
 

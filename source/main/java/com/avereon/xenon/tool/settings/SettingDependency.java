@@ -3,11 +3,13 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.util.TextUtil;
+import lombok.CustomLog;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@CustomLog
 public class SettingDependency extends Node {
 
 	public enum Operator {
@@ -80,9 +82,14 @@ public class SettingDependency extends Node {
 		String key = getKey();
 		String value = getDependencyValue();
 		Operator operator = getOperator();
+
+		// If the operator is not set, default to AND
 		if( operator == null ) operator = Operator.AND;
 
+		// If the path is set, get the settings from the path
 		if( path != null ) settings = settings.getNode( path );
+
+		// Test if the value is a match to the settings value
 		boolean match = TextUtil.areEqual( value, settings.get( key ) );
 
 		switch( operator ) {

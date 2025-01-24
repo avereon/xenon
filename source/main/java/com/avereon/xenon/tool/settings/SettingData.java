@@ -2,6 +2,8 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 @CustomLog
 public class SettingData extends SettingDependant {
 
@@ -36,10 +40,6 @@ public class SettingData extends SettingDependant {
 		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setModified( false );
-	}
-
-	public SettingGroup getGroup() {
-		return group;
 	}
 
 	public String getKey() {
@@ -84,14 +84,6 @@ public class SettingData extends SettingDependant {
 	public SettingData setProvider( String provider ) {
 		setValue( PROVIDER, provider );
 		return this;
-	}
-
-	public SettingOptionProvider getOptionProvider() {
-		return optionProvider;
-	}
-
-	public void setOptionProvider( SettingOptionProvider optionProvider ) {
-		this.optionProvider = optionProvider;
 	}
 
 	public SettingOption getOption( String value ) {

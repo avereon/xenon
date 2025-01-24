@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-These settings pages are normally associated with the root settings node for
-the program at /program. However, there are some settings that are further down
-in the settings tree. Settings that are further down in the settings tree need a
-path attribute to specify the path to the settings node.
+These settings pages are normally associated with the /program/manager settings.
+However, there are some settings that are at a different location in the
+settings tree. Settings that are in a different location in the settings tree
+need a path attribute to specify the path to the settings node.
 -->
 <pages version="1.0">
 
@@ -53,9 +53,9 @@ path attribute to specify the path to the settings node.
 			<setting key="shutdown-keepalive" editor="checkbox"/>
 		</group>
 
-		<page path="manager/product" id="updates">
-			<group path="manager/product" id="updates-schedule">
-				<setting path="manager/product" key="product-update-check" editor="combobox">
+		<page path="/manager/product" id="updates">
+			<group id="updates-schedule">
+				<setting key="product-update-check" editor="combobox">
 					<option key="interval"/>
 					<option key="schedule"/>
 					<option key="startup"/>

@@ -13,39 +13,62 @@ public class SettingDataTest {
 
 	private SettingGroup group;
 
-	private SettingData data;
+	private SettingData settingData;
 
 	private Settings settings;
-	private Settings groupSettings;
-	private Settings dataSettings;
 
 	@BeforeEach
 	void setup() {
 		page = new SettingsPage( null );
 		group = new SettingGroup( page );
-		data = new SettingData( group );
+		settingData = new SettingData( group );
 
 		settings = new MapSettings();
-		groupSettings = new MapSettings();
-		dataSettings = new MapSettings();
 
 		page.setSettings( settings );
 	}
 
 	@Test
 	void testGetSettings() {
-		assertThat( data.getSettings() ).isEqualTo( settings );
+		assertThat( settingData.getSettings() ).isEqualTo( settings );
 	}
 
 	@Test
-	void testGetSettingsWithPath() {
-		assertThat( data.getSettings() ).isEqualTo( settings );
+	void testGetSettingsWithAbsolutePath() {
+		// given
+		assertThat( settingData.getSettings() ).isEqualTo( settings );
+		assertThat( settingData.getPath() ).isNull();
 
-		Settings flags = settings.getNode( "child/flags" );
-		assertThat( data.getSettings() ).isEqualTo( settings );
+		Settings child = settings.getNode( "child" );
+		Settings flags = child.getNode( "flags" );
 
-		data.setPath( "child/flags" );
-		assertThat( data.getSettings() ).isEqualTo( flags );
+		settingData.setPath( "/child" );
+		assertThat( settingData.getSettings() ).isEqualTo( child );
+
+		settingData.setPath( "/child/flags" );
+		assertThat( settingData.getSettings() ).isEqualTo( flags );
+
+		page.setSettings( child );
+		settingData.setPath( "/child/flags" );
+		assertThat( settingData.getSettings() ).isEqualTo( flags );
+	}
+
+	@Test
+	void testGetSettingsWithRelativePath() {
+		assertThat( settingData.getSettings() ).isEqualTo( settings );
+
+		Settings child = settings.getNode( "child" );
+		Settings flags = child.getNode( "flags" );
+
+		settingData.setPath( "child" );
+		assertThat( settingData.getSettings() ).isEqualTo( child );
+
+		settingData.setPath( "child/flags" );
+		assertThat( settingData.getSettings() ).isEqualTo( flags );
+
+		page.setSettings( child );
+		settingData.setPath( "flags" );
+		assertThat( settingData.getSettings() ).isEqualTo( flags );
 	}
 
 }
