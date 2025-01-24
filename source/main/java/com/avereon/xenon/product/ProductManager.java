@@ -518,6 +518,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void setCheckOption( CheckOption checkOption ) {
+		if( getCheckOption() == checkOption ) return;
 		getSettings().set( CHECK, checkOption );
 	}
 
@@ -526,6 +527,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void setFoundOption( FoundOption foundOption ) {
+		if( getFoundOption() == foundOption ) return;
 		getSettings().set( FOUND, foundOption );
 	}
 
@@ -891,6 +893,8 @@ public class ProductManager implements Controllable<ProductManager> {
 		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
 		calendar.setTimeInMillis( currentTime );
 
+		// NEXT Times should be in user time zone, not UTC
+
 		// Sunday = 1, Monday = 2, ..., Saturday = 7
 		// Calculate the day offset to the next check day
 		int dayOffset;
@@ -975,7 +979,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * @return The settings for update checking
 	 */
 	public Settings getUpdateCheckSettings() {
-		return getProgram().getSettings();
+		return getSettings();
 	}
 
 	/**
