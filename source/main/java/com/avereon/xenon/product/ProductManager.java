@@ -136,12 +136,6 @@ public class ProductManager implements Controllable<ProductManager> {
 	@Getter
 	private Path userModuleFolder;
 
-	@Getter
-	private CheckOption checkOption;
-
-	@Getter
-	private FoundOption foundOption;
-
 	private final Map<String, Product> products;
 
 	private final Map<String, ProductCard> productCards;
@@ -517,23 +511,30 @@ public class ProductManager implements Controllable<ProductManager> {
 		settings.flush();
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, module.getCard() ) );
 		log.atDebug().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
+	}
 
+	public CheckOption getCheckOption() {
+		return getSettings().get( CHECK, CheckOption.class, CheckOption.MANUAL );
 	}
 
 	public void setCheckOption( CheckOption checkOption ) {
-		if( this.checkOption == checkOption ) return;
-		this.checkOption = checkOption;
-		getSettings().set( CHECK, checkOption.name().toLowerCase() );
+		getSettings().set( CHECK, checkOption );
+	}
+
+	public FoundOption getFoundOption() {
+		return getSettings().get( FOUND, FoundOption.class, FoundOption.NOTIFY );
 	}
 
 	public void setFoundOption( FoundOption foundOption ) {
-		if( this.foundOption == foundOption ) return;
-		this.foundOption = foundOption;
-		getSettings().set( FOUND, foundOption.name().toLowerCase() );
+		getSettings().set( FOUND, foundOption );
 	}
 
 	public Long getLastUpdateCheck() {
 		return getSettings().get( LAST_CHECK_TIME, Long.class );
+	}
+
+	private void setLastUpdateCheck( Long lastUpdateCheck ) {
+		getSettings().set( LAST_CHECK_TIME, lastUpdateCheck );
 	}
 
 	public String getLastUpdateCheckText() {
@@ -544,6 +545,10 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public Long getNextUpdateCheck() {
 		return getSettings().get( NEXT_CHECK_TIME, Long.class );
+	}
+
+	private void setNextUpdateCheck( Long nextUpdateCheck ) {
+		getSettings().set( NEXT_CHECK_TIME, nextUpdateCheck );
 	}
 
 	public String getNextUpdateCheckText() {
@@ -589,7 +594,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			final long delay = computeCheckDelay( startup, now );
 
 			if( delay == NO_CHECK ) {
-				getSettings().set( NEXT_CHECK_TIME, null );
+				setNextUpdateCheck( null );
 				log.atWarn().log( "Future update check not scheduled." );
 				return;
 			}
@@ -597,16 +602,18 @@ public class ProductManager implements Controllable<ProductManager> {
 			// Set the next update check time before scheduling the
 			// task to prevent this method from looping rapidly
 			long nextCheckTime = now + delay;
-			getSettings().set( NEXT_CHECK_TIME, nextCheckTime );
+			setNextUpdateCheck( nextCheckTime );
 
 			// Schedule the update check task
 			if( updatesEnabled() ) {
+				Date nextCheckDate = new Date( nextCheckTime );
+
 				// Log the next update check time
-				String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+				String date = DateUtil.format( nextCheckDate, DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
 				log.atInfo().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
 
 				// Schedule the update check
-				timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
+				timer.schedule( task = new UpdateCheckTask( this ), nextCheckDate );
 			} else {
 				log.atConfig().log( "Updates and update checks are disabled." );
 			}
@@ -619,7 +626,10 @@ public class ProductManager implements Controllable<ProductManager> {
 		long aMomentPrior = instant - TimeUnit.MINUTES.toMillis( 1 );
 		long delay = NO_CHECK;
 
-		switch( checkOption ) {
+		switch( getCheckOption() ) {
+			case MANUAL: {
+				break;
+			}
 			case STARTUP:
 				if( startup ) delay = 0;
 				break;
@@ -634,8 +644,10 @@ public class ProductManager implements Controllable<ProductManager> {
 				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
 				break;
 			}
+			default: {
+				if( nextUpdateCheck == null || nextUpdateCheck < aMomentPrior ) delay = 0;
+			}
 		}
-		if( nextUpdateCheck == null || nextUpdateCheck < aMomentPrior ) delay = 0;
 
 		return delay;
 	}
@@ -927,9 +939,6 @@ public class ProductManager implements Controllable<ProductManager> {
 		if( "STAGE".equalsIgnoreCase( updateCheckSettings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
 			updateCheckSettings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
-
-		this.checkOption = CheckOption.valueOf( updateCheckSettings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( updateCheckSettings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
 
 		// Load the module sources
 		loadRepos();
@@ -1372,17 +1381,12 @@ public class ProductManager implements Controllable<ProductManager> {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			// FIXME When the schedule settings change, a new schedule is not set
-			// The change handler was not triggered when the schedule settings changed
-			// Is it registered to the wrong settings object?
-
-			log.atConfig().log( "Setting change: key=%s value=%s", event.getKey(), event.getNewValue() );
 			switch( event.getKey() ) {
-				case CHECK -> {
-					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-					scheduleUpdateCheck( false );
-				}
+				case CHECK -> setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 				case FOUND -> setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+			}
+			switch( event.getKey() ) {
+				case CHECK, INTERVAL_UNIT, SCHEDULE_WHEN, SCHEDULE_HOUR -> scheduleUpdateCheck( false );
 			}
 		}
 

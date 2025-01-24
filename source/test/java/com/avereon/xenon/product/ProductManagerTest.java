@@ -31,6 +31,23 @@ class ProductManagerTest extends ProgramTestCase {
 	public void setup() throws Exception {
 		super.setup();
 		productManager = new ProductManager( getProgram() ).start();
+		productManager.setCheckOption( null );
+		productManager.setFoundOption( null );
+		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
+		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, null );
+		productManager.getSettings().flush();
+	}
+
+	@Test
+	void testGetCheckOption() {
+		assertThat( productManager.getCheckOption() ).isEqualTo( ProductManager.CheckOption.MANUAL );
+	}
+
+	@Test
+	void testGetFoundOption() {
+		assertThat( productManager.getFoundOption() ).isEqualTo( ProductManager.FoundOption.NOTIFY );
+		productManager.setFoundOption( ProductManager.FoundOption.APPLY );
+		assertThat( productManager.getFoundOption() ).isEqualTo( ProductManager.FoundOption.APPLY );
 	}
 
 	@Test
@@ -58,6 +75,7 @@ class ProductManagerTest extends ProgramTestCase {
 		// given
 		assertThat( getProgram().isProgramUpdated() ).isFalse();
 		assertThat( getProgram().isUpdateInProgress() ).isFalse();
+		assertThat( productManager.getNextUpdateCheck() ).isNull();
 
 		// These cause events to be fired that cause scheduleUpdateCheck to be called
 		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, null );
@@ -68,7 +86,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.scheduleUpdateCheck( false );
 
 		// then
-		assertThat( productManager.getNextUpdateCheck() ).isEqualTo( null );
+		assertThat( productManager.getNextUpdateCheck() ).isNull();
 	}
 
 	@Test
