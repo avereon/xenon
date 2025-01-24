@@ -890,10 +890,9 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * @return The delay, in milliseconds, until the next update check
 	 */
 	static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
+		// This calendar should use the default zone, not UTC
+		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis( currentTime );
-
-		// NEXT Times should be in user time zone, not UTC
 
 		// Sunday = 1, Monday = 2, ..., Saturday = 7
 		// Calculate the day offset to the next check day
