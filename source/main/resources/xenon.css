@@ -275,6 +275,16 @@ Derived from modena.css
 /*******************************************************************************
  * Workspace Action Bar
  ******************************************************************************/
+.stage-mover {
+	-fx-background-color: transparent;
+	/*-fx-pref-height: 1em;*/
+	/*-fx-cursor: move;*/
+}
+
+.stage-mover:pressed {
+	-fx-cursor: move;
+}
+
 .action-bar {
 	-fx-background-color: -ex-background-tool;
 	-fx-padding: 0;
@@ -296,13 +306,7 @@ Derived from modena.css
 	-fx-padding: 0.25em 0.5em;
 }
 
-.action-bar .stage-mover {
-	-fx-background-color: transparent;
-	-fx-pref-height: 1em;
-	/*-fx-cursor: move;*/
-}
-
-.action-bar .workspace-actions {
+.action-bar .actions {
 }
 
 .action-bar .button {

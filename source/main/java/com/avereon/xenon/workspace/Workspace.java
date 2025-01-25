@@ -69,7 +69,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String ACTION_BAR = "action-bar";
 
-	public static final String WORKSPACE_ACTIONS = "workspace-actions";
+	public static final String ACTIONS = "actions";
 
 	public static final String NORMALIZE = "normalize";
 
@@ -101,9 +101,9 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final Set<Pane> rails;
 
-	private final Pane workspaceActionContainer;
+	private final Region actionBar;
 
-	private final BorderPane actionBar;
+	private final Region workspaceActionBar;
 
 	private final Node workareaMenu;
 
@@ -200,7 +200,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
-		workspaceActionContainer = new StackPane( workareaMenu, programMenuBar );
+		workspaceActionBar = new StackPane( workareaMenu, programMenuBar );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
@@ -242,7 +242,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		railPane = buildRailPane( workspaceLayout );
 
 		//visibleProperty().
-		showingProperty().addListener( (p, o, n) -> {
+		showingProperty().addListener( ( p, o, n ) -> {
 			if( n ) hideProgramMenuBar();
 		} );
 
@@ -277,18 +277,22 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		// This catches when the user presses ESC, but not when they select a menu item
-		programMenuBar.addEventHandler( MenuButton.ON_HIDING, e -> {
-			// Pressing ESC causes an extra MenuButton.ON_HIDING event with the menu already hidden
-			MenuButton button = (MenuButton)e.getTarget();
-			if( !button.isShowing() ) Fx.run( this::hideProgramMenuBar );
-		} );
+		programMenuBar.addEventHandler(
+			MenuButton.ON_HIDING, e -> {
+				// Pressing ESC causes an extra MenuButton.ON_HIDING event with the menu already hidden
+				MenuButton button = (MenuButton)e.getTarget();
+				if( !button.isShowing() ) Fx.run( this::hideProgramMenuBar );
+			}
+		);
 
 		// This catches when menus are hidden and the mouse is not hovering over the menu bar
-		programMenuBar.addEventFilter( MenuButton.ON_HIDDEN, e -> Fx.run( () -> {
-			// It's important that this run as a different runnable on the FX thread
-			// If no other menus are showing, hide the program menu bar
-			if( allMenusAreHidden(programMenuBar) ) Fx.run( this::hideProgramMenuBar );
-		} ) );
+		programMenuBar.addEventFilter(
+			MenuButton.ON_HIDDEN, e -> Fx.run( () -> {
+				// It's important that this run as a different runnable on the FX thread
+				// If no other menus are showing, hide the program menu bar
+				if( allMenusAreHidden( programMenuBar ) ) Fx.run( this::hideProgramMenuBar );
+			} )
+		);
 
 		memoryMonitor.start();
 		taskMonitor.start();
@@ -309,37 +313,24 @@ public class Workspace extends Stage implements WritableIdentity {
 		return new BorderPane( workspaceLayout, t, r, b, l );
 	}
 
-	private BorderPane createActionBar( Xenon program ) {
-		// Style 1 - More familiar with the tool menu on the left
-		//|-- combined ---|--              --|--					   --|--                   --|
-		//|-- program/ ---|-- tool actions --|-- stage mover --|-- workspace actions --|
-		//|-- workspace --|--              --|--						 --|--                   --|
-
-		// Style 2
-		//|-- combined ---|--             --|--						   --|--                   --|
-		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
-		//|-- workspace --|--             --|--						   --|--                   --|
-
-		// FIXME Why use so many border panes? Can this be done with HBox?
-
+	private HBox createActionBar( Xenon program ) {
 		// NEXT Add program icon to the left of the program menu
+		ToolBar programActionBar = ToolBarFactory.createToolBar( program, "program" );
+		//programActionBar.getStyleClass().add( ACTIONS );
 
-		// The left toolbar area
-		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, workspaceActionContainer );
-
-		// The stage mover
-		Pane stageMover = StageMover.of( new Pane() );
-		stageMover.getStyleClass().add( "stage-mover" );
+		// The action bar spring
+		Node spring = StageMover.of( ToolBarFactory.createSpring() );
 
 		// The workspace actions
-		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "search-toggle,settings-toggle,notice-toggle|minimize,maximize,workspace-close" );
-		workspaceActions.getStyleClass().add( WORKSPACE_ACTIONS );
+		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings-toggle|minimize,maximize,workspace-close" );
+		//workspaceActions.getStyleClass().add( ACTIONS );
 
-		// The action pane
-		BorderPane actionPane = new BorderPane( stageMover, null, workspaceActions, null, leftToolBarPane );
-		actionPane.getStyleClass().add( ACTION_BAR );
+		// Create the action bar
+		HBox actionBar = new HBox();
+		actionBar.getStyleClass().add( ACTION_BAR );
+		actionBar.getChildren().addAll( programActionBar, workspaceActionBar, toolbar, spring, workspaceActions );
 
-		return actionPane;
+		return actionBar;
 	}
 
 	private static VBox createNoticeBox() {
@@ -689,11 +680,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
-			TimerUtil.fxTask( () -> {
-				noticeBox.getChildren().remove( pane );
-				if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
-				getEventBus().dispatch( new NoticeEvent( this, NoticeEvent.REMOVED, this, notice ) );
-			}, balloonTimeout );
+			TimerUtil.fxTask(
+				() -> {
+					noticeBox.getChildren().remove( pane );
+					if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
+					getEventBus().dispatch( new NoticeEvent( this, NoticeEvent.REMOVED, this, notice ) );
+				}, balloonTimeout
+			);
 		}
 
 		noticeBox.setVisible( true );

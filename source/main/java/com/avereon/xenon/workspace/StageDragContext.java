@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
 import lombok.CustomLog;
+import lombok.Setter;
 
 @CustomLog
 public class StageDragContext {
@@ -25,6 +26,7 @@ public class StageDragContext {
 
 	private double windowY2;
 
+	@Setter
 	private double offsetX;
 
 	private double offsetY;
@@ -41,10 +43,6 @@ public class StageDragContext {
 		this.dragHandler = dragHandler;
 		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handlePressed );
 		node.addEventFilter( MouseEvent.MOUSE_DRAGGED, this::handleDragged );
-	}
-
-	public void setOffsetX( double x ) {
-		this.offsetX = x;
 	}
 
 	private void handlePressed( MouseEvent event ) {
