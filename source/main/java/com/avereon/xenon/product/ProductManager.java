@@ -646,7 +646,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.class, CheckWhen.DAILY );
 				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
-				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
+				delay = getNextScheduleDelay( instant, ZoneId.systemDefault(), scheduleWhen, scheduleHour );
 				break;
 			}
 			default: {
@@ -874,13 +874,13 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * next update check.
 	 *
 	 * @param lastUpdateCheck The last time, in milliseconds, an update check was performed
-	 * @param currentTime The current time, in milliseconds
+	 * @param now The current time, in milliseconds
 	 * @param intervalUnit The check interval
 	 * @return The delay, in milliseconds, until the next update check
 	 */
-	static long getNextIntervalDelay( Long lastUpdateCheck, long currentTime, CheckInterval intervalUnit ) {
+	static long getNextIntervalDelay( Long lastUpdateCheck, long now, CheckInterval intervalUnit ) {
 		if( lastUpdateCheck == null ) return 0;
-		return (lastUpdateCheck + intervalUnit.duration) - currentTime;
+		return (lastUpdateCheck + intervalUnit.duration) - now;
 	}
 
 	/**
@@ -888,17 +888,16 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * update check. The result of this method is commonly used to schedule the
 	 * next update check.
 	 *
-	 * @param currentTimeUtc The current time, in milliseconds
+	 * @param now The current time, in milliseconds
 	 * @param scheduleWhen The day of the week to check for updates
 	 * @param scheduleHour The hour of the day to check for updates
 	 * @return The delay, in milliseconds, until the next update check
 	 */
-	static long getNextScheduleDelay( long currentTimeUtc, CheckWhen scheduleWhen, int scheduleHour ) {
+	static long getNextScheduleDelay( long now, ZoneId timeZoneId, CheckWhen scheduleWhen, int scheduleHour ) {
 		// Start with an instant in UTC
-		Instant instant = Instant.ofEpochMilli( currentTimeUtc );
+		Instant instant = Instant.ofEpochMilli( now );
 
 		// Get the local date-time according to the user
-		ZoneId timeZoneId = ZoneId.systemDefault();
 		LocalDateTime localDateTime = instant.atZone( timeZoneId ).toLocalDateTime();
 
 		// Get the day of week from 1 (Monday) to 7 (Sunday)
@@ -919,7 +918,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		// Convert the local date-time to an instant
 		Instant nextCheckInstant = nextCheck.atZone( timeZoneId ).toInstant();
 
-		return nextCheckInstant.toEpochMilli() - currentTimeUtc;
+		return nextCheckInstant.toEpochMilli() - now;
 	}
 
 	private void registerProviderRepos() {

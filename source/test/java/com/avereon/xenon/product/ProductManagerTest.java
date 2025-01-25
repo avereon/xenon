@@ -237,25 +237,26 @@ class ProductManagerTest extends ProgramTestCase {
 
 	@ParameterizedTest
 	@MethodSource( "provideGetNextScheduleDelay" )
-	void getNextScheduleDelay( long currentTimestamp, ProductManager.CheckWhen when, int hour, long expectedDelay ) {
-		assertThat( ProductManager.getNextScheduleDelay( currentTimestamp, when, hour ) ).isEqualTo( expectedDelay );
+	void getNextScheduleDelay( long now, ZoneId zoneId, ProductManager.CheckWhen when, int hour, long expectedDelay ) {
+		assertThat( ProductManager.getNextScheduleDelay( now, zoneId, when, hour ) ).isEqualTo( expectedDelay );
 	}
 
 	private static Stream<Arguments> provideGetNextScheduleDelay() {
-		int offset = TimeZone.getDefault().getRawOffset();
-
 		// This represents Sunday, November 24, 2024, 5:00:00 AM UTC
 		long now = 1732424400000L;
 
+		ZoneId zoneId = ZoneId.of( "Pacific/Tahiti" );
+		int offset = zoneId.getRules().getOffset( Instant.ofEpochMilli( now ) ).getTotalSeconds() * 1000;
+
 		return Stream.of(
-			Arguments.of( now, ProductManager.CheckWhen.DAILY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.SUNDAY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.MONDAY, 5, TimeUnit.DAYS.toMillis( 1 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.TUESDAY, 5, TimeUnit.DAYS.toMillis( 2 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.WEDNESDAY, 5, TimeUnit.DAYS.toMillis( 3 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.THURSDAY, 5, TimeUnit.DAYS.toMillis( 4 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.FRIDAY, 5, TimeUnit.DAYS.toMillis( 5 ) - offset ),
-			Arguments.of( now, ProductManager.CheckWhen.SATURDAY, 5, TimeUnit.DAYS.toMillis( 6 ) - offset )
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.DAILY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.SUNDAY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.MONDAY, 5, TimeUnit.DAYS.toMillis( 1 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.TUESDAY, 5, TimeUnit.DAYS.toMillis( 2 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.WEDNESDAY, 5, TimeUnit.DAYS.toMillis( 3 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.THURSDAY, 5, TimeUnit.DAYS.toMillis( 4 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.FRIDAY, 5, TimeUnit.DAYS.toMillis( 5 ) - offset ),
+			Arguments.of( now, zoneId, ProductManager.CheckWhen.SATURDAY, 5, TimeUnit.DAYS.toMillis( 6 ) - offset )
 		);
 	}
 
