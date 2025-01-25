@@ -320,6 +320,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		//|-- program/ ---|-- stage mover --|-- tool actions --|-- workspace actions --|
 		//|-- workspace --|--             --|--						   --|--                   --|
 
+		// FIXME Why use so many border panes? Can this be done with HBox?
+
+		// NEXT Add program icon to the left of the program menu
+
 		// The left toolbar area
 		BorderPane leftToolBarPane = new BorderPane( toolbar, null, null, null, workspaceActionContainer );
 

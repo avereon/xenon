@@ -9,8 +9,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -121,7 +123,7 @@ class ProductManagerTest extends ProgramTestCase {
 		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, priorNextCheckTime );
 
 		productManager.setCheckOption( ProductManager.CheckOption.INTERVAL );
-		getProgram().getSettings().set( ProductManager.INTERVAL_UNIT, checkInterval.name().toLowerCase() );
+		productManager.getSettings().set( ProductManager.INTERVAL_UNIT, checkInterval.name().toLowerCase() );
 
 		// when
 		productManager.scheduleUpdateCheck( false );
@@ -153,12 +155,12 @@ class ProductManagerTest extends ProgramTestCase {
 
 		// Momentarily set the check option to manual to avoid bad interaction
 		productManager.setCheckOption( ProductManager.CheckOption.MANUAL );
-		productManager.getSettings().set( ProductManager.LAST_CHECK_TIME, priorLastCheckTime );
-		productManager.getSettings().set( ProductManager.NEXT_CHECK_TIME, priorNextCheckTime );
+		productManager.getUpdateCheckSettings().set( ProductManager.LAST_CHECK_TIME, priorLastCheckTime );
+		productManager.getUpdateCheckSettings().set( ProductManager.NEXT_CHECK_TIME, priorNextCheckTime );
 
 		productManager.setCheckOption( ProductManager.CheckOption.SCHEDULE );
-		getProgram().getSettings().set( ProductManager.SCHEDULE_WHEN, checkWhen.name().toLowerCase() );
-		getProgram().getSettings().set( ProductManager.SCHEDULE_HOUR, checkHour );
+		productManager.getUpdateCheckSettings().set( ProductManager.SCHEDULE_WHEN, checkWhen );
+		productManager.getUpdateCheckSettings().set( ProductManager.SCHEDULE_HOUR, checkHour );
 
 		// when
 		productManager.scheduleUpdateCheck( false );
@@ -168,33 +170,39 @@ class ProductManagerTest extends ProgramTestCase {
 	}
 
 	private static Stream<Arguments> provideCheckScheduleOptions() {
-		int hourOfDay = 5;
-		long now = System.currentTimeMillis();
-		List<Arguments> arguments = new ArrayList<>();
+		int scheduleHour = 5;
+		long currentTimeUtc = System.currentTimeMillis();
+		int offset = TimeZone.getDefault().getRawOffset();
 
 		// Days of the week
-		for( ProductManager.CheckWhen checkWhen : ProductManager.CheckWhen.values() ) {
-			Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-			calendar.setTimeInMillis( now );
-			// Sunday = 1, Monday = 2, ..., Saturday = 7
-			int nowDayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
+		List<Arguments> arguments = new ArrayList<>();
+		for( ProductManager.CheckWhen scheduleWhen : ProductManager.CheckWhen.values() ) {
+			// Start with an instant in UTC
+			Instant instant = Instant.ofEpochMilli( currentTimeUtc );
+
+			// Get the local date-time according to the user
+			ZoneId timeZoneId = ZoneId.systemDefault();
+			LocalDateTime localDateTime = instant.atZone( timeZoneId ).toLocalDateTime();
+
+			// Get the day of week from 1 (Monday) to 7 (Sunday)
+			int nowDayOfWeek = localDateTime.getDayOfWeek().getValue();
 
 			// Calculate the day offset to the next check day
 			int dayOffset;
-			if( checkWhen == ProductManager.CheckWhen.DAILY ) {
+			if( scheduleWhen == ProductManager.CheckWhen.DAILY ) {
 				dayOffset = 1;
 			} else {
-				dayOffset = checkWhen.ordinal() - nowDayOfWeek;
+				dayOffset = scheduleWhen.ordinal() - nowDayOfWeek;
 			}
 			if( dayOffset < 1 ) dayOffset += 7;
 
-			calendar.add( Calendar.DAY_OF_MONTH, dayOffset );
-			calendar.set( Calendar.HOUR_OF_DAY, hourOfDay );
-			calendar.set( Calendar.MINUTE, 0 );
-			calendar.set( Calendar.SECOND, 0 );
-			calendar.set( Calendar.MILLISECOND, 0 );
+			// Calculate the next update check.
+			LocalDateTime nextCheck = localDateTime.plusDays( dayOffset ).withHour( scheduleHour ).withMinute( 0 ).withSecond( 0 ).withNano( 0 );
 
-			arguments.add( Arguments.of( checkWhen, hourOfDay, null, null, calendar.getTimeInMillis() ) );
+			// Convert the local date-time to an instant
+			Instant nextCheckInstant = nextCheck.atZone( timeZoneId ).toInstant();
+
+			arguments.add( Arguments.of( scheduleWhen, scheduleHour, null, null, nextCheckInstant.toEpochMilli() ) );
 		}
 
 		return arguments.stream();
@@ -234,17 +242,20 @@ class ProductManagerTest extends ProgramTestCase {
 	}
 
 	private static Stream<Arguments> provideGetNextScheduleDelay() {
+		int offset = TimeZone.getDefault().getRawOffset();
+
+		// This represents Sunday, November 24, 2024, 5:00:00 AM UTC
 		long now = 1732424400000L;
 
 		return Stream.of(
-			Arguments.of( now, ProductManager.CheckWhen.DAILY, 5, TimeUnit.DAYS.toMillis( 1 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.SUNDAY, 5, TimeUnit.DAYS.toMillis( 7 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.MONDAY, 5, TimeUnit.DAYS.toMillis( 1 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.TUESDAY, 5, TimeUnit.DAYS.toMillis( 2 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.WEDNESDAY, 5, TimeUnit.DAYS.toMillis( 3 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.THURSDAY, 5, TimeUnit.DAYS.toMillis( 4 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.FRIDAY, 5, TimeUnit.DAYS.toMillis( 5 ) ),
-			Arguments.of( now, ProductManager.CheckWhen.SATURDAY, 5, TimeUnit.DAYS.toMillis( 6 ) )
+			Arguments.of( now, ProductManager.CheckWhen.DAILY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.SUNDAY, 5, TimeUnit.DAYS.toMillis( 0 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.MONDAY, 5, TimeUnit.DAYS.toMillis( 1 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.TUESDAY, 5, TimeUnit.DAYS.toMillis( 2 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.WEDNESDAY, 5, TimeUnit.DAYS.toMillis( 3 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.THURSDAY, 5, TimeUnit.DAYS.toMillis( 4 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.FRIDAY, 5, TimeUnit.DAYS.toMillis( 5 ) - offset ),
+			Arguments.of( now, ProductManager.CheckWhen.SATURDAY, 5, TimeUnit.DAYS.toMillis( 6 ) - offset )
 		);
 	}
 

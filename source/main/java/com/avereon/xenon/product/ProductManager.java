@@ -29,6 +29,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -75,13 +78,13 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public enum CheckWhen {
 		DAILY,
-		SUNDAY,
 		MONDAY,
 		TUESDAY,
 		WEDNESDAY,
 		THURSDAY,
 		FRIDAY,
-		SATURDAY
+		SATURDAY,
+		SUNDAY
 	}
 
 	public enum FoundOption {
@@ -636,18 +639,19 @@ public class ProductManager implements Controllable<ProductManager> {
 				if( startup ) delay = 0;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.WEEK.name() ).toUpperCase() );
+				CheckInterval intervalUnit = getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.class, CheckInterval.WEEK );
 				delay = getNextIntervalDelay( lastUpdateCheck, instant, intervalUnit );
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				CheckWhen scheduleWhen = getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.class, CheckWhen.DAILY );
 				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( instant, scheduleWhen, scheduleHour );
 				break;
 			}
 			default: {
 				if( nextUpdateCheck == null || nextUpdateCheck < aMomentPrior ) delay = 0;
+				break;
 			}
 		}
 
@@ -884,20 +888,24 @@ public class ProductManager implements Controllable<ProductManager> {
 	 * update check. The result of this method is commonly used to schedule the
 	 * next update check.
 	 *
-	 * @param currentTime The current time, in milliseconds
+	 * @param currentTimeUtc The current time, in milliseconds
 	 * @param scheduleWhen The day of the week to check for updates
 	 * @param scheduleHour The hour of the day to check for updates
 	 * @return The delay, in milliseconds, until the next update check
 	 */
-	static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-		// This calendar should use the default zone, not UTC
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis( currentTime );
+	static long getNextScheduleDelay( long currentTimeUtc, CheckWhen scheduleWhen, int scheduleHour ) {
+		// Start with an instant in UTC
+		Instant instant = Instant.ofEpochMilli( currentTimeUtc );
 
-		// Sunday = 1, Monday = 2, ..., Saturday = 7
+		// Get the local date-time according to the user
+		ZoneId timeZoneId = ZoneId.systemDefault();
+		LocalDateTime localDateTime = instant.atZone( timeZoneId ).toLocalDateTime();
+
+		// Get the day of week from 1 (Monday) to 7 (Sunday)
+		int nowDayOfWeek = localDateTime.getDayOfWeek().getValue();
+
 		// Calculate the day offset to the next check day
 		int dayOffset;
-		int nowDayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
 		if( scheduleWhen == ProductManager.CheckWhen.DAILY ) {
 			dayOffset = 1;
 		} else {
@@ -906,13 +914,12 @@ public class ProductManager implements Controllable<ProductManager> {
 		if( dayOffset < 1 ) dayOffset += 7;
 
 		// Calculate the next update check.
-		calendar.add( Calendar.DAY_OF_MONTH, dayOffset );
-		calendar.set( Calendar.HOUR_OF_DAY, scheduleHour );
-		calendar.set( Calendar.MINUTE, 0 );
-		calendar.set( Calendar.SECOND, 0 );
-		calendar.set( Calendar.MILLISECOND, 0 );
+		LocalDateTime nextCheck = localDateTime.plusDays( dayOffset ).withHour( scheduleHour ).withMinute( 0 ).withSecond( 0 ).withNano( 0 );
 
-		return calendar.getTimeInMillis() - currentTime;
+		// Convert the local date-time to an instant
+		Instant nextCheckInstant = nextCheck.atZone( timeZoneId ).toInstant();
+
+		return nextCheckInstant.toEpochMilli() - currentTimeUtc;
 	}
 
 	private void registerProviderRepos() {
