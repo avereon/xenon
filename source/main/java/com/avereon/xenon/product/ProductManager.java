@@ -600,7 +600,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 			if( delay == NO_CHECK ) {
 				setNextUpdateCheck( null );
-				log.atWarn().log( "Future update check not scheduled." );
+				log.atDebug().log( "Future update check not scheduled." );
 				return;
 			}
 
