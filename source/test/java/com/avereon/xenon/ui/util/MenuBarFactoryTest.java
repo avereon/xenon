@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MenuFactoryTest extends BaseFullXenonTestCase {
+public class MenuBarFactoryTest extends BaseFullXenonTestCase {
 
 	@Test
 	void testContextMenu() {
-		ContextMenu bar = MenuFactory.createContextMenu( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]|exit", false );
+		ContextMenu bar = MenuBarFactory.createContextMenu( getProgram(), "file[new,open,save,close],edit[undo,redo],help[about]|exit", false );
 		assertThat( bar.getItems().get( 0 ).getId() ).isEqualTo( "menu-file" );
 		assertThat( bar.getItems().get( 1 ).getId() ).isEqualTo( "menu-edit" );
 		assertThat( bar.getItems().get( 2 ).getId() ).isEqualTo( "menu-help" );

@@ -1,5 +1,8 @@
 package com.avereon.xenon.ui.util;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import java.util.*;
 import java.util.stream.StreamSupport;
 
@@ -20,7 +23,7 @@ public abstract class NavFactory {
 	/**
 	 * <p>
 	 * Parse a bar descriptor string into groups of tokens that can be
-	 * interpreted into a menu bar or tool bar. The descriptor is a comma
+	 * interpreted into a menu bar or toolbar. The descriptor is a comma
 	 * separated list of tokens. A token is an action key or an action key and a
 	 * list of child tokens.
 	 * </p>
@@ -72,56 +75,35 @@ public abstract class NavFactory {
 		return token;
 	}
 
+	@Getter
 	public static class Token {
 
 		private final String id;
 
 		private final List<Token> children;
 
-		private final boolean isAction;
+		private final boolean action;
 
-		private final boolean isSeparator;
+		private final boolean separator;
 
-		private final boolean isOpenGroup;
+		@Getter(AccessLevel.PRIVATE)
+		private final boolean openGroup;
 
-		private final boolean isCloseGroup;
+		@Getter(AccessLevel.PRIVATE)
+		private final boolean closeGroup;
 
 		public Token( String id ) {
 			this.id = id;
 			this.children = new ArrayList<>();
 
-			this.isSeparator = SEPARATOR.equals( id );
-			this.isOpenGroup = OPEN_GROUP.equals( id );
-			this.isCloseGroup = CLOSE_GROUP.equals( id );
-			this.isAction = !(isSeparator | isOpenGroup | isCloseGroup);
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public List<Token> getChildren() {
-			return children;
+			this.separator = SEPARATOR.equals( id );
+			this.openGroup = OPEN_GROUP.equals( id );
+			this.closeGroup = CLOSE_GROUP.equals( id );
+			this.action = !(separator | openGroup | closeGroup);
 		}
 
 		public void addToken( Token token ) {
 			this.children.add( token );
-		}
-
-		public boolean isAction() {
-			return isAction;
-		}
-
-		public boolean isSeparator() {
-			return isSeparator;
-		}
-
-		private boolean isOpenGroup() {
-			return isOpenGroup;
-		}
-
-		private boolean isCloseGroup() {
-			return isCloseGroup;
 		}
 
 		@Override

@@ -276,8 +276,9 @@ class UiRegenerator {
 	private void setView( Settings settings, String key, Consumer<WorkpaneView> handler ) {
 		String viewId = settings.get( key );
 		WorkpaneView view = viewId == null ? null : views.get( viewId );
-		if( view != null ) handler.accept( view );
-		if( "view-default".equals( key ) && view == null ) {
+		if( view != null ) {
+			handler.accept( view );
+		} else if( "view-default".equals( key ) ) {
 			log.atError().log( "The default view was not restored. This will cause a UI problem." );
 
 			Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );

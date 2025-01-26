@@ -11,7 +11,7 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.ui.util.MenuFactory;
+import com.avereon.xenon.ui.util.MenuBarFactory;
 import com.avereon.xenon.ui.util.ToolBarFactory;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -193,18 +193,23 @@ public class Workspace extends Stage implements WritableIdentity {
 		toggleMinimizeAction = new ToggleMinimizeAction( program, this );
 		toggleMaximizeAction = new ToggleMaximizeAction( program, this );
 
-		// Create components for the action bar
+		// Create the workarea menu
 		workareaMenu = createWorkareaMenu( program );
-		programMenuBar = createProgramMenuBar( program );
 
-		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + EDIT_ACTION );
-		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuFactory.MENU_ID_PREFIX + VIEW_ACTION );
+		// Create the program menu bar
+		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+		String menuDescriptor = program.getSettings().get( "menubar", defaultDescriptor );
+		programMenuBar = MenuBarFactory.createMenuBar( program, menuDescriptor, false );
+		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, programMenuBar.getMenus() );
+		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
+		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
+		// Create the workspace action bar
 		workspaceActionBar = new StackPane( workareaMenu, programMenuBar );
 
 		toolbarToolStart = new Separator();
 		toolbarToolEnd = ToolBarFactory.createSpring();
-		toolbar = createProgramToolBar( program );
+		toolbar = createProgramToolBar( program, toolbarToolStart, toolbarToolEnd );
 
 		// Create the action bar. Depends on workspaceSelectionContainer and toolbar.
 		actionBar = createActionBar( program );
@@ -314,16 +319,16 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private HBox createActionBar( Xenon program ) {
-		// NEXT Add program icon to the left of the program menu
-		ToolBar programActionBar = ToolBarFactory.createToolBar( program, "program" );
-		//programActionBar.getStyleClass().add( ACTIONS );
+		MenuBar programActionBar = MenuBarFactory.createMenuBar( program, "program[minimize,maximize|workspace-close]", true );
+		programActionBar.getStyleClass().add( ACTIONS );
+		programActionBar.getMenus().getFirst().setText( "" );
 
 		// The action bar spring
 		Node spring = StageMover.of( ToolBarFactory.createSpring() );
 
 		// The workspace actions
 		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings-toggle|minimize,maximize,workspace-close" );
-		//workspaceActions.getStyleClass().add( ACTIONS );
+		workspaceActions.getStyleClass().add( ACTIONS );
 
 		// Create the action bar
 		HBox actionBar = new HBox();
@@ -350,27 +355,28 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( url != null ) scene.getStylesheets().add( url );
 	}
 
-	private MenuBar createProgramMenuBar( Xenon program ) {
-		// Load the menu descriptors
-		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-
-		// Build the program menu
-		List<Menu> menus = MenuFactory.createMenus( program, customDescriptor, false );
-
-		// Add the dev menu if using the dev profile
-		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.getLast() );
-
-		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
-		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
-		bar.setId( "menu-bar-program" );
-
-		return bar;
-	}
+//	@Deprecated
+//	// FIXME This method is fantastic but should be in MenuFactory or MenuBarFactory
+//	private MenuBar createProgramMenuBar( Xenon program ) {
+//		// Load the menu descriptors
+//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
+//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
+//
+//		// Build the program menu
+//		List<Menu> menus = MenuBarFactory.createMenus( program, customDescriptor, false );
+//
+//		// Add the dev menu if using the dev profile
+//		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.getLast() );
+//
+//		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+//		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
+//		bar.setId( "menu-bar-program" );
+//
+//		return bar;
+//	}
 
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
-		int index = menus.stream().filter( item -> (MenuFactory.MENU_ID_PREFIX + "maintenance").equals( item.getId() ) ).mapToInt( menus::indexOf ).findFirst().orElse( -1 );
-		if( index >= 0 ) menus.add( index, generateDevMenu( program ) );
+		menus.add( generateDevMenu( program ) );
 	}
 
 	private void insertDevMenu( Xenon program, Menu menu ) {
@@ -392,12 +398,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		development += "|show-updates-posted,show-updates-staged";
 		development += "|test-action-1,test-action-2,test-action-3,test-action-4,test-action-5";
 		development += "]";
-		return MenuFactory.createMenu( program, development, true );
+		return MenuBarFactory.createMenu( program, development, true );
 	}
 
-	private ToolBar createProgramToolBar( Xenon program ) {
+	private ToolBar createProgramToolBar( Xenon program, Node toolbarToolStart, Node toolbarToolEnd ) {
 		ToolBar toolbar = ToolBarFactory.createToolBar( program );
-		toolbar.getItems().add( toolbarToolEnd );
+		toolbar.getItems().addFirst( toolbarToolStart );
+		toolbar.getItems().addLast( toolbarToolEnd );
 		return toolbar;
 	}
 
@@ -406,7 +413,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Button menuButton = ToolBarFactory.createToolBarButton( program, "menu" );
 		menuButton.setId( "menu-button-menu" );
 
-		MenuButton workareaMenu = MenuFactory.createMenuButton( program, "workarea", true );
+		MenuButton workareaMenu = MenuBarFactory.createMenuButton( program, "workarea", true );
 		workareaMenu.getStyleClass().addAll( "workarea-menu" );
 		StackPane.setAlignment( workareaMenu, Pos.CENTER_LEFT );
 
@@ -422,9 +429,9 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		// Create the workarea action menu items
-		MenuItem create = MenuFactory.createMenuItem( program, "workarea-new" );
-		MenuItem rename = MenuFactory.createMenuItem( program, "workarea-rename" );
-		MenuItem close = MenuFactory.createMenuItem( program, "workarea-close" );
+		MenuItem create = MenuBarFactory.createMenuItem( program, "workarea-new" );
+		MenuItem rename = MenuBarFactory.createMenuItem( program, "workarea-rename" );
+		MenuItem close = MenuBarFactory.createMenuItem( program, "workarea-close" );
 		SeparatorMenuItem workareaSeparator = new SeparatorMenuItem();
 
 		// Add the workarea action menu items
@@ -439,7 +446,7 @@ public class Workspace extends Stage implements WritableIdentity {
 			workareaMenu.getItems().remove( startIndex + 1, workareaMenu.getItems().size() );
 
 			// Update the list of workarea menu items
-			workareaMenu.getItems().addAll( c.getList().stream().map( this::createWorkareaMenuItem ).toList() );
+			workareaMenu.getItems().addAll( c.getList().stream().map( MenuBarFactory::createWorkareaMenuItem ).toList() );
 		} );
 
 		// The menu button and workarea menu should be put in a toolbar for proper layout
@@ -447,15 +454,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		workareaToolbar.getItems().addAll( menuButton, workareaMenu );
 
 		return workareaToolbar;
-	}
-
-	private MenuItem createWorkareaMenuItem( Workarea workarea ) {
-		MenuItem item = new MenuItem();
-		item.textProperty().bind( workarea.nameProperty() );
-		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i ) ) );
-		item.getStyleClass().addAll( "workarea-menu-item" );
-		item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
-		return item;
 	}
 
 	private StatusBar createStatusBar( Xenon program ) {
@@ -517,7 +515,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		pullMenuActions();
 		descriptor = "tool[" + descriptor + "]";
 		int index = programMenuBar.getMenus().indexOf( programMenuToolEnd );
-		programMenuBar.getMenus().addAll( index, MenuFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
+		programMenuBar.getMenus().addAll( index, MenuBarFactory.createMenus( getProgram(), descriptor, COMPACT_MENU ) );
 	}
 
 	public void pullMenuActions() {

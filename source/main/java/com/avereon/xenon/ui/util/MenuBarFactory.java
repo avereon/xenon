@@ -2,17 +2,20 @@ package com.avereon.xenon.ui.util;
 
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Xenon;
+import com.avereon.xenon.workspace.Workarea;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @CustomLog
-public class MenuFactory extends NavFactory {
+public class MenuBarFactory extends NavFactory {
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
@@ -21,6 +24,21 @@ public class MenuFactory extends NavFactory {
 	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
 
 	public static final String MENU_BUTTON_ID_PREFIX = "menu-button-";
+
+	public static MenuBar createMenuBar( Xenon program, String descriptor ) {
+		return createMenuBar( program, descriptor, false );
+	}
+
+	public static MenuBar createMenuBar( Xenon program, String descriptor, boolean showActionIcon ) {
+		// Build the program menu
+		List<Menu> menus = MenuBarFactory.createMenus( program, descriptor, showActionIcon );
+
+		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
+		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
+		bar.getStyleClass().add( "menu-bar" );
+
+		return bar;
+	}
 
 	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean showActionIcon ) {
 		ContextMenu menu = new ContextMenu();
@@ -115,7 +133,7 @@ public class MenuFactory extends NavFactory {
 
 		List<MenuButton> buttons = new ArrayList<>();
 
-		for( Token child :tokens ) {
+		for( Token child : tokens ) {
 			MenuButton button = createMenuButton( program, child, showActionIcon );
 			//button.getStyleClass().addAll("menu-button-menubar");
 			buttons.add( button );
@@ -165,6 +183,15 @@ public class MenuFactory extends NavFactory {
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 		action.iconProperty().addListener( ( event ) -> item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
+		return item;
+	}
+
+	public static MenuItem createWorkareaMenuItem( Workarea workarea ) {
+		MenuItem item = new MenuItem();
+		item.textProperty().bind( workarea.nameProperty() );
+		item.graphicProperty().bind( workarea.iconProperty().map( i -> workarea.getProgram().getIconLibrary().getIcon( i ) ) );
+		item.getStyleClass().addAll( "workarea-menu-item" );
+		item.setOnAction( e -> workarea.getWorkspace().setActiveWorkarea( workarea ) );
 		return item;
 	}
 

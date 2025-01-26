@@ -288,6 +288,12 @@ Derived from modena.css
 .action-bar {
 	-fx-background-color: -ex-background-tool;
 	-fx-padding: 0;
+	-fx-alignment: center;
+}
+
+.action-bar .node {
+	-fx-background-color: transparent;
+	-fx-padding: 0 0.5em;
 }
 
 .action-bar .menu-bar {
@@ -313,16 +319,18 @@ Derived from modena.css
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
 	-fx-padding: 0.3em 0.3em 0.3em 0.3em;
+
+	-fx-vertical-align: center;
 }
 
 .action-bar .button:hover {
 	-fx-background-color: -fx-selection-bar;
 }
 
-/*#menu-bar-program {*/
-/*	-fx-background-color: transparent;*/
-/*	-fx-padding: 0;*/
-/*}*/
+.menu-bar {
+	-fx-background-color: blue;
+	-fx-padding: 0;
+}
 
 /* Program menu button */
 #menu-button-menu {
