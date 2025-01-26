@@ -109,9 +109,6 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final MenuBar programMenuBar;
 
-	//@Deprecated
-	//private final ContextMenu verticalProgramMenu;
-
 	// This menu is used to mark the beginning of the space where tools can push
 	// their own actions as well as be a standard menu.
 	private final MenuItem programMenuToolStart;
@@ -355,26 +352,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( url != null ) scene.getStylesheets().add( url );
 	}
 
-//	@Deprecated
-//	// FIXME This method is fantastic but should be in MenuFactory or MenuBarFactory
-//	private MenuBar createProgramMenuBar( Xenon program ) {
-//		// Load the menu descriptors
-//		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
-//		String customDescriptor = getSettings().get( "menubar", defaultDescriptor );
-//
-//		// Build the program menu
-//		List<Menu> menus = MenuBarFactory.createMenus( program, customDescriptor, false );
-//
-//		// Add the dev menu if using the dev profile
-//		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, menus.getLast() );
-//
-//		MenuBar bar = new MenuBar( menus.toArray( new Menu[ 0 ] ) );
-//		StackPane.setAlignment( bar, Pos.CENTER_LEFT );
-//		bar.setId( "menu-bar-program" );
-//
-//		return bar;
-//	}
-
 	private void insertDevMenu( Xenon program, List<Menu> menus ) {
 		menus.add( generateDevMenu( program ) );
 	}
@@ -595,7 +572,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	public Workarea getActiveWorkarea() {
-		if( activeWorkareaProperty.isNull().get() && workareas.size() == 1 ) setActiveWorkarea( workareas.get( 0 ) );
+		if( activeWorkareaProperty.isNull().get() && workareas.size() == 1 ) setActiveWorkarea( workareas.getFirst() );
 		return activeWorkareaProperty.get();
 	}
 
