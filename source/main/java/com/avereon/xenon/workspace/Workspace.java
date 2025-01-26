@@ -111,11 +111,11 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	// This menu is used to mark the beginning of the space where tools can push
 	// their own actions as well as be a standard menu.
-	private final MenuItem programMenuToolStart;
+	private final Menu programMenuToolStart;
 
 	// This menu is used to mark the end of the space where tools can push their
 	// own actions as well as be a standard menu.
-	private final MenuItem programMenuToolEnd;
+	private final Menu programMenuToolEnd;
 
 	private final ToolBar toolbar;
 
