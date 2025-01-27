@@ -3,11 +3,13 @@ package com.avereon.xenon.ui.util;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
-import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -73,11 +75,13 @@ public class ToolBarFactory extends NavFactory {
 		popup.setHideOnEscape( true );
 
 		ToolBar tray = new ToolBar();
-		popup.getContent().add( tray );
-		tray.getStyleClass().add( "toolbar-tray" );
+		tray.setId( TRAY_PREFIX + item.getId() );
+		tray.getStyleClass().add( "action-tray" );
 		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t, popup ) ).toList() );
 		tray.setOrientation( rotate( toolbar.getOrientation() ) );
 		toolbar.orientationProperty().addListener( ( p, o, n ) -> tray.setOrientation( rotate( toolbar.getOrientation() ) ) );
+
+		popup.getContent().add( tray );
 
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
@@ -89,8 +93,7 @@ public class ToolBarFactory extends NavFactory {
 
 	private static Button createToolMenu( Xenon program, ToolBar toolbar, Token item ) {
 		ContextMenu menu = MenuBarFactory.createContextMenu( program, item, true );
-		menu.getStyleClass().add( "toolbar-tray" );
-		menu.setAutoFix( true );
+		menu.getStyleClass().add( "action-tray" );
 
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
@@ -110,15 +113,29 @@ public class ToolBarFactory extends NavFactory {
 			// Initially show the tray off-screen, so it can be laid out before the tray offset is calculated
 			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
 
-			// Calculate offset after the tray is shown so the tray is aligned with the button
-			double offset = 0;
-			if( alignmentChild instanceof MenuItem item ) {
-				offset = item.getGraphic().getLayoutX();
-			} else if( alignmentChild instanceof Node node ) {
-				offset = FxUtil.localToParent( node, button ).getMinX();
-			}
+			// Calculate offset for the tray so it will be aligned with the button
+			Point2D anchor = button.localToScreen( 0, button.getHeight() );
 
-			Point2D anchor = button.localToScreen( new Point2D( -offset, button.getHeight() ) );
+			// FIXME This strategy to fix the tray alignment does not work anymore
+			//  because the tray is not a child of the button
+//			if( alignmentChild instanceof MenuItem item ) {
+//				Bounds buttonScreenBounds = button.localToScreen( button.getBoundsInLocal() );
+//				Bounds itemScreenBounds = item.getGraphic().localToScreen( item.getGraphic().getBoundsInLocal() );
+//
+//				//offset = FxUtil.localToParent( item.getGraphic(), button ).getMinX();
+//				offset = buttonScreenBounds.getMinX() - itemScreenBounds.getMinX();
+//			} else if( alignmentChild instanceof Node node ) {
+			// TODO Take into account the padding around the toolbar
+//				// Use the parent layout bounds to calculate the offset
+//				//offset = node.localToParent( node.getLayoutX(), node.getLayoutY() ).getX();
+//				//Bounds bounds = node.localToParent( node.getBoundsInLocal() );
+//				Bounds bounds = FxUtil.localToAncestor( node, button );
+//
+//				offset = FxUtil.localToAncestor( node, button ).getMinX();
+//				anchor = button.localToScreen( new Point2D( -offset, button.getLayoutY() + button.getHeight() ) );
+//			}
+
+			//Point2D anchor = button.localToScreen( new Point2D( -offset, button.getHeight() ) );
 
 			// Move the popup to the correct location
 			popup.setX( anchor.getX() );

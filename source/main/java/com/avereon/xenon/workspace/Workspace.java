@@ -316,14 +316,14 @@ public class Workspace extends Stage implements WritableIdentity {
 	}
 
 	private HBox createActionBar( Xenon program ) {
-		MenuBar programActionBar = MenuBarFactory.createMenuBar( program, "program[minimize,maximize|workspace-close]", true );
+		ToolBar programActionBar = ToolBarFactory.createToolBar( program, "program{minimize,maximize|workspace-close}" );
 		programActionBar.getStyleClass().add( ACTIONS );
-		programActionBar.getMenus().getFirst().setText( null );
 
 		// The action bar spring
 		Node spring = StageMover.of( ToolBarFactory.createSpring() );
 
 		// The workspace actions
+		// NEXT Enhance the settings menu options
 		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings{settings,about}|minimize,maximize,workspace-close" );
 		workspaceActions.getStyleClass().add( ACTIONS );
 

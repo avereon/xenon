@@ -318,12 +318,30 @@ Derived from modena.css
 .action-bar .button {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
-	-fx-padding: 0.3em 0.3em 0.3em 0.3em;
+	-fx-padding: 0.3em;
 
 	-fx-vertical-align: center;
 }
 
 .action-bar .button:hover {
+	-fx-background-color: -fx-selection-bar;
+}
+
+.action-tray {
+	-fx-background-color: green;
+	/*-fx-background-insets: 0;*/
+
+	/* Do not put padding around the tray */
+	-fx-padding: 0;
+}
+
+.action-tray .button {
+	-fx-background-color: transparent;
+	-fx-padding: 0.3em;
+	-fx-vertical-align: center;
+}
+
+.action-tray .button:hover {
 	-fx-background-color: -fx-selection-bar;
 }
 
@@ -684,15 +702,6 @@ Derived from modena.css
 
 .settings-infoline {
 	-fx-wrap-text: false
-}
-
-/*******************************************************************************
- * Toolbar Tray
- ******************************************************************************/
-.toolbar-tray-popup {
-}
-
-.toolbar-tray {
 }
 
 /*******************************************************************************
