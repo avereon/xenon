@@ -42,7 +42,13 @@ public class MenuBarFactory extends NavFactory {
 
 	public static ContextMenu createContextMenu( Xenon program, String descriptor, boolean showActionIcon ) {
 		ContextMenu menu = new ContextMenu();
-		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuItem( program, t, showActionIcon ) ) );
+		parseDescriptor( descriptor ).forEach( t -> menu.getItems().add( createMenuBarItem( program, t, showActionIcon ) ) );
+		return menu;
+	}
+
+	public static ContextMenu createContextMenu( Xenon program, Token menuToken, boolean showActionIcon ) {
+		ContextMenu menu = new ContextMenu();
+		menuToken.getChildren().forEach( t -> menu.getItems().add( createMenuBarItem( program, t, showActionIcon ) ) );
 		return menu;
 	}
 
@@ -69,7 +75,7 @@ public class MenuBarFactory extends NavFactory {
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
 		for( Token child : token.getChildren() ) {
-			menu.getItems().add( createMenuItem( program, child, showActionIcon ) );
+			menu.getItems().add( createMenuBarItem( program, child, showActionIcon ) );
 		}
 
 		return menu;
@@ -107,7 +113,7 @@ public class MenuBarFactory extends NavFactory {
 		action.mnemonicNameProperty().addListener( ( event ) -> menu.setText( action.getName() ) );
 
 		for( Token child : token.getChildren() ) {
-			menu.getItems().add( createMenuItem( program, child, showActionIcon ) );
+			menu.getItems().add( createMenuBarItem( program, child, showActionIcon ) );
 		}
 
 		return menu;
@@ -142,23 +148,27 @@ public class MenuBarFactory extends NavFactory {
 		return buttons;
 	}
 
-	public static MenuItem createMenuItem( Xenon program, String action ) {
-		return createMenuItem( program, new Token( action ), false );
+	public static MenuItem createMenuBarItem( Xenon program, String action ) {
+		return createMenuBarItem( program, new Token( action ), false );
 	}
 
-	private static MenuItem createMenuItem( Xenon program, Token item, boolean showActionIcon ) {
-		if( item.isSeparator() ) {
+	private static MenuItem createMenuBarItem( Xenon program, Token item, boolean showActionIcon ) {
+		if( item.getType() == Token.Type.SEPARATOR ) {
 			MenuItem separator = new SeparatorMenuItem();
 			separator.setId( "separator" );
 			return separator;
 		} else if( item.getChildren().isEmpty() ) {
-			return createMenuItem( program, program.getActionLibrary().getAction( item.getId() ) );
-		} else {
+			return createMenuBarItem( program, program.getActionLibrary().getAction( item.getId() ) );
+		} else if( item.getType() == Token.Type.TRAY || item.getType() == Token.Type.MENU ) {
 			return createMenu( program, item, showActionIcon );
 		}
+
+		log.atError().log( "Unknown menubar item type: %s", item );
+
+		return new MenuItem();
 	}
 
-	private static MenuItem createMenuItem( Xenon program, ActionProxy action ) {
+	private static MenuItem createMenuBarItem( Xenon program, ActionProxy action ) {
 		String type = action.getType();
 		if( type == null ) type = "normal";
 

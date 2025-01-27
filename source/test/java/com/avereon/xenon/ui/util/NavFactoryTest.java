@@ -31,7 +31,7 @@ public class NavFactoryTest {
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
 		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
 		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
 		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
@@ -47,7 +47,7 @@ public class NavFactoryTest {
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
 		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
 		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
 		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
@@ -63,14 +63,14 @@ public class NavFactoryTest {
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
 		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
 		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "exit" );
 		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 6 );
 		assertThat( tokens.get( 1 ).getId() ).isEqualTo( "edit" );
 		assertThat( tokens.get( 1 ).getChildren().get( 0 ).getId() ).isEqualTo( "undo" );
 		assertThat( tokens.get( 1 ).getChildren().get( 1 ).getId() ).isEqualTo( "redo" );
-		assertThat( tokens.get( 1 ).getChildren().get( 2 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 1 ).getChildren().get( 2 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 1 ).getChildren().get( 2 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 1 ).getChildren().get( 3 ).getId() ).isEqualTo( "cut" );
 		assertThat( tokens.get( 1 ).getChildren().get( 4 ).getId() ).isEqualTo( "copy" );
@@ -88,10 +88,10 @@ public class NavFactoryTest {
 		assertThat( tokens.get( 0 ).getChildren().get( 1 ).getId() ).isEqualTo( "open" );
 		assertThat( tokens.get( 0 ).getChildren().get( 2 ).getId() ).isEqualTo( "save" );
 		assertThat( tokens.get( 0 ).getChildren().get( 3 ).getId() ).isEqualTo( "close" );
-		assertThat( tokens.get( 0 ).getChildren().get( 4 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 0 ).getChildren().get( 4 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 0 ).getChildren().get( 5 ).getId() ).isEqualTo( "settings" );
-		assertThat( tokens.get( 0 ).getChildren().get( 6 ).isSeparator() ).isTrue();
+		assertThat( tokens.get( 0 ).getChildren().get( 6 ).getType() ).isEqualTo( NavFactory.Token.Type.SEPARATOR );
 		assertThat( tokens.get( 0 ).getChildren().get( 6 ).getId() ).isEqualTo( "|" );
 		assertThat( tokens.get( 0 ).getChildren().get( 7 ).getId() ).isEqualTo( "exit" );
 		assertThat( tokens.get( 0 ).getChildren().size() ).isEqualTo( 8 );

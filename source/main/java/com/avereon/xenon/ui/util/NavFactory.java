@@ -1,7 +1,7 @@
 package com.avereon.xenon.ui.util;
 
-import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.StreamSupport;
@@ -10,15 +10,19 @@ public abstract class NavFactory {
 
 	public static final String SEPARATOR = "|";
 
-	public static final String OPEN_GROUP = "[";
+	public static final String MENU_OPEN = "{";
 
-	public static final String CLOSE_GROUP = "]";
+	public static final String MENU_CLOSE = "}";
+
+	public static final String TRAY_OPEN = "[";
+
+	public static final String TRAY_CLOSE = "]";
 
 	public static final String COMMA_SPLITTER = ",";
 
 	public static final String SPACE_SPLITTER = " ";
 
-	public static final String DELIMITERS = SEPARATOR + OPEN_GROUP + CLOSE_GROUP + COMMA_SPLITTER + SPACE_SPLITTER;
+	public static final String DELIMITERS = SEPARATOR + MENU_OPEN + MENU_CLOSE + TRAY_OPEN + TRAY_CLOSE + COMMA_SPLITTER + SPACE_SPLITTER;
 
 	/**
 	 * <p>
@@ -63,11 +67,14 @@ public abstract class NavFactory {
 		Token token = new Token( queue.poll() );
 
 		Token next = new Token( queue.peek() );
-		if( next.isOpenGroup() ) {
+
+		if( next.isOpenToken() ) {
+			// Set the parent token type to the type of the open token
+			token.type = next.type;
 			queue.poll();
 			next = parseToken( queue );
-			while( next != null && !next.isCloseGroup() ) {
-				token.addToken( next );
+			while( next != null && !next.isCloseToken() ) {
+				token.addChildToken( next );
 				next = parseToken( queue );
 			}
 		}
@@ -78,31 +85,38 @@ public abstract class NavFactory {
 	@Getter
 	public static class Token {
 
+		public enum Type {
+			ACTION,
+			MENU,
+			SEPARATOR,
+			TRAY
+		}
+
 		private final String id;
 
 		private final List<Token> children;
 
-		private final boolean action;
+		private final boolean openToken;
 
-		private final boolean separator;
+		private final boolean closeToken;
 
-		@Getter(AccessLevel.PRIVATE)
-		private final boolean openGroup;
-
-		@Getter(AccessLevel.PRIVATE)
-		private final boolean closeGroup;
+		@Setter
+		private Type type;
 
 		public Token( String id ) {
 			this.id = id;
+			this.type = Type.ACTION;
 			this.children = new ArrayList<>();
 
-			this.separator = SEPARATOR.equals( id );
-			this.openGroup = OPEN_GROUP.equals( id );
-			this.closeGroup = CLOSE_GROUP.equals( id );
-			this.action = !(separator | openGroup | closeGroup);
+			this.openToken = TRAY_OPEN.equals( id ) || MENU_OPEN.equals( id );
+			this.closeToken = TRAY_CLOSE.equals( id ) || MENU_CLOSE.equals( id );
+
+			if( SEPARATOR.equals( id ) ) type = Type.SEPARATOR;
+			if( TRAY_OPEN.equals( id ) || TRAY_CLOSE.equals( id ) ) type = Type.TRAY;
+			if( MENU_OPEN.equals( id ) || MENU_CLOSE.equals( id ) ) type = Type.MENU;
 		}
 
-		public void addToken( Token token ) {
+		public void addChildToken( Token token ) {
 			this.children.add( token );
 		}
 
@@ -121,16 +135,27 @@ public abstract class NavFactory {
 		public String toString() {
 			StringBuilder childString = new StringBuilder();
 			if( !children.isEmpty() ) {
-				childString.append( "[" );
+				String open = switch( type ) {
+					case MENU -> MENU_OPEN;
+					case TRAY -> TRAY_OPEN;
+					default -> "";
+				};
+				String close = switch( type ) {
+					case MENU -> MENU_CLOSE;
+					case TRAY -> TRAY_CLOSE;
+					default -> "";
+				};
+				childString.append( open );
 				for( Token child : children ) {
-					boolean first = childString.toString().isBlank();
-					if( !first ) childString.append( ", " );
+					boolean first = childString.length() == 1;
+					if( !first ) childString.append( "," );
 					childString.append( child.id );
 				}
-				childString.append( "]" );
+				childString.append( close );
 			}
 			return id + childString;
 		}
+
 	}
 
 }

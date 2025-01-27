@@ -318,13 +318,13 @@ public class Workspace extends Stage implements WritableIdentity {
 	private HBox createActionBar( Xenon program ) {
 		MenuBar programActionBar = MenuBarFactory.createMenuBar( program, "program[minimize,maximize|workspace-close]", true );
 		programActionBar.getStyleClass().add( ACTIONS );
-		programActionBar.getMenus().getFirst().setText( "" );
+		programActionBar.getMenus().getFirst().setText( null );
 
 		// The action bar spring
 		Node spring = StageMover.of( ToolBarFactory.createSpring() );
 
 		// The workspace actions
-		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings-toggle|minimize,maximize,workspace-close" );
+		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings{settings,about}|minimize,maximize,workspace-close" );
 		workspaceActions.getStyleClass().add( ACTIONS );
 
 		// Create the action bar
@@ -406,9 +406,9 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		// Create the workarea action menu items
-		MenuItem create = MenuBarFactory.createMenuItem( program, "workarea-new" );
-		MenuItem rename = MenuBarFactory.createMenuItem( program, "workarea-rename" );
-		MenuItem close = MenuBarFactory.createMenuItem( program, "workarea-close" );
+		MenuItem create = MenuBarFactory.createMenuBarItem( program, "workarea-new" );
+		MenuItem rename = MenuBarFactory.createMenuBarItem( program, "workarea-rename" );
+		MenuItem close = MenuBarFactory.createMenuBarItem( program, "workarea-close" );
 		SeparatorMenuItem workareaSeparator = new SeparatorMenuItem();
 
 		// Add the workarea action menu items
