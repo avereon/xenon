@@ -142,10 +142,10 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
 		WorkpaneDropHint hint = null;
 		if( event.getSource() == headerDrop ) {
-			hint = new WorkpaneDropHint( FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane() ) );
+			hint = new WorkpaneDropHint( FxUtil.localToAncestor( headerDrop, getSkinnable().getWorkpane() ) );
 		} else if( event.getSource() == toolArea ) {
 			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
-			hint = new WorkpaneDropHint( FxUtil.localToParent( toolArea, getSkinnable().getWorkpane(), dropBounds ) );
+			hint = new WorkpaneDropHint( FxUtil.localToAncestor( toolArea, getSkinnable().getWorkpane(), dropBounds ) );
 		}
 		getSkinnable().getWorkpane().setDropHint( hint );
 		FxUtil.setTransferMode( event );

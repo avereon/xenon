@@ -106,7 +106,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		Tool tool = tab.getTool();
 
 		log.atDebug().log( "Drag over tab: %s", LazyEval.of( () -> event.getDragboard().getUrl() ) );
-		Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
+		Bounds bounds = FxUtil.localToAncestor( tab, tool.getWorkpane() );
 		tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 		FxUtil.setTransferMode( event );
 	}
