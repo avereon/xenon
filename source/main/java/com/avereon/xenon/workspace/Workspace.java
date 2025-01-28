@@ -323,8 +323,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Node spring = StageMover.of( ToolBarFactory.createSpring() );
 
 		// The workspace actions
-		// NEXT Enhance the settings menu options
-		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings{settings,about}|minimize,maximize,workspace-close" );
+		ToolBar workspaceActions = ToolBarFactory.createToolBar( program, "notice-toggle,search-toggle,settings{settings,modules|theme|update}|minimize,maximize,workspace-close" );
 		workspaceActions.getStyleClass().add( ACTIONS );
 
 		// Create the action bar
