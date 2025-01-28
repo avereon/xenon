@@ -74,7 +74,7 @@ public class RestartJob {
 	public void setMode( Mode mode, String... additionalParameters ) {
 		if( this.mode == mode ) return;
 
-		stageUpdater();
+		if( mode == Mode.UPDATE ) stageUpdater();
 
 		this.mode = mode;
 		this.additionalParameters = additionalParameters;
@@ -90,14 +90,13 @@ public class RestartJob {
 		}
 	}
 
-	@SuppressWarnings( "UnusedReturnValue" )
 	private void configure( Mode mode ) {
 		switch( mode ) {
 			case RESTART -> configureForRestart();
 			case UPDATE, MOCK_UPDATE -> configureForUpdate();
 		}
 
-		log.atInfo().log( "Restart job configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
+		log.atDebug().log( "Restart job configured: mode=%s command=%s", mode, TextUtil.toString( builder.command(), " " ) );
 	}
 
 	private synchronized void configureForRestart() {
