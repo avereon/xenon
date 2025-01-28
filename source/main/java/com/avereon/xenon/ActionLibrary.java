@@ -73,6 +73,8 @@ public class ActionLibrary {
 		register( product, "statusbar-show" );
 		register( product, "settings" );
 		register( product, "settings-toggle" );
+		register( product, "modules" );
+		register( product, "theme" );
 
 		register( product, "tool" );
 		register( product, "tools" );

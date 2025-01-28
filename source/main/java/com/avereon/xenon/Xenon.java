@@ -179,6 +179,10 @@ public class Xenon extends Application implements XenonProgram {
 
 	private ProductAction productAction;
 
+	private ModulesAction modulesAction;
+
+	private ThemeAction themeAction;
+
 	private UpdateAction updateAction;
 
 	private MockUpdateAction mockUpdateAction;
@@ -1368,47 +1372,25 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "search" ).pushAction( searchAction = new SearchAction( this ) );
 		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
+		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new ModulesAction( this ) );
+		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new ThemeAction( this ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
-		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
-		getActionLibrary().getAction( "uireset" ).pushAction( uiResetAction = new UiResetAction( this ) );
+
 		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
 		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pushAction( wallpaperTintToggleAction = new WallpaperTintToggleAction( this ) );
 
-		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			getProductManager().showPostedUpdates();
-		}
-		) );
+		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction( this, () -> getProductManager().showPostedUpdates() ) );
+		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction( this, () -> getProductManager().showStagedUpdates() ) );
 
-		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			getProductManager().showStagedUpdates();
-		}
-		) );
-
-		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log();
-		}
-		) );
-		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );
-		}
-		) );
-		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) );
-		}
-		) );
-		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction(
-			this, () -> {
-			//
-		}
-		) );
+		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
+		getActionLibrary().getAction( "uireset" ).pushAction( uiResetAction = new UiResetAction( this ) );
+		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log() ) );
+		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" ) ) );
+		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) ) ) );
+		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {} ) );
 	}
 
 	private void unregisterActionHandlers() {
