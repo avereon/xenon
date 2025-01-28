@@ -8,6 +8,8 @@ import java.util.stream.StreamSupport;
 
 public abstract class NavFactory {
 
+	public static final String TRAY_PREFIX = "tray-";
+
 	public static final String SEPARATOR = "|";
 
 	public static final String MENU_OPEN = "{";

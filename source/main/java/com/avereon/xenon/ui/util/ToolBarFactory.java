@@ -3,11 +3,13 @@ package com.avereon.xenon.ui.util;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
-import com.avereon.zarra.javafx.FxUtil;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -71,17 +73,20 @@ public class ToolBarFactory extends NavFactory {
 		popup.setAutoFix( true );
 		popup.setAutoHide( true );
 		popup.setHideOnEscape( true );
+		popup.setConsumeAutoHidingEvents(false);
 
 		ToolBar tray = new ToolBar();
-		popup.getContent().add( tray );
-		tray.getStyleClass().add( "toolbar-tray" );
+		tray.setId( TRAY_PREFIX + item.getId() );
+		tray.getStyleClass().addAll( "action-tray", "action-tool-tray" );
 		tray.getItems().addAll( item.getChildren().stream().map( t -> createToolBarItem( program, tray, t, popup ) ).toList() );
 		tray.setOrientation( rotate( toolbar.getOrientation() ) );
 		toolbar.orientationProperty().addListener( ( p, o, n ) -> tray.setOrientation( rotate( toolbar.getOrientation() ) ) );
 
+		popup.getContent().add( tray );
+
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
-		button.setOnAction( ( e ) -> doToggleTrayDialog( button, popup, tray.getItems().getFirst() ) );
+		button.setOnAction( ( e ) -> doToggleTrayDialog( button, popup ) );
 		button.setDisable( false );
 
 		return button;
@@ -89,12 +94,11 @@ public class ToolBarFactory extends NavFactory {
 
 	private static Button createToolMenu( Xenon program, ToolBar toolbar, Token item ) {
 		ContextMenu menu = MenuBarFactory.createContextMenu( program, item, true );
-		menu.getStyleClass().add( "toolbar-tray" );
-		menu.setAutoFix( true );
+		menu.getStyleClass().addAll( "action-tray", "action-menu-tray" );
 
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
-		button.setOnAction( ( e ) -> doToggleTrayDialog( button, menu, menu.getItems().getFirst() ) );
+		button.setOnAction( ( e ) -> doToggleTrayDialog( button, menu ) );
 		button.setDisable( false );
 
 		return button;
@@ -105,24 +109,22 @@ public class ToolBarFactory extends NavFactory {
 		return Orientation.HORIZONTAL;
 	}
 
-	private static void doToggleTrayDialog( Button button, PopupWindow popup, Object alignmentChild ) {
+	private static void doToggleTrayDialog( Button button, PopupWindow popup ) {
 		if( !popup.isShowing() ) {
-			// Initially show the tray off-screen, so it can be laid out before the tray offset is calculated
-			popup.show( button, Double.MIN_VALUE, Double.MIN_VALUE );
+			// Calculate button anchor point
+			Point2D anchor = button.localToScreen( button.getBoundsInLocal().getMinX(), button.getBoundsInLocal().getMaxY() );
 
-			// Calculate offset after the tray is shown so the tray is aligned with the button
-			double offset = 0;
-			if( alignmentChild instanceof MenuItem item ) {
-				offset = item.getGraphic().getLayoutX();
-			} else if( alignmentChild instanceof Node node ) {
-				offset = FxUtil.localToParent( node, button ).getMinX();
+			// Initial show to calculate the width
+			popup.show( button, anchor.getX(), anchor.getY() );
+
+			if( popup instanceof ContextMenu menu ) {
+				//
+			} else {
+				log.atConfig().log( "Button width=%s, popup width=%s", button.getWidth(), popup.getWidth() );
+				double offset = 0.5 * (button.getWidth() - popup.getWidth());
+				anchor = button.localToScreen( button.getBoundsInLocal().getMinX() + offset, button.getBoundsInLocal().getMaxY() );
+				popup.show( button, anchor.getX(), anchor.getY() );
 			}
-
-			Point2D anchor = button.localToScreen( new Point2D( -offset, button.getHeight() ) );
-
-			// Move the popup to the correct location
-			popup.setX( anchor.getX() );
-			popup.setY( anchor.getY() );
 		} else {
 			popup.hide();
 		}
