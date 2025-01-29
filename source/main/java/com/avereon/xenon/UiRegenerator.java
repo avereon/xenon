@@ -27,6 +27,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static com.avereon.xenon.UiFactory.*;
@@ -61,6 +62,8 @@ class UiRegenerator {
 
 	private boolean restored;
 
+	private Level logLevel = Level.CONFIG;
+
 	UiRegenerator( Xenon program ) {
 		this.program = program;
 		this.factory = new UiFactory( program, true );
@@ -74,6 +77,14 @@ class UiRegenerator {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
 
+	// NEXT There are a lot of issues restoring the UI. Let's get started.
+
+	// FIXME These lines indicate that the default view may not have been stored correctly.
+	//  An orphaned tool is a symptom of a view storage issue. Meaning that there is a tool for it, but not a view to put it in.
+	//2025-01-28 09:59:39.409 [W] c.a.x.UiRegenerator.restoreWorktool: Removing orphaned tool: id=wvlczcnxktcbwrrf type=com.avereon.xenon.tool.WelcomeTool
+  //2025-01-28 09:59:39.421 [E] c.a.x.UiRegenerator.setView: The default view was not restored. This will cause a UI problem.
+
+
 	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
 		Fx.affirmOnFxThread();
@@ -85,14 +96,18 @@ class UiRegenerator {
 			// Get the restore workspaces setting
 			//boolean forceDefaultWorkspace = Boolean.parseBoolean( program.getSettings().get( FORCE_DEFAULT_WORKSPACE, false ) );
 
-			// Restore the workspaces or generate the default workspace
+			// Load the known workspace ids
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
+			log.at(logLevel).log( "Number of workspaces to restore: %s", workspaceIds.size() );
+
 			if( workspaceIds.isEmpty() ) {
+				// Create the default workspace
 				createDefaultWorkspace();
-				log.atDebug().log( "Created default workspace" );
+				log.at(logLevel).log( "Created default workspace count=%s", 1 );
 			} else {
+				// Restore the known workspaces
 				exceptions = restoreWorkspaces( splashScreen, workspaceIds );
-				log.atDebug().log( "Restored previous workspaces" );
+				log.at(logLevel).log( "Restored known workspaces count=%s", workspaceIds.size() );
 			}
 
 			// Ensure there is an active workarea
@@ -163,7 +178,7 @@ class UiRegenerator {
 		}
 	}
 
-	private void createDefaultWorkspace() {
+	void createDefaultWorkspace() {
 		// Create the default workspace
 		Workspace workspace = getProgram().getWorkspaceManager().newWorkspace();
 		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
@@ -377,11 +392,15 @@ class UiRegenerator {
 		return getProgram().getSettingsManager().getSettings( path ).getNodes();
 	}
 
+	// FIXME Why am I not passing in the settings object to restore the workspace from?
 	private void restoreWorkspace( String id ) {
 		log.atDebug().log( "Restoring workspace: %s", id );
 		try {
+			log.at(logLevel).log( "Creating workspace: %s", id );
 			Workspace workspace = getProgram().getWorkspaceManager().newWorkspace( id );
 			getProgram().getWorkspaceManager().addWorkspace( workspace );
+
+			// FIXME Don't do this yet, do it after all the workspace parts are restored
 			if( workspace.isActive() ) getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
 
 			workspaces.put( id, workspace );

@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @CustomLog
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final String ROOT = "settings";
+	static final String ROOT = "settings";
 
 	private static final String GENERAL = "general";
 

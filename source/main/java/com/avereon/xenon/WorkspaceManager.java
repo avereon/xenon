@@ -83,7 +83,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// ... But during unit testing, Platform.exit() cannot be called or
 		// it hangs the tests. Furthermore, the tests will need to call
 		// Program.stop() which, in turn, calls WorkspaceManager.stop(), which
-		// should close the stages or they stay open during the duration of the
+		// should close the stages, or they stay open during the duration of the
 		// testing process.
 		//
 		// RESULT Do not close the stages in this method. The unit tests will just

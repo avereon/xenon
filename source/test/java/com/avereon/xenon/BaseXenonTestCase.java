@@ -7,6 +7,8 @@ import com.avereon.util.OperatingSystem;
 import com.avereon.util.ThreadUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +21,7 @@ import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
  * classes. This class should not be subclassed directly by tests, but should
  * use one of the previous classes.
  */
+@ExtendWith( MockitoExtension.class )
 public abstract class BaseXenonTestCase extends BaseForAllTests {
 
 	private Xenon program;
