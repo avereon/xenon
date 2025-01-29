@@ -298,22 +298,23 @@ Derived from modena.css
  ******************************************************************************/
 .action-bar {
 	-fx-background-color: -ex-background-tool;
-	-fx-padding: 0;
 	-fx-alignment: center;
+	-fx-padding: 0;
 }
 
-.action-bar .node {
-	-fx-background-color: transparent;
-	-fx-padding: 0 0.5em;
-}
+/*.action-bar .node {*/
+/*	!*-fx-background-color: transparent;*!*/
+/*	!*-fx-padding: 0 0.5em;*!*/
+/*}*/
 
 .action-bar .menu-bar {
 	-fx-background-color: transparent;
-	-fx-padding: 0 0.5em;
+	-fx-padding: 0;
 }
 
 .action-bar .tool-bar {
 	-fx-background-color: transparent;
+	-fx-padding: 0;
 }
 
 .action-bar .actions {
