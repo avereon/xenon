@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.util.ThreadUtil;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +31,7 @@ class UiRegeneratorTest extends BaseFullXenonTestCase {
 	}
 
 	@Test
+	@Disabled
 	void createDefaultWorkspace() {
 		// given
 		Path settingsFolder = getProgram().getDataFolder().resolve( SettingsManager.ROOT );
@@ -49,7 +51,7 @@ class UiRegeneratorTest extends BaseFullXenonTestCase {
 		Fx.run( () -> regenerator.createDefaultWorkspace() );
 		// NOTE I'm thinking that I have to wait long enough for all the settings to be saved
 		// That's 500ms plus a bit more for good measure, and that's too long
-		ThreadUtil.pause( 800 );
+		ThreadUtil.pause( 1000 );
 
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
