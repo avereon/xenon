@@ -181,13 +181,18 @@ class UiRegenerator {
 	void createDefaultWorkspace() {
 		// Create the default workspace
 		Workspace workspace = getProgram().getWorkspaceManager().newWorkspace();
-		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
 
 		// Create the default workarea
 		Workarea workarea = factory.newWorkarea();
-		//workarea.setIcon( getProgram().getIconLibrary().getIcon( "workarea" ) );
+		workarea.setIcon( "workarea" );
 		workarea.setName( "Default" );
+
+		// Add the workarea to the workspace
+		workspace.addWorkarea( workarea );
+
+		// Activate the new workarea and workspace
 		workspace.setActiveWorkarea( workarea );
+		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
 
 		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}

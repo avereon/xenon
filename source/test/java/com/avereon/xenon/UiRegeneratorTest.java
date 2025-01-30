@@ -1,7 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.settings.Settings;
-import com.avereon.settings.SettingsEvent;
 import com.avereon.util.ThreadUtil;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,18 +36,20 @@ class UiRegeneratorTest extends BaseFullXenonTestCase {
 		Path uiSettingsFolder = settingsFolder.resolve( ProgramSettings.UI.substring( 1 ) );
 		assertThat( uiSettingsFolder ).doesNotExist();
 
-		// NEXT Add a listener to the UI settings to watch when everything is saved
-		// FIXME Apparently settings events are not bubbled up to parents?
-		Settings uiSettings = getProgram().getSettingsManager().getSettings(ProgramSettings.UI);
-		uiSettings.register( SettingsEvent.ANY, e -> {
-			System.out.println( "Settings saved: " + e.getEventType() + " " + e.getPath() );
-		} );
-		uiSettings.set( "workspace-theme-id", "default" );
-		uiSettings.flush();
+//		// NEXT Add a listener to the UI settings to watch when everything is saved
+//		// FIXME Apparently settings events are not bubbled up to parents?
+//		Settings uiSettings = getProgram().getSettingsManager().getSettings(ProgramSettings.UI);
+//		uiSettings.register( SettingsEvent.ANY, e -> {
+//			System.out.println( "Settings saved: " + e.getEventType() + " " + e.getPath() );
+//		} );
+//		uiSettings.set( "workspace-theme-id", "default" );
+//		uiSettings.flush();
 
 		// when
 		Fx.run( () -> regenerator.createDefaultWorkspace() );
-		ThreadUtil.pause( 1000 );
+		// NOTE I'm thinking that I have to wait long enough for all the settings to be saved
+		// That's 500ms plus a bit more for good measure, and that's too long
+		ThreadUtil.pause( 800 );
 
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();

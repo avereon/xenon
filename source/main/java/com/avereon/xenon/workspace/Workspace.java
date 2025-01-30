@@ -599,6 +599,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 		// If the workarea is not already added, add it
 		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
+
 		// Set the new active workarea
 		Workarea priorWorkarea = activeWorkarea;
 		activeWorkareaProperty.set( workarea );
