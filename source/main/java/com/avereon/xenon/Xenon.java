@@ -526,11 +526,15 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
+		UiReader uiReader = new UiReader( Xenon.this );
+		Fx.run( uiReader::load );
+		uiReader.waitForLoad(MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+
 		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		if( workspaceManager.getActiveWorkpane() == null ) {
-			log.atWarning().log( "Active workarea not set" );
+			log.atWarning().log( "Failed to restore active workarea" );
 		}
 		log.atFine().log( "User interface restored." );
 		time( "user-interface-restored" );
