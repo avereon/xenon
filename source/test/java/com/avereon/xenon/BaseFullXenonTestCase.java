@@ -9,6 +9,7 @@ import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
+import javafx.event.Event;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,8 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private EventWatcher programWatcher;
 
+	private FxEventWatcher programFxWatcher;
+
 	private FxEventWatcher workpaneWatcher;
 
 	private long initialMemoryUse;
@@ -65,6 +68,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		Xenon xenon = setProgram( new Xenon() );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
+		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
 
 		// Start the application; all setup needs to be done before this point
 		long start = System.currentTimeMillis();
@@ -128,6 +132,10 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		return programWatcher;
 	}
 
+	protected FxEventWatcher getProgramFxEventWatcher() {
+		return programFxWatcher;
+	}
+
 	protected Workspace getWorkspace() {
 		return getProgram().getWorkspaceManager().getActiveWorkspace();
 	}
@@ -172,14 +180,16 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		//System.out.printf( "Memory use: %s -> %s = %s %s%n", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ), direction );
 
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increaseAbsolute > getAllowedMemoryGrowthSize() ) {
-			throw new AssertionFailedError( String.format( "Absolute memory growth too large %s -> %s : %s",
+			throw new AssertionFailedError( String.format(
+				"Absolute memory growth too large %s -> %s : %s",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				FileUtil.getHumanSizeBase2( increaseSize )
 			) );
 		}
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increasePercent > getAllowedMemoryGrowthPercent() ) {
-			throw new AssertionFailedError( String.format( "Relative memory growth too large %s -> %s : %.2f%%",
+			throw new AssertionFailedError( String.format(
+				"Relative memory growth too large %s -> %s : %.2f%%",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				increasePercent * 100
