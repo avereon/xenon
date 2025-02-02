@@ -78,12 +78,9 @@ class UiRegenerator {
 	}
 
 	// NEXT There are a lot of issues restoring the UI. Let's get started.
-
-	// FIXME These lines indicate that the default view may not have been stored correctly.
-	//  An orphaned tool is a symptom of a view storage issue. Meaning that there is a tool for it, but not a view to put it in.
-	//2025-01-28 09:59:39.409 [W] c.a.x.UiRegenerator.restoreWorktool: Removing orphaned tool: id=wvlczcnxktcbwrrf type=com.avereon.xenon.tool.WelcomeTool
-  //2025-01-28 09:59:39.421 [E] c.a.x.UiRegenerator.setView: The default view was not restored. This will cause a UI problem.
-
+	// - Tools are restored out of order
+	// - Active views and tools are not restored correctly
+	// - Dependent tools are restored (probably opened) to the wrong workspace
 
 	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
