@@ -38,6 +38,8 @@ import static com.avereon.xenon.UiFactory.*;
 @CustomLog
 class UiRegenerator {
 
+	private final Level logLevel = Level.CONFIG;
+
 	private final Xenon program;
 
 	private final UiFactory factory;
@@ -61,8 +63,6 @@ class UiRegenerator {
 	private final Condition restoredCondition = restoreLock.newCondition();
 
 	private boolean restored;
-
-	private Level logLevel = Level.CONFIG;
 
 	UiRegenerator( Xenon program ) {
 		this.program = program;
@@ -183,7 +183,8 @@ class UiRegenerator {
 		Workspace workspace = getProgram().getWorkspaceManager().newWorkspace();
 
 		// Create the default workarea
-		Workarea workarea = factory.newWorkarea();
+		// NOTE Have to use a "non-restoring" UiFactory
+		Workarea workarea = new UiFactory( program, false ).newWorkarea();
 		workarea.setIcon( "workarea" );
 		workarea.setName( "Default" );
 

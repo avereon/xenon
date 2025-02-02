@@ -81,11 +81,12 @@ public final class UiFactory {
 		workarea.setUid( id );
 		workarea.setPaint( paint );
 		workarea.setIcon( "workarea" );
-		setupWorkareaSettings( workarea );
 
 		Workpane workpane = workarea.getWorkpane();
 		workpane.setUid( id );
-		setupWorkpaneSettings( workarea.getWorkpane(), id );
+
+		setupWorkpaneSettings( workpane );
+		setupWorkareaSettings( workarea );
 
 		return workarea;
 	}
@@ -112,9 +113,9 @@ public final class UiFactory {
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
 	}
 
-	private void setupWorkpaneSettings( Workpane workpane, String id ) {
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
-		settings.set( PARENT_WORKAREA_ID, id );
+	private void setupWorkpaneSettings( Workpane workpane ) {
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, workpane.getUid() );
+		settings.set( PARENT_WORKAREA_ID, workpane.getUid() );
 
 		if( !restore ) {
 			// Save new state to settings
