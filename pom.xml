@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.6</version>
+		<version>3.5.7</version>
 		<relativePath/>
 	</parent>
 
@@ -288,8 +288,11 @@
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
-						-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar
-						-javaagent:${settings.localRepository}/org/mockito/mockito-core/5.15.2/mockito-core-5.15.2.jar
+						<!-- This works in Maven, of course, but not in IntelliJ -->
+						<!--										-javaagent:${net.bytebuddy:byte-buddy-agent:jar}-->
+						<!--										-javaagent:${org.mockito:mockito-core:jar}-->
+						-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
+						-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
 					</argLine>
 				</configuration>
 			</plugin>
@@ -597,8 +600,11 @@
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
-										-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar
-										-javaagent:${settings.localRepository}/org/mockito/mockito-core/5.15.2/mockito-core-5.15.2.jar
+										<!-- This works in Maven, of course, but not in IntelliJ -->
+										<!--										-javaagent:${net.bytebuddy:byte-buddy-agent:jar}-->
+										<!--										-javaagent:${org.mockito:mockito-core:jar}-->
+										-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
+										-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
 									</argLine>
 								</configuration>
 							</execution>
