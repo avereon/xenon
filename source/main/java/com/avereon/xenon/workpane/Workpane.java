@@ -649,6 +649,25 @@ public class Workpane extends Control implements WritableIdentity {
 		return view;
 	}
 
+	public WorkpaneEdge getWallEdge( char direction ) {
+		switch( direction ) {
+			case 't','T': {
+				return topWall;
+			}
+			case 'b','B': {
+				return bottomWall;
+			}
+			case 'l','L': {
+				return leftWall;
+			}
+			case 'r','R': {
+				return rightWall;
+			}
+		}
+
+		return null;
+	}
+
 	public WorkpaneEdge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {

@@ -34,11 +34,9 @@ class UiReader {
 	@Getter
 	private final Xenon program;
 
-	private final Map<String, Workspace> workspaces = new HashMap<>();
+	private final Map<String, Workspace> spaces = new HashMap<>();
 
 	private final Map<String, Workarea> areas = new HashMap<>();
-
-//	private final Map<String, Workpane> panes = new HashMap<>();
 
 	private final Map<String, WorkpaneEdge> edges = new HashMap<>();
 
@@ -47,6 +45,8 @@ class UiReader {
 	//private final Map<WorkpaneView, Set<ProgramTool>> viewTools = new HashMap<>();
 
 	private final Map<String, Tool> tools = new HashMap<>();
+
+	private final Map<Workspace, Workarea> activeAreas = new HashMap<>();
 
 	private final List<Exception> errors = new ArrayList<>();
 
@@ -65,26 +65,46 @@ class UiReader {
 	}
 
 	public void load() {
+		doLoad();
+	}
+
+	public void waitForLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+		doWaitForLoad( duration, unit );
+	}
+
+	private void doLoad() {
 		Fx.affirmOnFxThread();
 		restoreLock.lock();
 
 		try {
 			// Load the entity ids
 			// Note that areas and panes have the exact same ids
-			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
+			List<String> spaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
 			List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
-//			List<String> paneIds = getUiSettingsIds( ProgramSettings.PANE );
 			List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
 			List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
 			List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
-			log.at( logLevel ).log( "Number of items to restore: s=%s a=%s v=%s e=%s t=%s", workspaceIds.size(), areaIds.size(), viewIds.size(), edgeIds.size(), toolIds.size() );
+			log.at( logLevel ).log( "Number of items to restore: s=%s a=%s v=%s e=%s t=%s", spaceIds.size(), areaIds.size(), viewIds.size(), edgeIds.size(), toolIds.size() );
 
 			// Load all the parts from settings in order: space, area/pane, view, edge, tool
-			workspaceIds.forEach( this::loadWorkspace );
+			spaceIds.forEach( this::loadSpace );
 			areaIds.forEach( this::loadArea );
 			viewIds.forEach( this::loadView );
 			edgeIds.forEach( this::loadEdge );
 			toolIds.forEach( this::loadTool );
+
+			// Reassemble the UI
+			linkAreas();
+			// NEXT Continue work on UI reader
+			// - Reassemble the UI
+			//   - Link views and edges to areas
+			//   - Link tools to views
+
+			// NEXT Set all the active UI components
+			// - Set active tool
+			// - Set active view
+			// - Set default view
+			// - Set active workarea
 
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
@@ -95,14 +115,14 @@ class UiReader {
 		}
 	}
 
-	private void loadWorkspace( String id ) {
+	private void loadSpace( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 
 			Workspace workspace = new Workspace( program );
 			workspace.setUid( id );
 			workspace.updateFromSettings( settings );
-			workspaces.put( id, workspace );
+			spaces.put( id, workspace );
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error restoring workspace" );
 		}
@@ -111,7 +131,7 @@ class UiReader {
 	private void loadArea( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, id );
-			Workspace workspace = workspaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+			Workspace workspace = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
 			if( workspace == null ) {
@@ -216,7 +236,97 @@ class UiReader {
 		}
 	}
 
-	public void waitForLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+	private void linkAreas() {
+		// Link the workareas to the workspaces
+		for( Workarea workarea : areas.values() ) {
+			try {
+				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
+				Workspace workspace = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+				workspace.addWorkarea( workarea );
+
+				// Save the active area for later
+				if( workarea.isActive() ) activeAreas.put( workspace, workarea );
+			} catch( Exception exception ) {
+				errors.add( exception );
+			}
+		}
+	}
+
+	//	private void linkEdgesAndViews() {
+	//		Map<Workpane, Set<WorkpaneEdge>> workpaneEdges = new HashMap<>();
+	//		Map<Workpane, Set<WorkpaneView>> workpaneViews = new HashMap<>();
+	//
+	//		// Link the edges
+	//		for( WorkpaneEdge edge : edges.values() ) {
+	//			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
+	//			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+	//			try {
+	//				if( linkEdge( edge ) ) {
+	//					workpaneEdges.computeIfAbsent( workpane, k -> new HashSet<>() ).add( edge );
+	//				} else {
+	//					log.atDebug().log( "Removing invalid workpane edge settings: %s", LazyEval.of( settings::getName ) );
+	//					settings.delete();
+	//				}
+	//			} catch( Exception exception ) {
+	//				log.atWarn( exception ).log( "Error linking edge: %s", LazyEval.of( edge::getUid ) );
+	//				return;
+	//			}
+	//		}
+	//
+	//		// Link the views
+	//		for( WorkpaneView view : views.values() ) {
+	//			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
+	//			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+	//			try {
+	//				if( linkView( view ) ) {
+	//					workpaneViews.computeIfAbsent( workpane, k -> new HashSet<>() ).add( view );
+	//				} else {
+	//					log.atDebug().log( "Removing invalid workpane edge settings: %s", LazyEval.of( settings::getName ) );
+	//					settings.delete();
+	//				}
+	//			} catch( Exception exception ) {
+	//				log.atWarn( exception ).log( "Error linking view: %s", LazyEval.of( view::getUid ), exception );
+	//				return;
+	//			}
+	//		}
+	//
+	//		// Restore edges and views to workpane
+	//		for( Workpane pane : areas.values() ) {
+	//			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
+	//			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
+	//			pane.restoreNodes( localEdges, localViews );
+	//
+
+	/// /			// UIFactory gets sent a flag to not set the defaults when restoring the UI.
+	/// /			// This works around the problem of the default view being overwritten.
+	/// /
+	/// /			// Active, default and maximized views
+	/// /			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getUid() );
+	/// /			setView( settings, "view-active", pane::setActiveView );
+	/// /			setView( settings, "view-default", pane::setDefaultView );
+	/// /			setView( settings, "view-maximized", pane::setMaximizedView );
+	//		}
+	//	}
+
+	private WorkpaneEdge lookupEdge( Workarea area, String id ) {
+		if( area == null ) throw new NullPointerException( "Workpane cannot be null" );
+		if( id == null ) throw new NullPointerException( "Edge id cannot be null" );
+
+		WorkpaneEdge edge = edges.get( id );
+
+		// FIXME I can do better than this MVS 02 Feb 2025
+		if( edge == null ) {
+			try {
+				edge = area.getWallEdge( id.charAt( 0 ) );
+			} catch( IllegalArgumentException exception ) {
+				// Intentionally ignore exception
+			}
+		}
+
+		return edge;
+	}
+
+	private void doWaitForLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
 		restoreLock.lock();
 		try {
 			while( !restored ) {
