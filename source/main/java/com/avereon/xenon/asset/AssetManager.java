@@ -286,6 +286,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The asset type associated to the key
 	 */
 	public AssetType getAssetType( String key ) {
+		if( key == null ) return null;
 		AssetType type = assetTypes.get( key );
 		if( type == null ) log.atWarning().log( "Asset type not found: %s", key );
 		return type;

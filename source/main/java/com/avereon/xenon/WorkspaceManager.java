@@ -3,7 +3,6 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
-import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
@@ -128,10 +127,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return new HashSet<>( workspaces );
 	}
 
-	public Workspace newWorkspace() {
-		return newWorkspace( IdGenerator.getId() );
-	}
-
+	@Deprecated
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program, id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
@@ -184,21 +180,21 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {
-		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getWorkpane().getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
+		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets() {
 		return workspaces
 			.stream()
 			.flatMap( w -> w.getWorkareas().stream() )
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
+			.flatMap( a -> a.getTools().stream() )
 			.map( Tool::getAsset )
 			.filter( Asset::isNewOrModified )
 			.collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets( Workspace workspace ) {
-		return workspace.getWorkareas().stream().flatMap( a -> a.getWorkpane().getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
+		return workspace.getWorkareas().stream().flatMap( a -> a.getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -267,7 +263,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		if( workspace == null ) return null;
 		Workarea workarea = workspace.getActiveWorkarea();
 		if( workarea == null ) return null;
-		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		return getActiveWorkspace().getActiveWorkarea();
 	}
 
 	public Set<Tool> getActiveWorkpaneTools( Class<? extends Tool> type ) {
@@ -283,7 +279,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public Workspace findWorkspace( ProgramTool tool ) {
 		for( Workspace workspace : getWorkspaces() ) {
 			for( Workarea workarea : workspace.getWorkareas() ) {
-				for( Tool check : workarea.getWorkpane().getTools() ) {
+				for( Tool check : workarea.getTools() ) {
 					if( check == tool ) return workspace;
 				}
 			}

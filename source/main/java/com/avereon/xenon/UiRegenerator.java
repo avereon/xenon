@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
@@ -38,7 +39,7 @@ import static com.avereon.xenon.UiFactory.*;
 @CustomLog
 class UiRegenerator {
 
-	private final Level logLevel = Level.CONFIG;
+	private final Level logLevel = Level.FINE;
 
 	private final Xenon program;
 
@@ -47,8 +48,6 @@ class UiRegenerator {
 	private final Map<String, Workspace> workspaces = new HashMap<>();
 
 	private final Map<String, Workarea> areas = new HashMap<>();
-
-	private final Map<String, Workpane> panes = new HashMap<>();
 
 	private final Map<String, WorkpaneEdge> edges = new HashMap<>();
 
@@ -177,7 +176,13 @@ class UiRegenerator {
 
 	void createDefaultWorkspace() {
 		// Create the default workspace
-		Workspace workspace = getProgram().getWorkspaceManager().newWorkspace();
+		String id = IdGenerator.getId();
+		Workspace workspace = new Workspace( program );
+		workspace.setUid( id );
+		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
+
+		String themeId = getProgram().getWorkspaceManager().getThemeId();
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
 
 		// Create the default workarea
 		// NOTE Have to use a "non-restoring" UiFactory
@@ -243,7 +248,7 @@ class UiRegenerator {
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
-			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( edge ) ) {
 					workpaneEdges.computeIfAbsent( workpane, k -> new HashSet<>() ).add( edge );
@@ -260,7 +265,7 @@ class UiRegenerator {
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( view ) ) {
 					workpaneViews.computeIfAbsent( workpane, k -> new HashSet<>() ).add( view );
@@ -275,7 +280,7 @@ class UiRegenerator {
 		}
 
 		// Restore edges and views to workpane
-		for( Workpane pane : panes.values() ) {
+		for( Workpane pane : areas.values() ) {
 			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
 			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
 			pane.restoreNodes( localEdges, localViews );
@@ -307,7 +312,7 @@ class UiRegenerator {
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
 		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
-		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+		Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		Orientation orientation = edge.getOrientation();
 		if( Objects.requireNonNull( orientation ) == Orientation.VERTICAL ) {
@@ -329,7 +334,7 @@ class UiRegenerator {
 
 	private boolean linkView( WorkpaneView view ) {
 		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+		Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
 		WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
@@ -397,7 +402,6 @@ class UiRegenerator {
 
 	// FIXME Why am I not passing in the settings object to restore the workspace from?
 	private void restoreWorkspace( String id ) {
-		log.atDebug().log( "Restoring workspace: %s", id );
 		try {
 			log.at(logLevel).log( "Creating workspace: %s", id );
 			Workspace workspace = getProgram().getWorkspaceManager().newWorkspace( id );
@@ -425,7 +429,6 @@ class UiRegenerator {
 		}
 
 		Workarea workarea = factory.newWorkarea( id );
-		panes.put( id, workarea.getWorkpane() );
 		areas.put( id, workarea );
 
 		restoreWorkpane( workarea, id );
@@ -435,19 +438,18 @@ class UiRegenerator {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
 		settings.set( PARENT_WORKAREA_ID, id );
 
-		Workpane workpane = workarea.getWorkpane();
-		workpane.setUid( id );
+		workarea.setUid( id );
 
-		workpane.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
-		workpane.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
-		workpane.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
-		workpane.setBottomDockSize( settings.get( DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
+		workarea.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
+		workarea.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
+		workarea.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
+		workarea.setBottomDockSize( settings.get( DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
 	}
 
 	private void restoreWorkpaneEdge( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, id );
-			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( workpane == null ) {
@@ -470,7 +472,7 @@ class UiRegenerator {
 	private void restoreWorkpaneView( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, id );
-			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( workpane == null ) {
@@ -494,7 +496,7 @@ class UiRegenerator {
 		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
-		AssetType assetType = assetTypeKey == null ? null : getProgram().getAssetManager().getAssetType( assetTypeKey );
+		AssetType assetType = getProgram().getAssetManager().getAssetType( assetTypeKey );
 		WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 		// If the view is not found, then the tool is orphaned...delete the settings
@@ -518,9 +520,10 @@ class UiRegenerator {
 		OpenAssetRequest openAssetRequest = new OpenAssetRequest();
 		openAssetRequest.setAsset( asset );
 		openAssetRequest.setToolId( id );
+		openAssetRequest.setToolClassName( toolClassName );
 
 		// Restore the tool
-		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest, toolClassName );
+		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest );
 		if( tool == null ) {
 			// FIXME Move this logic to where the user chooses what to do
 			log.atWarn().log( "Removing unknown tool: id=%s type=%s", id, toolClassName );

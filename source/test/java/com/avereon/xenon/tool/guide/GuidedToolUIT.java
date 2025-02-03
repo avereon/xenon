@@ -28,7 +28,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 	protected void setup() throws Exception {
 		super.setup();
 
-		assertToolCount( getWorkpane(), 0 );
+		assertToolCount( getWorkarea(), 0 );
 
 		MockAssetType assetType = new MockAssetType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
@@ -42,10 +42,10 @@ public class GuidedToolUIT extends BaseToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
-		assertThat( getWorkpane().getActiveTool() ).isInstanceOf( MockGuidedTool.class );
-		assertToolCount( getWorkpane(), 2 );
+		assertThat( getWorkarea().getActiveTool() ).isInstanceOf( MockGuidedTool.class );
+		assertToolCount( getWorkarea(), 2 );
 
-		mockGuidedTool = (MockGuidedTool)getWorkpane().getActiveTool();
+		mockGuidedTool = (MockGuidedTool)getWorkarea().getActiveTool();
 		mockGuidedTool.reset();
 	}
 

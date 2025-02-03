@@ -27,6 +27,11 @@ public class AssetManagerTest extends ProgramTestCase {
 	}
 
 	@Test
+	void testGetNullAssetType() {
+		assertThat( manager.getAssetType( null ) ).isNull();
+	}
+
+	@Test
 	void testNewAsset() throws Exception {
 		// New assets have an asset type when created.
 		// The URI is assigned when the asset is saved.

@@ -9,14 +9,14 @@ class AboutToolOpenUIT extends AboutToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		assertToolCount( getWorkpane(), 0 );
+		assertToolCount( getWorkarea(), 0 );
 
 		openAboutTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
-		assertThat( getWorkpane().getActiveTool() ).isInstanceOf( AboutTool.class );
-		assertToolCount( getWorkpane(), 2 );
+		assertThat( getWorkarea().getActiveTool() ).isInstanceOf( AboutTool.class );
+		assertToolCount( getWorkarea(), 2 );
 	}
 
 }

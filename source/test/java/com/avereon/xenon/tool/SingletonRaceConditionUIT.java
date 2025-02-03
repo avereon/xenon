@@ -20,7 +20,7 @@ class SingletonRaceConditionUIT extends BaseToolUIT {
 
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		Workpane pane = getWorkpane();
+		Workpane pane = getWorkarea();
 
 		assertThat( pane.getTools( GuideTool.class ) ).hasSize( 1 );
 	}

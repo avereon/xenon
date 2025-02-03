@@ -192,7 +192,7 @@ public abstract class ProgramScreenshots {
 		System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
-		workpane = workspace.getActiveWorkarea().getWorkpane();
+		workpane = workspace.getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		Fx.waitForWithExceptions( workpaneWatcher.getTimeout() );
 		reset();

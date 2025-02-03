@@ -160,16 +160,20 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private FpsMonitor fpsMonitor;
 
+	public Workspace( final Xenon program ) {
+		this( program, null );
+	}
+
 	public Workspace( final Xenon program, final String id ) {
 		super( TRANSPARENT_WINDOW_SUPPORTED ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
 		if( !TRANSPARENT_WINDOW_SUPPORTED ) log.atWarn().log( "Transparent windows not supported" );
 
+		setUid( id );
+		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+
 		this.program = program;
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
-
-		setUid( id );
-		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 
 		// Stage listeners
 		setOnCloseRequest( event -> {
@@ -593,8 +597,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		Workarea activeWorkarea = activeWorkareaProperty.get();
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( false );
-			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
-			activeWorkarea.getWorkpane().setVisible( false );
+			workpaneContainer.getChildren().remove( activeWorkarea );
+			activeWorkarea.setVisible( false );
 		}
 
 		// If the workarea is not already added, add it
@@ -607,10 +611,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		// Connect the new active workarea
 		activeWorkarea = getActiveWorkarea();
 		if( activeWorkarea != null ) {
-			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
-			activeWorkarea.getWorkpane().setVisible( true );
+			workpaneContainer.getChildren().add( activeWorkarea );
+			activeWorkarea.setVisible( true );
 			activeWorkarea.setActive( true );
-			Tool activeTool = activeWorkarea.getWorkpane().getActiveTool();
+			Tool activeTool = activeWorkarea.getActiveTool();
 			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
 		}
 

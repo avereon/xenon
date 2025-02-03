@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workspace.Workarea;
 import com.avereon.zarra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
@@ -16,20 +16,20 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		assertToolCount( pane, 0 );
+		Workarea area = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
+		assertToolCount( area, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
-		assertToolCount( pane, 2 );
+		assertThat( area.getActiveTool() ).isInstanceOf( SettingsTool.class );
+		assertToolCount( area, 2 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		assertToolCount( pane, 1 );
+		assertToolCount( area, 1 );
 	}
 
 }

@@ -210,13 +210,12 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * Called from the {@link UiRegenerator} to restore a tool.
 	 *
 	 * @param request The open asset request for restoring the tool
-	 * @param toolClassName The tool class name
 	 * @return The restored tool
 	 * @apiNote Could be called from a {@code task thread} or an {@code FX application thread}
 	 */
-	ProgramTool restoreTool( OpenAssetRequest request, String toolClassName ) {
+	ProgramTool restoreTool( OpenAssetRequest request ) {
 		// Run this class through the alias map
-		toolClassName = getToolClassName( toolClassName );
+		String toolClassName = getToolClassName( request.getToolClassName() );
 
 		// Find the registered tool type metadata
 		ToolRegistration toolRegistration = null;

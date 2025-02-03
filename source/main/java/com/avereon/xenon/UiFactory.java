@@ -82,7 +82,7 @@ public final class UiFactory {
 		workarea.setPaint( paint );
 		workarea.setIcon( "workarea" );
 
-		Workpane workpane = workarea.getWorkpane();
+		Workpane workpane = workarea;
 		workpane.setUid( id );
 
 		setupWorkpaneSettings( workpane );

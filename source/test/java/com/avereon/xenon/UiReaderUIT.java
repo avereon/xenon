@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith( MockitoExtension.class )
-class UiRegeneratorUIT extends BaseFullXenonTestCase {
+class UiReaderUIT extends BaseFullXenonTestCase {
 
 	@Test
 	void createDefaultWorkspace() throws Exception {

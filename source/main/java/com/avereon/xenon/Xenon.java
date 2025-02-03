@@ -528,7 +528,7 @@ public class Xenon extends Application implements XenonProgram {
 		log.atFiner().log( "Restore the user interface..." );
 		UiReader uiReader = new UiReader( Xenon.this );
 		Fx.run( uiReader::load );
-		uiReader.waitForLoad(MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		uiReader.waitForLoad( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 
 		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
