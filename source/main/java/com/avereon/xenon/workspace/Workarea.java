@@ -13,7 +13,6 @@ import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.*;
 import lombok.CustomLog;
-import lombok.Getter;
 
 import java.net.URI;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @CustomLog
-public class Workarea implements WritableIdentity {
+public class Workarea extends Workpane implements WritableIdentity {
 
 	private final StringProperty icon;
 
@@ -35,13 +34,6 @@ public class Workarea implements WritableIdentity {
 
 	private final ObjectProperty<Workspace> workspace;
 
-	@Getter
-	private final Workpane workpane;
-
-	// private MenuBar extraMenuBarItems
-
-	// private ToolBar extraToolBarItems
-
 	public Workarea() {
 		LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET ), new Stop( 1, Color.TRANSPARENT ) );
 
@@ -52,14 +44,13 @@ public class Workarea implements WritableIdentity {
 		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
 
-		workpane = new Workpane();
-		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
-		workpane.addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
-		workpane.addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
+		setEdgeSize( UiFactory.PAD );
+		addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
+		addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
+		addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
 
 		// TODO Could be moved to UiFactory
-		workpane.setOnToolDrop( new DropHandler( this ) );
+		setOnToolDrop( new DropHandler( this ) );
 	}
 
 	public final StringProperty iconProperty() {
@@ -120,7 +111,7 @@ public class Workarea implements WritableIdentity {
 
 	public final void setActive( boolean active ) {
 		this.active.set( active );
-		workpane.setVisible( active );
+		setVisible( active );
 	}
 
 	public final ObjectProperty<Workspace> workspaceProperty() {
@@ -148,22 +139,22 @@ public class Workarea implements WritableIdentity {
 	}
 
 	public Set<Asset> getAssets() {
-		return getWorkpane().getTools().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
+		return getTools().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets() {
 		return getAssets().stream().filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
-	@Override
-	public String getUid() {
-		return workpane.getUid();
-	}
-
-	@Override
-	public void setUid( String id ) {
-		workpane.setUid( id );
-	}
+//	@Override
+//	public String getUid() {
+//		return super.getUid();
+//	}
+//
+//	@Override
+//	public void setUid( String id ) {
+//		super.setUid( id );
+//	}
 
 	@Override
 	public String toString() {
