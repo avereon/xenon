@@ -216,6 +216,8 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public Set<RepoState> getRepos( boolean force ) {
+		if( !updatesEnabled() ) return Set.of();
+
 		TaskManager.taskThreadCheck();
 
 		synchronized( updateProviderReposLock ) {
@@ -667,14 +669,16 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public void checkForUpdates( boolean interactive ) {
 		log.atConfig().log( "Request to check for updates..." );
+
 		if( updatesEnabled() ) {
 			log.atConfig().log( "Checking for updates..." );
 			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
-		} else {
-			log.atConfig().log( "Scheduling the next update..." );
-			getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
-			scheduleUpdateCheck( false );
 		}
+
+		log.atConfig().log( "Scheduling the next update..." );
+		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+		scheduleUpdateCheck( false );
+
 	}
 
 	/**
@@ -1113,6 +1117,8 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadUpdates() {
+		if( !updatesEnabled() ) return;
+
 		updates.clear();
 		updates.putAll( getUpdatesSettings().get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates ) );
 	}
