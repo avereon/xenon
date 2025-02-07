@@ -118,14 +118,18 @@ class UiReader {
 	private void loadSpace( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
-
-			Workspace workspace = new Workspace( program );
-			workspace.setUid( id );
-			workspace.updateFromSettings( settings );
+			Workspace workspace = loadSpaceFromSettings( settings );
 			spaces.put( id, workspace );
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error restoring workspace" );
 		}
+	}
+
+	Workspace loadSpaceFromSettings( Settings settings ) {
+		Workspace workspace = new Workspace( program );
+		workspace.setUid( settings.getName() );
+		workspace.updateFromSettings( settings );
+		return workspace;
 	}
 
 	private void loadArea( String id ) {
@@ -142,12 +146,17 @@ class UiReader {
 				throw new UiException( "Removed orphaned workarea pane id=" + id );
 			}
 
-			Workarea workarea = new Workarea();
-			workarea.setUid( id );
+			Workarea workarea = loadAreaFromSettings( settings );
 			areas.put( id, workarea );
 		} catch( Exception exception ) {
 			errors.add( exception );
 		}
+	}
+
+	Workarea loadAreaFromSettings( Settings settings ) {
+		Workarea area = new Workarea();
+		area.setUid( settings.getName() );
+		return area;
 	}
 
 	private void loadView( String id ) {
@@ -307,7 +316,6 @@ class UiReader {
 	/// /			setView( settings, "view-maximized", pane::setMaximizedView );
 	//		}
 	//	}
-
 	private WorkpaneEdge lookupEdge( Workarea area, String id ) {
 		if( area == null ) throw new NullPointerException( "Workpane cannot be null" );
 		if( id == null ) throw new NullPointerException( "Edge id cannot be null" );
@@ -339,6 +347,10 @@ class UiReader {
 
 	private List<String> getUiSettingsIds( String path ) {
 		return getProgram().getSettingsManager().getSettings( path ).getNodes();
+	}
+
+	private List<Settings> getUiSettings( String path ) {
+		return getUiSettingsIds( path ).stream().map( id -> getProgram().getSettingsManager().getSettings( path, id ) ).toList();
 	}
 
 	private void notifyUserOfErrors( List<Exception> exceptions ) {
