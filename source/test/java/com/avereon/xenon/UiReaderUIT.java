@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,8 +65,142 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	}
 
 	@Test
-	void loadSpaceFromSettings() {
+	void loadSpace() throws Exception {
 		// given
+		Settings settings = spaceSettings();
+
+		// when
+		Workspace space = Fx.call( () -> reader.loadSpace( settings ) );
+
+		// then
+		assertSpaceMatches( space, settings );
+	}
+
+	@Test
+	void loadSpaceFromSettings() throws Exception {
+		// given
+		Settings settings = spaceSettings();
+
+		// when
+		Workspace space = Fx.call( () -> reader.loadSpaceFromSettings( settings ) );
+
+		// then
+		assertSpaceMatches( space, settings );
+	}
+
+	@Test
+	void loadArea() throws Exception {
+		// given
+		Workspace space = Fx.call( () -> reader.loadSpace( spaceSettings() ) );
+		Settings settings = areaSettings( space.getUid() );
+
+		// when
+		Workarea area = Fx.call( () -> reader.loadArea( settings ) );
+
+		// then
+		assertAreaMatches( area, settings );
+	}
+
+	@Test
+	void loadAreaFromSettings() throws Exception {
+		// given
+		Settings settings = areaSettings( IdGenerator.getId() );
+
+		// when
+		Workarea area = Fx.call( () -> reader.loadAreaFromSettings( settings ) );
+
+		// then
+		assertAreaMatches( area, settings );
+	}
+
+	@Test
+	void loadView() throws Exception {
+		// given
+		Workspace space = Fx.call( () -> reader.loadSpace( spaceSettings() ) );
+		Workarea area = Fx.call( () -> reader.loadArea( areaSettings( space.getUid() ) ) );
+		Settings settings = viewSettings( area.getUid() );
+
+		// when
+		WorkpaneView view = Fx.call( () -> reader.loadView( settings ) );
+
+		// then
+		assertViewMatches( view, settings );
+	}
+
+	@Test
+	void loadViewFromSettings() throws Exception {
+		// given
+		Settings settings = viewSettings( IdGenerator.getId() );
+
+		// when
+		WorkpaneView view = Fx.call( () -> reader.loadViewFromSettings( settings ) );
+
+		// then
+		assertViewMatches( view, settings );
+	}
+
+	@Test
+	void loadEdge() throws Exception {
+		// given
+		Workspace space = Fx.call( () -> reader.loadSpace( spaceSettings() ) );
+		Workarea area = Fx.call( () -> reader.loadArea( areaSettings( space.getUid() ) ) );
+		Settings settings = edgeSettings( area.getUid() );
+
+		// when
+		WorkpaneEdge edge = Fx.call( () -> reader.loadEdge( settings ) );
+
+		// then
+		assertEdgeMatches( edge, settings );
+	}
+
+	@Test
+	void loadEdgeFromSettings() throws Exception {
+		// given
+		Settings settings = edgeSettings( IdGenerator.getId() );
+
+		// when
+		WorkpaneEdge edge = Fx.call( () -> reader.loadEdgeFromSettings( settings ) );
+
+		// then
+		assertEdgeMatches( edge, settings );
+	}
+
+	private static Settings toolSettings( XenonProgramProduct program ) {
+		String id = IdGenerator.getId();
+		Settings settings = new MapSettings().getNode( id );
+		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
+
+		String assetTypeKey = new ProgramAboutType( program ).getKey();
+		System.out.println( "assetTypeKey=" + assetTypeKey );
+		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
+		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
+
+		return settings;
+	}
+
+	private static void assertToolMatches( Tool tool, Settings settings ) {
+		assertThat( tool ).isNotNull();
+		assertThat( tool.getUid() ).isEqualTo( settings.getName() );
+		assertThat( tool.getClass().getName() ).isEqualTo( settings.get( Tool.SETTINGS_TYPE_KEY ) );
+
+		assertThat( tool.getAsset() ).isNotNull();
+		assertThat( tool.getAsset().getType().getKey() ).isEqualTo( settings.get( Asset.SETTINGS_TYPE_KEY, String.class ) );
+		assertThat( tool.getAsset().getUri().toString() ).isEqualTo( settings.get( Asset.SETTINGS_URI_KEY, String.class ) );
+	}
+
+	@Test
+	void loadToolFromSettings() throws Exception {
+		// given
+		Settings settings = toolSettings( getProgram() );
+
+		// when
+		Tool tool = reader.loadToolFromSettings( settings );
+
+		// then
+		assertToolMatches( tool, settings );
+	}
+
+	private static Settings spaceSettings() {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
 		settings.set( "x", "428" );
@@ -76,19 +209,11 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		settings.set( "h", "840" );
 		settings.set( "maximized", false );
 		settings.set( "active", true );
+		return settings;
+	}
 
-		// More settings in Background, MemoryMonitor, TaskMonitor, FpsMonitor, but
-		// they are not important in this test
-
-		// when
-		AtomicReference<Workspace> spaceReference = new AtomicReference<>();
-		Fx.run( () -> spaceReference.set( reader.loadSpaceFromSettings( settings ) ) );
-		Fx.waitFor( 1, TimeUnit.SECONDS );
-
-		// then
-		Workspace space = spaceReference.get();
-		assertThat( space ).isNotNull();
-		assertThat( space.getUid() ).isEqualTo( id );
+	private static void assertSpaceMatches( Workspace space, Settings settings ) {
+		assertThat( space.getUid() ).isEqualTo( settings.getName() );
 		assertThat( space.getX() ).isEqualTo( 428 );
 		assertThat( space.getY() ).isEqualTo( 174 );
 		assertThat( space.getScene().getWidth() ).isEqualTo( 1224 );
@@ -97,84 +222,44 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertThat( space.isActive() ).isTrue();
 	}
 
-	@Test
-	void loadAreaFromSettings() {
-		// given
+	private static Settings areaSettings( String spaceId ) {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
-
-		// when
-		AtomicReference<Workarea> areaReference = new AtomicReference<>();
-		Fx.run( () -> areaReference.set( reader.loadAreaFromSettings( settings ) ) );
-		Fx.waitFor( 1, TimeUnit.SECONDS );
-
-		// then
-		Workarea area = areaReference.get();
-		assertThat( area ).isNotNull();
-		assertThat( area.getUid() ).isEqualTo( id );
+		settings.set( UiFactory.PARENT_WORKSPACE_ID, spaceId );
+		return settings;
 	}
 
-	@Test
-	void loadViewFromSettings() {
-		// given
+	private static void assertAreaMatches( Workarea area, Settings settings ) {
+		assertThat( area ).isNotNull();
+		assertThat( area.getUid() ).isEqualTo( settings.getName() );
+	}
+
+	private static Settings viewSettings( String areaId ) {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
 		settings.set( "placement", Workpane.Placement.DEFAULT.name() );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, areaId );
+		return settings;
+	}
 
-		// when
-		AtomicReference<WorkpaneView> viewReference = new AtomicReference<>();
-		Fx.run( () -> viewReference.set( reader.loadViewFromSettings( settings ) ) );
-		Fx.waitFor( 1, TimeUnit.SECONDS );
-
-		// then
-		WorkpaneView view = viewReference.get();
-		assertThat( view ).isNotNull();
-		assertThat( view.getUid() ).isEqualTo( id );
+	private static void assertViewMatches( WorkpaneView view, Settings settings ) {
+		assertThat( view.getUid() ).isEqualTo( settings.getName() );
 		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DEFAULT );
 	}
 
-	@Test
-	void loadEdgeFromSettings() {
-		// given
+	private static Settings edgeSettings( String areaId ) {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
 		settings.set( "orientation", Orientation.VERTICAL.name().toLowerCase() );
 		settings.set( "position", "73" );
-
-		// when
-		AtomicReference<WorkpaneEdge> edgeReference = new AtomicReference<>();
-		Fx.run( () -> edgeReference.set( reader.loadEdgeFromSettings( settings ) ) );
-		Fx.waitFor( 1, TimeUnit.SECONDS );
-
-		// then
-		WorkpaneEdge edge = edgeReference.get();
-		assertThat( edge ).isNotNull();
-		assertThat( edge.getUid() ).isEqualTo( id );
-		assertThat( edge.getOrientation() ).isEqualTo( Orientation.VERTICAL );
-		assertThat( edge.getPosition() ).isEqualTo( 73 );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, areaId );
+		return settings;
 	}
 
-	@Test
-	void loadToolFromSettings() throws Exception{
-		// given
-		String id = IdGenerator.getId();
-		Settings settings = new MapSettings().getNode( id );
-		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
-
-		String assetTypeKey = new ProgramAboutType(getProgram()).getKey();
-		settings.set( Asset.SETTINGS_TYPE_KEY, new ProgramAboutType(getProgram()).getKey() );
-		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
-
-		// when
-		Tool tool = reader.loadToolFromSettings( settings );
-
-		// then
-		assertThat( tool ).isNotNull();
-		assertThat( tool.getUid() ).isEqualTo( id );
-		assertThat( tool ).isInstanceOf( AboutTool.class );
-		assertThat( tool.getAsset() ).isNotNull();
-		assertThat( tool.getAsset().getType() ).isEqualTo( getProgram().getAssetManager().getAssetType( assetTypeKey ) );
-		assertThat( tool.getAsset().getUri() ).isEqualTo( ProgramAboutType.URI );
+	private static void assertEdgeMatches( WorkpaneEdge edge, Settings settings ) {
+		assertThat( edge.getUid() ).isEqualTo( settings.getName() );
+		assertThat( edge.getOrientation() ).isEqualTo( settings.get( "orientation", Orientation.class ) );
+		assertThat( edge.getPosition() ).isEqualTo( settings.get( "position", Double.class ) );
 	}
 
 }

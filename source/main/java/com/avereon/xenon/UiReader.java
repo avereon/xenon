@@ -77,21 +77,27 @@ class UiReader {
 		restoreLock.lock();
 
 		try {
-			// Load the entity ids
-			// Note that areas and panes have the exact same ids
-			List<String> spaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
-			List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
-			List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
-			List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
-			log.at( logLevel ).log( "Number of items to restore: s=%s a=%s v=%s e=%s t=%s", spaceIds.size(), areaIds.size(), viewIds.size(), edgeIds.size(), toolIds.size() );
+			//			// Load the entity ids
+			//			// Note that areas and panes have the exact same ids
+			//			List<String> spaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
+			//			List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
+			//			List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
+			//			List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
+			//			List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
+			//			log.at( logLevel ).log( "Number of items to restore: s=%s a=%s v=%s e=%s t=%s", spaceIds.size(), areaIds.size(), viewIds.size(), edgeIds.size(), toolIds.size() );
+			//
+			//			// Load all the parts from settings in order: space, area/pane, view, edge, tool
+			//			//spaceIds.forEach( this::loadSpace );
+			//			areaIds.forEach( this::loadArea );
+			//			viewIds.forEach( this::loadView );
+			//			edgeIds.forEach( this::loadEdge );
+			//			toolIds.forEach( this::loadTool );
 
-			// Load all the parts from settings in order: space, area/pane, view, edge, tool
-			spaceIds.forEach( this::loadSpace );
-			areaIds.forEach( this::loadArea );
-			viewIds.forEach( this::loadView );
-			edgeIds.forEach( this::loadEdge );
-			toolIds.forEach( this::loadTool );
+			getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpace );
+			getUiSettings( ProgramSettings.AREA ).forEach( this::loadArea );
+			getUiSettings( ProgramSettings.VIEW ).forEach( this::loadView );
+			getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdge );
+			getUiSettings( ProgramSettings.TOOL ).forEach( this::loadTool );
 
 			// Reassemble the UI
 			linkAreas();
@@ -115,13 +121,15 @@ class UiReader {
 		}
 	}
 
-	private void loadSpace( String id ) {
+	Workspace loadSpace( Settings settings ) {
 		try {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
+			String id = settings.getName();
 			Workspace workspace = loadSpaceFromSettings( settings );
 			spaces.put( id, workspace );
+			return workspace;
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error restoring workspace" );
+			return null;
 		}
 	}
 
@@ -132,9 +140,9 @@ class UiReader {
 		return workspace;
 	}
 
-	private void loadArea( String id ) {
+	Workarea loadArea( Settings settings ) {
 		try {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, id );
+			String id = settings.getName();
 			Workspace workspace = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
@@ -148,8 +156,11 @@ class UiReader {
 
 			Workarea workarea = loadAreaFromSettings( settings );
 			areas.put( id, workarea );
+			return workarea;
 		} catch( Exception exception ) {
+			exception.printStackTrace();
 			errors.add( exception );
+			return null;
 		}
 	}
 
@@ -159,9 +170,9 @@ class UiReader {
 		return area;
 	}
 
-	private void loadView( String id ) {
+	WorkpaneView loadView( Settings settings ) {
 		try {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, id );
+			String id = settings.getName();
 			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
@@ -172,8 +183,11 @@ class UiReader {
 
 			WorkpaneView view = loadViewFromSettings( settings );
 			views.put( id, view );
+			return view;
 		} catch( Exception exception ) {
+			exception.printStackTrace();
 			errors.add( exception );
+			return null;
 		}
 	}
 
@@ -185,9 +199,9 @@ class UiReader {
 		return view;
 	}
 
-	private void loadEdge( String id ) {
+	WorkpaneEdge loadEdge( Settings settings ) {
 		try {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, id );
+			String id = settings.getName();
 			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
@@ -198,8 +212,11 @@ class UiReader {
 
 			WorkpaneEdge edge = loadEdgeFromSettings( settings );
 			edges.put( id, edge );
+			return edge;
 		} catch( Exception exception ) {
+			exception.printStackTrace();
 			errors.add( exception );
+			return null;
 		}
 	}
 
@@ -211,9 +228,9 @@ class UiReader {
 		return edge;
 	}
 
-	private void loadTool( String id ) {
+	private void loadTool( Settings settings ) {
 		try {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, id );
+			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
@@ -336,15 +353,7 @@ class UiReader {
 		if( id == null ) throw new NullPointerException( "Edge id cannot be null" );
 
 		WorkpaneEdge edge = edges.get( id );
-
-		// FIXME I can do better than this MVS 02 Feb 2025
-		if( edge == null ) {
-			try {
-				edge = area.getWallEdge( id.charAt( 0 ) );
-			} catch( IllegalArgumentException exception ) {
-				// Intentionally ignore exception
-			}
-		}
+		if( edge == null ) edge = area.getWallEdge( id.charAt( 0 ) );
 
 		return edge;
 	}
