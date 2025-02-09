@@ -722,6 +722,9 @@ public class Workspace extends Stage implements WritableIdentity {
 		// if( h != null ) stage.setHeight( h );
 
 		setMaximized( settings.get( "maximized", Boolean.class, false ) );
+
+		// FIXME This value should not be set here because it may be causing a UI restore conflict
+		// Maybe all this settings work should move to UiReader?
 		setActive( settings.get( "active", Boolean.class, false ) );
 
 		// Add the property listeners

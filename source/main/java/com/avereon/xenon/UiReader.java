@@ -143,7 +143,7 @@ class UiReader {
 					getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, id ).delete();
 					settings.delete();
 				}
-				throw new UiException( "Removed orphaned workarea pane id=" + id );
+				throw new UiException( "Removed orphaned area id=" + id );
 			}
 
 			Workarea workarea = loadAreaFromSettings( settings );
@@ -167,17 +167,22 @@ class UiReader {
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( workpane == null ) {
 				if( isModifying() ) settings.delete();
-				throw new UiException( "Removed orphaned workpane view id=" + id );
+				throw new UiException( "Removed orphaned view id=" + id );
 			}
 
-			WorkpaneView view = new WorkpaneView();
-			view.setUid( id );
-			if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
-
-			views.put( view.getUid(), view );
+			WorkpaneView view = loadViewFromSettings( settings );
+			views.put( id, view );
 		} catch( Exception exception ) {
 			errors.add( exception );
 		}
+	}
+
+	WorkpaneView loadViewFromSettings( Settings settings ) {
+		WorkpaneView view = new WorkpaneView();
+		view.setUid( settings.getName() );
+		//if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
+		if( settings.exists( "placement" ) ) view.setPlacement( settings.get( "placement", Workpane.Placement.class ) );
+		return view;
 	}
 
 	private void loadEdge( String id ) {
@@ -188,27 +193,28 @@ class UiReader {
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( workpane == null ) {
 				if( isModifying() ) settings.delete();
-				throw new UiException( "Removed orphaned workpane edge id=" + id );
+				throw new UiException( "Removed orphaned edge id=" + id );
 			}
 
-			WorkpaneEdge edge = new WorkpaneEdge();
-			edge.setUid( id );
-			if( settings.exists( "orientation" ) ) edge.setOrientation( Orientation.valueOf( settings.get( "orientation" ).toUpperCase() ) );
-			if( settings.exists( "position" ) ) edge.setPosition( settings.get( "position", Double.class ) );
-
+			WorkpaneEdge edge = loadEdgeFromSettings( settings );
 			edges.put( id, edge );
 		} catch( Exception exception ) {
 			errors.add( exception );
 		}
 	}
 
+	WorkpaneEdge loadEdgeFromSettings( Settings settings ) {
+		WorkpaneEdge edge = new WorkpaneEdge();
+		edge.setUid( settings.getName() );
+		if( settings.exists( "orientation" ) ) edge.setOrientation( Orientation.valueOf( settings.get( "orientation" ).toUpperCase() ) );
+		if( settings.exists( "position" ) ) edge.setPosition( settings.get( "position", Double.class ) );
+		return edge;
+	}
+
 	private void loadTool( String id ) {
 		try {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-			String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
-			String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
-			AssetType assetType = getProgram().getAssetManager().getAssetType( assetTypeKey );
 			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 			// If the view is not found, then the tool is orphaned...delete the settings
@@ -217,32 +223,41 @@ class UiReader {
 				throw new UiException( "Removed orphaned tool id=" + id );
 			}
 
-			// Create the asset
-			Asset asset;
-			try {
-				asset = getProgram().getAssetManager().createAsset( assetType, uri );
-			} catch( AssetException exception ) {
-				throw new AssetNotFoundException( new Asset( assetType, uri ), exception );
-			}
-
-			// Create the open asset request
-			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
-			openAssetRequest.setToolId( id );
-			openAssetRequest.setAsset( asset );
-			openAssetRequest.setToolClassName( toolClassName );
-
-			// Restore the tool
-			ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest );
-			if( tool == null ) {
-				if( isModifying() ) settings.delete();
-				throw new ToolInstantiationException( id, toolClassName );
-			}
-
-			tools.put( tool.getUid(), tool );
-			//viewTools.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
+			Tool tool = loadToolFromSettings( settings );
+			tools.put( id, tool );
 		} catch( Exception exception ) {
 			errors.add( exception );
 		}
+	}
+
+	ProgramTool loadToolFromSettings( Settings settings ) throws AssetException, ToolInstantiationException {
+		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
+		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
+		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
+
+		// Create the asset
+		Asset asset;
+		AssetType assetType = getProgram().getAssetManager().getAssetType( assetTypeKey );
+		try {
+			asset = getProgram().getAssetManager().createAsset( assetType, uri );
+		} catch( AssetException exception ) {
+			throw new AssetNotFoundException( new Asset( assetType, uri ), exception );
+		}
+
+		// Create the open asset request
+		OpenAssetRequest openAssetRequest = new OpenAssetRequest();
+		openAssetRequest.setToolId( settings.getName() );
+		openAssetRequest.setAsset( asset );
+		openAssetRequest.setToolClassName( toolClassName );
+
+		// Restore the tool
+		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest );
+		if( tool == null ) {
+			if( isModifying() ) settings.delete();
+			throw new ToolInstantiationException( settings.getName(), toolClassName );
+		}
+
+		return tool;
 	}
 
 	private void linkAreas() {

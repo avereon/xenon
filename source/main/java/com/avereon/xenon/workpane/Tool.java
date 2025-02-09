@@ -2,6 +2,7 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.zarra.javafx.Fx;
@@ -21,7 +22,7 @@ import lombok.Getter;
  * The Tool class is a pane that "works on" an asset.
  */
 @CustomLog
-public abstract class Tool extends StackPane {
+public abstract class Tool extends StackPane implements WritableIdentity {
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 

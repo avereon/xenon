@@ -4,9 +4,17 @@ import com.avereon.settings.MapSettings;
 import com.avereon.settings.Settings;
 import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.tool.AboutTool;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEdge;
+import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.javafx.Fx;
+import javafx.geometry.Orientation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,19 +81,20 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		// they are not important in this test
 
 		// when
-		AtomicReference<Workspace> space = new AtomicReference<>();
-		Fx.run( () -> space.set( reader.loadSpaceFromSettings( settings ) ) );
+		AtomicReference<Workspace> spaceReference = new AtomicReference<>();
+		Fx.run( () -> spaceReference.set( reader.loadSpaceFromSettings( settings ) ) );
 		Fx.waitFor( 1, TimeUnit.SECONDS );
 
 		// then
+		Workspace space = spaceReference.get();
 		assertThat( space ).isNotNull();
-		assertThat( space.get().getUid() ).isEqualTo( id );
-		assertThat( space.get().getX() ).isEqualTo( 428 );
-		assertThat( space.get().getY() ).isEqualTo( 174 );
-		assertThat( space.get().getScene().getWidth() ).isEqualTo( 1224 );
-		assertThat( space.get().getScene().getHeight() ).isEqualTo( 840 );
-		assertThat( space.get().isMaximized() ).isFalse();
-		assertThat( space.get().isActive() ).isTrue();
+		assertThat( space.getUid() ).isEqualTo( id );
+		assertThat( space.getX() ).isEqualTo( 428 );
+		assertThat( space.getY() ).isEqualTo( 174 );
+		assertThat( space.getScene().getWidth() ).isEqualTo( 1224 );
+		assertThat( space.getScene().getHeight() ).isEqualTo( 840 );
+		assertThat( space.isMaximized() ).isFalse();
+		assertThat( space.isActive() ).isTrue();
 	}
 
 	@Test
@@ -95,14 +104,77 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		Settings settings = new MapSettings().getNode( id );
 
 		// when
-		AtomicReference<Workarea> area = new AtomicReference<>();
-		Fx.run( () -> area.set( reader.loadAreaFromSettings( settings ) ) );
+		AtomicReference<Workarea> areaReference = new AtomicReference<>();
+		Fx.run( () -> areaReference.set( reader.loadAreaFromSettings( settings ) ) );
 		Fx.waitFor( 1, TimeUnit.SECONDS );
 
 		// then
+		Workarea area = areaReference.get();
 		assertThat( area ).isNotNull();
-		assertThat( area.get().getUid() ).isEqualTo( id );
+		assertThat( area.getUid() ).isEqualTo( id );
 	}
 
-	// NEXT Continue testing atomic UiReader operations
+	@Test
+	void loadViewFromSettings() {
+		// given
+		String id = IdGenerator.getId();
+		Settings settings = new MapSettings().getNode( id );
+		settings.set( "placement", Workpane.Placement.DEFAULT.name() );
+
+		// when
+		AtomicReference<WorkpaneView> viewReference = new AtomicReference<>();
+		Fx.run( () -> viewReference.set( reader.loadViewFromSettings( settings ) ) );
+		Fx.waitFor( 1, TimeUnit.SECONDS );
+
+		// then
+		WorkpaneView view = viewReference.get();
+		assertThat( view ).isNotNull();
+		assertThat( view.getUid() ).isEqualTo( id );
+		assertThat( view.getPlacement() ).isEqualTo( Workpane.Placement.DEFAULT );
+	}
+
+	@Test
+	void loadEdgeFromSettings() {
+		// given
+		String id = IdGenerator.getId();
+		Settings settings = new MapSettings().getNode( id );
+		settings.set( "orientation", Orientation.VERTICAL.name().toLowerCase() );
+		settings.set( "position", "73" );
+
+		// when
+		AtomicReference<WorkpaneEdge> edgeReference = new AtomicReference<>();
+		Fx.run( () -> edgeReference.set( reader.loadEdgeFromSettings( settings ) ) );
+		Fx.waitFor( 1, TimeUnit.SECONDS );
+
+		// then
+		WorkpaneEdge edge = edgeReference.get();
+		assertThat( edge ).isNotNull();
+		assertThat( edge.getUid() ).isEqualTo( id );
+		assertThat( edge.getOrientation() ).isEqualTo( Orientation.VERTICAL );
+		assertThat( edge.getPosition() ).isEqualTo( 73 );
+	}
+
+	@Test
+	void loadToolFromSettings() throws Exception{
+		// given
+		String id = IdGenerator.getId();
+		Settings settings = new MapSettings().getNode( id );
+		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
+
+		String assetTypeKey = new ProgramAboutType(getProgram()).getKey();
+		settings.set( Asset.SETTINGS_TYPE_KEY, new ProgramAboutType(getProgram()).getKey() );
+		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
+
+		// when
+		Tool tool = reader.loadToolFromSettings( settings );
+
+		// then
+		assertThat( tool ).isNotNull();
+		assertThat( tool.getUid() ).isEqualTo( id );
+		assertThat( tool ).isInstanceOf( AboutTool.class );
+		assertThat( tool.getAsset() ).isNotNull();
+		assertThat( tool.getAsset().getType() ).isEqualTo( getProgram().getAssetManager().getAssetType( assetTypeKey ) );
+		assertThat( tool.getAsset().getUri() ).isEqualTo( ProgramAboutType.URI );
+	}
+
 }

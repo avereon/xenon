@@ -6,6 +6,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,10 @@ public class MockTool extends Tool {
 	private int eventIndex;
 
 	private Workpane workpane;
+
+	@Getter
+	@Setter
+	private String uid;
 
 	private boolean canFindSelfFromWorkpane;
 

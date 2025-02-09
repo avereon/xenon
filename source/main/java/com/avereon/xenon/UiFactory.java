@@ -59,12 +59,14 @@ public final class UiFactory {
 	 * This flag is used to prevent the factory from overwriting the state of the
 	 * UI in the settings.
 	 */
+	@Deprecated(forRemoval = true)
 	private final boolean restore;
 
 	public UiFactory( Xenon program ) {
 		this( program, false );
 	}
 
+	@Deprecated(forRemoval = true)
 	public UiFactory( Xenon program, boolean restore ) {
 		this.program = program;
 		this.restore = restore;
