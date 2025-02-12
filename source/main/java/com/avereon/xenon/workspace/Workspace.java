@@ -598,7 +598,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( false );
 			workpaneContainer.getChildren().remove( activeWorkarea );
-			activeWorkarea.setVisible( false );
 		}
 
 		// If the workarea is not already added, add it
@@ -612,7 +611,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		activeWorkarea = getActiveWorkarea();
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea );
-			activeWorkarea.setVisible( true );
 			activeWorkarea.setActive( true );
 			Tool activeTool = activeWorkarea.getActiveTool();
 			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );

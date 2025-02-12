@@ -45,6 +45,9 @@ public class Workarea extends Workpane implements WritableIdentity {
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
 
 		setEdgeSize( UiFactory.PAD );
+
+		visibleProperty().bind( activeProperty() );
+
 		addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
 		addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
 		addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
@@ -111,7 +114,6 @@ public class Workarea extends Workpane implements WritableIdentity {
 
 	public final void setActive( boolean active ) {
 		this.active.set( active );
-		setVisible( active );
 	}
 
 	public final ObjectProperty<Workspace> workspaceProperty() {

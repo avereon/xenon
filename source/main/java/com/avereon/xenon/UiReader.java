@@ -54,6 +54,14 @@ class UiReader {
 
 	private final Condition restoredCondition = restoreLock.newCondition();
 
+	private Workspace activeSpace;
+
+	private Workarea activeArea;
+
+	private WorkpaneView activeView;
+
+	private Tool activeTool;
+
 	private boolean restored;
 
 	@Getter
@@ -77,27 +85,16 @@ class UiReader {
 		restoreLock.lock();
 
 		try {
-			//			// Load the entity ids
-			//			// Note that areas and panes have the exact same ids
-			//			List<String> spaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			//			List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
-			//			List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
-			//			List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
-			//			List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
-			//			log.at( logLevel ).log( "Number of items to restore: s=%s a=%s v=%s e=%s t=%s", spaceIds.size(), areaIds.size(), viewIds.size(), edgeIds.size(), toolIds.size() );
-			//
-			//			// Load all the parts from settings in order: space, area/pane, view, edge, tool
-			//			//spaceIds.forEach( this::loadSpace );
-			//			areaIds.forEach( this::loadArea );
-			//			viewIds.forEach( this::loadView );
-			//			edgeIds.forEach( this::loadEdge );
-			//			toolIds.forEach( this::loadTool );
-
 			getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpace );
 			getUiSettings( ProgramSettings.AREA ).forEach( this::loadArea );
 			getUiSettings( ProgramSettings.VIEW ).forEach( this::loadView );
 			getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdge );
 			getUiSettings( ProgramSettings.TOOL ).forEach( this::loadTool );
+
+			log.atWarn().log( "activeSpace: %s", activeSpace );
+			log.atWarn().log( "activeArea: %s", activeArea );
+			log.atWarn().log( "activeView: %s", activeView );
+			log.atWarn().log( "activeTool: %s", activeTool );
 
 			// Reassemble the UI
 			linkAreas();
@@ -123,9 +120,8 @@ class UiReader {
 
 	Workspace loadSpace( Settings settings ) {
 		try {
-			String id = settings.getName();
 			Workspace workspace = loadSpaceFromSettings( settings );
-			spaces.put( id, workspace );
+			spaces.put( workspace.getUid(), workspace );
 			return workspace;
 		} catch( Exception exception ) {
 			log.atError( exception ).log( "Error restoring workspace" );
@@ -137,6 +133,7 @@ class UiReader {
 		Workspace workspace = new Workspace( program );
 		workspace.setUid( settings.getName() );
 		workspace.updateFromSettings( settings );
+		if( isActive( settings ) ) activeSpace = workspace;
 		return workspace;
 	}
 
@@ -158,7 +155,6 @@ class UiReader {
 			areas.put( id, workarea );
 			return workarea;
 		} catch( Exception exception ) {
-			exception.printStackTrace();
 			errors.add( exception );
 			return null;
 		}
@@ -167,6 +163,7 @@ class UiReader {
 	Workarea loadAreaFromSettings( Settings settings ) {
 		Workarea area = new Workarea();
 		area.setUid( settings.getName() );
+		if( isActive( settings ) ) activeArea = area;
 		return area;
 	}
 
@@ -185,7 +182,6 @@ class UiReader {
 			views.put( id, view );
 			return view;
 		} catch( Exception exception ) {
-			exception.printStackTrace();
 			errors.add( exception );
 			return null;
 		}
@@ -196,6 +192,7 @@ class UiReader {
 		view.setUid( settings.getName() );
 		//if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
 		if( settings.exists( "placement" ) ) view.setPlacement( settings.get( "placement", Workpane.Placement.class ) );
+		if( isActive( settings ) ) activeView = view;
 		return view;
 	}
 
@@ -214,7 +211,6 @@ class UiReader {
 			edges.put( id, edge );
 			return edge;
 		} catch( Exception exception ) {
-			exception.printStackTrace();
 			errors.add( exception );
 			return null;
 		}
@@ -228,7 +224,7 @@ class UiReader {
 		return edge;
 	}
 
-	private void loadTool( Settings settings ) {
+	void loadTool( Settings settings ) {
 		try {
 			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
@@ -274,11 +270,20 @@ class UiReader {
 			throw new ToolInstantiationException( settings.getName(), toolClassName );
 		}
 
+		if( isActive( settings ) ) activeTool = tool;
+
 		return tool;
+	}
+
+	private boolean isActive( Settings settings ) {
+		return settings.get( "active", Boolean.class, false );
 	}
 
 	private void linkAreas() {
 		// Link the workareas to the workspaces
+
+		// FIXME Areas have an order
+
 		for( Workarea workarea : areas.values() ) {
 			try {
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
@@ -348,6 +353,7 @@ class UiReader {
 	/// /			setView( settings, "view-maximized", pane::setMaximizedView );
 	//		}
 	//	}
+
 	private WorkpaneEdge lookupEdge( Workarea area, String id ) {
 		if( area == null ) throw new NullPointerException( "Workpane cannot be null" );
 		if( id == null ) throw new NullPointerException( "Edge id cannot be null" );
