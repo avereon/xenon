@@ -165,29 +165,6 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertEdgeMatches( edge, settings );
 	}
 
-	private static Settings toolSettings( XenonProgramProduct program ) {
-		String id = IdGenerator.getId();
-		Settings settings = new MapSettings().getNode( id );
-		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
-
-		String assetTypeKey = new ProgramAboutType( program ).getKey();
-		System.out.println( "assetTypeKey=" + assetTypeKey );
-		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
-		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
-
-		return settings;
-	}
-
-	private static void assertToolMatches( Tool tool, Settings settings ) {
-		assertThat( tool ).isNotNull();
-		assertThat( tool.getUid() ).isEqualTo( settings.getName() );
-		assertThat( tool.getClass().getName() ).isEqualTo( settings.get( Tool.SETTINGS_TYPE_KEY ) );
-
-		assertThat( tool.getAsset() ).isNotNull();
-		assertThat( tool.getAsset().getType().getKey() ).isEqualTo( settings.get( Asset.SETTINGS_TYPE_KEY, String.class ) );
-		assertThat( tool.getAsset().getUri().toString() ).isEqualTo( settings.get( Asset.SETTINGS_URI_KEY, String.class ) );
-	}
-
 	@Test
 	void loadToolFromSettings() throws Exception {
 		// given
@@ -260,6 +237,29 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertThat( edge.getUid() ).isEqualTo( settings.getName() );
 		assertThat( edge.getOrientation() ).isEqualTo( settings.get( "orientation", Orientation.class ) );
 		assertThat( edge.getPosition() ).isEqualTo( settings.get( "position", Double.class ) );
+	}
+
+	private static Settings toolSettings( XenonProgramProduct program ) {
+		String id = IdGenerator.getId();
+		Settings settings = new MapSettings().getNode( id );
+		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
+
+		String assetTypeKey = new ProgramAboutType( program ).getKey();
+		System.out.println( "assetTypeKey=" + assetTypeKey );
+		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
+		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
+
+		return settings;
+	}
+
+	private static void assertToolMatches( Tool tool, Settings settings ) {
+		assertThat( tool ).isNotNull();
+		assertThat( tool.getUid() ).isEqualTo( settings.getName() );
+		assertThat( tool.getClass().getName() ).isEqualTo( settings.get( Tool.SETTINGS_TYPE_KEY ) );
+
+		assertThat( tool.getAsset() ).isNotNull();
+		assertThat( tool.getAsset().getType().getKey() ).isEqualTo( settings.get( Asset.SETTINGS_TYPE_KEY, String.class ) );
+		assertThat( tool.getAsset().getUri().toString() ).isEqualTo( settings.get( Asset.SETTINGS_URI_KEY, String.class ) );
 	}
 
 }
