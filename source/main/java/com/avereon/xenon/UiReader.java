@@ -50,6 +50,12 @@ class UiReader {
 
 	private final Map<Workspace, Workarea> spaceActiveAreas = new HashMap<>();
 
+	private final Map<Workarea, WorkpaneView> areaActiveViews = new HashMap<>();
+
+	private final Map<Workarea, WorkpaneView> areaDefaultViews = new HashMap<>();
+
+	private final Map<Workarea, WorkpaneView> areaMaximizedViews = new HashMap<>();
+
 	private final Map<WorkpaneView, Tool> viewActiveTools = new HashMap<>();
 
 	private final List<Exception> errors = new ArrayList<>();
@@ -117,6 +123,7 @@ class UiReader {
 			log.atWarn().log( "activeView: %s", activeView );
 			log.atWarn().log( "activeTool: %s", activeTool );
 			// if( activeTool != null ) activeTool.setActiveWhenReady();
+			setAreaViews();
 
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
@@ -124,6 +131,18 @@ class UiReader {
 			restored = true;
 			restoredCondition.signalAll();
 			restoreLock.unlock();
+		}
+	}
+
+	private void setAreaViews() {
+		for( Workarea area : areas.values() ) {
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
+
+			// Get the active, default and maximized views for the area
+
+			//			setView( settings, "view-active", pane::setActiveView );
+			//			setView( settings, "view-default", pane::setDefaultView );
+			//			setView( settings, "view-maximized", pane::setMaximizedView );
 		}
 	}
 
@@ -179,16 +198,20 @@ class UiReader {
 	WorkpaneView loadView( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea workarea = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
-			if( workpane == null ) {
+			if( workarea == null ) {
 				if( isModifying() ) settings.delete();
 				throw new UiException( "Removed orphaned view id=" + id );
 			}
 
 			WorkpaneView view = loadViewFromSettings( settings );
+			if( isActive( settings ) ) areaActiveViews.put( workarea, view );
+			if( isDefault( settings ) ) areaDefaultViews.put( workarea, view );
+			if( isMaximized( settings ) ) areaMaximizedViews.put( workarea, view );
 			views.put( id, view );
+
 			return view;
 		} catch( Exception exception ) {
 			errors.add( exception );
@@ -199,9 +222,7 @@ class UiReader {
 	WorkpaneView loadViewFromSettings( Settings settings ) {
 		WorkpaneView view = new WorkpaneView();
 		view.setUid( settings.getName() );
-		//if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
 		if( settings.exists( "placement" ) ) view.setPlacement( settings.get( "placement", Workpane.Placement.class ) );
-		if( isActive( settings ) ) activeView = view;
 		return view;
 	}
 
@@ -233,7 +254,7 @@ class UiReader {
 		return edge;
 	}
 
-	void loadTool( Settings settings ) {
+	Tool loadTool( Settings settings ) {
 		try {
 			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
@@ -247,9 +268,13 @@ class UiReader {
 
 			Tool tool = loadToolFromSettings( settings );
 			viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
+			if( isActive( settings ) ) viewActiveTools.put( view, tool );
 			tools.put( id, tool );
+			return tool;
 		} catch( Exception exception ) {
+			exception.printStackTrace(System.out);
 			errors.add( exception );
+			return null;
 		}
 	}
 
@@ -281,15 +306,21 @@ class UiReader {
 			throw new ToolInstantiationException( settings.getName(), toolClassName );
 		}
 
-		tool.setOrder(order);
-
-		//if( isActive( settings ) ) activeTool = tool;
+		tool.setOrder( order );
 
 		return tool;
 	}
 
 	private boolean isActive( Settings settings ) {
 		return settings.get( "active", Boolean.class, false );
+	}
+
+	private boolean isDefault( Settings settings ) {
+		return settings.get( "default", Boolean.class, false );
+	}
+
+	private boolean isMaximized( Settings settings ) {
+		return settings.get( "maximized", Boolean.class, false );
 	}
 
 	private void linkAreas() {
@@ -355,15 +386,6 @@ class UiReader {
 			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
 			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
 			pane.restoreNodes( localEdges, localViews );
-
-			//			// UIFactory gets sent a flag to not set the defaults when restoring the UI.
-			//			// This works around the problem of the default view being overwritten.
-			//
-			//			// Active, default and maximized views
-			//			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getUid() );
-			//			setView( settings, "view-active", pane::setActiveView );
-			//			setView( settings, "view-default", pane::setDefaultView );
-			//			setView( settings, "view-maximized", pane::setMaximizedView );
 		}
 	}
 
@@ -385,19 +407,13 @@ class UiReader {
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
 
-			List<Tool> localTools = new ArrayList<>( entry.getValue() );
-
 			// Sort the tools
+			List<Tool> localTools = new ArrayList<>( entry.getValue() );
 			localTools.sort( Comparator.comparing( Tool::getOrder ) );
 
 			// Add the tools to the view
 			for( Tool tool : localTools ) {
 				pane.addTool( tool, view, false );
-
-				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
-				boolean isActive = settings.get( "active", Boolean.class, false );
-				if( isActive ) viewActiveTools.put( view, tool );
-
 				log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
 			}
 		}

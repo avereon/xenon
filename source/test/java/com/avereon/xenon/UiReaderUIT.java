@@ -166,9 +166,24 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	}
 
 	@Test
+	void loadTool() throws Exception {
+		// given
+		Workspace space = Fx.call( () -> reader.loadSpace( spaceSettings() ) );
+		Workarea area = Fx.call( () -> reader.loadArea( areaSettings( space.getUid() ) ) );
+		WorkpaneView view = Fx.call( () -> reader.loadView( viewSettings( area.getUid() ) ) );
+		Settings settings = toolSettings( getProgram(), view.getUid() );
+
+		// when
+		Tool tool = reader.loadTool( settings );
+
+		// then
+		assertToolMatches( tool, settings );
+	}
+
+	@Test
 	void loadToolFromSettings() throws Exception {
 		// given
-		Settings settings = toolSettings( getProgram() );
+		Settings settings = toolSettings( getProgram(), IdGenerator.getId() );
 
 		// when
 		Tool tool = reader.loadToolFromSettings( settings );
@@ -239,11 +254,12 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertThat( edge.getPosition() ).isEqualTo( settings.get( "position", Double.class ) );
 	}
 
-	private static Settings toolSettings( XenonProgramProduct program ) {
+	private static Settings toolSettings( XenonProgramProduct program, String viewId ) {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
 		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
 		settings.set( Tool.ORDER, 5 );
+		settings.set( UiFactory.PARENT_WORKPANEVIEW_ID, viewId );
 
 		String assetTypeKey = new ProgramAboutType( program ).getKey();
 		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
