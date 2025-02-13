@@ -21,7 +21,9 @@ import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -76,6 +78,8 @@ public class Workspace extends Stage implements WritableIdentity {
 	public static final String MAXIMIZE = "maximize";
 
 	public static final String NOTICE = "notice";
+
+	public static final String ORDER = "order";
 
 	/**
 	 * Should the program menu be shown as a compact menu in the toolbar.
@@ -154,6 +158,8 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final SimpleObjectProperty<Workarea> activeWorkareaProperty;
 
+	private final SimpleIntegerProperty orderProperty;
+
 	private MemoryMonitor memoryMonitor;
 
 	private TaskMonitor taskMonitor;
@@ -168,12 +174,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		super( TRANSPARENT_WINDOW_SUPPORTED ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
 		if( !TRANSPARENT_WINDOW_SUPPORTED ) log.atWarn().log( "Transparent windows not supported" );
 
-		setUid( id );
-		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-
 		this.program = program;
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
+
+		setUid( id );
+		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 
 		// Stage listeners
 		setOnCloseRequest( event -> {
@@ -185,6 +191,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		activeWorkareaProperty = new SimpleObjectProperty<>();
+		orderProperty = new SimpleIntegerProperty();
 		workareas = FXCollections.observableArrayList();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
@@ -247,7 +254,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		rails = new HashSet<>();
 		railPane = buildRailPane( workspaceLayout );
 
-		//visibleProperty().
+		orderProperty().addListener( ( p, o, n ) -> {
+			getSettings().set( "order", n );
+		} );
+
 		showingProperty().addListener( ( p, o, n ) -> {
 			if( n ) hideProgramMenuBar();
 		} );
@@ -542,6 +552,18 @@ public class Workspace extends Stage implements WritableIdentity {
 		}
 
 		getSettings().set( "active", active );
+	}
+
+	public IntegerProperty orderProperty() {
+		return orderProperty;
+	}
+
+	public void setOrder( int order ) {
+		orderProperty.set( order );
+	}
+
+	public int getOrder() {
+		return orderProperty.get();
 	}
 
 	public ObservableList<Workarea> workareasProperty() {

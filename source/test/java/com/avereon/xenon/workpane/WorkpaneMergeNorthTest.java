@@ -112,7 +112,7 @@ class WorkpaneMergeNorthTest extends WorkpaneTestCase {
 		assertThat( this.view.getWorkpane() ).isNull();
 		assertThat( workpane.getDefaultView() ).isEqualTo( south );
 		assertThat( workpane.getActiveView() ).isEqualTo( south );
-		assertThat( south.getTools().size() ).isEqualTo( 2 );
+		assertThat( south.getToolTabPane().size() ).isEqualTo( 2 );
 
 		assertThat( south.getEdge( Side.TOP ).getPosition() ).isEqualTo( 0d );
 		assertThat( south.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
@@ -301,7 +301,7 @@ class WorkpaneMergeNorthTest extends WorkpaneTestCase {
 		workpane.closeTool( tool1 );
 		assertThat( workpane.getViews().size() ).isEqualTo( 1 );
 		assertThat( workpane.getEdges().size() ).isEqualTo( 0 );
-		assertThat( view.getTools().size() ).isEqualTo( 1 );
+		assertThat( view.getToolTabPane().size() ).isEqualTo( 1 );
 	}
 
 	@Test

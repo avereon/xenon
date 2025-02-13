@@ -6,10 +6,7 @@ import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.zarra.javafx.Fx;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
@@ -26,11 +23,13 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 
-	public static final String ICON_PROPERTY = "icon";
+	public static final String ICON = "icon";
 
-	public static final String TITLE_PROPERTY = "title";
+	public static final String TITLE = "title";
 
-	public static final String DESCRIPTION_PROPERTY = "description";
+	public static final String ORDER = "order";
+
+	public static final String DESCRIPTION = "description";
 
 	public static final Workpane.Placement DEFAULT_TOOL_PLACEMENT = Workpane.Placement.SMART;
 
@@ -41,6 +40,8 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	private final ObjectProperty<Node> graphicProperty;
 
 	private final StringProperty titleProperty;
+
+	private final IntegerProperty orderProperty;
 
 	private final ObjectProperty<Node> contextGraphicProperty;
 
@@ -64,6 +65,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
+		this.orderProperty = new SimpleIntegerProperty();
 		this.contextGraphicProperty = new SimpleObjectProperty<>();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
@@ -154,6 +156,18 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		return titleProperty;
 	}
 
+	public IntegerProperty orderProperty() {
+		return orderProperty;
+	}
+
+	public int getOrder() {
+		return orderProperty.getValue();
+	}
+
+	public void setOrder( int order ) {
+		orderProperty.setValue( order );
+	}
+
 	@SuppressWarnings( "unused" )
 	public Node getContextGraphic() {
 		return contextGraphicProperty.getValue();
@@ -230,7 +244,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	}
 
 	public int getTabOrder() {
-		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
+		return getToolView() == null ? -1 : getToolView().getToolTabPane().indexOf( this );
 	}
 
 	public boolean isActive() {

@@ -382,10 +382,17 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
 		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() ) );
-		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
+		tool.addEventHandler( ToolEvent.ORDERED, this::setToolOrder );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
 		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
 		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete() );
+	}
+
+	private void setToolOrder( ToolEvent event ) {
+		ProgramTool tool = (ProgramTool)event.getTool();
+		int order = tool.getTabOrder();
+		tool.getSettings().set( Tool.ORDER, order );
+		tool.setOrder( order );
 	}
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {

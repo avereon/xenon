@@ -243,9 +243,9 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		String id = IdGenerator.getId();
 		Settings settings = new MapSettings().getNode( id );
 		settings.set( Tool.SETTINGS_TYPE_KEY, AboutTool.class.getName() );
+		settings.set( Tool.ORDER, 5 );
 
 		String assetTypeKey = new ProgramAboutType( program ).getKey();
-		System.out.println( "assetTypeKey=" + assetTypeKey );
 		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
 		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
 
@@ -255,6 +255,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	private static void assertToolMatches( Tool tool, Settings settings ) {
 		assertThat( tool ).isNotNull();
 		assertThat( tool.getUid() ).isEqualTo( settings.getName() );
+		assertThat( tool.getOrder() ).isEqualTo( settings.get( Tool.ORDER, Integer.class ) );
 		assertThat( tool.getClass().getName() ).isEqualTo( settings.get( Tool.SETTINGS_TYPE_KEY ) );
 
 		assertThat( tool.getAsset() ).isNotNull();

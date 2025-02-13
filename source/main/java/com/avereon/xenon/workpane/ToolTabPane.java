@@ -14,6 +14,7 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
 
+	@Getter
 	private final ObservableList<ToolTab> tabs;
 
 	private final ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel;
@@ -39,10 +41,6 @@ public class ToolTabPane extends Control {
 		tabs = FXCollections.observableArrayList();
 		selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
-	}
-
-	public ObservableList<ToolTab> getTabs() {
-		return tabs;
 	}
 
 	public final SingleSelectionModel<ToolTab> getSelectionModel() {
@@ -164,7 +162,7 @@ public class ToolTabPane extends Control {
 					}
 				}
 
-				if( this.getSelectedIndex() == -1 && this.getSelectedItem() == null && pane.getTabs().size() > 0 ) {
+				if( this.getSelectedIndex() == -1 && this.getSelectedItem() == null && !pane.getTabs().isEmpty() ) {
 					ToolTab next = this.findNearestAvailableTab( 0 );
 					if( next != null ) select( next );
 				} else if( pane.getTabs().isEmpty() ) {
@@ -189,7 +187,8 @@ public class ToolTabPane extends Control {
 
 		@Override
 		public void select( int index ) {
-			if( index < 0 || (getItemCount() > 0 && index >= getItemCount()) || (index == getSelectedIndex() && getModelItem( index ).isSelected()) ) {
+			ToolTab tab = getModelItem( index );
+			if( index < 0 || (getItemCount() > 0 && index >= getItemCount()) || (index == getSelectedIndex() && tab != null && tab.isSelected()) ) {
 				return;
 			}
 
@@ -199,7 +198,6 @@ public class ToolTabPane extends Control {
 			}
 
 			setSelectedIndex( index );
-			ToolTab tab = getModelItem( index );
 			if( tab != null ) setSelectedItem( tab );
 
 			// Select the new tab

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkpaneView extends BorderPane implements WritableIdentity {
 
-	private final ToolTabPane tools;
+	private final ToolTabPane toolTabPane;
 
 	private ObjectProperty<WorkpaneEdge> topEdge;
 
@@ -39,7 +39,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		getStyleClass().add( "workpane-view" );
 
 		setUid( IdGenerator.getId() );
-		setCenter( tools = new ToolTabPane() );
+		setCenter( toolTabPane = new ToolTabPane() );
 		setSnapToPixel( true );
 
 		//tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
@@ -54,18 +54,20 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
-		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( tools.focusedProperty().getValue() && newValue != null ) activateTool( newValue.getTool() );
+		toolTabPane.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
+			if( toolTabPane.focusedProperty().getValue() && newValue != null ) activateTool( newValue.getTool() );
 		} );
 
 		// Add a listener to the tab list to store the order when the tabs change
-		tools
-			.getTabs()
-			.addListener( (ListChangeListener<? super ToolTab>)( change ) -> tools
-				.getTabs()
-				.stream()
-				.map( ToolTab::getTool )
-				.forEach( t -> t.fireEvent( new ToolEvent( null, ToolEvent.ORDERED, t.getWorkpane(), t ) ) ) );
+		toolTabPane.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> toolsReordered() );
+	}
+
+	private void toolsReordered() {
+		toolTabPane.getTabs().stream().map( ToolTab::getTool ).forEach( this::fireToolOrdered );
+	}
+
+	private void fireToolOrdered( Tool tool ) {
+		tool.fireEvent( new ToolEvent( this, ToolEvent.ORDERED, getWorkpane(), tool ) );
 	}
 
 	@Override
@@ -135,20 +137,20 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	 *
 	 * @return A list of the tools in the view.
 	 */
-	public List<Tool> getTools() {
-		return tools.getTabs().parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
+	public List<Tool> getToolTabPane() {
+		return toolTabPane.getTabs().parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
-		tools.getTabs().add( index, new ToolTab( tool ) );
+		toolTabPane.getTabs().add( index, new ToolTab( tool ) );
 		tool.setToolView( this );
 		tool.callAllocate();
 
 		// NOTE the tool parent is not valid yet, but the tool view is
 
-		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
+		if( toolTabPane.getTabs().size() == 1 ) setActiveTool( tool );
 
 		return tool;
 	}
@@ -160,12 +162,12 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		Tool next = null;
 		if( isActiveTool ) {
 			// Determine the next tool for the view.
-			if( tools.getTabs().size() > 1 ) {
+			if( toolTabPane.getTabs().size() > 1 ) {
 				int index = getToolIndex( tool );
-				if( index < tools.getTabs().size() - 1 ) {
-					next = (Tool)tools.getTabs().get( index + 1 ).getContent();
+				if( index < toolTabPane.getTabs().size() - 1 ) {
+					next = (Tool)toolTabPane.getTabs().get( index + 1 ).getContent();
 				} else if( index >= 1 ) {
-					next = (Tool)tools.getTabs().get( index - 1 ).getContent();
+					next = (Tool)toolTabPane.getTabs().get( index - 1 ).getContent();
 				}
 			}
 
@@ -178,7 +180,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		tool.callDeallocate();
 
 		// Remove the tool.
-		tools.getTabs().remove( getToolIndex( tool ) );
+		toolTabPane.getTabs().remove( getToolIndex( tool ) );
 		tool.setToolView( null );
 		if( activeTool == tool ) activeTool = null;
 
@@ -202,7 +204,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		activeTool = tool;
 
 		if( activeTool != null ) {
-			tools.getSelectionModel().select( getToolIndex( tool ) );
+			toolTabPane.getSelectionModel().select( getToolIndex( tool ) );
 			if( !activeTool.isDisplayed() ) activeTool.callDisplay();
 		}
 	}
@@ -210,7 +212,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	private int getToolIndex( Tool tool ) {
 		int index = 0;
 
-		for( ToolTab tab : tools.getTabs() ) {
+		for( ToolTab tab : toolTabPane.getTabs() ) {
 			if( tab.getTool() == tool ) return index;
 			index++;
 		}
@@ -223,7 +225,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	}
 
 	void setActive( boolean active ) {
-		tools.setActive( active );
+		toolTabPane.setActive( active );
 	}
 
 	public boolean isDefault() {

@@ -199,7 +199,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 */
 	public Set<Tool> getTools() {
 		Set<Tool> tools = new HashSet<>();
-		getViews().forEach( ( view ) -> tools.addAll( view.getTools() ) );
+		getViews().forEach( ( view ) -> tools.addAll( view.getToolTabPane() ) );
 		return Collections.unmodifiableSet( tools );
 	}
 
@@ -208,7 +208,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public boolean hasTool( Class<? extends Tool> type ) {
-		return getTools( type ).size() > 0;
+		return !getTools( type ).isEmpty();
 	}
 
 	public double getEdgeSize() {
@@ -1018,7 +1018,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target == getDefaultView() ) return false;
 
 			// If auto, check the tool counts
-			if( auto && target.getTools().size() > 0 ) return false;
+			if( auto && target.getToolTabPane().size() > 0 ) return false;
 
 			// Check targets for common back edge
 			if( commonBackEdge == null ) commonBackEdge = target.getEdge( direction );
@@ -1070,7 +1070,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view, boolean activate ) {
-		return addTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
+		return addTool( tool, view, view == null ? 0 : view.getToolTabPane().size(), activate );
 	}
 
 	/**
@@ -1104,7 +1104,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	private Tool openTool( Tool tool, WorkpaneView view, boolean activate ) {
-		return openTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
+		return openTool( tool, view, view == null ? 0 : view.getToolTabPane().size(), activate );
 	}
 
 	public Tool openTool( Tool tool, WorkpaneView view, Placement placement, boolean activate ) {
@@ -1258,7 +1258,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 		sourcePane.removeTool( sourceTool, automerge );
 
-		int targetViewTabCount = targetView.getTools().size();
+		int targetViewTabCount = targetView.getToolTabPane().size();
 		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
 		targetPane.addTool( sourceTool, targetView, index, true );
 	}
@@ -1481,7 +1481,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target.isActive() ) setActiveView( closestSource );
 
 			// Check for tools.
-			for( Tool tool : target.getTools() ) {
+			for( Tool tool : target.getToolTabPane() ) {
 				closeTool( tool, false );
 				addTool( tool, closestSource );
 			}
