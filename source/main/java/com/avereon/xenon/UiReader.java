@@ -14,6 +14,7 @@ import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Orientation;
+import javafx.geometry.Side;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 @CustomLog
@@ -48,6 +48,10 @@ class UiReader {
 
 	private final Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
 
+	private Workspace activeSpace;
+
+	private final Set<Workspace> maximizedSpaces = new HashSet<>();
+
 	private final Map<Workspace, Workarea> spaceActiveAreas = new HashMap<>();
 
 	private final Map<Workarea, WorkpaneView> areaActiveViews = new HashMap<>();
@@ -64,18 +68,11 @@ class UiReader {
 
 	private final Condition restoredCondition = restoreLock.newCondition();
 
-	private Workspace activeSpace;
-
-	private Workarea activeArea;
-
-	private WorkpaneView activeView;
-
-	private Tool activeTool;
-
 	private boolean restored;
 
 	@Getter
 	@Setter
+	@Deprecated( forRemoval = true )
 	private boolean modifying;
 
 	public UiReader( Xenon program ) {
@@ -95,35 +92,33 @@ class UiReader {
 		restoreLock.lock();
 
 		try {
-			getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpace );
-			getUiSettings( ProgramSettings.AREA ).forEach( this::loadArea );
-			getUiSettings( ProgramSettings.VIEW ).forEach( this::loadView );
-			getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdge );
-			getUiSettings( ProgramSettings.TOOL ).forEach( this::loadTool );
+			getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpaceForLinking );
+			getUiSettings( ProgramSettings.AREA ).forEach( this::loadAreaForLinking );
+			getUiSettings( ProgramSettings.VIEW ).forEach( this::loadViewForLinking );
+			getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdgeForLinking );
+			getUiSettings( ProgramSettings.TOOL ).forEach( this::loadToolForLinking );
 
 			// Reassemble the UI
-			linkTools();
-			linkEdgesAndViews();
-			linkAreas();
-			addSpaces();
+			linkToolsToViews();
+			linkEdgesAndViewsToAreas();
+			linkAreasToSpaces();
+			linkSpaces();
 
-			// NEXT Continue work on UI reader
-			// - Reassemble the UI
-			//   - Link views and edges to areas
-			//   - Link tools to views
-			//   - Load the workspaces into the manager
+//			log.atWarn().log( "activeSpace: %s", activeSpace );
+//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
+//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
+//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
+//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
+//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
+//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
 
-			// NEXT Set all the active UI components
+			// NEXT Set all the active, default and maximized UI components
 			// - Set active tool
 			// - Set active view
 			// - Set default view
 			// - Set active workarea
-			log.atWarn().log( "activeSpace: %s", activeSpace );
-			log.atWarn().log( "activeArea: %s", activeArea );
-			log.atWarn().log( "activeView: %s", activeView );
-			log.atWarn().log( "activeTool: %s", activeTool );
 			// if( activeTool != null ) activeTool.setActiveWhenReady();
-			setAreaViews();
+			// setAreaViews();
 
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
@@ -135,20 +130,19 @@ class UiReader {
 	}
 
 	private void setAreaViews() {
-		for( Workarea area : areas.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
-
-			// Get the active, default and maximized views for the area
-
-			//			setView( settings, "view-active", pane::setActiveView );
-			//			setView( settings, "view-default", pane::setDefaultView );
-			//			setView( settings, "view-maximized", pane::setMaximizedView );
-		}
+		//		for( Workarea area : areas.values() ) {
+		//			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
+		//
+		//			// Get the active, default and maximized views for the area
+		//			//setView( settings, "view-active", area::setActiveView );
+		//			//setView( settings, "view-default", area::setDefaultView );
+		//			//setView( settings, "view-maximized", area::setMaximizedView );
+		//		}
 	}
 
-	Workspace loadSpace( Settings settings ) {
+	Workspace loadSpaceForLinking( Settings settings ) {
 		try {
-			Workspace workspace = loadSpaceFromSettings( settings );
+			Workspace workspace = loadSpace( settings );
 			spaces.put( workspace.getUid(), workspace );
 			return workspace;
 		} catch( Exception exception ) {
@@ -157,21 +151,22 @@ class UiReader {
 		}
 	}
 
-	Workspace loadSpaceFromSettings( Settings settings ) {
+	Workspace loadSpace( Settings settings ) {
 		Workspace workspace = new Workspace( program );
 		workspace.setUid( settings.getName() );
 		workspace.updateFromSettings( settings );
 		if( isActive( settings ) ) activeSpace = workspace;
+		if( isMaximized( settings ) ) maximizedSpaces.add( workspace );
 		return workspace;
 	}
 
-	Workarea loadArea( Settings settings ) {
+	Workarea loadAreaForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workspace workspace = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+			Workspace space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
-			if( workspace == null ) {
+			if( space == null ) {
 				if( isModifying() ) {
 					getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, id ).delete();
 					settings.delete();
@@ -179,39 +174,42 @@ class UiReader {
 				throw new UiException( "Removed orphaned area id=" + id );
 			}
 
-			Workarea workarea = loadAreaFromSettings( settings );
-			areas.put( id, workarea );
-			return workarea;
+			Workarea area = loadArea( settings );
+			if( isActive( settings ) ) spaceActiveAreas.put( space, area );
+
+			// NEXT The area has the ids of the active, default and maximized views
+			//if( isViewActive( settings ) ) areaActiveViews.put( area, view );
+			//if( isViewDefault( settings ) ) areaDefaultViews.put( area, view );
+			//if( isViewMaximized( settings ) ) areaMaximizedViews.put( area, view );
+
+			areas.put( id, area );
+			return area;
 		} catch( Exception exception ) {
 			errors.add( exception );
 			return null;
 		}
 	}
 
-	Workarea loadAreaFromSettings( Settings settings ) {
+	Workarea loadArea( Settings settings ) {
 		Workarea area = new Workarea();
 		area.setUid( settings.getName() );
-		if( isActive( settings ) ) activeArea = area;
+		area.setOrder( settings.get( "order", Integer.class, 0 ) );
 		return area;
 	}
 
-	WorkpaneView loadView( Settings settings ) {
+	WorkpaneView loadViewForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workarea workarea = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
-			if( workarea == null ) {
+			if( area == null ) {
 				if( isModifying() ) settings.delete();
 				throw new UiException( "Removed orphaned view id=" + id );
 			}
 
-			WorkpaneView view = loadViewFromSettings( settings );
-			if( isActive( settings ) ) areaActiveViews.put( workarea, view );
-			if( isDefault( settings ) ) areaDefaultViews.put( workarea, view );
-			if( isMaximized( settings ) ) areaMaximizedViews.put( workarea, view );
+			WorkpaneView view = loadView( settings );
 			views.put( id, view );
-
 			return view;
 		} catch( Exception exception ) {
 			errors.add( exception );
@@ -219,25 +217,25 @@ class UiReader {
 		}
 	}
 
-	WorkpaneView loadViewFromSettings( Settings settings ) {
+	WorkpaneView loadView( Settings settings ) {
 		WorkpaneView view = new WorkpaneView();
 		view.setUid( settings.getName() );
 		if( settings.exists( "placement" ) ) view.setPlacement( settings.get( "placement", Workpane.Placement.class ) );
 		return view;
 	}
 
-	WorkpaneEdge loadEdge( Settings settings ) {
+	WorkpaneEdge loadEdgeForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
-			if( workpane == null ) {
+			if( area == null ) {
 				if( isModifying() ) settings.delete();
 				throw new UiException( "Removed orphaned edge id=" + id );
 			}
 
-			WorkpaneEdge edge = loadEdgeFromSettings( settings );
+			WorkpaneEdge edge = loadEdge( settings );
 			edges.put( id, edge );
 			return edge;
 		} catch( Exception exception ) {
@@ -246,7 +244,7 @@ class UiReader {
 		}
 	}
 
-	WorkpaneEdge loadEdgeFromSettings( Settings settings ) {
+	WorkpaneEdge loadEdge( Settings settings ) {
 		WorkpaneEdge edge = new WorkpaneEdge();
 		edge.setUid( settings.getName() );
 		if( settings.exists( "orientation" ) ) edge.setOrientation( Orientation.valueOf( settings.get( "orientation" ).toUpperCase() ) );
@@ -254,7 +252,7 @@ class UiReader {
 		return edge;
 	}
 
-	Tool loadTool( Settings settings ) {
+	Tool loadToolForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
@@ -266,19 +264,19 @@ class UiReader {
 				throw new UiException( "Removed orphaned tool id=" + id );
 			}
 
-			Tool tool = loadToolFromSettings( settings );
+			Tool tool = loadTool( settings );
 			viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
 			if( isActive( settings ) ) viewActiveTools.put( view, tool );
 			tools.put( id, tool );
 			return tool;
 		} catch( Exception exception ) {
-			exception.printStackTrace(System.out);
+			exception.printStackTrace( System.out );
 			errors.add( exception );
 			return null;
 		}
 	}
 
-	ProgramTool loadToolFromSettings( Settings settings ) throws AssetException, ToolInstantiationException {
+	ProgramTool loadTool( Settings settings ) throws AssetException, ToolInstantiationException {
 		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
@@ -315,45 +313,53 @@ class UiReader {
 		return settings.get( "active", Boolean.class, false );
 	}
 
-	private boolean isDefault( Settings settings ) {
-		return settings.get( "default", Boolean.class, false );
-	}
-
 	private boolean isMaximized( Settings settings ) {
 		return settings.get( "maximized", Boolean.class, false );
 	}
 
-	private void linkAreas() {
+//	private boolean isViewActive( Settings settings ) {
+//		return settings.get( "view-active", Boolean.class, false );
+//	}
+//
+//	private boolean isViewDefault( Settings settings ) {
+//		return settings.get( "view-default", Boolean.class, false );
+//	}
+//
+//	private boolean isViewMaximized( Settings settings ) {
+//		return settings.get( "view-maximized", Boolean.class, false );
+//	}
+
+	private void linkAreasToSpaces() {
 		// Sort the areas by order
 		List<Workarea> areaList = new ArrayList<>( areas.values() );
 		areaList.sort( Comparator.comparing( Workarea::getOrder ) );
 
 		// Link the workareas to the workspaces
-		for( Workarea workarea : areaList ) {
+		for( Workarea area : areaList ) {
 			try {
-				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
-				Workspace workspace = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
-				workspace.addWorkarea( workarea );
+				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
+				Workspace space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+				space.addWorkarea( area );
 
 				// Save the active area for later
-				if( workarea.isActive() ) spaceActiveAreas.put( workspace, workarea );
+				if( area.isActive() ) spaceActiveAreas.put( space, area );
 			} catch( Exception exception ) {
 				errors.add( exception );
 			}
 		}
 	}
 
-	private void linkEdgesAndViews() {
-		Map<Workpane, Set<WorkpaneEdge>> workpaneEdges = new HashMap<>();
-		Map<Workpane, Set<WorkpaneView>> workpaneViews = new HashMap<>();
+	void linkEdgesAndViewsToAreas() {
+		Map<Workpane, Set<WorkpaneEdge>> areaEdges = new HashMap<>();
+		Map<Workpane, Set<WorkpaneView>> areaViews = new HashMap<>();
 
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
-			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
-				if( linkEdge( edge ) ) {
-					workpaneEdges.computeIfAbsent( workpane, k -> new HashSet<>() ).add( edge );
+				if( linkEdge( area, edge, settings ) ) {
+					areaEdges.computeIfAbsent( area, k -> new HashSet<>() ).add( edge );
 				} else {
 					log.atDebug().log( "Removing invalid workpane edge settings: %s", LazyEval.of( settings::getName ) );
 					settings.delete();
@@ -367,10 +373,10 @@ class UiReader {
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-			Workpane workpane = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
-				if( linkView( view ) ) {
-					workpaneViews.computeIfAbsent( workpane, k -> new HashSet<>() ).add( view );
+				if( linkView( area, view, settings ) ) {
+					areaViews.computeIfAbsent( area, k -> new HashSet<>() ).add( view );
 				} else {
 					log.atDebug().log( "Removing invalid workpane edge settings: %s", LazyEval.of( settings::getName ) );
 					settings.delete();
@@ -382,26 +388,54 @@ class UiReader {
 		}
 
 		// Restore edges and views to workpane
-		for( Workpane pane : areas.values() ) {
-			Set<WorkpaneEdge> localEdges = workpaneEdges.computeIfAbsent( pane, k -> new HashSet<>() );
-			Set<WorkpaneView> localViews = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
-			pane.restoreNodes( localEdges, localViews );
+		for( Workarea area : areas.values() ) {
+			Set<WorkpaneEdge> localAreaEdges = areaEdges.computeIfAbsent( area, k -> new HashSet<>() );
+			Set<WorkpaneView> localAreaViews = areaViews.computeIfAbsent( area, k -> new HashSet<>() );
+			linkArea( area, localAreaEdges, localAreaViews );
 		}
 	}
 
-	boolean linkEdge( WorkpaneEdge edge ) {
-		return false;
+	boolean linkEdge( Workarea area, WorkpaneEdge edge, Settings settings ) {
+		Orientation orientation = Objects.requireNonNull( edge.getOrientation() );
+
+		if( orientation == Orientation.VERTICAL ) {
+			WorkpaneEdge t = lookupEdge( area, settings.get( "t" ) );
+			WorkpaneEdge b = lookupEdge( area, settings.get( "b" ) );
+			if( t == null || b == null ) return false;
+			edge.setEdge( Side.TOP, t );
+			edge.setEdge( Side.BOTTOM, b );
+		} else if( orientation == Orientation.HORIZONTAL ) {
+			WorkpaneEdge l = lookupEdge( area, settings.get( "l" ) );
+			WorkpaneEdge r = lookupEdge( area, settings.get( "r" ) );
+			if( l == null || r == null ) return false;
+			edge.setEdge( Side.LEFT, l );
+			edge.setEdge( Side.RIGHT, r );
+		}
+
+		return true;
 	}
 
-	boolean linkView( WorkpaneView view ) {
-		return false;
+	boolean linkView( Workarea area, WorkpaneView view, Settings settings ) {
+		WorkpaneEdge t = lookupEdge( area, settings.get( "t" ) );
+		WorkpaneEdge l = lookupEdge( area, settings.get( "l" ) );
+		WorkpaneEdge r = lookupEdge( area, settings.get( "r" ) );
+		WorkpaneEdge b = lookupEdge( area, settings.get( "b" ) );
+
+		if( t == null || l == null || r == null || b == null ) return false;
+
+		view.setEdge( Side.TOP, t );
+		view.setEdge( Side.LEFT, l );
+		view.setEdge( Side.RIGHT, r );
+		view.setEdge( Side.BOTTOM, b );
+
+		return true;
 	}
 
-	void setView( Settings settings, String key, Consumer<WorkpaneView> handler ) {
-
+	void linkArea( Workarea area, Set<WorkpaneEdge> edges, Set<WorkpaneView> views ) {
+		area.restoreNodes( edges, views );
 	}
 
-	void linkTools() {
+	void linkToolsToViews() {
 		for( Map.Entry<WorkpaneView, Set<Tool>> entry : viewToolMap.entrySet() ) {
 			WorkpaneView view = entry.getKey();
 			Workpane pane = view.getWorkpane();
@@ -419,7 +453,7 @@ class UiReader {
 		}
 	}
 
-	void addSpaces() {
+	void linkSpaces() {
 		List<Workspace> spacesList = new ArrayList<>( spaces.values() );
 		spacesList.sort( Comparator.comparing( Workspace::getOrder ) );
 

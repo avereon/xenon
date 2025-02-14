@@ -436,7 +436,7 @@ class UiRegenerator {
 
 	private void restoreWorkpane( Workarea workarea, String id ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
-		settings.set( PARENT_WORKAREA_ID, id );
+		settings.set( PARENT_WORKPANE_ID, id );
 
 		workarea.setUid( id );
 

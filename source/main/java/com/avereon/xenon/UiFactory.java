@@ -30,6 +30,7 @@ public final class UiFactory {
 
 	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
+	// FIXME This is the const and value we want to use, instead of the one below
 	public static final String PARENT_WORKAREA_ID = "workarea-id";
 
 	public static final String PARENT_WORKPANE_ID = "workpane-id";
@@ -117,7 +118,7 @@ public final class UiFactory {
 
 	private void setupWorkpaneSettings( Workpane workpane ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, workpane.getUid() );
-		settings.set( PARENT_WORKAREA_ID, workpane.getUid() );
+		settings.set( PARENT_WORKPANE_ID, workpane.getUid() );
 
 		if( !restore ) {
 			// Save new state to settings
