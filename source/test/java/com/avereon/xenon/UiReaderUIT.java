@@ -53,19 +53,20 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 
 		// when
 		FileUtil.waitToExist( uiSettingsFolder, 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "tool" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "workarea" ), 1, TimeUnit.SECONDS );
 
 		// then
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
-		//assertThat( uiSettingsFolder.resolve( "tool" ) ).exists();
-		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
-		// No edges are needed for the default workspace
-		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
+		assertThat( uiSettingsFolder.resolve( "tool" ) ).exists();
+		assertThat( uiSettingsFolder.resolve( "edge" ) ).doesNotExist();
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
+		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
+		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "workspace" ) ).exists();
 	}
 
