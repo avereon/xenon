@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,9 +35,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
-		List<String> parameters = ProgramTestConfig.getParameterValues();
-		parameters.remove( XenonTestFlag.EMPTY_WORKSPACE );
-		ProgramTestConfig.setParameterValues( parameters );
+		ProgramTestConfig.removeFlag( XenonTestFlag.EMPTY_WORKSPACE );
 		super.setup();
 		reader = new UiReader( getProgram() );
 	}

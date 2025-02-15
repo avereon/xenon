@@ -35,7 +35,7 @@ public final class ProgramTestConfig {
 
 	@Getter
 	@Setter
-	private static List<String> parameterValues;
+	private static List<String> parameters;
 
 	static {
 		List<String> values = new ArrayList<>();
@@ -47,7 +47,15 @@ public final class ProgramTestConfig {
 		values.add( XenonFlag.LOG_LEVEL );
 		values.add( XenonFlag.WARN );
 		values.add( XenonTestFlag.EMPTY_WORKSPACE );
-		parameterValues = values;
+		parameters = values;
+	}
+
+	public static void addFlag(String flag) {
+		parameters.add( flag );
+	}
+
+	public static void removeFlag( String flag ) {
+		parameters.remove( flag );
 	}
 
 }
