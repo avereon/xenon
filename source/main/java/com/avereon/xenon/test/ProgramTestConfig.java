@@ -1,12 +1,14 @@
 package com.avereon.xenon.test;
 
-import com.avereon.product.ProgramMode;
-import com.avereon.product.ProgramFlag;
+import com.avereon.xenon.XenonFlag;
+import com.avereon.xenon.XenonMode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public interface ProgramTestConfig {
+public final class ProgramTestConfig {
 
 	/**
 	 * The wait timeout for many operations. Common values are:
@@ -17,7 +19,7 @@ public interface ProgramTestConfig {
 	 *  | Faster computers
 	 * 1000 - AMD Threadripper, Intel i9</pre>
 	 */
-	int TIMEOUT = 4000;
+	public static final int TIMEOUT = 4000;
 
 	/**
 	 * The wait timeout for many operations. Common values are:
@@ -28,18 +30,22 @@ public interface ProgramTestConfig {
 	 *  | Faster computers
 	 * 5000 - AMD Threadripper, Intel i9</pre>
 	 */
-	int LONG_TIMEOUT = 5 * TIMEOUT;
+	public static final int LONG_TIMEOUT = 5 * TIMEOUT;
 
-	static String[] getParameterValues() {
+	@Getter
+	@Setter
+	private static List<String> parameterValues;
+
+	static {
 		List<String> values = new ArrayList<>();
-		values.add( ProgramFlag.RESET );
-		values.add( ProgramFlag.NO_SPLASH );
-		values.add( ProgramFlag.NO_UPDATES );
-		values.add( ProgramFlag.MODE );
-		values.add( ProgramMode.TEST );
-		values.add( ProgramFlag.LOG_LEVEL );
-		values.add( ProgramFlag.WARN );
-		return values.toArray( new String[ 0 ] );
+		values.add( XenonFlag.RESET );
+		values.add( XenonFlag.NO_SPLASH );
+		values.add( XenonFlag.NO_UPDATES );
+		values.add( XenonFlag.MODE );
+		values.add( XenonMode.TEST );
+		values.add( XenonFlag.LOG_LEVEL );
+		values.add( XenonFlag.WARN );
+		parameterValues = values;
 	}
 
 }

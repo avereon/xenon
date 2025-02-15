@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.product.ProgramMode;
+import com.avereon.xenon.XenonMode;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
@@ -208,7 +208,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
 		String menuDescriptor = program.getSettings().get( "menubar", defaultDescriptor );
 		programMenuBar = MenuBarFactory.createMenuBar( program, menuDescriptor, false );
-		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, programMenuBar.getMenus() );
+		if( XenonMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, programMenuBar.getMenus() );
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
@@ -888,7 +888,7 @@ public class Workspace extends Stage implements WritableIdentity {
 							}
 
 						};
-						int delay = ProgramMode.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
+						int delay = XenonMode.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
 						timer.schedule( watcher.task, delay );
 					} else {
 						if( watcher.task != null ) watcher.task.cancel();

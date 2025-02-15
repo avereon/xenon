@@ -830,7 +830,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		if( !updatesEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, ProgramFlag.NO_DAEMON, ProgramFlag.LOG_APPEND ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, XenonFlag.NO_DAEMON, XenonFlag.LOG_APPEND ) );
 
 		return count;
 	}
@@ -1003,7 +1003,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	private boolean updatesEnabled() {
-		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NO_UPDATES );
+		return !getProgram().getProgramParameters().isTrue( XenonFlag.NO_UPDATES );
 	}
 
 	@Override
@@ -1051,12 +1051,12 @@ public class ProductManager implements Controllable<ProductManager> {
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		// Disable mods specified on the command line
-		List<String> disableMods = getProgram().getProgramParameters().getValues( ProgramFlag.DISABLE_MOD );
+		List<String> disableMods = getProgram().getProgramParameters().getValues( XenonFlag.DISABLE_MOD );
 		modules.values().stream().filter( mod -> disableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, false ) );
 		if( !disableMods.isEmpty() ) log.atDebug().log( "Disabled mods: %s", disableMods );
 
 		// Enable mods specified on the command line
-		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
+		List<String> enableMods = getProgram().getProgramParameters().getValues( XenonFlag.ENABLE_MOD );
 		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
 		if( !enableMods.isEmpty() ) log.atDebug().log( "Enabled mods: %s", enableMods );
 

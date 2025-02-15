@@ -268,7 +268,7 @@ public class Xenon extends Application implements XenonProgram {
 		time( "configure-home-folder" );
 
 		// Check for the VERSION CLI parameter, depends on product card
-		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
+		if( getProgramParameters().isSet( XenonFlag.VERSION ) ) {
 			printVersion( card );
 			requestExit( true );
 			return;
@@ -281,8 +281,8 @@ public class Xenon extends Application implements XenonProgram {
 		time( "version-check" );
 
 		// Check for the HELP CLI parameter, depends on program parameters
-		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
-			printHelp( getProgramParameters().get( ProgramFlag.HELP ) );
+		if( getProgramParameters().isSet( XenonFlag.HELP ) ) {
+			printHelp( getProgramParameters().get( XenonFlag.HELP ) );
 			requestExit( true );
 			return;
 		}
@@ -328,7 +328,7 @@ public class Xenon extends Application implements XenonProgram {
 	@Override
 	public void start( Stage stage ) {
 		time( "fx-start" );
-		if( !ProgramMode.TEST.equals( mode ) && !isHardwareRendered() ) {
+		if( !XenonMode.TEST.equals( mode ) && !isHardwareRendered() ) {
 			log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 		}
 
@@ -339,8 +339,8 @@ public class Xenon extends Application implements XenonProgram {
 		// Show the splash screen, depends stylesheet
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UNDECORATED ) stage.initStyle( StageStyle.UNDECORATED );
-		daemonRequested = parameters.isSet( ProgramFlag.DAEMON ) && !parameters.isSet( ProgramFlag.NO_DAEMON );
-		boolean nosplash = parameters.isSet( ProgramFlag.NO_SPLASH );
+		daemonRequested = parameters.isSet( XenonFlag.DAEMON ) && !parameters.isSet( XenonFlag.NO_DAEMON );
+		boolean nosplash = parameters.isSet( XenonFlag.NO_SPLASH );
 		if( !daemonRequested && !nosplash ) {
 			splashScreen = new SplashScreenPane( card.getName() );
 			splashScreen.show( stage );
@@ -890,13 +890,13 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public String getProfile() {
-		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
+		if( profile == null ) profile = parameters.get( XenonFlag.PROFILE );
 		return profile;
 	}
 
 	@Override
 	public String getMode() {
-		if( mode == null ) mode = parameters.get( ProgramFlag.MODE );
+		if( mode == null ) mode = parameters.get( XenonFlag.MODE );
 		return mode;
 	}
 
@@ -1123,17 +1123,17 @@ public class Xenon extends Application implements XenonProgram {
 	 * @return True if the program should continue to start when it is a host
 	 */
 	boolean processPeerCommands( com.avereon.util.Parameters parameters, boolean startup ) {
-		if( parameters.isSet( ProgramFlag.HELLO ) ) {
+		if( parameters.isSet( XenonFlag.HELLO ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to say hello to, just talking to myself!" );
 			} else {
 				log.atWarning().log( "Hello peer. Good to hear from you!" );
 			}
 			return true;
-		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+		} else if( parameters.isSet( XenonFlag.STATUS ) ) {
 			printStatus( startup );
 			return true;
-		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
+		} else if( parameters.isSet( XenonFlag.STOP ) ) {
 			if( startup ) {
 				if( isHost() ) {
 					log.atWarning().log( "Program is already stopped!" );
@@ -1144,14 +1144,14 @@ public class Xenon extends Application implements XenonProgram {
 				}
 			}
 			return true;
-		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
+		} else if( parameters.isSet( XenonFlag.WATCH ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to watch, I'm out!" );
 			} else {
 				log.atWarning().log( "A watcher has connected!" );
 			}
 			return true;
-		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
+		} else if( !parameters.anySet( XenonFlag.QUIET_ACTIONS ) ) {
 			if( !startup ) getWorkspaceManager().showActiveWorkspace();
 		}
 
@@ -1219,10 +1219,10 @@ public class Xenon extends Application implements XenonProgram {
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
 		String mode = getMode();
-		if( ProgramMode.TEST.equals( mode ) ) return;
+		if( XenonMode.TEST.equals( mode ) ) return;
 
 		String profileMode = getProfileMode();
-		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
+		boolean versionParameterSet = parameters.isSet( XenonFlag.VERSION );
 		String versionString = card.getVersion() + (TextUtil.isEmpty( profileMode ) ? "" : " [" + profileMode + "]");
 		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
 		String releaseString = "";
@@ -1303,8 +1303,8 @@ public class Xenon extends Application implements XenonProgram {
 	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
 			// Check the command line HOME flag
-			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) {
-				programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( programHomeFolder == null && parameters.isSet( XenonFlag.HOME ) ) {
+				programHomeFolder = Paths.get( parameters.get( XenonFlag.HOME ) );
 			}
 
 			// Check the launcher path
@@ -1325,7 +1325,7 @@ public class Xenon extends Application implements XenonProgram {
 			}
 
 			// When in development mode, use the target/program folder
-			if( ProgramMode.DEV.equals( getMode() ) ) {
+			if( XenonMode.DEV.equals( getMode() ) ) {
 				programHomeFolder = Paths.get( "target/program" );
 			}
 
@@ -1336,7 +1336,7 @@ public class Xenon extends Application implements XenonProgram {
 			card.setInstallFolder( programHomeFolder );
 
 			// Create the program home folder when in DEV mode
-			if( ProgramMode.DEV.equals( getMode() ) ) {
+			if( XenonMode.DEV.equals( getMode() ) ) {
 				Files.createDirectories( programHomeFolder );
 			}
 

@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProgramMode;
 import com.avereon.util.OperatingSystem;
 
 import java.nio.file.Path;
@@ -42,7 +41,7 @@ public class UpdateManager {
 		final Path updaterLauncher;
 
 		Path javaLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
-		if( ProgramMode.DEV.equals( mode ) ) {
+		if( XenonMode.DEV.equals( mode ) ) {
 			String updaterTarget = "target/" + prefix;
 			Path updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
 			updaterLauncher = updaterFolder.resolve( OperatingSystem.getJavaLauncherName() );

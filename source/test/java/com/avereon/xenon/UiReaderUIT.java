@@ -6,6 +6,7 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.tool.AboutTool;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +36,9 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
+		List<String> parameters = ProgramTestConfig.getParameterValues();
+		// TODO Remove the test flag that leaves the default workspace empty
+		ProgramTestConfig.setParameterValues( parameters );
 		super.setup();
 		reader = new UiReader( getProgram() );
 	}
@@ -41,8 +46,9 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	@Test
 	void createDefaultWorkspace() throws Exception {
 		// There is technically a race condition here because the program is already
-		// started and the UI is probably already restored, but the settings will
-		// not be saved immediately.
+		// started and the UI is probably already restored, but the settings are
+		// probably not saved yet. This test will wait for the settings files to be
+		// saved before further assertions.
 
 		// given
 		Path settingsFolder = getProgram().getDataFolder().resolve( SettingsManager.ROOT );
@@ -58,10 +64,10 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		// then
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
+		//assertThat( uiSettingsFolder.resolve( "tool" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
 		// No edges are needed for the default workspace
 		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
-		// No tool is created due to the test parameters
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "workspace" ) ).exists();
 	}
