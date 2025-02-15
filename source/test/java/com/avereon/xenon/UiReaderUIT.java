@@ -37,7 +37,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	@BeforeEach
 	protected void setup() throws Exception {
 		List<String> parameters = ProgramTestConfig.getParameterValues();
-		// TODO Remove the test flag that leaves the default workspace empty
+		parameters.remove( XenonTestFlag.EMPTY_WORKSPACE );
 		ProgramTestConfig.setParameterValues( parameters );
 		super.setup();
 		reader = new UiReader( getProgram() );

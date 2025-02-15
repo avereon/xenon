@@ -2,6 +2,7 @@ package com.avereon.xenon.test;
 
 import com.avereon.xenon.XenonFlag;
 import com.avereon.xenon.XenonMode;
+import com.avereon.xenon.XenonTestFlag;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +23,7 @@ public final class ProgramTestConfig {
 	public static final int TIMEOUT = 4000;
 
 	/**
-	 * The wait timeout for many operations. Common values are:
+	 * The long wait timeout for many operations. Common values are:
 	 * <pre>
 	 * 25000 - GitHub Actions, Mintbox Mini
 	 *  | Slower computers
@@ -45,6 +46,7 @@ public final class ProgramTestConfig {
 		values.add( XenonMode.TEST );
 		values.add( XenonFlag.LOG_LEVEL );
 		values.add( XenonFlag.WARN );
+		values.add( XenonTestFlag.EMPTY_WORKSPACE );
 		parameterValues = values;
 	}
 

@@ -4,7 +4,6 @@ import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -197,7 +196,7 @@ class UiRegenerator {
 		workspace.setActiveWorkarea( workarea );
 		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
 
-		if( !TestUtil.isTest() ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
+		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}
 
 	private List<Exception> restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
