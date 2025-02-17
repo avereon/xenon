@@ -104,13 +104,16 @@ class UiReader {
 			linkAreasToSpaces();
 			linkSpaces();
 
-//			log.atWarn().log( "activeSpace: %s", activeSpace );
-//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
-//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
-//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
-//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
-//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
-//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
+			log.atWarn().log( "activeSpace: %s", activeSpace );
+			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
+			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
+			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
+			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
+			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
+			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
+
+			// NEXT I was trying to determine why the view flags were not being read
+			// In particular, every workarea should have a default view and an active view
 
 			// NEXT Set all the active, default and maximized UI components
 			// - Set active tool
