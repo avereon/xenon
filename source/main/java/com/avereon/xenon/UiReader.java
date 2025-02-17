@@ -179,6 +179,8 @@ class UiReader {
 
 	Workarea loadAreaForLinking( Settings settings ) {
 		try {
+			copyPaneSettings( settings );
+
 			String id = settings.getName();
 			Workspace space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
@@ -532,6 +534,20 @@ class UiReader {
 		Notice notice = new Notice( Rb.text( RbKey.PROGRAM, "ui-restore-error-title" ) );
 		notice.setMessage( builder.toString().trim() );
 		getProgram().getNoticeManager().addNotice( notice );
+	}
+
+	private void copyPaneSettings(Settings settings ) {
+		String id = settings.getName();
+		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );
+		if( rootSettings.nodeExists( ProgramSettings.PANE ) ) {
+			Settings paneSetting = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE );
+			if( paneSetting.nodeExists( id ) ) {
+				Settings paneSettings = paneSetting.getNode( id );
+				settings.set( UiWorkareaFactory.VIEW_ACTIVE, paneSettings.get( UiWorkareaFactory.VIEW_ACTIVE ) );
+				settings.set( UiWorkareaFactory.VIEW_DEFAULT, paneSettings.get( UiWorkareaFactory.VIEW_DEFAULT) );
+				settings.set( UiWorkareaFactory.VIEW_MAXIMIZED, paneSettings.get( UiWorkareaFactory.VIEW_MAXIMIZED ) );
+			}
+		}
 	}
 
 }

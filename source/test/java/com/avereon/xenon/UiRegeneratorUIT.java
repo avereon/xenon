@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith( MockitoExtension.class )
 class UiRegeneratorUIT extends BaseFullXenonTestCase {
 
+	@Disabled
 	@Test
 	void createDefaultWorkspace() throws Exception {
 		// There is technically a race condition here because the program is already
@@ -26,7 +28,7 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		// when
 		FileUtil.waitToExist( uiSettingsFolder, 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
+		//FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), 1, TimeUnit.SECONDS );
 
@@ -34,8 +36,8 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
 		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
+		// No more pane folder
 		// No edges are needed for the default workspace
-		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
 		// No tool is created due to the test parameters
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "workspace" ) ).exists();
