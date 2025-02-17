@@ -36,6 +36,10 @@ class UiReader {
 	@Getter
 	private final Xenon program;
 
+	private final UiWorkspaceFactory spaceFactory;
+
+	private final UiWorkareaFactory areaFactory;
+
 	private final Map<String, Workspace> spaces = new HashMap<>();
 
 	private final Map<String, Workarea> areas = new HashMap<>();
@@ -77,6 +81,8 @@ class UiReader {
 
 	public UiReader( Xenon program ) {
 		this.program = program;
+		this.spaceFactory = new UiWorkspaceFactory( program );
+		this.areaFactory = new UiWorkareaFactory( program );
 	}
 
 	public void load() {
@@ -104,16 +110,22 @@ class UiReader {
 			linkAreasToSpaces();
 			linkSpaces();
 
-			log.atWarn().log( "activeSpace: %s", activeSpace );
-			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
-			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
-			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
-			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
-			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
-			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
+//			log.atWarn().log( "activeSpace: %s", activeSpace );
+//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
+//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
+//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
+//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
+//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
+//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
 
-			// NEXT I was trying to determine why the view flags were not being read
-			// In particular, every workarea should have a default view and an active view
+			/*
+			Now that everything is linked, time to restore the flags. This should be
+			done after the listeners are added to allow the events to be handled.
+
+			The UiFactory methods add listeners to the UI components. UiReader
+			intentionally avoids doing this to avoid triggering events during
+			restoration. So the listeners need to be added here.
+			 */
 
 			// NEXT Set all the active, default and maximized UI components
 			// - Set active tool
@@ -155,7 +167,7 @@ class UiReader {
 	}
 
 	Workspace loadSpace( Settings settings ) {
-		Workspace workspace = new Workspace( program );
+		Workspace workspace = spaceFactory.create();
 		workspace.setUid( settings.getName() );
 		workspace.updateFromSettings( settings );
 		if( isActive( settings ) ) activeSpace = workspace;
@@ -171,7 +183,7 @@ class UiReader {
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
 			if( space == null ) {
 				if( isModifying() ) {
-					getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, id ).delete();
+					getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, id ).delete();
 					settings.delete();
 				}
 				throw new UiException( "Removed orphaned area id=" + id );
@@ -179,11 +191,6 @@ class UiReader {
 
 			Workarea area = loadArea( settings );
 			if( isActive( settings ) ) spaceActiveAreas.put( space, area );
-
-			// NEXT The area has the ids of the active, default and maximized views
-			//if( isViewActive( settings ) ) areaActiveViews.put( area, view );
-			//if( isViewDefault( settings ) ) areaDefaultViews.put( area, view );
-			//if( isViewMaximized( settings ) ) areaMaximizedViews.put( area, view );
 
 			areas.put( id, area );
 			return area;
@@ -194,7 +201,7 @@ class UiReader {
 	}
 
 	Workarea loadArea( Settings settings ) {
-		Workarea area = new Workarea();
+		Workarea area = areaFactory.create();
 		area.setUid( settings.getName() );
 		area.setOrder( settings.get( "order", Integer.class, 0 ) );
 		return area;
@@ -313,24 +320,24 @@ class UiReader {
 	}
 
 	private boolean isActive( Settings settings ) {
-		return settings.get( "active", Boolean.class, false );
+		return settings.get( UiFactory.ACTIVE, Boolean.class, false );
 	}
 
 	private boolean isMaximized( Settings settings ) {
-		return settings.get( "maximized", Boolean.class, false );
+		return settings.get( UiFactory.MAXIMIZED, Boolean.class, false );
 	}
 
-//	private boolean isViewActive( Settings settings ) {
-//		return settings.get( "view-active", Boolean.class, false );
-//	}
-//
-//	private boolean isViewDefault( Settings settings ) {
-//		return settings.get( "view-default", Boolean.class, false );
-//	}
-//
-//	private boolean isViewMaximized( Settings settings ) {
-//		return settings.get( "view-maximized", Boolean.class, false );
-//	}
+	private boolean isViewActive( Settings settings ) {
+		return settings.exists( UiFactory.VIEW_ACTIVE );
+	}
+
+	private boolean isViewDefault( Settings settings ) {
+		return settings.exists( UiFactory.VIEW_DEFAULT );
+	}
+
+	private boolean isViewMaximized( Settings settings ) {
+		return settings.exists( UiFactory.VIEW_MAXIMIZED );
+	}
 
 	private void linkAreasToSpaces() {
 		// Sort the areas by order
@@ -346,6 +353,10 @@ class UiReader {
 
 				// Save the active area for later
 				if( area.isActive() ) spaceActiveAreas.put( space, area );
+
+				if( isViewActive( settings ) ) areaActiveViews.put( area, views.get( settings.get( UiFactory.VIEW_ACTIVE ) ) );
+				if( isViewDefault( settings ) ) areaDefaultViews.put( area, views.get( settings.get( UiFactory.VIEW_DEFAULT ) ) );
+				if( isViewMaximized( settings ) ) areaMaximizedViews.put( area, views.get( settings.get( UiFactory.VIEW_MAXIMIZED ) ) );
 			} catch( Exception exception ) {
 				errors.add( exception );
 			}

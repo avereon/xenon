@@ -24,6 +24,7 @@ public interface ProgramSettings {
 
 	String AREA = UI + "area/";
 
+	@Deprecated
 	String PANE = UI + "pane/";
 
 	String EDGE = UI + "edge/";

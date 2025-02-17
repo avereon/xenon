@@ -185,7 +185,7 @@ class UiRegenerator {
 
 		// Create the default workarea
 		// NOTE Have to use a "non-restoring" UiFactory
-		Workarea workarea = new UiFactory( program, false ).newWorkarea();
+		Workarea workarea = new UiFactory( program, false ).create();
 		workarea.setIcon( "workarea" );
 		workarea.setName( "Default" );
 
@@ -427,7 +427,7 @@ class UiRegenerator {
 			return;
 		}
 
-		Workarea workarea = factory.newWorkarea( id );
+		Workarea workarea = factory.create(id);
 		areas.put( id, workarea );
 
 		restoreWorkpane( workarea, id );

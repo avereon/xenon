@@ -1,14 +1,11 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.xenon.XenonMode;
+import com.avereon.xenon.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.Xenon;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -166,7 +163,13 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private FpsMonitor fpsMonitor;
 
+	/**
+	 * Create a new workspace.
+	 *
+	 * @param program the program
+	 */
 	public Workspace( final Xenon program ) {
+		// Please create all workspaces from the UiWorkspaceFactory
 		this( program, null );
 	}
 
@@ -718,8 +721,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
-		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
+		Double w = settings.get( "w", Double.class, UiWorkspaceFactory.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiWorkspaceFactory.DEFAULT_HEIGHT );
 		scene = new Scene( railPane, w, h, Color.TRANSPARENT );
 		getProgram().getActionLibrary().registerScene( scene );
 
