@@ -28,7 +28,7 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "workarea" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), 1, TimeUnit.SECONDS );
 
 		// then
 		// Check the settings folder for the expected files

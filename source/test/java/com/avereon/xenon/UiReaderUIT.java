@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.settings.MapSettings;
 import com.avereon.settings.Settings;
+import com.avereon.settings.StoredSettings;
 import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
@@ -51,13 +52,14 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		Path settingsFolder = getProgram().getDataFolder().resolve( SettingsManager.ROOT );
 		Path uiSettingsFolder = settingsFolder.resolve( ProgramSettings.UI.substring( 1 ) );
 
+		long timeout = ((StoredSettings)getProgram().getSettingsManager().getSettings( ProgramSettings.UI )).getMaxFlushLimit() * 2;
+
 		// when
-		FileUtil.waitToExist( uiSettingsFolder, 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "tool" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "workarea" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder, timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "tool" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), timeout, TimeUnit.MILLISECONDS );
 
 		// then
 		// Check the settings folder for the expected files
