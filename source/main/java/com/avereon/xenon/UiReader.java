@@ -536,6 +536,12 @@ class UiReader {
 		getProgram().getNoticeManager().addNotice( notice );
 	}
 
+	/**
+	 * Copy the workpane settings to the workarea settings.
+	 *
+	 * @param settings The workarea settings.
+	 */
+	@Deprecated(since = "Xenon 8.0", forRemoval = true )
 	private void copyPaneSettings(Settings settings ) {
 		String id = settings.getName();
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );
