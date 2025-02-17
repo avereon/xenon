@@ -26,7 +26,7 @@ public class UiWorkspaceFactory {
 		return workspace;
 	}
 
-	public Workspace applyWorkspaceSettingsListeners( Workspace workspace, Settings settings ) {
+	public Workspace linkWorkspaceSettingsListeners( Workspace workspace, Settings settings ) {
 		return workspace;
 	}
 

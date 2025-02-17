@@ -63,11 +63,13 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
 		assertThat( uiSettingsFolder.resolve( "tool" ) ).exists();
-		assertThat( uiSettingsFolder.resolve( "edge" ) ).doesNotExist();
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
-		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "workspace" ) ).exists();
+
+		// Check the settings folder for the unexpected files
+		assertThat( uiSettingsFolder.resolve( "edge" ) ).doesNotExist();
+		assertThat( uiSettingsFolder.resolve( "pane" ) ).doesNotExist();
 	}
 
 	@Test

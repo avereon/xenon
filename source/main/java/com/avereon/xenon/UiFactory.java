@@ -24,22 +24,16 @@ public final class UiFactory {
 
 	public static final double PAD = BorderStroke.THICK.getTop();
 
+	public static final String PARENT_AREA_ID = "area-id";
+
+	@Deprecated
 	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
-	// FIXME This is the const and value we want to use, instead of the one below
-	public static final String PARENT_WORKAREA_ID = "workarea-id";
-
+	@Deprecated
 	public static final String PARENT_WORKPANE_ID = "workpane-id";
 
+	@Deprecated
 	public static final String PARENT_WORKPANEVIEW_ID = "workpaneview-id";
-
-	public static final String DOCK_TOP_SIZE = "dock-top-size";
-
-	public static final String DOCK_LEFT_SIZE = "dock-left-size";
-
-	public static final String DOCK_RIGHT_SIZE = "dock-right-size";
-
-	public static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
 
 	public static final String ACTIVE = "active";
 
@@ -50,12 +44,6 @@ public final class UiFactory {
 	public static final String PAINT = "paint";
 
 	public static final String COLOR = "color";
-
-	public static final String VIEW_ACTIVE = "view-active";
-
-	public static final String VIEW_DEFAULT = "view-default";
-
-	public static final String VIEW_MAXIMIZED = "view-maximized";
 
 	private final Xenon program;
 
@@ -134,10 +122,10 @@ public final class UiFactory {
 		}
 
 		// Add the change listeners
-		workarea.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_TOP_SIZE, newValue ) );
-		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_LEFT_SIZE, newValue ) );
-		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_RIGHT_SIZE, newValue ) );
-		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_BOTTOM_SIZE, newValue ) );
+		workarea.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_TOP_SIZE, newValue ) );
+		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_LEFT_SIZE, newValue ) );
+		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_RIGHT_SIZE, newValue ) );
+		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_BOTTOM_SIZE, newValue ) );
 		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
 		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
 		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
@@ -161,10 +149,10 @@ public final class UiFactory {
 		}
 
 		// Add the change listeners
-		workpane.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_TOP_SIZE, newValue ) );
-		workpane.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_LEFT_SIZE, newValue ) );
-		workpane.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_RIGHT_SIZE, newValue ) );
-		workpane.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_BOTTOM_SIZE, newValue ) );
+		workpane.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_TOP_SIZE, newValue ) );
+		workpane.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_LEFT_SIZE, newValue ) );
+		workpane.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_RIGHT_SIZE, newValue ) );
+		workpane.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_BOTTOM_SIZE, newValue ) );
 		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
 		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
 		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );

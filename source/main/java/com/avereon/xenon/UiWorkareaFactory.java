@@ -12,6 +12,20 @@ import javafx.scene.Node;
 
 public class UiWorkareaFactory {
 
+	public static final String DOCK_TOP_SIZE = "dock-top-size";
+
+	public static final String DOCK_LEFT_SIZE = "dock-left-size";
+
+	public static final String DOCK_RIGHT_SIZE = "dock-right-size";
+
+	public static final String DOCK_BOTTOM_SIZE = "dock-bottom-size";
+
+	public static final String VIEW_ACTIVE = "view-active";
+
+	public static final String VIEW_DEFAULT = "view-default";
+
+	public static final String VIEW_MAXIMIZED = "view-maximized";
+
 	private final Xenon program;
 
 	public UiWorkareaFactory( Xenon program ) {
@@ -31,11 +45,17 @@ public class UiWorkareaFactory {
 		workarea.setName( settings.get( UiFactory.NAME, workarea.getName() ) );
 		workarea.setActive( settings.get( UiFactory.ACTIVE, Boolean.class, workarea.isActive() ) );
 
-		// Save new state to settings
+		// Save new state to settings, to save default values immediately
 		settings.set( UiFactory.PAINT, Paints.toString( workarea.getPaint() ) );
 		settings.set( UiFactory.COLOR, Colors.toString( workarea.getColor() ) );
 		settings.set( UiFactory.NAME, workarea.getName() );
 		settings.set( UiFactory.ACTIVE, workarea.isActive() );
+
+		return workarea;
+	}
+
+	Workarea linkWorkareaSettingsListeners( Workarea workarea ) {
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 
 		// Add the change listeners
 		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PAINT, Paints.toString( n ) ) );
@@ -48,10 +68,10 @@ public class UiWorkareaFactory {
 		workarea.getViews().forEach( v -> setupViewSettings( workarea, v ) );
 
 		// Add the change listeners
-		workarea.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiFactory.DOCK_TOP_SIZE, newValue ) );
-		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiFactory.DOCK_LEFT_SIZE, newValue ) );
-		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiFactory.DOCK_RIGHT_SIZE, newValue ) );
-		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiFactory.DOCK_BOTTOM_SIZE, newValue ) );
+		workarea.topDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_TOP_SIZE, newValue ) );
+		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_LEFT_SIZE, newValue ) );
+		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_RIGHT_SIZE, newValue ) );
+		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_BOTTOM_SIZE, newValue ) );
 		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
 		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
 		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
@@ -71,7 +91,7 @@ public class UiWorkareaFactory {
 
 	private void setupEdgeSettings( Workpane workpane, WorkpaneEdge edge ) {
 		Settings edgeSettings = program.getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
-		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, workpane.getUid() );
+		edgeSettings.set( UiFactory.PARENT_AREA_ID, workpane.getUid() );
 
 		// Restore state from settings
 		// NOTE The edge links are restored in the UiRegenerator
@@ -103,7 +123,7 @@ public class UiWorkareaFactory {
 
 	private void setupViewSettings( Workpane workpane, WorkpaneView view ) {
 		Settings viewSettings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, workpane.getUid() );
+		viewSettings.set( UiFactory.PARENT_AREA_ID, workpane.getUid() );
 
 		// Store the current values
 		viewSettings.set( "placement", view.getPlacement() == null ? null : view.getPlacement().name().toLowerCase() );

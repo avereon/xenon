@@ -439,10 +439,10 @@ class UiRegenerator {
 
 		workarea.setUid( id );
 
-		workarea.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
-		workarea.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
-		workarea.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
-		workarea.setBottomDockSize( settings.get( DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
+		workarea.setTopDockSize( settings.get( UiWorkareaFactory.DOCK_TOP_SIZE, Double.class, 0.2 ) );
+		workarea.setLeftDockSize( settings.get( UiWorkareaFactory.DOCK_LEFT_SIZE, Double.class, 0.2 ) );
+		workarea.setRightDockSize( settings.get( UiWorkareaFactory.DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
+		workarea.setBottomDockSize( settings.get( UiWorkareaFactory.DOCK_BOTTOM_SIZE, Double.class, 0.2 ) );
 	}
 
 	private void restoreWorkpaneEdge( String id ) {

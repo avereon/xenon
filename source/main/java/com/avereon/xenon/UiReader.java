@@ -12,6 +12,8 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
+import com.avereon.zarra.color.Colors;
+import com.avereon.zarra.color.Paints;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -203,7 +205,10 @@ class UiReader {
 	Workarea loadArea( Settings settings ) {
 		Workarea area = areaFactory.create();
 		area.setUid( settings.getName() );
-		area.setOrder( settings.get( "order", Integer.class, 0 ) );
+		area.setOrder( settings.get( "order", Integer.class, area.getOrder() ) );
+		area.setPaint( Paints.parse( settings.get( UiFactory.PAINT, Paints.toString( area.getPaint() ) ) ) );
+		area.setColor( Colors.parse( settings.get( UiFactory.COLOR, Colors.toString( area.getColor() ) ) ) );
+		area.setName( settings.get( UiFactory.NAME, area.getName() ) );
 		return area;
 	}
 
@@ -328,15 +333,15 @@ class UiReader {
 	}
 
 	private boolean isViewActive( Settings settings ) {
-		return settings.exists( UiFactory.VIEW_ACTIVE );
+		return settings.exists( UiWorkareaFactory.VIEW_ACTIVE );
 	}
 
 	private boolean isViewDefault( Settings settings ) {
-		return settings.exists( UiFactory.VIEW_DEFAULT );
+		return settings.exists( UiWorkareaFactory.VIEW_DEFAULT );
 	}
 
 	private boolean isViewMaximized( Settings settings ) {
-		return settings.exists( UiFactory.VIEW_MAXIMIZED );
+		return settings.exists( UiWorkareaFactory.VIEW_MAXIMIZED );
 	}
 
 	private void linkAreasToSpaces() {
@@ -354,9 +359,9 @@ class UiReader {
 				// Save the active area for later
 				if( area.isActive() ) spaceActiveAreas.put( space, area );
 
-				if( isViewActive( settings ) ) areaActiveViews.put( area, views.get( settings.get( UiFactory.VIEW_ACTIVE ) ) );
-				if( isViewDefault( settings ) ) areaDefaultViews.put( area, views.get( settings.get( UiFactory.VIEW_DEFAULT ) ) );
-				if( isViewMaximized( settings ) ) areaMaximizedViews.put( area, views.get( settings.get( UiFactory.VIEW_MAXIMIZED ) ) );
+				if( isViewActive( settings ) ) areaActiveViews.put( area, views.get( settings.get( UiWorkareaFactory.VIEW_ACTIVE ) ) );
+				if( isViewDefault( settings ) ) areaDefaultViews.put( area, views.get( settings.get( UiWorkareaFactory.VIEW_DEFAULT ) ) );
+				if( isViewMaximized( settings ) ) areaMaximizedViews.put( area, views.get( settings.get( UiWorkareaFactory.VIEW_MAXIMIZED ) ) );
 			} catch( Exception exception ) {
 				errors.add( exception );
 			}
