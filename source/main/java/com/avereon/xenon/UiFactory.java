@@ -35,6 +35,8 @@ public final class UiFactory {
 	@Deprecated
 	public static final String PARENT_WORKPANEVIEW_ID = "workpaneview-id";
 
+	public static final String ORDER = "order";
+
 	public static final String ACTIVE = "active";
 
 	public static final String MAXIMIZED = "maximized";

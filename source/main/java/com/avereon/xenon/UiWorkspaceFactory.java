@@ -23,6 +23,7 @@ public class UiWorkspaceFactory {
 	}
 
 	public Workspace applyWorkspaceSettings( Workspace workspace, Settings settings ) {
+		// FIXME To be called from UiReader
 		return workspace;
 	}
 

@@ -194,7 +194,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		return activeTool;
 	}
 
-	void setActiveTool( Tool tool ) {
+	public void setActiveTool( Tool tool ) {
 		if( tool == activeTool ) return;
 
 		if( activeTool != null ) {

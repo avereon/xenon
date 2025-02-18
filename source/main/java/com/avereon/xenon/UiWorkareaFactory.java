@@ -36,10 +36,9 @@ public class UiWorkareaFactory {
 		return new Workarea();
 	}
 
-	Workarea applyWorkareaSettings( Workarea workarea ) {
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
-
+	Workarea applyWorkareaSettings( Workarea workarea, Settings settings ) {
 		// Restore state from settings
+		workarea.setOrder( settings.get( UiFactory.ORDER, Integer.class, workarea.getOrder() ) );
 		workarea.setPaint( Paints.parse( settings.get( UiFactory.PAINT, Paints.toString( workarea.getPaint() ) ) ) );
 		workarea.setColor( Colors.parse( settings.get( UiFactory.COLOR, Colors.toString( workarea.getColor() ) ) ) );
 		workarea.setName( settings.get( UiFactory.NAME, workarea.getName() ) );
@@ -54,9 +53,7 @@ public class UiWorkareaFactory {
 		return workarea;
 	}
 
-	Workarea linkWorkareaSettingsListeners( Workarea workarea ) {
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
-
+	Workarea linkWorkareaSettingsListeners( Workarea workarea, Settings settings ) {
 		// Add the change listeners
 		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PAINT, Paints.toString( n ) ) );
 		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.NAME, n ) );

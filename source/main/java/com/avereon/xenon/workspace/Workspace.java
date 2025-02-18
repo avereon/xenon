@@ -1,11 +1,14 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.xenon.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
+import com.avereon.xenon.ProgramSettings;
+import com.avereon.xenon.UiWorkspaceFactory;
+import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonMode;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -717,6 +720,7 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	@SuppressWarnings( "CommentedOutCode" )
 	public void updateFromSettings( Settings settings ) {
+		// FIXME Move this settings logic to UiWorkspaceFactory
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
@@ -771,6 +775,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateThemeFromSettings( settings );
 	}
 
 	public void screenshot( Path file ) {
@@ -855,6 +860,11 @@ public class Workspace extends Stage implements WritableIdentity {
 			updateContainer( fpsMonitor, enabled );
 			settings.register( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
 		} );
+	}
+
+	private void updateThemeFromSettings( Settings settings ) {
+		String themeId = settings.get( "theme", getProgram().getWorkspaceManager().getThemeId() );
+		setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
 	}
 
 	private void updateContainer( AbstractMonitor monitor, boolean enabled ) {

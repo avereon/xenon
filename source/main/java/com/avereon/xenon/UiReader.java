@@ -12,8 +12,6 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.color.Colors;
-import com.avereon.zarra.color.Paints;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -79,7 +77,7 @@ class UiReader {
 	@Getter
 	@Setter
 	@Deprecated( forRemoval = true )
-	private boolean modifying;
+	private boolean modifying = false;
 
 	public UiReader( Xenon program ) {
 		this.program = program;
@@ -112,30 +110,25 @@ class UiReader {
 			linkAreasToSpaces();
 			linkSpaces();
 
-//			log.atWarn().log( "activeSpace: %s", activeSpace );
-//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
-//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
-//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
-//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
-//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
-//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
+			//			log.atWarn().log( "activeSpace: %s", activeSpace );
+			//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
+			//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
+			//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
+			//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
+			//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
+			//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
 
 			/*
 			Now that everything is linked, time to restore the flags. This should be
-			done after the listeners are added to allow the events to be handled.
-
-			The UiFactory methods add listeners to the UI components. UiReader
-			intentionally avoids doing this to avoid triggering events during
-			restoration. So the listeners need to be added here.
+			done before the listeners are added to avoid unintended modifications.
 			 */
+			restoreFlags();
 
-			// NEXT Set all the active, default and maximized UI components
-			// - Set active tool
-			// - Set active view
-			// - Set default view
-			// - Set active workarea
-			// if( activeTool != null ) activeTool.setActiveWhenReady();
-			// setAreaViews();
+			/*
+			Last, but not least, register the listeners. This should be done last to
+			avoid unintended modifications while the UI is being restored.
+			 */
+			registerListeners();
 
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
@@ -146,15 +139,63 @@ class UiReader {
 		}
 	}
 
-	private void setAreaViews() {
-		//		for( Workarea area : areas.values() ) {
-		//			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
-		//
-		//			// Get the active, default and maximized views for the area
-		//			//setView( settings, "view-active", area::setActiveView );
-		//			//setView( settings, "view-default", area::setDefaultView );
-		//			//setView( settings, "view-maximized", area::setMaximizedView );
-		//		}
+	private void restoreFlags() {
+		/* TOOLS */
+		// For each view there is an active tool
+		for( WorkpaneView view : viewActiveTools.keySet() ) {
+			Tool tool = viewActiveTools.get( view );
+			if( tool instanceof ProgramTool programTool) {
+				programTool.setActiveWhenReady();
+			} else {
+				view.setActiveTool( tool );
+			}
+		}
+
+		/* WORKAREAS */
+		// For each area there is an active view
+		for( Workarea area : areaActiveViews.keySet() ) {
+			WorkpaneView view = areaActiveViews.get( area );
+			area.setActiveView( view );
+		}
+		// For each area there is a default view
+		for( Workarea area : areaDefaultViews.keySet() ) {
+			WorkpaneView view = areaDefaultViews.get( area );
+			area.setDefaultView( view );
+		}
+		// For each area there might be a maximized view
+		for( Workarea area : areaMaximizedViews.keySet() ) {
+			WorkpaneView view = areaMaximizedViews.get( area );
+			area.setMaximizedView( view );
+		}
+
+		/* WORKSPACES */
+		// For each space there is an active area
+		for( Workspace space : spaceActiveAreas.keySet() ) {
+			Workarea area = spaceActiveAreas.get( space );
+			space.setActiveWorkarea( area );
+		}
+		// For each space there might be a maximized area
+		for( Workspace space : maximizedSpaces ) {
+			space.setMaximized( true );
+		}
+		// Set the active space
+		if( activeSpace != null ) {
+			program.getWorkspaceManager().setActiveWorkspace( activeSpace );
+		}
+	}
+
+	private void registerListeners() {
+		// Register the workarea listeners
+		for( Workarea area : areas.values() ) {
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
+			if( modifying ) areaFactory.linkWorkareaSettingsListeners( area, settings );
+		}
+
+		// Register the workspace listeners
+		for( Workspace space : spaces.values() ) {
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, space.getUid() );
+			if( modifying ) spaceFactory.linkWorkspaceSettingsListeners( space, settings );
+		}
 	}
 
 	Workspace loadSpaceForLinking( Settings settings ) {
@@ -207,11 +248,7 @@ class UiReader {
 	Workarea loadArea( Settings settings ) {
 		Workarea area = areaFactory.create();
 		area.setUid( settings.getName() );
-		area.setOrder( settings.get( "order", Integer.class, area.getOrder() ) );
-		area.setPaint( Paints.parse( settings.get( UiFactory.PAINT, Paints.toString( area.getPaint() ) ) ) );
-		area.setColor( Colors.parse( settings.get( UiFactory.COLOR, Colors.toString( area.getColor() ) ) ) );
-		area.setName( settings.get( UiFactory.NAME, area.getName() ) );
-		return area;
+		return areaFactory.applyWorkareaSettings( area, settings );
 	}
 
 	WorkpaneView loadViewForLinking( Settings settings ) {
@@ -541,8 +578,8 @@ class UiReader {
 	 *
 	 * @param settings The workarea settings.
 	 */
-	@Deprecated(since = "8.0", forRemoval = true )
-	private void copyPaneSettings(Settings settings ) {
+	@Deprecated( since = "8.0", forRemoval = true )
+	private void copyPaneSettings( Settings settings ) {
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );
 		if( rootSettings.nodeExists( ProgramSettings.PANE ) ) {
 			Settings paneSetting = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE );
@@ -550,7 +587,7 @@ class UiReader {
 			if( paneSetting.nodeExists( id ) ) {
 				Settings paneSettings = paneSetting.getNode( id );
 				settings.set( UiWorkareaFactory.VIEW_ACTIVE, paneSettings.get( UiWorkareaFactory.VIEW_ACTIVE ) );
-				settings.set( UiWorkareaFactory.VIEW_DEFAULT, paneSettings.get( UiWorkareaFactory.VIEW_DEFAULT) );
+				settings.set( UiWorkareaFactory.VIEW_DEFAULT, paneSettings.get( UiWorkareaFactory.VIEW_DEFAULT ) );
 				settings.set( UiWorkareaFactory.VIEW_MAXIMIZED, paneSettings.get( UiWorkareaFactory.VIEW_MAXIMIZED ) );
 				if( modifying ) paneSettings.delete();
 			}

@@ -536,6 +536,7 @@ public class Xenon extends Application implements XenonProgram {
 		if( workspaceManager.getActiveWorkpane() == null ) {
 			log.atWarning().log( "Failed to restore active workarea" );
 		}
+
 		log.atFine().log( "User interface restored." );
 		time( "user-interface-restored" );
 
@@ -573,7 +574,8 @@ public class Xenon extends Application implements XenonProgram {
 		new ProgramChecks( this ).register();
 
 		// Initiate asset loading
-		uiRegenerator.startAssetLoading();
+		//uiRegenerator.startAssetLoading();
+		// NEXT Does the UiReader also need to trigger asset loading?
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
