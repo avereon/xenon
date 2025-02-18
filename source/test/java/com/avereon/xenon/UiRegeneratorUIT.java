@@ -34,7 +34,7 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
 		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
-		// No more pane folder
+		// The pane folder is no longer created, but may exist for backwards compatibility
 		// No edges are needed for the default workspace
 		// No tool is created due to the test parameters
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
