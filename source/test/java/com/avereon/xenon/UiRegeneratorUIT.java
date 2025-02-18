@@ -26,7 +26,7 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		// when
 		FileUtil.waitToExist( uiSettingsFolder, 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
-		//FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
 		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), 1, TimeUnit.SECONDS );
 
@@ -34,11 +34,12 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		// Check the settings folder for the expected files
 		assertThat( uiSettingsFolder ).exists();
 		assertThat( uiSettingsFolder.resolve( "area" ) ).exists();
-		// The pane folder is no longer created, but may exist for backwards compatibility
-		// No edges are needed for the default workspace
-		// No tool is created due to the test parameters
+		assertThat( uiSettingsFolder.resolve( "pane" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "view" ) ).exists();
 		assertThat( uiSettingsFolder.resolve( "workspace" ) ).exists();
+
+		// No edges are needed for the default workspace
+		// No tool is created due to the test parameters
 	}
 
 }
