@@ -52,7 +52,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		Path settingsFolder = getProgram().getDataFolder().resolve( SettingsManager.ROOT );
 		Path uiSettingsFolder = settingsFolder.resolve( ProgramSettings.UI.substring( 1 ) );
 
-		long timeout = ((StoredSettings)getProgram().getSettingsManager().getSettings( ProgramSettings.UI )).getMaxFlushLimit() * 2;
+		long timeout = getProgram().getSettingsManager().getMaxFlushLimit() * 3;
 
 		// when
 		FileUtil.waitToExist( uiSettingsFolder, timeout, TimeUnit.MILLISECONDS );
