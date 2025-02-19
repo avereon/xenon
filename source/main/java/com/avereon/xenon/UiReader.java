@@ -29,6 +29,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @CustomLog
 class UiReader {
@@ -52,7 +53,8 @@ class UiReader {
 
 	private final Map<String, Tool> tools = new HashMap<>();
 
-	private final Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
+	//private final Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
+	private final Set<Asset> assets = new HashSet<>();
 
 	private Workspace activeSpace;
 
@@ -79,7 +81,7 @@ class UiReader {
 	@Getter
 	@Setter
 	@Deprecated( forRemoval = true )
-	private boolean modifying = false;
+	private boolean modifying = true;
 
 	public UiReader( Xenon program ) {
 		this.program = program;
@@ -91,8 +93,12 @@ class UiReader {
 		doLoad();
 	}
 
-	public void waitForLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+	public void awaitLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
 		doWaitForLoad( duration, unit );
+	}
+
+	public void startAssetLoading() {
+		doStartAssetLoading();
 	}
 
 	private int getWorkspaceCount() {
@@ -179,6 +185,15 @@ class UiReader {
 			restored = true;
 			restoredCondition.signalAll();
 			restoreLock.unlock();
+		}
+	}
+
+	private void doStartAssetLoading() {
+		Set<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
+		try {
+			getProgram().getAssetManager().loadAssets( assets );
+		} catch( Exception exception ) {
+			log.atError( exception ).log();
 		}
 	}
 
@@ -415,8 +430,8 @@ class UiReader {
 			}
 
 			Tool tool = loadTool( settings );
-			viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
 			if( isActive( settings ) ) viewActiveTools.put( view, tool );
+			assets.add( tool.getAsset() );
 			tools.put( id, tool );
 			return tool;
 		} catch( Exception exception ) {
@@ -520,7 +535,6 @@ class UiReader {
 				}
 			} catch( Exception exception ) {
 				log.atWarn( exception ).log( "Error linking edge: %s", LazyEval.of( edge::getUid ) );
-				return;
 			}
 		}
 
@@ -528,6 +542,7 @@ class UiReader {
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			if( area == null ) areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( area, view, settings ) ) {
 					areaViews.computeIfAbsent( area, k -> new HashSet<>() ).add( view );
@@ -537,7 +552,6 @@ class UiReader {
 				}
 			} catch( Exception exception ) {
 				log.atWarn( exception ).log( "Error linking view: %s", LazyEval.of( view::getUid ), exception );
-				return;
 			}
 		}
 
@@ -590,21 +604,47 @@ class UiReader {
 	}
 
 	void linkToolsToViews() {
-		for( Map.Entry<WorkpaneView, Set<Tool>> entry : viewToolMap.entrySet() ) {
-			WorkpaneView view = entry.getKey();
-			Workpane pane = view.getWorkpane();
-			if( pane == null ) continue;
+		List<Tool> toolList = new ArrayList<>( tools.values() );
+		toolList.sort( Comparator.comparing( Tool::getOrder ) );
 
-			// Sort the tools
-			List<Tool> localTools = new ArrayList<>( entry.getValue() );
-			localTools.sort( Comparator.comparing( Tool::getOrder ) );
+		for( Tool tool : toolList ) {
+			try {
+				Settings toolSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
+				WorkpaneView view = views.get( toolSettings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
+				Settings viewSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
+				Workarea area = areas.get( viewSettings.get( UiFactory.PARENT_AREA_ID ) );
+				if( area == null ) area = areas.get( viewSettings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
-			// Add the tools to the view
-			for( Tool tool : localTools ) {
-				pane.addTool( tool, view, false );
+				if( area == null ) {
+					log.atWarn().log( "No workarea for view: %s", LazyEval.of( view::getUid ) );
+					continue;
+				}
+
+				// FIXME An exception is thrown here because the tool is expecting the
+				//  view to already be part of a workpane, which it is not yet. We might
+				//  have to link top-down instead of bottom-up.
+				area.addTool( tool, view, false );
 				log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
+			} catch( Exception exception ) {
+				errors.add( exception );
 			}
 		}
+
+		//		for( Map.Entry<WorkpaneView, Set<Tool>> entry : viewToolMap.entrySet() ) {
+		//			WorkpaneView view = entry.getKey();
+		//			Workpane pane = view.getWorkpane();
+		//			if( pane == null ) continue;
+		//
+		//			// Sort the tools
+		//			List<Tool> localTools = new ArrayList<>( entry.getValue() );
+		//			localTools.sort( Comparator.comparing( Tool::getOrder ) );
+		//
+		//			// Add the tools to the view
+		//			for( Tool tool : localTools ) {
+		//				pane.addTool( tool, view, false );
+		//				log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
+		//			}
+		//		}
 	}
 
 	void linkSpaces() {
@@ -617,7 +657,7 @@ class UiReader {
 	}
 
 	private WorkpaneEdge lookupEdge( Workarea area, String id ) {
-		if( area == null ) throw new NullPointerException( "Workpane cannot be null" );
+		if( area == null ) throw new NullPointerException( "Workarea cannot be null" );
 		if( id == null ) throw new NullPointerException( "Edge id cannot be null" );
 
 		WorkpaneEdge edge = edges.get( id );
@@ -648,7 +688,7 @@ class UiReader {
 	private void notifyUserOfErrors( List<Exception> exceptions ) {
 		Set<String> messages = new HashSet<>();
 		for( Exception exception : exceptions ) {
-			log.atWarn().log( exception.getMessage() );
+			log.atWarn( exception ).log();
 
 			if( exception instanceof ToolInstantiationException toolException ) {
 				messages.add( Rb.text( RbKey.PROGRAM, "tool-missing", toolException.getToolClass() ) );

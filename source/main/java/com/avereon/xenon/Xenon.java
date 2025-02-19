@@ -532,15 +532,18 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
+		boolean useUiReader = false;
 		UiReader uiReader = new UiReader( Xenon.this );
-		Fx.run( uiReader::load );
-		uiReader.waitForLoad( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-
-		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
-		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		if( workspaceManager.getActiveWorkpane() == null ) {
-			log.atWarning().log( "Failed to restore active workarea" );
+		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
+		if( useUiReader ) {
+			Fx.run( uiReader::load );
+			uiReader.awaitLoad( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		} else {
+			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
+			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( workspaceManager.getActiveWorkpane() == null ) {
+				log.atWarning().log( "Failed to restore active workarea" );
+			}
 		}
 
 		log.atFine().log( "User interface restored." );
@@ -580,8 +583,11 @@ public class Xenon extends Application implements XenonProgram {
 		new ProgramChecks( this ).register();
 
 		// Initiate asset loading
-		uiRegenerator.startAssetLoading();
-		// NEXT Does the UiReader also need to trigger asset loading?
+		if( useUiReader ) {
+			uiReader.startAssetLoading();
+		} else {
+			uiRegenerator.startAssetLoading();
+		}
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );

@@ -208,6 +208,8 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	/**
 	 * Called from the {@link UiRegenerator} to restore a tool.
+	 * <p>
+	 * NOTE: This method does not request the asset to be loaded.
 	 *
 	 * @param request The open asset request for restoring the tool
 	 * @return The restored tool
@@ -355,20 +357,22 @@ public class ToolManager implements Controllable<ToolManager> {
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
 		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
-		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
-			// Create the new tool instance
-			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
-			ProgramTool tool = constructor.newInstance( product, asset );
+		Task<ProgramTool> createToolTask = Task.of(
+			taskName, () -> {
+				// Create the new tool instance
+				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
+				ProgramTool tool = constructor.newInstance( product, asset );
 
-			// Set the id before using settings
-			tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
-			tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
-			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
-			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
-			addToolListenerForSettings( tool );
-			log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
-			return tool;
-		} );
+				// Set the id before using settings
+				tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
+				tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
+				tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
+				if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
+				addToolListenerForSettings( tool );
+				log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
+				return tool;
+			}
+		);
 
 		if( Platform.isFxApplicationThread() ) {
 			createToolTask.run();
