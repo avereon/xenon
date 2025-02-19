@@ -76,12 +76,6 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	}
 
 	@Test
-	void load() {
-		// Reads the settings from the UI settings
-		//reader.load();
-	}
-
-	@Test
 	void loadSpaceForLinking() throws Exception {
 		// given
 		Settings settings = spaceSettings();
