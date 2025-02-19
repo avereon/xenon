@@ -376,6 +376,9 @@ class UiReader {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
 
+			// FIXME Remove after transition to UiReader is complete
+			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( area == null ) {
 				if( isModifying() ) settings.delete();

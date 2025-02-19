@@ -304,7 +304,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	private static Settings viewSettings( String areaId ) {
 		Settings settings = new MapSettings().getNode( IdGenerator.getId() );
 
-		settings.set( UiFactory.PARENT_WORKPANE_ID, areaId );
+		settings.set( UiFactory.PARENT_AREA_ID, areaId );
 		settings.set( "placement", Workpane.Placement.DEFAULT.name() );
 		settings.set( "maximized", false );
 		settings.set( "default", true );
@@ -331,7 +331,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 	private static Settings edgeSettings( String areaId ) {
 		Settings settings = new MapSettings().getNode( IdGenerator.getId() );
 
-		settings.set( UiFactory.PARENT_WORKPANE_ID, areaId );
+		settings.set( UiFactory.PARENT_AREA_ID, areaId );
 		settings.set( "orientation", Orientation.VERTICAL.name().toLowerCase() );
 		settings.set( "position", "73" );
 		settings.set( "t", "t" );
