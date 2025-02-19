@@ -213,10 +213,10 @@ class UiReader {
 		if( !modifying ) return;
 
 		// Reassemble the UI
-		linkToolsToViews();
-		linkEdgesAndViewsToAreas();
-		linkAreasToSpaces();
 		linkSpaces();
+		linkAreasToSpaces();
+		linkEdgesAndViewsToAreas();
+		linkToolsToViews();
 
 		//			log.atWarn().log( "activeSpace: %s", activeSpace );
 		//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
