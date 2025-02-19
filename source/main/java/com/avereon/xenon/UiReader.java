@@ -3,11 +3,13 @@ package com.avereon.xenon;
 import com.avereon.log.LazyEval;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
+import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.exception.AssetNotFoundException;
+import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
@@ -93,42 +95,83 @@ class UiReader {
 		doWaitForLoad( duration, unit );
 	}
 
+	private int getWorkspaceCount() {
+		return getUiSettingsCount( ProgramSettings.WORKSPACE );
+	}
+
+	private int getUiSettingsCount( String path ) {
+		return getProgram().getSettingsManager().getSettings( path ).getNodes().size();
+	}
+
+	private Workspace createDefaultWorkspace() {
+		// Create the default workarea
+		Workarea workarea = areaFactory.create();
+		workarea.setUid( IdGenerator.getId() );
+		workarea.setIcon( "workarea" );
+		workarea.setName( Rb.text( RbKey.WORKAREA, "workarea-new-title", "New Workarea" ) );
+		Settings areaSettings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
+		areaFactory.applyWorkareaSettings( workarea, areaSettings );
+		areaFactory.linkWorkareaSettingsListeners( workarea, areaSettings );
+
+		// Create the default workspace
+		Workspace workspace = new Workspace( program );
+		workspace.setUid( IdGenerator.getId() );
+		workspace.initializeScene( UiWorkspaceFactory.DEFAULT_WIDTH, UiWorkspaceFactory.DEFAULT_HEIGHT );
+
+		Settings spaceSettings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, workspace.getUid() );
+		spaceFactory.applyWorkspaceSettings( workspace, spaceSettings );
+		spaceFactory.linkWorkspaceSettingsListeners( workspace, spaceSettings );
+
+		String themeId = getProgram().getWorkspaceManager().getThemeId();
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
+
+		// Add the workarea to the workspace
+		workspace.addWorkarea( workarea );
+
+		// Activate the new workarea and workspace
+		workspace.setActiveWorkarea( workarea );
+		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
+
+		// Add the welcome tool to the default workarea
+		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
+
+		spaces.put( workspace.getUid(), workspace );
+
+		return workspace;
+	}
+
 	private void doLoad() {
 		Fx.affirmOnFxThread();
 		restoreLock.lock();
 
+		//		log.atConfig().log( "spaces detected: %s", getUiSettingsCount(ProgramSettings.WORKSPACE) );
+		//		log.atConfig().log( "areas detected: %s", getUiSettingsCount(ProgramSettings.AREA) );
+		//		log.atConfig().log( "views detected: %s", getUiSettingsCount(ProgramSettings.VIEW) );
+		//		log.atConfig().log( "edges detected: %s", getUiSettingsCount(ProgramSettings.EDGE) );
+		//		log.atConfig().log( "tools detected: %s", getUiSettingsCount(ProgramSettings.TOOL) );
+
 		try {
-			getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpaceForLinking );
-			getUiSettings( ProgramSettings.AREA ).forEach( this::loadAreaForLinking );
-			getUiSettings( ProgramSettings.VIEW ).forEach( this::loadViewForLinking );
-			getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdgeForLinking );
-			getUiSettings( ProgramSettings.TOOL ).forEach( this::loadToolForLinking );
+			if( getWorkspaceCount() == 0 ) {
+				if( modifying ) createDefaultWorkspace();
+				log.at( logLevel ).log( "Created default workspace" );
+			} else {
+				restoreWorkspaces();
+				log.at( logLevel ).log( "Restored known workspaces: count=%s", spaces.size() );
+			}
 
-			// Reassemble the UI
-			linkToolsToViews();
-			linkEdgesAndViewsToAreas();
-			linkAreasToSpaces();
-			linkSpaces();
+			if( modifying ) {
+				// Ensure there is an active workarea
+				Workspace space = getProgram().getWorkspaceManager().getActiveWorkspace();
+				//			if( space != null && !space.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
+				//				space.setActiveWorkarea( space.getWorkareas().iterator().next() );
+				//			}
 
-			//			log.atWarn().log( "activeSpace: %s", activeSpace );
-			//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
-			//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
-			//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
-			//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
-			//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
-			//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
-
-			/*
-			Now that everything is linked, time to restore the flags. This should be
-			done before the listeners are added to avoid unintended modifications.
-			 */
-			restoreFlags();
-
-			/*
-			Last, but not least, register the listeners. This should be done last to
-			avoid unintended modifications while the UI is being restored.
-			 */
-			registerListeners();
+				// Check the restored state
+				if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
+				if( space == null ) log.atError().log( "No active workspace set" );
+				if( space != null && space.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
+				if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "No active workarea set" );
+			}
 
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
@@ -139,12 +182,57 @@ class UiReader {
 		}
 	}
 
+	private void restoreWorkspaces() {
+		getUiSettings( ProgramSettings.WORKSPACE ).forEach( this::loadSpaceForLinking );
+		getUiSettings( ProgramSettings.AREA ).forEach( this::loadAreaForLinking );
+		getUiSettings( ProgramSettings.VIEW ).forEach( this::loadViewForLinking );
+		getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdgeForLinking );
+		getUiSettings( ProgramSettings.TOOL ).forEach( this::loadToolForLinking );
+
+		//		log.atWarn().log( "spaces: %s", spaces.size() );
+		//		log.atWarn().log( "areas: %s", areas.size() );
+		//		log.atWarn().log( "views: %s", views.size() );
+		//		log.atWarn().log( "edges: %s", edges.size() );
+		//		log.atWarn().log( "tools: %s", tools.size() );
+
+		if( !modifying ) return;
+
+		// Reassemble the UI
+		linkToolsToViews();
+		linkEdgesAndViewsToAreas();
+		linkAreasToSpaces();
+		linkSpaces();
+
+		//			log.atWarn().log( "activeSpace: %s", activeSpace );
+		//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
+		//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
+		//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
+		//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
+		//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
+		//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
+
+		// NEXT First test of UiReader did not restore the UI properly.
+		// The space did seem to be restored, but the area was not shown.
+
+			/*
+			Now that everything is linked, time to restore the flags. This should be
+			done before the listeners are added to avoid unintended modifications.
+			 */
+		restoreFlags();
+
+			/*
+			Last, but not least, register the listeners. This should be done last to
+			avoid unintended modifications while the UI is being restored.
+			 */
+		registerListeners();
+	}
+
 	private void restoreFlags() {
 		/* TOOLS */
 		// For each view there is an active tool
 		for( WorkpaneView view : viewActiveTools.keySet() ) {
 			Tool tool = viewActiveTools.get( view );
-			if( tool instanceof ProgramTool programTool) {
+			if( tool instanceof ProgramTool programTool ) {
 				programTool.setActiveWhenReady();
 			} else {
 				view.setActiveTool( tool );
@@ -173,6 +261,7 @@ class UiReader {
 		for( Workspace space : spaceActiveAreas.keySet() ) {
 			Workarea area = spaceActiveAreas.get( space );
 			space.setActiveWorkarea( area );
+			log.atWarn().log( "activeArea: %s", area );
 		}
 		// For each space there might be a maximized area
 		for( Workspace space : maximizedSpaces ) {
@@ -254,7 +343,10 @@ class UiReader {
 	WorkpaneView loadViewForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+
+			// FIXME Remove after transition to UiReader is complete
+			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( area == null ) {
@@ -266,6 +358,7 @@ class UiReader {
 			views.put( id, view );
 			return view;
 		} catch( Exception exception ) {
+			exception.printStackTrace( System.out );
 			errors.add( exception );
 			return null;
 		}
@@ -281,7 +374,7 @@ class UiReader {
 	WorkpaneEdge loadEdgeForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( area == null ) {
@@ -414,7 +507,7 @@ class UiReader {
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
-			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
 			try {
 				if( linkEdge( area, edge, settings ) ) {
 					areaEdges.computeIfAbsent( area, k -> new HashSet<>() ).add( edge );
@@ -431,7 +524,7 @@ class UiReader {
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-			Workarea area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
 			try {
 				if( linkView( area, view, settings ) ) {
 					areaViews.computeIfAbsent( area, k -> new HashSet<>() ).add( view );
@@ -457,14 +550,14 @@ class UiReader {
 		Orientation orientation = Objects.requireNonNull( edge.getOrientation() );
 
 		if( orientation == Orientation.VERTICAL ) {
-			WorkpaneEdge t = lookupEdge( area, settings.get( "t" ) );
-			WorkpaneEdge b = lookupEdge( area, settings.get( "b" ) );
+			WorkpaneEdge t = lookupEdge( area, settings.get( "t", "t" ) );
+			WorkpaneEdge b = lookupEdge( area, settings.get( "b", "b" ) );
 			if( t == null || b == null ) return false;
 			edge.setEdge( Side.TOP, t );
 			edge.setEdge( Side.BOTTOM, b );
 		} else if( orientation == Orientation.HORIZONTAL ) {
-			WorkpaneEdge l = lookupEdge( area, settings.get( "l" ) );
-			WorkpaneEdge r = lookupEdge( area, settings.get( "r" ) );
+			WorkpaneEdge l = lookupEdge( area, settings.get( "l", "l" ) );
+			WorkpaneEdge r = lookupEdge( area, settings.get( "r", "r" ) );
 			if( l == null || r == null ) return false;
 			edge.setEdge( Side.LEFT, l );
 			edge.setEdge( Side.RIGHT, r );
@@ -474,10 +567,10 @@ class UiReader {
 	}
 
 	boolean linkView( Workarea area, WorkpaneView view, Settings settings ) {
-		WorkpaneEdge t = lookupEdge( area, settings.get( "t" ) );
-		WorkpaneEdge l = lookupEdge( area, settings.get( "l" ) );
-		WorkpaneEdge r = lookupEdge( area, settings.get( "r" ) );
-		WorkpaneEdge b = lookupEdge( area, settings.get( "b" ) );
+		WorkpaneEdge t = lookupEdge( area, settings.get( "t", "t" ) );
+		WorkpaneEdge l = lookupEdge( area, settings.get( "l", "l" ) );
+		WorkpaneEdge r = lookupEdge( area, settings.get( "r", "r" ) );
+		WorkpaneEdge b = lookupEdge( area, settings.get( "b", "b" ) );
 
 		if( t == null || l == null || r == null || b == null ) return false;
 

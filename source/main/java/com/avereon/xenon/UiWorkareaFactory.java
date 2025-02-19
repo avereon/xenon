@@ -38,10 +38,10 @@ public class UiWorkareaFactory {
 
 	Workarea applyWorkareaSettings( Workarea workarea, Settings settings ) {
 		// Restore state from settings
+		workarea.setName( settings.get( UiFactory.NAME, workarea.getName() ) );
 		workarea.setOrder( settings.get( UiFactory.ORDER, Integer.class, workarea.getOrder() ) );
 		workarea.setPaint( Paints.parse( settings.get( UiFactory.PAINT, Paints.toString( workarea.getPaint() ) ) ) );
 		workarea.setColor( Colors.parse( settings.get( UiFactory.COLOR, Colors.toString( workarea.getColor() ) ) ) );
-		workarea.setName( settings.get( UiFactory.NAME, workarea.getName() ) );
 		workarea.setActive( settings.get( UiFactory.ACTIVE, Boolean.class, workarea.isActive() ) );
 
 		// Save new state to settings, to save default values immediately
@@ -55,8 +55,8 @@ public class UiWorkareaFactory {
 
 	Workarea linkWorkareaSettingsListeners( Workarea workarea, Settings settings ) {
 		// Add the change listeners
-		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PAINT, Paints.toString( n ) ) );
 		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.NAME, n ) );
+		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PAINT, Paints.toString( n ) ) );
 		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.ACTIVE, n ) );
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
 

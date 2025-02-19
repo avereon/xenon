@@ -6,7 +6,9 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.index.Document;
 import com.avereon.log.Log;
-import com.avereon.product.*;
+import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
+import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
@@ -329,7 +331,8 @@ public class Xenon extends Application implements XenonProgram {
 	public void start( Stage stage ) {
 		time( "fx-start" );
 		if( !XenonMode.TEST.equals( mode ) && !isHardwareRendered() ) {
-			log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
+			log.atWarning().log( "Hardware rendering is disabled!" );
+			log.atWarning().log( "  Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 		}
 
 		// This must be set before the splash screen is shown
@@ -410,6 +413,9 @@ public class Xenon extends Application implements XenonProgram {
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
+
+		// Reset the UI if the reset flag is set
+		if( parameters.isSet( XenonFlag.RESET ) ) new UiFactory( this ).reset();
 
 		// Create the program event watcher, depends on logging
 		getFxEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
@@ -574,7 +580,7 @@ public class Xenon extends Application implements XenonProgram {
 		new ProgramChecks( this ).register();
 
 		// Initiate asset loading
-		//uiRegenerator.startAssetLoading();
+		uiRegenerator.startAssetLoading();
 		// NEXT Does the UiReader also need to trigger asset loading?
 
 		// Open assets specified on the command line

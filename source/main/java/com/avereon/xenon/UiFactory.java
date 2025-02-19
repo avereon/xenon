@@ -61,6 +61,10 @@ public final class UiFactory {
 		this( program, false );
 	}
 
+	public void reset() {
+		getProgram().getSettingsManager().getSettings(ProgramSettings.UI).delete();
+	}
+
 	@Deprecated( forRemoval = true )
 	public UiFactory( Xenon program, boolean restore ) {
 		this.program = program;
