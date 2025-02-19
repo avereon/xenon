@@ -23,12 +23,14 @@ class UiRegeneratorUIT extends BaseFullXenonTestCase {
 		Path settingsFolder = getProgram().getDataFolder().resolve( SettingsManager.ROOT );
 		Path uiSettingsFolder = settingsFolder.resolve( ProgramSettings.UI.substring( 1 ) );
 
+		long timeout = getProgram().getSettingsManager().getMaxFlushLimit() * 3;
+
 		// when
-		FileUtil.waitToExist( uiSettingsFolder, 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), 1, TimeUnit.SECONDS );
-		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), 1, TimeUnit.SECONDS );
+		FileUtil.waitToExist( uiSettingsFolder, timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "area" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "pane" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "view" ), timeout, TimeUnit.MILLISECONDS );
+		FileUtil.waitToExist( uiSettingsFolder.resolve( "workspace" ), timeout, TimeUnit.MILLISECONDS );
 
 		// then
 		// Check the settings folder for the expected files

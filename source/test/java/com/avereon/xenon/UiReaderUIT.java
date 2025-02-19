@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.settings.MapSettings;
 import com.avereon.settings.Settings;
-import com.avereon.settings.StoredSettings;
 import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
