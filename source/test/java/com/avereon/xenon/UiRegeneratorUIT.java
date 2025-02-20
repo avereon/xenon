@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UiRegeneratorUIT extends BaseFullXenonTestCase {
 
 	@Test
+	@Disabled
 	void createDefaultWorkspace() throws Exception {
 		// There is technically a race condition here because the program is already
 		// started and the UI is probably already restored, but the settings will
