@@ -280,7 +280,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Get an asset type by the asset type key defined in the asset type. This is useful for getting asset types from persisted data.
+	 * Get an asset type by the asset type key defined in the asset type. This is
+	 * useful for getting asset types from persisted data.
 	 *
 	 * @param key The asset type key
 	 * @return The asset type associated to the key

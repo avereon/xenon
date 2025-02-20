@@ -9,6 +9,7 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.exception.AssetNotFoundException;
+import com.avereon.xenon.asset.exception.AssetTypeNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.workpane.*;
@@ -373,7 +374,6 @@ class UiReader {
 			views.put( id, view );
 			return view;
 		} catch( Exception exception ) {
-			exception.printStackTrace( System.out );
 			errors.add( exception );
 			return null;
 		}
@@ -435,7 +435,6 @@ class UiReader {
 			tools.put( id, tool );
 			return tool;
 		} catch( Exception exception ) {
-			exception.printStackTrace( System.out );
 			errors.add( exception );
 			return null;
 		}
@@ -450,6 +449,7 @@ class UiReader {
 		// Create the asset
 		Asset asset;
 		AssetType assetType = getProgram().getAssetManager().getAssetType( assetTypeKey );
+		if( assetType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
 		try {
 			asset = getProgram().getAssetManager().createAsset( assetType, uri );
 		} catch( AssetException exception ) {
@@ -526,6 +526,7 @@ class UiReader {
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( area, edge, settings ) ) {
 					areaEdges.computeIfAbsent( area, k -> new HashSet<>() ).add( edge );
@@ -542,7 +543,7 @@ class UiReader {
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-			if( area == null ) areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
+			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( area, view, settings ) ) {
 					areaViews.computeIfAbsent( area, k -> new HashSet<>() ).add( view );

@@ -532,7 +532,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
-		boolean useUiReader = false;
+		boolean useUiReader = true;
 		UiReader uiReader = new UiReader( Xenon.this );
 		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 		if( useUiReader ) {
