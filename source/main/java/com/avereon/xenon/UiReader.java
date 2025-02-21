@@ -143,28 +143,28 @@ class UiReader {
 		areaFactory.linkWorkareaSettingsListeners( workarea, areaSettings );
 
 		// Create the default workspace
-		Workspace workspace = new Workspace( program );
-		workspace.setUid( IdGenerator.getId() );
-		workspace.initializeScene( UiWorkspaceFactory.DEFAULT_WIDTH, UiWorkspaceFactory.DEFAULT_HEIGHT );
+		Workspace space = new Workspace( program );
+		space.setUid( IdGenerator.getId() );
+		space.initializeScene( UiWorkspaceFactory.DEFAULT_WIDTH, UiWorkspaceFactory.DEFAULT_HEIGHT );
 
-		Settings spaceSettings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, workspace.getUid() );
-		spaceFactory.applyWorkspaceSettings( workspace, spaceSettings );
-		spaceFactory.linkWorkspaceSettingsListeners( workspace, spaceSettings );
+		Settings spaceSettings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, space.getUid() );
+		spaceFactory.applyWorkspaceSettings( space, spaceSettings );
+		spaceFactory.linkWorkspaceSettingsListeners( space, spaceSettings );
 
 		String themeId = getProgram().getWorkspaceManager().getThemeId();
-		workspace.setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
+		space.setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
 
 		// Add the workarea to the workspace
-		workspace.addWorkarea( workarea );
+		space.addWorkarea( workarea );
 
 		// Activate the new workarea and workspace
-		workspace.setActiveWorkarea( workarea );
-		getProgram().getWorkspaceManager().setActiveWorkspace( workspace );
+		space.setActiveWorkarea( workarea );
+		getProgram().getWorkspaceManager().setActiveWorkspace( space );
 
 		// Add the welcome tool to the default workarea
 		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 
-		spaces.put( workspace.getUid(), workspace );
+		spaces.put( space.getUid(), space );
 	}
 
 	private void doStartAssetLoading() {

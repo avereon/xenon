@@ -25,8 +25,6 @@ public class UiWorkspaceFactory {
 	}
 
 	public Workspace applyWorkspaceSettings( Workspace workspace, Settings settings ) {
-		// NEXT Implement this settings logic
-
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
@@ -43,12 +41,7 @@ public class UiWorkspaceFactory {
 		if( y != null ) workspace.setY( y );
 
 		updateThemeFromSettings( workspace, settings );
-
-		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		//		updateBackgroundFromSettings( programSettings );
-		//		updateMemoryMonitorFromSettings( programSettings );
-		//		updateTaskMonitorFromSettings( programSettings );
-		//		updateFpsMonitorFromSettings( programSettings );
+		workspace.applySettings();
 
 		return workspace;
 	}
@@ -78,47 +71,4 @@ public class UiWorkspaceFactory {
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
 	}
 
-//	private void updateBackgroundFromSettings( Workspace workspace, Settings settings ) {
-//		Fx.run( () -> {
-//			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
-//			workspace.getBackground().updateFromSettings( settings );
-//			settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
-//		} );
-//	}
-//
-//	private void updateMemoryMonitorFromSettings( Workspace workspace, Settings settings ) {
-//		Boolean enabled = settings.get( "workspace-memory-monitor-enabled", Boolean.class, Boolean.TRUE );
-//		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
-//		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
-//
-//		Fx.run( () -> {
-//			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-//			updateContainer( memoryMonitor, enabled );
-//			memoryMonitor.setTextVisible( showText );
-//			memoryMonitor.setShowPercent( showPercent );
-//			settings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-//		} );
-//	}
-//
-//	private void updateTaskMonitorFromSettings( Workspace workspace, Settings settings ) {
-//		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
-//		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
-//		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
-//		Fx.run( () -> {
-//			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-//			updateContainer( taskMonitor, enabled );
-//			taskMonitor.setTextVisible( showText );
-//			taskMonitor.setShowPercent( showPercent );
-//			settings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-//		} );
-//	}
-//
-//	private void updateFpsMonitorFromSettings( Workspace workspace, Settings settings ) {
-//		Boolean enabled = settings.get( "workspace-fps-monitor-enabled", Boolean.class, Boolean.TRUE );
-//		Fx.run( () -> {
-//			settings.unregister( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
-//			updateContainer( fpsMonitor, enabled );
-//			settings.register( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
-//		} );
-//	}
 }

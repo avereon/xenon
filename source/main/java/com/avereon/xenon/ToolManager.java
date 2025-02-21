@@ -113,9 +113,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Determine how many instances the tool allows
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
+		// NEXT Dependency tools are opening in the wrong workpane
 		// Before checking for existing tools, the workpane needs to be determined
+		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
-		Workpane pane = view == null ? null : view.getWorkpane();
+		if( pane == null && view != null ) pane = request.getView().getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
@@ -195,7 +197,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
 		// NOTE There is no realistic way of opening the dependencies on the same thread
 		try {
-			for( Future<ProgramTool> future : program.getAssetManager().openAssets( tool.getAssetDependencies(), true, false ) ) {
+			for( Future<ProgramTool> future : program.getAssetManager().openDependencyAssets( tool.getAssetDependencies(), request.getPane() ) ) {
 				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 			}
 			return true;
@@ -385,7 +387,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
-		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() ) );
+		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_VIEW_ID, e.getTool().getToolView().getUid() ) );
 		tool.addEventHandler( ToolEvent.REORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ORDER, e.getTool().getOrder() ) );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ACTIVE, true ) );
 		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ACTIVE, null ) );

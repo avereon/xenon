@@ -30,25 +30,25 @@ public final class UiFactory {
 
 	public static final String PARENT_VIEW_ID = "view-id";
 
-	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_SPACE_ID} instead.
 	 */
-	@Deprecated
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
-	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_AREA_ID} instead.
 	 */
-	@Deprecated
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	public static final String PARENT_WORKPANE_ID = "workpane-id";
 
-	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_VIEW_ID} instead.
 	 */
-	@Deprecated
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	public static final String PARENT_WORKPANEVIEW_ID = "workpaneview-id";
 
 	public static final String ICON = "icon";
@@ -76,7 +76,8 @@ public final class UiFactory {
 	 * This flag is used to prevent the factory from overwriting the state of the
 	 * UI in the settings.
 	 */
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private final boolean restore;
 
 	public UiFactory( Xenon program ) {
@@ -87,18 +88,21 @@ public final class UiFactory {
 		getProgram().getSettingsManager().getSettings( ProgramSettings.UI ).delete();
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	public UiFactory( Xenon program, boolean restore ) {
 		this.program = program;
 		this.restore = restore;
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	public Workarea create() {
 		return create( IdGenerator.getId() );
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	Workarea create( String id ) {
 		LinearGradient paint = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET.darker().darker() ), new Stop( 1, Color.TRANSPARENT ) );
 
@@ -113,7 +117,8 @@ public final class UiFactory {
 		return workarea;
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void setupWorkareaSettings( Workarea workarea ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 
@@ -157,7 +162,8 @@ public final class UiFactory {
 		workarea.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkareaChildrenChanges( workarea, c ) );
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void setupWorkpaneSettings( Workpane workpane ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.PANE, workpane.getUid() );
 		settings.set( PARENT_WORKPANE_ID, workpane.getUid() );
@@ -184,7 +190,8 @@ public final class UiFactory {
 		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkareaChildrenChanges( workpane, c ) );
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void processWorkareaChildrenChanges( Workpane workarea, ListChangeListener.Change<? extends Node> change ) {
 		while( change.next() ) {
 			change.getAddedSubList().stream().filter( WorkpaneEdge.class::isInstance ).forEach( n -> setupWorkpaneEdgeSettings( workarea, (WorkpaneEdge)n ) );
@@ -194,7 +201,8 @@ public final class UiFactory {
 		}
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void setupWorkpaneEdgeSettings( Workpane workpane, WorkpaneEdge edge ) {
 		Settings edgeSettings = program.getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, workpane.getUid() );
@@ -221,14 +229,16 @@ public final class UiFactory {
 		edge.bottomEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "b", n == null ? null : n.getUid() ) );
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void removeWorkpaneEdgeSettings( WorkpaneEdge edge ) {
 		String id = edge.getUid();
 		if( id == null ) return;
 		program.getSettingsManager().getSettings( ProgramSettings.EDGE, id ).delete();
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void setupWorkpaneViewSettings( Workpane workpane, WorkpaneView view ) {
 		Settings viewSettings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, workpane.getUid() );
@@ -252,7 +262,8 @@ public final class UiFactory {
 		view.bottomEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "b", n == null ? null : n.getUid() ) );
 	}
 
-	@Deprecated( forRemoval = true )
+	// TODO Remove in 1.8
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void removeWorkpaneViewSettings( WorkpaneView view ) {
 		String id = view.getUid();
 		if( id == null ) return;

@@ -75,11 +75,6 @@ class UiRegenerator {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
 
-	// NEXT There are a lot of issues restoring the UI. Let's get started.
-	// - Tools are restored out of order
-	// - Active views and tools are not restored correctly
-	// - Dependent tools are restored (probably opened) to the wrong workspace
-
 	// THREAD JavaFX Application Thread
 	void restore( SplashScreenPane splashScreen ) {
 		Fx.affirmOnFxThread();

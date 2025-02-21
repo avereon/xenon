@@ -17,6 +17,7 @@ import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zarra.event.FxEventHub;
 import javafx.event.ActionEvent;
@@ -418,37 +419,34 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
-		return openAsset( uri, model, null, null, true, true );
+		return openAsset( uri, model, null, null, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
-		return openAsset( uri, null, null, toolClass, true, true );
+		return openAsset( uri, null, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( uri, null, null, null, openTool, setActive );
+		return openAsset( uri, null, null, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
-	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
-		Set<Future<ProgramTool>> futures = new HashSet<>();
-		for( URI uri : uris ) {
-			futures.add( openAsset( uri, null, null, null, openTool, setActive ) );
-		}
-		return futures;
+	public Set<Future<ProgramTool>> openDependencyAssets( Set<URI> uris, Workpane pane ) {
+		return uris.stream().map( uri -> openAsset( uri, null, pane, null, null, true, false ) ).collect( Collectors.toSet() );
 	}
 
-	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> openAsset( URI uri, Object model, Workpane pane, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
+		request.setPane( pane );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
@@ -617,7 +615,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return doCreateAsset( type, null );
 	}
 
-	public Asset createAsset( AssetType type, String uri) throws AssetException {
+	public Asset createAsset( AssetType type, String uri ) throws AssetException {
 		return doCreateAsset( type, UriUtil.resolve( uri ) );
 	}
 

@@ -5,10 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.UiWorkspaceFactory;
-import com.avereon.xenon.Xenon;
-import com.avereon.xenon.XenonMode;
+import com.avereon.xenon.*;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -76,9 +73,13 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String MAXIMIZE = "maximize";
 
+	public static final String MINIMIZE = "minimize";
+
 	public static final String NOTICE = "notice";
 
 	public static final String ORDER = "order";
+
+	public static final String ACTIVE = "active";
 
 	/**
 	 * Should the program menu be shown as a compact menu in the toolbar.
@@ -554,18 +555,17 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public void setActive( boolean active ) {
 		if( !active ) {
-			getProgram().getActionLibrary().getAction( "minimize" ).pullAction( toggleMinimizeAction );
+			getProgram().getActionLibrary().getAction( MINIMIZE ).pullAction( toggleMinimizeAction );
 			getProgram().getActionLibrary().getAction( MAXIMIZE ).pullAction( toggleMaximizeAction );
 		}
 
 		this.active = active;
+		getSettings().set( ACTIVE, active );
 
 		if( active ) {
 			getProgram().getActionLibrary().getAction( MAXIMIZE ).pushAction( toggleMaximizeAction );
-			getProgram().getActionLibrary().getAction( "minimize" ).pushAction( toggleMinimizeAction );
+			getProgram().getActionLibrary().getAction( MINIMIZE ).pushAction( toggleMinimizeAction );
 		}
-
-		getSettings().set( "active", active );
 	}
 
 	public IntegerProperty orderProperty() {
@@ -722,13 +722,25 @@ public class Workspace extends Stage implements WritableIdentity {
 		getProperties().put( Identity.KEY, id );
 	}
 
-	Settings getSettings() {
+	/**
+	 * Convenience method to get the workspace settings.
+	 *
+	 * @return The workspace settings
+	 */
+	private Settings getSettings() {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
+	public void applySettings() {
+		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+	}
+
+	// TODO Remove in 1.8
 	@Deprecated
 	public void updateFromSettings( Settings settings ) {
-		// FIXME Move this settings logic to UiWorkspaceFactory
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
@@ -811,8 +823,16 @@ public class Workspace extends Stage implements WritableIdentity {
 		return workareas.get( index == 0 ? 1 : index - 1 );
 	}
 
+	// TODO Remove in 1.8
+	@Deprecated
+	private void updateThemeFromSettings( Settings settings ) {
+		String themeId = settings.get( "theme", getProgram().getWorkspaceManager().getThemeId() );
+		setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
+	}
+
 	@Deprecated
 	private void updateBackgroundFromSettings( Settings settings ) {
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
 			background.updateFromSettings( settings );
@@ -826,6 +846,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 			updateContainer( memoryMonitor, enabled );
@@ -840,6 +861,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 			updateContainer( taskMonitor, enabled );
@@ -852,17 +874,12 @@ public class Workspace extends Stage implements WritableIdentity {
 	@Deprecated
 	private void updateFpsMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-fps-monitor-enabled", Boolean.class, Boolean.TRUE );
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
 			updateContainer( fpsMonitor, enabled );
 			settings.register( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
 		} );
-	}
-
-	@Deprecated
-	private void updateThemeFromSettings( Settings settings ) {
-		String themeId = settings.get( "theme", getProgram().getWorkspaceManager().getThemeId() );
-		setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
 	}
 
 	private void updateContainer( AbstractMonitor monitor, boolean enabled ) {
