@@ -265,7 +265,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		settings.set( "y", "174" );
 		settings.set( "w", "1224" );
 		settings.set( "h", "840" );
-		settings.set( "active", true );
+		settings.set( "active", false );
 		settings.set( "maximized", false );
 
 		return settings;
@@ -278,7 +278,7 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertThat( space.getScene().getWidth() ).isEqualTo( 1224 );
 		assertThat( space.getScene().getHeight() ).isEqualTo( 840 );
 		assertThat( space.isMaximized() ).isFalse();
-		assertThat( space.isActive() ).isTrue();
+		assertThat( space.isActive() ).isFalse();
 	}
 
 	private static Settings areaSettings( String spaceId ) {
