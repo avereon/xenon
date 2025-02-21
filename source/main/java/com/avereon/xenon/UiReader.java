@@ -282,7 +282,9 @@ class UiReader {
 			copyPaneSettings( settings );
 
 			String id = settings.getName();
-			Workspace space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+			Workspace space = spaces.get( settings.get( UiFactory.PARENT_SPACE_ID ) );
+			// TODO Remove in 1.8
+			if( space == null ) space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
 			if( space == null ) {
@@ -311,6 +313,7 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			// TODO Remove in 1.8
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
@@ -339,6 +342,7 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			// TODO Remove in 1.8
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
@@ -368,7 +372,9 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
-			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
+			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_VIEW_ID ) );
+			// TODO Remove in 1.8
+			if( view == null ) view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
@@ -430,7 +436,9 @@ class UiReader {
 		for( Workarea area : areaList ) {
 			try {
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
-				Workspace space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
+				Workspace space = spaces.get( settings.get( UiFactory.PARENT_SPACE_ID ) );
+				// TODO Remove in 1.8
+				if( space == null ) space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 				space.addWorkarea( area );
 
 				// Save the active area for later
@@ -453,6 +461,7 @@ class UiReader {
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			// TODO Remove in 1.8
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( area, edge, settings ) ) {
@@ -470,6 +479,7 @@ class UiReader {
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
+			// TODO Remove in 1.8
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( area, view, settings ) ) {
@@ -495,35 +505,21 @@ class UiReader {
 		Orientation orientation = Objects.requireNonNull( edge.getOrientation() );
 
 		if( orientation == Orientation.VERTICAL ) {
-			WorkpaneEdge t = lookupEdge( area, settings.get( "t", "t" ) );
-			WorkpaneEdge b = lookupEdge( area, settings.get( "b", "b" ) );
-			if( t == null || b == null ) return false;
-			edge.setEdge( Side.TOP, t );
-			edge.setEdge( Side.BOTTOM, b );
+			edge.setEdge( Side.TOP, lookupEdge( area, settings.get( "t", "t" ) ) );
+			edge.setEdge( Side.BOTTOM, lookupEdge( area, settings.get( "b", "b" ) ) );
 		} else if( orientation == Orientation.HORIZONTAL ) {
-			WorkpaneEdge l = lookupEdge( area, settings.get( "l", "l" ) );
-			WorkpaneEdge r = lookupEdge( area, settings.get( "r", "r" ) );
-			if( l == null || r == null ) return false;
-			edge.setEdge( Side.LEFT, l );
-			edge.setEdge( Side.RIGHT, r );
+			edge.setEdge( Side.LEFT, lookupEdge( area, settings.get( "l", "l" ) ) );
+			edge.setEdge( Side.RIGHT, lookupEdge( area, settings.get( "r", "r" ) ) );
 		}
 
 		return true;
 	}
 
 	boolean linkView( Workarea area, WorkpaneView view, Settings settings ) {
-		WorkpaneEdge t = lookupEdge( area, settings.get( "t", "t" ) );
-		WorkpaneEdge l = lookupEdge( area, settings.get( "l", "l" ) );
-		WorkpaneEdge r = lookupEdge( area, settings.get( "r", "r" ) );
-		WorkpaneEdge b = lookupEdge( area, settings.get( "b", "b" ) );
-
-		if( t == null || l == null || r == null || b == null ) return false;
-
-		view.setEdge( Side.TOP, t );
-		view.setEdge( Side.LEFT, l );
-		view.setEdge( Side.RIGHT, r );
-		view.setEdge( Side.BOTTOM, b );
-
+		view.setEdge( Side.TOP, lookupEdge( area, settings.get( "t", "t" ) ) );
+		view.setEdge( Side.LEFT, lookupEdge( area, settings.get( "l", "l" ) ) );
+		view.setEdge( Side.RIGHT, lookupEdge( area, settings.get( "r", "r" ) ) );
+		view.setEdge( Side.BOTTOM, lookupEdge( area, settings.get( "b", "b" ) ) );
 		return true;
 	}
 
@@ -533,22 +529,23 @@ class UiReader {
 
 	void linkToolsToViews() {
 		try {
-			// Assign out all the tools to their respective views
+			// Map out all the tools to their respective views
 			Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
 			for( Tool tool : tools.values() ) {
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
-				WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
+				WorkpaneView view = views.get( settings.get( UiFactory.PARENT_VIEW_ID ) );
+				// TODO Remove in 1.8
+				if( view == null ) view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 				viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
 			}
 
-			// Now go through the views and assign the tools
+			// Now go through the views and link the tools
 			for( WorkpaneView view : viewToolMap.keySet() ) {
 				Workarea area = (Workarea)view.getWorkpane();
 
 				// Get the tools for the view and order them
 				List<Tool> toolList = new ArrayList<>( viewToolMap.get( view ) );
 				toolList.sort( Comparator.comparing( Tool::getOrder ) );
-				//System.out.println( "tools in order: " + toolList );
 
 				toolList.forEach( tool -> {
 					try {
@@ -646,12 +643,14 @@ class UiReader {
 		getProgram().getNoticeManager().addNotice( notice );
 	}
 
+	// TODO Remove in 1.8
 	/**
 	 * Copy the workpane settings to the workarea settings.
 	 *
 	 * @param settings The workarea settings.
+	 * @deprecated Remove in 1.8
 	 */
-	@Deprecated( since = "7.x", forRemoval = true )
+	@Deprecated( since = "1.7", forRemoval = true )
 	private void copyPaneSettings( Settings settings ) {
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );
 		if( rootSettings.nodeExists( ProgramSettings.PANE ) ) {
