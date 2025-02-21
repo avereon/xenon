@@ -118,6 +118,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
 		if( pane == null && view != null ) pane = request.getView().getWorkpane();
+		if( pane == null ) log.atWarning().log( "Workpane not specified for tool: %s", toolClass.getName() );
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
@@ -143,6 +144,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			}
 
 			// Now that we have a tool...open dependent assets and associated tools
+			request.setPane( pane );
 			if( !openDependencies( request, tool ) ) return null;
 
 			// Determine the placement
@@ -209,7 +211,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	/**
-	 * Called from the {@link UiRegenerator} to restore a tool.
+	 * Called from the {@link UiReader} to restore a tool.
 	 * <p>
 	 * NOTE: This method does not request the asset to be loaded.
 	 *

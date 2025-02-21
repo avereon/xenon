@@ -415,6 +415,10 @@ class UiReader {
 		openAssetRequest.setAsset( asset );
 		openAssetRequest.setToolClassName( toolClassName );
 
+		// NEXT When the tool is requested here, the area and view are still not known
+		// Maybe tools need to be restored after the areas and views are restored
+		// Looks like the dependency tools are being opened when the asset is loaded, not here
+
 		// Restore the tool
 		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest );
 		if( tool == null ) {
