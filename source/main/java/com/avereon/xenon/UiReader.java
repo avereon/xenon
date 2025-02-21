@@ -20,7 +20,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import lombok.CustomLog;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.net.URI;
 import java.util.*;
@@ -30,7 +29,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @CustomLog
 class UiReader {
@@ -78,11 +76,6 @@ class UiReader {
 
 	private boolean restored;
 
-	@Getter
-	@Setter
-	@Deprecated( forRemoval = true )
-	private boolean modifying = true;
-
 	public UiReader( Xenon program ) {
 		this.program = program;
 		this.spaceFactory = new UiWorkspaceFactory( program );
@@ -101,15 +94,45 @@ class UiReader {
 		doStartAssetLoading();
 	}
 
+	private void doLoad() {
+		Fx.affirmOnFxThread();
+		restoreLock.lock();
+
+		try {
+			if( getWorkspaceCount() == 0 ) {
+				createDefaultWorkspace();
+				log.at( logLevel ).log( "Created default workspace" );
+			} else {
+				restoreWorkspaces();
+				log.at( logLevel ).log( "Restored known workspaces: count=%s", spaces.size() );
+			}
+
+			// Ensure there is an active workarea
+			Workspace space = getProgram().getWorkspaceManager().getActiveWorkspace();
+			//			if( space != null && !space.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
+			//				space.setActiveWorkarea( space.getWorkareas().iterator().next() );
+			//			}
+
+			// Check the restored state
+			if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
+			if( space == null ) log.atError().log( "No active workspace set" );
+			if( space != null && space.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
+			if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "No active workarea set" );
+
+			// If there are exceptions restoring the UI notify the user
+			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
+		} finally {
+			restored = true;
+			restoredCondition.signalAll();
+			restoreLock.unlock();
+		}
+	}
+
 	private int getWorkspaceCount() {
-		return getUiSettingsCount( ProgramSettings.WORKSPACE );
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE ).getNodes().size();
 	}
 
-	private int getUiSettingsCount( String path ) {
-		return getProgram().getSettingsManager().getSettings( path ).getNodes().size();
-	}
-
-	private Workspace createDefaultWorkspace() {
+	private void createDefaultWorkspace() {
 		// Create the default workarea
 		Workarea workarea = areaFactory.create();
 		workarea.setUid( IdGenerator.getId() );
@@ -142,54 +165,9 @@ class UiReader {
 		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 
 		spaces.put( workspace.getUid(), workspace );
-
-		return workspace;
-	}
-
-	private void doLoad() {
-		Fx.affirmOnFxThread();
-		restoreLock.lock();
-
-		//		log.atConfig().log( "spaces detected: %s", getUiSettingsCount(ProgramSettings.WORKSPACE) );
-		//		log.atConfig().log( "areas detected: %s", getUiSettingsCount(ProgramSettings.AREA) );
-		//		log.atConfig().log( "views detected: %s", getUiSettingsCount(ProgramSettings.VIEW) );
-		//		log.atConfig().log( "edges detected: %s", getUiSettingsCount(ProgramSettings.EDGE) );
-		//		log.atConfig().log( "tools detected: %s", getUiSettingsCount(ProgramSettings.TOOL) );
-
-		try {
-			if( getWorkspaceCount() == 0 ) {
-				if( modifying ) createDefaultWorkspace();
-				log.at( logLevel ).log( "Created default workspace" );
-			} else {
-				restoreWorkspaces();
-				log.at( logLevel ).log( "Restored known workspaces: count=%s", spaces.size() );
-			}
-
-			if( modifying ) {
-				// Ensure there is an active workarea
-				Workspace space = getProgram().getWorkspaceManager().getActiveWorkspace();
-				//			if( space != null && !space.getWorkareas().isEmpty() && getProgram().getWorkspaceManager().getActiveWorkpane() == null ) {
-				//				space.setActiveWorkarea( space.getWorkareas().iterator().next() );
-				//			}
-
-				// Check the restored state
-				if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
-				if( space == null ) log.atError().log( "No active workspace set" );
-				if( space != null && space.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
-				if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "No active workarea set" );
-			}
-
-			// If there are exceptions restoring the UI notify the user
-			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
-		} finally {
-			restored = true;
-			restoredCondition.signalAll();
-			restoreLock.unlock();
-		}
 	}
 
 	private void doStartAssetLoading() {
-		Set<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
 		try {
 			getProgram().getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {
@@ -204,42 +182,18 @@ class UiReader {
 		getUiSettings( ProgramSettings.EDGE ).forEach( this::loadEdgeForLinking );
 		getUiSettings( ProgramSettings.TOOL ).forEach( this::loadToolForLinking );
 
-		//		log.atWarn().log( "spaces: %s", spaces.size() );
-		//		log.atWarn().log( "areas: %s", areas.size() );
-		//		log.atWarn().log( "views: %s", views.size() );
-		//		log.atWarn().log( "edges: %s", edges.size() );
-		//		log.atWarn().log( "tools: %s", tools.size() );
-
-		if( !modifying ) return;
-
-		// NEXT Order needs to be stored for space(?), area and tool
-
 		// Reassemble the UI
 		linkSpaces();
 		linkAreasToSpaces();
 		linkEdgesAndViewsToAreas();
 		linkToolsToViews();
 
-		//			log.atWarn().log( "activeSpace: %s", activeSpace );
-		//			log.atWarn().log( "maximizedSpaces: %s", maximizedSpaces.size() );
-		//			log.atWarn().log( "spaceActiveAreas: %s", spaceActiveAreas.size() );
-		//			log.atWarn().log( "areaActiveViews: %s", areaActiveViews.size() );
-		//			log.atWarn().log( "areaDefaultViews: %s", areaDefaultViews.size() );
-		//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
-		//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
-
-		// The space did seem to be restored, but the area was not shown.
-
-			/*
-			Now that everything is linked, time to restore the flags. This should be
-			done before the listeners are added to avoid unintended modifications.
-			 */
+		// Now that everything is linked, time to restore the flags. This should be
+		// done before the listeners are added to avoid unintended modifications.
 		restoreFlags();
 
-			/*
-			Last, but not least, register the listeners. This should be done last to
-			avoid unintended modifications while the UI is being restored.
-			 */
+		// Last, but not least, register the listeners. This should be done last to
+		// avoid unintended modifications while the UI is being restored.
 		registerListeners();
 	}
 
@@ -293,13 +247,13 @@ class UiReader {
 		// Register the workarea listeners
 		for( Workarea area : areas.values() ) {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
-			if( modifying ) areaFactory.linkWorkareaSettingsListeners( area, settings );
+			areaFactory.linkWorkareaSettingsListeners( area, settings );
 		}
 
 		// Register the workspace listeners
 		for( Workspace space : spaces.values() ) {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, space.getUid() );
-			if( modifying ) spaceFactory.linkWorkspaceSettingsListeners( space, settings );
+			spaceFactory.linkWorkspaceSettingsListeners( space, settings );
 		}
 	}
 
@@ -317,7 +271,7 @@ class UiReader {
 	Workspace loadSpace( Settings settings ) {
 		Workspace workspace = spaceFactory.create();
 		workspace.setUid( settings.getName() );
-		workspace.updateFromSettings( settings );
+		spaceFactory.applyWorkspaceSettings( workspace, settings );
 		if( isActive( settings ) ) activeSpace = workspace;
 		if( isMaximized( settings ) ) maximizedSpaces.add( workspace );
 		return workspace;
@@ -332,10 +286,7 @@ class UiReader {
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
 			if( space == null ) {
-				if( isModifying() ) {
-					getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, id ).delete();
-					settings.delete();
-				}
+				settings.delete();
 				throw new UiException( "Removed orphaned area id=" + id );
 			}
 
@@ -360,13 +311,11 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-
-			// FIXME Remove after transition to UiReader is complete
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( area == null ) {
-				if( isModifying() ) settings.delete();
+				settings.delete();
 				throw new UiException( "Removed orphaned view id=" + id );
 			}
 
@@ -390,13 +339,11 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-
-			// FIXME Remove after transition to UiReader is complete
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( area == null ) {
-				if( isModifying() ) settings.delete();
+				settings.delete();
 				throw new UiException( "Removed orphaned edge id=" + id );
 			}
 
@@ -425,7 +372,7 @@ class UiReader {
 
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
-				if( isModifying() ) settings.delete();
+				settings.delete();
 				throw new UiException( "Removed orphaned tool id=" + id );
 			}
 
@@ -465,7 +412,7 @@ class UiReader {
 		// Restore the tool
 		ProgramTool tool = getProgram().getToolManager().restoreTool( openAssetRequest );
 		if( tool == null ) {
-			if( isModifying() ) settings.delete();
+			settings.delete();
 			throw new ToolInstantiationException( settings.getName(), toolClassName );
 		}
 
@@ -474,27 +421,7 @@ class UiReader {
 		return tool;
 	}
 
-	private boolean isActive( Settings settings ) {
-		return settings.get( UiFactory.ACTIVE, Boolean.class, false );
-	}
-
-	private boolean isMaximized( Settings settings ) {
-		return settings.get( UiFactory.MAXIMIZED, Boolean.class, false );
-	}
-
-	private boolean isViewActive( Settings settings ) {
-		return settings.exists( UiWorkareaFactory.VIEW_ACTIVE );
-	}
-
-	private boolean isViewDefault( Settings settings ) {
-		return settings.exists( UiWorkareaFactory.VIEW_DEFAULT );
-	}
-
-	private boolean isViewMaximized( Settings settings ) {
-		return settings.exists( UiWorkareaFactory.VIEW_MAXIMIZED );
-	}
-
-	private void linkAreasToSpaces() {
+	void linkAreasToSpaces() {
 		// Sort the areas by order
 		List<Workarea> areaList = new ArrayList<>( areas.values() );
 		areaList.sort( Comparator.comparing( Workarea::getOrder ) );
@@ -642,8 +569,36 @@ class UiReader {
 		spacesList.sort( Comparator.comparing( Workspace::getOrder ) );
 
 		for( Workspace workspace : spacesList ) {
-			if( modifying ) getProgram().getWorkspaceManager().addWorkspace( workspace );
+			getProgram().getWorkspaceManager().addWorkspace( workspace );
 		}
+	}
+
+	private List<String> getUiSettingsIds( String path ) {
+		return getProgram().getSettingsManager().getSettings( path ).getNodes();
+	}
+
+	private List<Settings> getUiSettings( String path ) {
+		return getUiSettingsIds( path ).stream().map( id -> getProgram().getSettingsManager().getSettings( path, id ) ).toList();
+	}
+
+	private boolean isActive( Settings settings ) {
+		return settings.get( UiFactory.ACTIVE, Boolean.class, false );
+	}
+
+	private boolean isMaximized( Settings settings ) {
+		return settings.get( UiFactory.MAXIMIZED, Boolean.class, false );
+	}
+
+	private boolean isViewActive( Settings settings ) {
+		return settings.exists( UiWorkareaFactory.VIEW_ACTIVE );
+	}
+
+	private boolean isViewDefault( Settings settings ) {
+		return settings.exists( UiWorkareaFactory.VIEW_DEFAULT );
+	}
+
+	private boolean isViewMaximized( Settings settings ) {
+		return settings.exists( UiWorkareaFactory.VIEW_MAXIMIZED );
 	}
 
 	private WorkpaneEdge lookupEdge( Workarea area, String id ) {
@@ -665,14 +620,6 @@ class UiReader {
 		} finally {
 			restoreLock.unlock();
 		}
-	}
-
-	private List<String> getUiSettingsIds( String path ) {
-		return getProgram().getSettingsManager().getSettings( path ).getNodes();
-	}
-
-	private List<Settings> getUiSettings( String path ) {
-		return getUiSettingsIds( path ).stream().map( id -> getProgram().getSettingsManager().getSettings( path, id ) ).toList();
 	}
 
 	private void notifyUserOfErrors( List<Exception> exceptions ) {
@@ -704,7 +651,7 @@ class UiReader {
 	 *
 	 * @param settings The workarea settings.
 	 */
-	@Deprecated( since = "8.0", forRemoval = true )
+	@Deprecated( since = "7.x", forRemoval = true )
 	private void copyPaneSettings( Settings settings ) {
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );
 		if( rootSettings.nodeExists( ProgramSettings.PANE ) ) {
@@ -715,7 +662,7 @@ class UiReader {
 				settings.set( UiWorkareaFactory.VIEW_ACTIVE, paneSettings.get( UiWorkareaFactory.VIEW_ACTIVE ) );
 				settings.set( UiWorkareaFactory.VIEW_DEFAULT, paneSettings.get( UiWorkareaFactory.VIEW_DEFAULT ) );
 				settings.set( UiWorkareaFactory.VIEW_MAXIMIZED, paneSettings.get( UiWorkareaFactory.VIEW_MAXIMIZED ) );
-				if( modifying ) paneSettings.delete();
+				paneSettings.delete();
 			}
 		}
 	}
