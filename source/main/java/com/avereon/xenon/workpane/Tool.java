@@ -31,6 +31,8 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 
 	public static final String DESCRIPTION = "description";
 
+	public static final String ACTIVE = "active";
+
 	public static final Workpane.Placement DEFAULT_TOOL_PLACEMENT = Workpane.Placement.SMART;
 
 	private static final ContextMenu EMPTY_CONTEXT_MENU = new ContextMenu();
