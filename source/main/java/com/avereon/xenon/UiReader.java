@@ -23,6 +23,8 @@ import lombok.Getter;
 
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
@@ -70,11 +72,13 @@ class UiReader {
 
 	private final List<Exception> errors = new ArrayList<>();
 
-	private final Lock restoreLock = new ReentrantLock();
+	private final Lock spaceRestoreLock = new ReentrantLock();
 
-	private final Condition restoredCondition = restoreLock.newCondition();
+	private final Condition spacesRestoredCondition = spaceRestoreLock.newCondition();
 
-	private boolean restored;
+	private boolean spacesRestored;
+
+	private Future<Collection<Asset>> assetLoadFuture;
 
 	public UiReader( Xenon program ) {
 		this.program = program;
@@ -82,21 +86,25 @@ class UiReader {
 		this.areaFactory = new UiWorkareaFactory( program );
 	}
 
-	public void load() {
-		doLoad();
+	public void loadWorkspaces() {
+		Fx.run( this::doWorkspaceLoad );
 	}
 
-	public void awaitLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
-		doWaitForLoad( duration, unit );
+	public void awaitLoadWorkspaces( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+		doAwaitForSpaceLoad( duration, unit );
 	}
 
-	public void startAssetLoading() {
+	public void loadAssets() {
 		doStartAssetLoading();
 	}
 
-	private void doLoad() {
+	public void awaitLoadAssets( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+		doAwaitForAssetLoad( duration, unit );
+	}
+
+	private void doWorkspaceLoad() {
 		Fx.affirmOnFxThread();
-		restoreLock.lock();
+		spaceRestoreLock.lock();
 
 		try {
 			if( getWorkspaceCount() == 0 ) {
@@ -122,9 +130,9 @@ class UiReader {
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
 		} finally {
-			restored = true;
-			restoredCondition.signalAll();
-			restoreLock.unlock();
+			spacesRestored = true;
+			spacesRestoredCondition.signalAll();
+			spaceRestoreLock.unlock();
 		}
 	}
 
@@ -165,14 +173,6 @@ class UiReader {
 		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 
 		spaces.put( space.getUid(), space );
-	}
-
-	private void doStartAssetLoading() {
-		try {
-			getProgram().getAssetManager().loadAssets( assets );
-		} catch( Exception exception ) {
-			log.atError( exception ).log();
-		}
 	}
 
 	private void restoreWorkspaces() {
@@ -254,6 +254,14 @@ class UiReader {
 		for( Workspace space : spaces.values() ) {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, space.getUid() );
 			spaceFactory.linkWorkspaceSettingsListeners( space, settings );
+		}
+	}
+
+	private void doStartAssetLoading() {
+		try {
+			assetLoadFuture = getProgram().getAssetManager().loadAssets( assets );
+		} catch( Exception exception ) {
+			log.atWarn( exception ).log();
 		}
 	}
 
@@ -612,14 +620,22 @@ class UiReader {
 		return edge;
 	}
 
-	private void doWaitForLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
-		restoreLock.lock();
+	private void doAwaitForSpaceLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+		spaceRestoreLock.lock();
 		try {
-			while( !restored ) {
-				if( !restoredCondition.await( duration, unit ) ) throw new TimeoutException( "Timeout waiting for UI restore" );
+			while( !spacesRestored ) {
+				if( !spacesRestoredCondition.await( duration, unit ) ) throw new TimeoutException( "Timeout waiting for workspace restore" );
 			}
 		} finally {
-			restoreLock.unlock();
+			spaceRestoreLock.unlock();
+		}
+	}
+
+	private void doAwaitForAssetLoad( long duration, TimeUnit unit ) throws InterruptedException, TimeoutException {
+		try {
+			assetLoadFuture.get( duration, unit );
+		} catch( ExecutionException exception ) {
+			log.atWarn( exception ).log();
 		}
 	}
 
@@ -648,6 +664,7 @@ class UiReader {
 	}
 
 	// TODO Remove in 1.8
+
 	/**
 	 * Copy the workpane settings to the workarea settings.
 	 *

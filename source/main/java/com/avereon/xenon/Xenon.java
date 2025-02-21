@@ -536,8 +536,8 @@ public class Xenon extends Application implements XenonProgram {
 		UiReader uiReader = new UiReader( Xenon.this );
 		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
 		if( useUiReader ) {
-			Fx.run( uiReader::load );
-			uiReader.awaitLoad( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			uiReader.loadWorkspaces();
+			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} else {
 			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
@@ -584,7 +584,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Initiate asset loading
 		if( useUiReader ) {
-			uiReader.startAssetLoading();
+			uiReader.loadAssets();
 		} else {
 			uiRegenerator.startAssetLoading();
 		}
