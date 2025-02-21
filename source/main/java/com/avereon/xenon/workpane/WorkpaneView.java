@@ -12,6 +12,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkpaneView extends BorderPane implements WritableIdentity {
 
+	@Getter
 	private final ToolTabPane toolTabPane;
 
 	private ObjectProperty<WorkpaneEdge> topEdge;
@@ -33,6 +35,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 
 	private Workpane parent;
 
+	@Getter
 	private Tool activeTool;
 
 	public WorkpaneView() {
@@ -69,7 +72,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	}
 
 	private void fireToolReordered( Tool tool ) {
-		tool.setOrder( getToolTabPane().indexOf( tool ) );
+		tool.setOrder( getTools().indexOf( tool ) );
 		tool.fireEvent( new ToolEvent( this, ToolEvent.REORDERED, getWorkpane(), tool ) );
 	}
 
@@ -140,7 +143,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	 *
 	 * @return A list of the tools in the view.
 	 */
-	public List<Tool> getToolTabPane() {
+	public List<Tool> getTools() {
 		return toolTabPane.getTabs().parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
 	}
 
@@ -191,10 +194,6 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		if( isActiveTool && parent != null ) parent.setActiveTool( next );
 
 		return tool;
-	}
-
-	public Tool getActiveTool() {
-		return activeTool;
 	}
 
 	public void setActiveTool( Tool tool ) {

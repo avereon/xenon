@@ -137,21 +137,42 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testSetActiveTool() {
+		// given
 		Tool tool1 = new MockTool( asset );
 		Tool tool2 = new MockTool( asset );
 		Tool tool3 = new MockTool( asset );
+
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
+		tool3.setTitle( "Tool 3" );
 
 		workpane.addTool( tool1, false );
 		workpane.addTool( tool2, false );
 		workpane.addTool( tool3, false );
 
-		assertThat( getActiveTool( view ) ).isEqualTo( tool1 );
+		assertThat( view.getActiveTool() ).isEqualTo( tool1 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool1 );
+
+		// when
 		workpane.setActiveTool( tool2 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool2 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool2 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool2 );
+
+		// when
 		workpane.setActiveTool( tool3 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool3 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool3 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool3 );
+
+		// when
 		workpane.setActiveTool( tool1 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool1 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool1 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool1 );
 	}
 
 	@Test
@@ -523,13 +544,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( position );
 	}
 
-	private Tool getActiveTool( WorkpaneView view ) {
-		ToolTabPane pane = (ToolTabPane)view.getChildren().get( 0 );
-
-		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
-		ToolTab tab = pane.getTabs().get( selectedIndex );
-
-		return tab.getTool();
+	private Tool getActiveToolTabTool( WorkpaneView view ) {
+		return view.getToolTabPane().getSelectionModel().getSelectedItem().getTool();
 	}
 
 }

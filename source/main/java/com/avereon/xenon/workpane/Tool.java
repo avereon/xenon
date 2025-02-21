@@ -246,7 +246,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	}
 
 	public int getTabOrder() {
-		return getToolView() == null ? -1 : getToolView().getToolTabPane().indexOf( this );
+		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
 	}
 
 	public boolean isActive() {

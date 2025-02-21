@@ -199,7 +199,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 */
 	public Set<Tool> getTools() {
 		Set<Tool> tools = new HashSet<>();
-		getViews().forEach( ( view ) -> tools.addAll( view.getToolTabPane() ) );
+		getViews().forEach( ( view ) -> tools.addAll( view.getTools() ) );
 		return Collections.unmodifiableSet( tools );
 	}
 
@@ -560,8 +560,10 @@ public class Workpane extends Control implements WritableIdentity {
 			// Change the active view
 			WorkpaneView view = tool == null ? null : tool.getToolView();
 			if( view != null && getViews().contains( view ) ) {
-				view.setActiveTool( tool );
-				if( activateViewAlso && view != getActiveView() ) doSetActiveView( view, false );
+				if( activateViewAlso ) {
+					view.setActiveTool( tool );
+					if( view != getActiveView() ) doSetActiveView( view, false );
+				}
 			}
 
 			// Change the active tool
@@ -999,7 +1001,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target == getDefaultView() ) return false;
 
 			// If auto, check the tool counts
-			if( auto && target.getToolTabPane().size() > 0 ) return false;
+			if( auto && !target.getTools().isEmpty() ) return false;
 
 			// Check targets for common back edge
 			if( commonBackEdge == null ) commonBackEdge = target.getEdge( direction );
@@ -1023,9 +1025,9 @@ public class Workpane extends Control implements WritableIdentity {
 			if( canPullMerge( target, direction.direction, auto ) ) return direction.direction;
 		}
 
-		int weight = directions.get( 0 ).getWeight();
+		int weight = directions.getFirst().getWeight();
 
-		return weight == 0 ? null : directions.get( 0 ).getDirection();
+		return weight == 0 ? null : directions.getFirst().getDirection();
 	}
 
 	public Tool addTool( Tool tool ) {
@@ -1051,7 +1053,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view, boolean activate ) {
-		return addTool( tool, view, view == null ? 0 : view.getToolTabPane().size(), activate );
+		return addTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
 	}
 
 	/**
@@ -1085,7 +1087,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	private Tool openTool( Tool tool, WorkpaneView view, boolean activate ) {
-		return openTool( tool, view, view == null ? 0 : view.getToolTabPane().size(), activate );
+		return openTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
 	}
 
 	public Tool openTool( Tool tool, WorkpaneView view, Placement placement, boolean activate ) {
@@ -1239,7 +1241,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 		sourcePane.removeTool( sourceTool, automerge );
 
-		int targetViewTabCount = targetView.getToolTabPane().size();
+		int targetViewTabCount = targetView.getTools().size();
 		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
 		targetPane.addTool( sourceTool, targetView, index, true );
 	}
@@ -1462,7 +1464,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target.isActive() ) setActiveView( closestSource );
 
 			// Check for tools.
-			for( Tool tool : target.getToolTabPane() ) {
+			for( Tool tool : target.getTools() ) {
 				closeTool( tool, false );
 				addTool( tool, closestSource );
 			}
