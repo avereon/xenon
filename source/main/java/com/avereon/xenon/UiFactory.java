@@ -30,18 +30,21 @@ public final class UiFactory {
 
 	public static final String PARENT_VIEW_ID = "view-id";
 
+	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_SPACE_ID} instead.
 	 */
 	@Deprecated
 	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
+	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_AREA_ID} instead.
 	 */
 	@Deprecated
 	public static final String PARENT_WORKPANE_ID = "workpane-id";
 
+	// TODO Remove in 1.8
 	/**
 	 * @deprecated Use {@link #PARENT_VIEW_ID} instead.
 	 */
