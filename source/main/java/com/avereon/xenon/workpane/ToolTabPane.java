@@ -32,23 +32,19 @@ public class ToolTabPane extends Control {
 	@Getter
 	private final ObservableList<ToolTab> tabs;
 
-	private final ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel;
+	private final ObjectProperty<SingleSelectionModel<ToolTab>> selectionModelProperty;
 
 	private ReadOnlyBooleanWrapper active;
 
 	public ToolTabPane() {
 		getStyleClass().addAll( "tool-pane" );
+		selectionModelProperty = new SimpleObjectProperty<>( this, "selectionModel" );
+		selectionModelProperty.set( new ToolPaneSelectionModel( this ) );
 		tabs = FXCollections.observableArrayList();
-		selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
-		setSelectionModel( new ToolPaneSelectionModel( this ) );
 	}
 
 	public final SingleSelectionModel<ToolTab> getSelectionModel() {
-		return selectionModel.get();
-	}
-
-	public final void setSelectionModel( SingleSelectionModel<ToolTab> value ) {
-		selectionModel.set( value );
+		return selectionModelProperty.get();
 	}
 
 	public boolean isActive() {

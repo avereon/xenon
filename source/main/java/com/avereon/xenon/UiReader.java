@@ -54,7 +54,6 @@ class UiReader {
 
 	private final Map<String, Tool> tools = new HashMap<>();
 
-	//private final Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
 	private final Set<Asset> assets = new HashSet<>();
 
 	private Workspace activeSpace;
@@ -213,6 +212,8 @@ class UiReader {
 
 		if( !modifying ) return;
 
+		// NEXT Order needs to be stored for space(?), area and tool
+
 		// Reassemble the UI
 		linkSpaces();
 		linkAreasToSpaces();
@@ -227,7 +228,6 @@ class UiReader {
 		//			log.atWarn().log( "areaMaximizedViews: %s", areaMaximizedViews.size() );
 		//			log.atWarn().log( "viewActiveTools: %s", viewActiveTools.size() );
 
-		// NEXT First test of UiReader did not restore the UI properly.
 		// The space did seem to be restored, but the area was not shown.
 
 			/*
@@ -605,47 +605,36 @@ class UiReader {
 	}
 
 	void linkToolsToViews() {
-		List<Tool> toolList = new ArrayList<>( tools.values() );
-		toolList.sort( Comparator.comparing( Tool::getOrder ) );
-
-		for( Tool tool : toolList ) {
-			try {
-				Settings toolSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
-				WorkpaneView view = views.get( toolSettings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
-				Settings viewSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
-				Workarea area = areas.get( viewSettings.get( UiFactory.PARENT_AREA_ID ) );
-				if( area == null ) area = areas.get( viewSettings.get( UiFactory.PARENT_WORKPANE_ID ) );
-
-				if( area == null ) {
-					log.atWarn().log( "No workarea for view: %s", LazyEval.of( view::getUid ) );
-					continue;
-				}
-
-				// FIXME An exception is thrown here because the tool is expecting the
-				//  view to already be part of a workpane, which it is not yet. We might
-				//  have to link top-down instead of bottom-up.
-				area.addTool( tool, view, false );
-				log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
-			} catch( Exception exception ) {
-				errors.add( exception );
+		try {
+			// Assign out all the tools to their respective views
+			Map<WorkpaneView, Set<Tool>> viewToolMap = new HashMap<>();
+			for( Tool tool : tools.values() ) {
+				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
+				WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
+				viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
 			}
-		}
 
-		//		for( Map.Entry<WorkpaneView, Set<Tool>> entry : viewToolMap.entrySet() ) {
-		//			WorkpaneView view = entry.getKey();
-		//			Workpane pane = view.getWorkpane();
-		//			if( pane == null ) continue;
-		//
-		//			// Sort the tools
-		//			List<Tool> localTools = new ArrayList<>( entry.getValue() );
-		//			localTools.sort( Comparator.comparing( Tool::getOrder ) );
-		//
-		//			// Add the tools to the view
-		//			for( Tool tool : localTools ) {
-		//				pane.addTool( tool, view, false );
-		//				log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
-		//			}
-		//		}
+			// Now go through the views and assign the tools
+			for( WorkpaneView view : viewToolMap.keySet() ) {
+				Workarea area = (Workarea)view.getWorkpane();
+
+				// Get the tools for the view and order them
+				List<Tool> toolList = new ArrayList<>( viewToolMap.get( view ) );
+				toolList.sort( Comparator.comparing( Tool::getOrder ) );
+				//System.out.println( "tools in order: " + toolList );
+
+				toolList.forEach( tool -> {
+					try {
+						area.addTool( tool, view, false );
+						log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
+					} catch( Exception exception ) {
+						errors.add( exception );
+					}
+				} );
+			}
+		} catch( Exception exception ) {
+			errors.add( exception );
+		}
 	}
 
 	void linkSpaces() {

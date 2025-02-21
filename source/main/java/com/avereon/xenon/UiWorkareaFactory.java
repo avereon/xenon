@@ -56,6 +56,7 @@ public class UiWorkareaFactory {
 	Workarea linkWorkareaSettingsListeners( Workarea workarea, Settings settings ) {
 		// Add the change listeners
 		workarea.nameProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.NAME, n ) );
+		workarea.orderProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.ORDER, n ) );
 		workarea.paintProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PAINT, Paints.toString( n ) ) );
 		workarea.activeProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.ACTIVE, n ) );
 		workarea.workspaceProperty().addListener( ( v, o, n ) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getUid() ) );
