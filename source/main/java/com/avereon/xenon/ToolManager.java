@@ -113,7 +113,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Determine how many instances the tool allows
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
-		// NEXT Dependency tools are opening in the wrong workpane
 		// Before checking for existing tools, the workpane needs to be determined
 		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
