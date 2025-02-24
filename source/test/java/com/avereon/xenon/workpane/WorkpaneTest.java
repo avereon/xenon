@@ -544,6 +544,63 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( position );
 	}
 
+	@Test
+	void testCloseLastToolInDefaultView() {
+		// given
+		Tool tool1 = new MockTool( asset );
+		Tool tool2 = new MockTool( asset );
+
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
+
+		WorkpaneView defaultView = workpane.getDefaultView();
+		WorkpaneView leftView = workpane.split( Side.LEFT );
+
+		workpane.addTool( tool1, leftView, false );
+		workpane.addTool( tool2, defaultView, true );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+
+		// when
+		workpane.closeTool( tool2 );
+
+		// then
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+		assertThat( leftView.getTools() ).containsExactly( tool1 );
+		assertThat( defaultView.getTools() ).isEmpty();
+		assertThat( workpane.getTools() ).hasSize( 1 );
+	}
+
+	@Test
+	void testCloseToolInViewThatCanAutoMerge() {
+		// given
+		Tool tool1 = new MockTool( asset );
+		Tool tool2 = new MockTool( asset );
+
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
+
+		WorkpaneView defaultView = workpane.getDefaultView();
+		WorkpaneView leftView = workpane.split( Side.LEFT );
+
+		workpane.addTool( tool1, leftView, false );
+		workpane.addTool( tool2, defaultView, true );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+
+		// when
+		workpane.closeTool( tool1 );
+
+		// then
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+		assertThat( defaultView.getTools() ).containsExactly( tool2 );
+		assertThat( workpane.getTools() ).hasSize( 1 );
+	}
+
 	private Tool getActiveToolTabTool( WorkpaneView view ) {
 		return view.getToolTabPane().getSelectionModel().getSelectedItem().getTool();
 	}

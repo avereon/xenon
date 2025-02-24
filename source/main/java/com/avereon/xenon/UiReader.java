@@ -123,15 +123,12 @@ class UiReader {
 
 			// Check the restored state
 			if( getProgram().getWorkspaceManager().getWorkspaces().isEmpty() ) log.atError().log( "No workspaces restored" );
-			if( space == null ) log.atError().log( "No active workspace set" );
+			if( space == null ) log.atError().log( "Missing active workspace" );
 			if( space != null && space.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
-			if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "No active workarea set" );
-
-			// TODO Check that all areas have an active view
-			// TODO Check that all areas have a default view
+			if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "Missing active workarea" );
 			for( Workarea area : areas.values() ) {
-				if( area.getActiveView() == null ) log.atError().log( "Missing active view for area: %s", area );
-				if( area.getDefaultView() == null ) log.atError().log( "Missing default view for area: %s", area );
+				if( area.getActiveView() == null ) log.atError().log( "Missing active view for workarea: %s", area );
+				if( area.getDefaultView() == null ) log.atError().log( "Missing default view for workarea: %s", area );
 			}
 
 			// If there are exceptions restoring the UI notify the user
@@ -238,7 +235,6 @@ class UiReader {
 		for( Workspace space : spaceActiveAreas.keySet() ) {
 			Workarea area = spaceActiveAreas.get( space );
 			space.setActiveWorkarea( area );
-			log.atWarn().log( "activeArea: %s", area );
 		}
 		// For each space there might be a maximized area
 		for( Workspace space : maximizedSpaces ) {
@@ -666,14 +662,13 @@ class UiReader {
 		getProgram().getNoticeManager().addNotice( notice );
 	}
 
-	// TODO Remove in 1.8
-
 	/**
 	 * Copy the workpane settings to the workarea settings.
 	 *
 	 * @param settings The workarea settings.
 	 * @deprecated Remove in 1.8
 	 */
+	// TODO Remove in 1.8
 	@Deprecated( since = "1.7", forRemoval = true )
 	private void copyPaneSettings( Settings settings ) {
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );

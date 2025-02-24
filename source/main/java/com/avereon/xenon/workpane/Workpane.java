@@ -1413,7 +1413,7 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta > 0 ) {
 			if( !blockingEdge.isWall() ) {
 				double result = moveHorizontal( blockingEdge, offset - delta );
@@ -1495,7 +1495,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneView getClosest( Set<WorkpaneView> views, WorkpaneView target, Orientation orientation ) {
 		WorkpaneView result = null;
-		double distance = Double.MAX_VALUE;
+		double distance;
 		double resultDistance = Double.MAX_VALUE;
 		double targetCenter = target.getCenter( orientation );
 
@@ -1517,7 +1517,7 @@ public class Workpane extends Control implements WritableIdentity {
 		edge.getViews( getOppositeSide( direction ) ).remove( target );
 
 		// If there are no more associated views, remove the edge.
-		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getOppositeSide( direction ) ).size() == 0 ) removeEdge( edge );
+		if( !edge.isWall() && edge.getViews( direction ).isEmpty() && edge.getViews( getOppositeSide( direction ) ).isEmpty() ) removeEdge( edge );
 	}
 
 	private WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
@@ -1564,7 +1564,7 @@ public class Workpane extends Control implements WritableIdentity {
 	/**
 	 * Split the workpane using the space to the north for a new tool view along the entire edge of the workpane.
 	 *
-	 * @param percent
+	 * @param percent 
 	 * @return
 	 */
 	private WorkpaneView splitNorth( double percent ) {
