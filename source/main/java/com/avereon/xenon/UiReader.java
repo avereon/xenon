@@ -127,6 +127,13 @@ class UiReader {
 			if( space != null && space.getWorkareas().isEmpty() ) log.atError().log( "No workareas restored" );
 			if( space != null && space.getActiveWorkarea() == null ) log.atError().log( "No active workarea set" );
 
+			// TODO Check that all areas have an active view
+			// TODO Check that all areas have a default view
+			for( Workarea area : areas.values() ) {
+				if( area.getActiveView() == null ) log.atError().log( "Missing active view for area: %s", area );
+				if( area.getDefaultView() == null ) log.atError().log( "Missing default view for area: %s", area );
+			}
+
 			// If there are exceptions restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
 		} finally {
@@ -258,9 +265,6 @@ class UiReader {
 	}
 
 	private void doStartAssetLoading() {
-		// NEXT Dependency tools are opening in the wrong workpane
-		// Looks like the dependency tools are being opened when the asset is loaded
-
 		try {
 			assetLoadFuture = getProgram().getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {

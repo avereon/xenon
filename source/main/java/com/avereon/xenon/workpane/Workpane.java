@@ -1149,7 +1149,7 @@ public class Workpane extends Control implements WritableIdentity {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			if( autoMerge ) pullMerge( view );
+			if( autoMerge && !view.isDefault() ) pullMerge( view );
 		} finally {
 			finishOperation( true );
 		}
