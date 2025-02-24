@@ -85,9 +85,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Object currentAssetLock = new Object();
 
-	private boolean running;
+	private final Map<URI, URI> aliases;
 
-	private Map<URI, URI> aliases;
+	private boolean running;
 
 	public AssetManager( Xenon program ) {
 		this.program = program;
@@ -422,12 +422,20 @@ public class AssetManager implements Controllable<AssetManager> {
 		return openAsset( uri, model, null, null, null, true, true );
 	}
 
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane ) {
+		return openAsset( uri, null, pane, null, null, true, true );
+	}
+
 	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
 		return openAsset( uri, null, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
 		return openAsset( uri, null, null, null, null, openTool, setActive );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane, boolean openTool, boolean setActive ) {
+		return openAsset( uri, null, pane, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
@@ -960,7 +968,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Look for asset types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( asset ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
-		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
+		Codec codec = codecs.isEmpty() ? null : codecs.getFirst();
 		if( codec != null ) type = codec.getAssetType();
 
 		// Assign values to asset
@@ -1512,7 +1520,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return getUserAssetTypes().size() > 0;
+			return !getUserAssetTypes().isEmpty();
 		}
 
 		@Override
