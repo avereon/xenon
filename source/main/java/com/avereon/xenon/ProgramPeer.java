@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.log.LazyEval;
-import com.avereon.product.ProgramFlag;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
 import lombok.CustomLog;
@@ -80,9 +79,9 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 
 	private void readMessages( Socket socket ) {
 		try {
-			if( program.getProgramParameters().isSet( ProgramFlag.WATCH ) ) {
+			if( program.getProgramParameters().isSet( XenonFlag.WATCH ) ) {
 				watchAll( socket.getInputStream() );
-			} else if( program.getProgramParameters().anySet( ProgramFlag.ACTIONS ) ) {
+			} else if( program.getProgramParameters().anySet( XenonFlag.ACTIONS ) ) {
 				watchOne( socket.getInputStream() );
 			}
 			socket.close();

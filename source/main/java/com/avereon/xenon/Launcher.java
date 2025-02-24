@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.weave.ElevatedFlag;
-import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.WeaveFlag;
 import com.avereon.weave.Weave;
 
 /**
@@ -16,7 +16,7 @@ public class Launcher {
 
 		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
 		boolean callback = parameters.isSet( ElevatedFlag.CALLBACK_SECRET );
-		boolean update = parameters.isSet( UpdateFlag.UPDATE );
+		boolean update = parameters.isSet( WeaveFlag.UPDATE );
 		boolean updating = update || callback;
 
 		if( updating ) {

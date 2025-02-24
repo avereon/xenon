@@ -46,14 +46,16 @@ public class ToolManagerTest extends BasePartXenonTestCase {
 	@Test
 	@SuppressWarnings( { "ConstantConditions", "CatchMayIgnoreException" } )
 	void testOpenToolWithNullAsset() {
-		taskManager.submit( Task.of( "", () -> {
-			try {
-				toolManager.openTool( null );
-				fail( "Should throw a NullPointerException" );
-			} catch( Exception exception ) {
-				assertThat( exception ).isInstanceOf( NullPointerException.class );
+		taskManager.submit( Task.of(
+			"", () -> {
+				try {
+					toolManager.openTool( null );
+					fail( "Should throw a NullPointerException" );
+				} catch( Exception exception ) {
+					assertThat( exception ).isInstanceOf( NullPointerException.class );
+				}
 			}
-		} ) );
+		) );
 	}
 
 }

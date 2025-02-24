@@ -6,7 +6,6 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Program;
-import com.avereon.product.ProgramFlag;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
@@ -61,14 +60,14 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 	/**
 	 * Get the execution profile.
 	 *
-	 * @see ProgramFlag#PROFILE
+	 * @see XenonFlag#PROFILE
 	 */
 	String getProfile();
 
 	/**
 	 * Get the execution mode.
 	 *
-	 * @see ProgramFlag#MODE
+	 * @see XenonFlag#MODE
 	 */
 	String getMode();
 

@@ -17,6 +17,7 @@ import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zarra.event.FxEventHub;
 import javafx.event.ActionEvent;
@@ -31,6 +32,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -84,9 +86,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Object currentAssetLock = new Object();
 
-	private boolean running;
+	private final Map<URI, URI> aliases;
 
-	private Map<URI, URI> aliases;
+	private boolean running;
 
 	public AssetManager( Xenon program ) {
 		this.program = program;
@@ -280,7 +282,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Get an asset type by the asset type key defined in the asset type. This is useful for getting asset types from persisted data.
+	 * Get an asset type by the asset type key defined in the asset type. This is
+	 * useful for getting asset types from persisted data.
 	 *
 	 * @param key The asset type key
 	 * @return The asset type associated to the key
@@ -417,37 +420,42 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
-		return openAsset( uri, model, null, null, true, true );
+		return openAsset( uri, model, null, null, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane ) {
+		return openAsset( uri, null, pane, null, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
-		return openAsset( uri, null, null, toolClass, true, true );
+		return openAsset( uri, null, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( uri, null, null, null, openTool, setActive );
+		return openAsset( uri, null, null, null, null, openTool, setActive );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane, boolean openTool, boolean setActive ) {
+		return openAsset( uri, null, pane, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
-	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
-		Set<Future<ProgramTool>> futures = new HashSet<>();
-		for( URI uri : uris ) {
-			futures.add( openAsset( uri, null, null, null, openTool, setActive ) );
-		}
-		return futures;
+	public Set<Future<ProgramTool>> openDependencyAssets( Set<URI> uris, Workpane pane ) {
+		return uris.stream().map( uri -> openAsset( uri, null, pane, null, null, true, false ) ).collect( Collectors.toSet() );
 	}
 
-	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> openAsset( URI uri, Object model, Workpane pane, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
+		request.setPane( pane );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
@@ -616,7 +624,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return doCreateAsset( type, null );
 	}
 
-	public Asset createAsset( AssetType type, String uri) throws AssetException {
+	public Asset createAsset( AssetType type, String uri ) throws AssetException {
 		return doCreateAsset( type, UriUtil.resolve( uri ) );
 	}
 
@@ -961,7 +969,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Look for asset types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( asset ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
-		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
+		Codec codec = codecs.isEmpty() ? null : codecs.getFirst();
 		if( codec != null ) type = codec.getAssetType();
 
 		// Assign values to asset
@@ -1466,6 +1474,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		public ProgramTool call() throws AssetException, ExecutionException, TimeoutException, InterruptedException {
 			// Create and configure the asset
 			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
+
 			Asset asset = request.getAsset();
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
@@ -1477,7 +1486,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
-			ProgramTool tool;
+			ProgramTool tool = null;
 			try {
 				// If the asset is new get user input from the asset type
 				if( asset.isNew() ) {
@@ -1488,7 +1497,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					resolveScheme( asset );
 				}
 
-				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
+				if( request.isOpenTool() ) tool = program.getToolManager().openTool( request );
 			} catch( NoToolRegisteredException exception ) {
 				log.atConfig().log( "No tool registered for: %s", asset );
 				String title = Rb.text( "program", "no-tool-for-asset-title" );
@@ -1513,7 +1522,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return getUserAssetTypes().size() > 0;
+			return !getUserAssetTypes().isEmpty();
 		}
 
 		@Override

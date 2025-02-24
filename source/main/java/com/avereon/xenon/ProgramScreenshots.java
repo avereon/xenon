@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.event.EventWatcher;
-import com.avereon.product.ProgramFlag;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.workpane.Tool;
@@ -93,11 +92,11 @@ public abstract class ProgramScreenshots {
 	}
 
 	protected String getLogLevel() {
-		return ProgramFlag.INFO;
+		return XenonFlag.INFO;
 	}
 
 	protected List<String> getProgramParameters() {
-		return List.of( ProgramFlag.NO_UPDATES, ProgramFlag.MODE, getExecutionMode(), ProgramFlag.LOG_LEVEL, getLogLevel() );
+		return List.of( XenonFlag.NO_UPDATES, XenonFlag.MODE, getExecutionMode(), XenonFlag.LOG_LEVEL, getLogLevel() );
 	}
 
 	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException, ExecutionException;

@@ -4,7 +4,6 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
-import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -101,7 +100,7 @@ import java.util.concurrent.TimeoutException;
  * </ul>
  */
 @CustomLog
-public abstract class ProgramTool extends Tool implements WritableIdentity {
+public abstract class ProgramTool extends Tool {
 
 	public static final int ASSET_READY_TIMEOUT = 10;
 

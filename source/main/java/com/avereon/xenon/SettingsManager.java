@@ -70,6 +70,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings.register( SettingsEvent.ANY, eventBus::dispatch );
 	}
 
+	public long getMaxFlushLimit() {
+		return settings.getMaxFlushLimit();
+	}
+
+	public void setMaxFlushLimit( long maxFlushLimit ) {
+		settings.setMaxFlushLimit( maxFlushLimit );
+	}
+
+	public long getMinFlushLimit() {
+		return settings.getMinFlushLimit();
+	}
+
+	public void setMinFlushLimit( long minFlushLimit ) {
+		settings.setMinFlushLimit( minFlushLimit );
+	}
+
 	public Settings getSettings( String path ) {
 		return this.settings.getNode( path );
 	}

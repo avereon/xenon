@@ -1,11 +1,10 @@
 package com.avereon.xenon;
 
 import com.avereon.log.Log;
-import com.avereon.product.ProgramFlag;
 import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.weave.UpdateCommandBuilder;
-import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.WeaveFlag;
 import com.avereon.weave.UpdateTask;
 import com.avereon.weave.Weave;
 import com.avereon.xenon.product.ProductUpdate;
@@ -135,15 +134,15 @@ public class RestartJob {
 		// Create and configure the UPDATE process builder
 		builder = new ProcessBuilder( updaterLaunchCommands );
 		builder.directory( updaterFolder.toFile() );
-		if( useDarkMode ) builder.command().add( UpdateFlag.DARK );
-		builder.command().add( UpdateFlag.TITLE );
+		if( useDarkMode ) builder.command().add( WeaveFlag.DARK );
+		builder.command().add( WeaveFlag.TITLE );
 		builder.command().add( updatingProgramText );
-		builder.command().add( UpdateFlag.UPDATE );
+		builder.command().add( WeaveFlag.UPDATE );
 		builder.command().add( updateCommandFile.toString() );
-		builder.command().add( ProgramFlag.LOG_FILE );
+		builder.command().add( XenonFlag.LOG_FILE );
 		builder.command().add( logFile );
 		if( program.getProgramParameters().isSet( LogFlag.LOG_LEVEL ) ) {
-			builder.command().add( ProgramFlag.LOG_LEVEL );
+			builder.command().add( XenonFlag.LOG_LEVEL );
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 		}
 	}

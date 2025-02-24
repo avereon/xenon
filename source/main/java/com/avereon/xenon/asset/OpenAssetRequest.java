@@ -3,9 +3,11 @@ package com.avereon.xenon.asset;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolManager;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.net.URI;
 import java.util.Map;
@@ -21,56 +23,51 @@ import java.util.Map;
  * @see AssetManager
  * @see ToolManager
  */
+@Getter
+@Setter
+@Accessors( chain = true )
 public class OpenAssetRequest {
 
-	@Getter
 	private AssetType type;
 
-	@Getter
 	private URI uri;
 
-	@Getter
 	private Codec codec;
 
 	private Object model;
 
-	@Getter
+	private Workpane pane;
+
 	private WorkpaneView view;
 
 	/**
 	 * Should a tool be opened for this request.
 	 */
-	@Getter
 	private boolean openTool;
 
 	/**
 	 * Should the tool be set as the active tool if a tool is opened.
 	 */
-	@Getter
 	private boolean setActive;
 
 	/**
 	 * The asset created from the asset type and URI
 	 */
-	@Getter
 	private Asset asset;
 
 	/**
 	 * The tool id if restoring a tool.
 	 */
-	@Getter
-	@Setter
 	private String toolId;
 
 	/**
 	 * The resolved tool class if restoring a tool.
 	 */
-	@Getter
-	@Setter
 	private Class<? extends ProgramTool> toolClass;
 
-	@Getter
-	@Setter
+	/**
+	 * The requested tool class name if restoring a tool.
+	 */
 	private String toolClassName;
 
 	public OpenAssetRequest setUri( URI uri ) {
@@ -93,37 +90,12 @@ public class OpenAssetRequest {
 		return this;
 	}
 
-	public Map<String,String> getQueryParameters() {
+	public Map<String, String> getQueryParameters() {
 		return uri == null ? null : UriUtil.parseQuery( uri.getQuery() );
 	}
 
 	public String getFragment() {
 		return uri == null ? null : UriUtil.parseFragment( uri );
-	}
-
-	public OpenAssetRequest setCodec( Codec codec ) {
-		this.codec = codec;
-		return this;
-	}
-
-	public OpenAssetRequest setView( WorkpaneView view ) {
-		this.view = view;
-		return this;
-	}
-
-	public OpenAssetRequest setOpenTool( boolean openTool ) {
-		this.openTool = openTool;
-		return this;
-	}
-
-	public OpenAssetRequest setSetActive( boolean setActive ) {
-		this.setActive = setActive;
-		return this;
-	}
-
-	public OpenAssetRequest setAsset( Asset asset ) {
-		this.asset = asset;
-		return this;
 	}
 
 }

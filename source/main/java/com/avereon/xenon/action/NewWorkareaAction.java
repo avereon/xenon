@@ -47,11 +47,11 @@ public class NewWorkareaAction extends ProgramAction {
 	private void createNewWorkarea( String name ) {
 		UiFactory uiFactory = new UiFactory( getProgram() );
 		try {
-			Workarea workarea = uiFactory.newWorkarea();
+			Workarea workarea = uiFactory.create();
 			workarea.setName( name );
 			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
-			log.atError().withCause(exception).log( "Error creating new workarea: %s", name );
+			log.atError().withCause( exception ).log( "Error creating new workarea: %s", name );
 		}
 	}
 

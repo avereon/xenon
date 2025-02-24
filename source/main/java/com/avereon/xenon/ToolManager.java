@@ -6,6 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
@@ -21,10 +22,8 @@ import lombok.CustomLog;
 import lombok.Getter;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.*;
 
 @CustomLog
@@ -114,16 +113,19 @@ public class ToolManager implements Controllable<ToolManager> {
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
 		// Before checking for existing tools, the workpane needs to be determined
+		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
-		Workpane pane = view == null ? null : view.getWorkpane();
+		if( pane == null && view != null ) pane = request.getView().getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
+		request.setPane( pane );
 
+		ProgramTool tool = null;
 		try {
 			// Check for a singleton lock before looking for a tool instance
 			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
 
-			ProgramTool tool = findToolInPane( pane, toolClass );
+			tool = findToolInPane( pane, toolClass );
 
 			// If the instance mode is SINGLETON, check for an existing tool in the workpane
 			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
@@ -140,26 +142,26 @@ public class ToolManager implements Controllable<ToolManager> {
 				return null;
 			}
 
-			// Now that we have a tool...open dependent assets and associated tools
-			if( !openDependencies( request, tool ) ) return null;
-
-			// Determine the placement
-			// A null value allows the tool to determine its own placement
-			Workpane.Placement placement = toolClassMetadata.get( tool.getClass() ).getPlacement();
+			// Determine the placement - a null value allows the tool to determine its own placement
+			Workpane.Placement placementOverride = toolClassMetadata.get( tool.getClass() ).getPlacement();
 
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
 			final WorkpaneView finalView = view;
 			scheduleWaitForReady( request, finalTool );
-			Fx.run( () -> finalPane.openTool( finalTool, finalView, placement, request.isSetActive() ) );
-			Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+			Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
-			return tool;
+			// Now that we have a tool...open dependent assets and associated tools
+			if( !openDependencies( request, tool ) ) return null;
+
+			// FIXME Do we need to wait for the FX thread to complete???
+			//Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		} catch( InterruptedException ignore ) {
-			return null;
 		} finally {
 			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}
+
+		return tool;
 	}
 
 	/**
@@ -192,22 +194,29 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
-		// NOTE There is no realistic way of opening the dependencies on the same thread
-		try {
-			for( Future<ProgramTool> future : program.getAssetManager().openAssets( tool.getAssetDependencies(), true, false ) ) {
+	boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+		AssetManager assetManager = getProgram().getAssetManager();
+		Collection<URI> assetDependencies = tool.getAssetDependencies();
+
+		Collection<Future<ProgramTool>> futures = assetDependencies.stream().map( uri -> assetManager.openAsset( uri, request.getPane(), true, false ) ).toList();
+
+		for( Future<ProgramTool> future : futures ) {
+			try {
 				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+			} catch( InterruptedException ignore ) {
+			} catch( ExecutionException | TimeoutException exception ) {
+				log.atWarn().withCause( exception ).log( "Error opening tool dependencies: %s", tool );
+				return false;
 			}
-			return true;
-		} catch( InterruptedException ignored ) {
-		} catch( ExecutionException | TimeoutException exception ) {
-			log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", request.getToolClass().getName() );
 		}
-		return false;
+
+		return true;
 	}
 
 	/**
-	 * Called from the {@link UiRegenerator} to restore a tool.
+	 * Called from the {@link UiReader} to restore a tool.
+	 * <p>
+	 * NOTE: This method does not request the asset to be loaded.
 	 *
 	 * @param request The open asset request for restoring the tool
 	 * @return The restored tool
@@ -355,20 +364,22 @@ public class ToolManager implements Controllable<ToolManager> {
 		// that is then run on the FX platform thread and the result obtained on
 		// the calling thread.
 		String taskName = Rb.text( RbKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
-		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
-			// Create the new tool instance
-			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
-			ProgramTool tool = constructor.newInstance( product, asset );
+		Task<ProgramTool> createToolTask = Task.of(
+			taskName, () -> {
+				// Create the new tool instance
+				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
+				ProgramTool tool = constructor.newInstance( product, asset );
 
-			// Set the id before using settings
-			tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
-			tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
-			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
-			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
-			addToolListenerForSettings( tool );
-			log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
-			return tool;
-		} );
+				// Set the id before using settings
+				tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
+				tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
+				tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
+				if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
+				addToolListenerForSettings( tool );
+				log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
+				return tool;
+			}
+		);
 
 		if( Platform.isFxApplicationThread() ) {
 			createToolTask.run();
@@ -381,10 +392,10 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
-		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() ) );
-		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
-		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
-		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
+		tool.addEventHandler( ToolEvent.ADDED, e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_VIEW_ID, e.getTool().getToolView().getUid() ) );
+		tool.addEventHandler( ToolEvent.REORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ORDER, e.getTool().getOrder() ) );
+		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ACTIVE, true ) );
+		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( Tool.ACTIVE, null ) );
 		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete() );
 	}
 

@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.ProgramMode;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.ThreadUtil;
@@ -41,7 +40,7 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		}
 
 		// Remove the existing program data folder
-		String suffix = "-" + ProgramMode.TEST;
+		String suffix = "-" + XenonMode.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 

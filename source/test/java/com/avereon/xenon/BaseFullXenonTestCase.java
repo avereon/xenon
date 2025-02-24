@@ -66,7 +66,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		// This is fixed in TestFX 4.0.17+
 
 		Xenon xenon = setProgram( new Xenon() );
-		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
+		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameters() ) );
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
 		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
 

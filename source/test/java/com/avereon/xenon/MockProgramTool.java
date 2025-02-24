@@ -1,20 +1,21 @@
-package com.avereon.xenon.workpane;
+package com.avereon.xenon;
 
 import com.avereon.xenon.asset.Asset;
-import javafx.geometry.Insets;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
+import com.avereon.xenon.workpane.Workpane;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MockTool extends Tool {
+@Getter
+@Setter
+public class MockProgramTool extends ProgramTool {
 
 	static final String ALLOCATE = "allocate";
 
@@ -38,31 +39,16 @@ public class MockTool extends Tool {
 
 	private Workpane workpane;
 
-	@Getter
-	@Setter
 	private String uid;
 
 	private boolean canFindSelfFromWorkpane;
 
 	private boolean canFindWorkpaneFromSelf;
 
-	public MockTool( Asset asset ) {
-		super( asset );
-		setTitle( "MockTool-" + counter.getAndIncrement() );
-		setBackground( new Background( new BackgroundFill( new Color( 0, 0.5, 1, 0.25 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
-		setPlacement( super.getPlacement() );
-	}
+	private Set<URI> assetDependencies = new CopyOnWriteArraySet<>();
 
-	void setWorkpane( Workpane workpane ) {
-		this.workpane = workpane;
-	}
-
-	public boolean canFindSelfFromWorkpane() {
-		return canFindSelfFromWorkpane;
-	}
-
-	public boolean canFindWorkpaneFromSelf() {
-		return canFindWorkpaneFromSelf;
+	public MockProgramTool( XenonProgramProduct product, Asset asset ) {
+		super( product, asset );
 	}
 
 	@Override
@@ -100,10 +86,6 @@ public class MockTool extends Tool {
 	@Override
 	public Workpane.Placement getPlacement() {
 		return placement;
-	}
-
-	void setPlacement( Workpane.Placement placement ) {
-		this.placement = placement;
 	}
 
 	@Override

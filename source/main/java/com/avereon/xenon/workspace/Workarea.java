@@ -26,6 +26,8 @@ public class Workarea extends Workpane implements WritableIdentity {
 
 	private final StringProperty name;
 
+	private final IntegerProperty order;
+
 	private final ObjectProperty<Paint> paint;
 
 	private final ObjectProperty<Color> color;
@@ -37,14 +39,18 @@ public class Workarea extends Workpane implements WritableIdentity {
 	public Workarea() {
 		LinearGradient gradient = new LinearGradient( 0, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop( 0, Color.BLUEVIOLET ), new Stop( 1, Color.TRANSPARENT ) );
 
-		paint = new SimpleObjectProperty<>( this, "paint", gradient );
-		color = new SimpleObjectProperty<>( this, "color", Color.valueOf( "#206080" ) );
 		icon = new SimpleStringProperty( this, "icon" );
 		name = new SimpleStringProperty( this, "name" );
+		order = new SimpleIntegerProperty( this, "order" );
+		paint = new SimpleObjectProperty<>( this, "paint", gradient );
+		color = new SimpleObjectProperty<>( this, "color", Color.valueOf( "#206080" ) );
 		active = new SimpleBooleanProperty( this, "active" );
 		workspace = new SimpleObjectProperty<>( this, "workspace" );
 
 		setEdgeSize( UiFactory.PAD );
+
+		visibleProperty().bind( activeProperty() );
+
 		addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
 		addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
 		addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
@@ -75,6 +81,18 @@ public class Workarea extends Workpane implements WritableIdentity {
 
 	public final void setName( String name ) {
 		this.name.set( name );
+	}
+
+	public final IntegerProperty orderProperty() {
+		return order;
+	}
+
+	public final int getOrder() {
+		return order.get();
+	}
+
+	public final void setOrder( int order ) {
+		this.order.set( order );
 	}
 
 	public final ObjectProperty<Paint> paintProperty() {
@@ -111,7 +129,6 @@ public class Workarea extends Workpane implements WritableIdentity {
 
 	public final void setActive( boolean active ) {
 		this.active.set( active );
-		setVisible( active );
 	}
 
 	public final ObjectProperty<Workspace> workspaceProperty() {
@@ -146,15 +163,15 @@ public class Workarea extends Workpane implements WritableIdentity {
 		return getAssets().stream().filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
-//	@Override
-//	public String getUid() {
-//		return super.getUid();
-//	}
-//
-//	@Override
-//	public void setUid( String id ) {
-//		super.setUid( id );
-//	}
+	//	@Override
+	//	public String getUid() {
+	//		return super.getUid();
+	//	}
+	//
+	//	@Override
+	//	public void setUid( String id ) {
+	//		super.setUid( id );
+	//	}
 
 	@Override
 	public String toString() {

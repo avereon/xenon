@@ -208,7 +208,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public boolean hasTool( Class<? extends Tool> type ) {
-		return getTools( type ).size() > 0;
+		return !getTools( type ).isEmpty();
 	}
 
 	public double getEdgeSize() {
@@ -560,8 +560,10 @@ public class Workpane extends Control implements WritableIdentity {
 			// Change the active view
 			WorkpaneView view = tool == null ? null : tool.getToolView();
 			if( view != null && getViews().contains( view ) ) {
-				view.setActiveTool( tool );
-				if( activateViewAlso && view != getActiveView() ) doSetActiveView( view, false );
+				if( activateViewAlso ) {
+					view.setActiveTool( tool );
+					if( view != getActiveView() ) doSetActiveView( view, false );
+				}
 			}
 
 			// Change the active tool
@@ -650,41 +652,22 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public WorkpaneEdge getWallEdge( char direction ) {
-		switch( direction ) {
-			case 't','T': {
-				return topWall;
-			}
-			case 'b','B': {
-				return bottomWall;
-			}
-			case 'l','L': {
-				return leftWall;
-			}
-			case 'r','R': {
-				return rightWall;
-			}
-		}
-
-		return null;
+		return switch( direction ) {
+			case 't', 'T' -> topWall;
+			case 'b', 'B' -> bottomWall;
+			case 'l', 'L' -> leftWall;
+			case 'r', 'R' -> rightWall;
+			default -> null;
+		};
 	}
 
 	public WorkpaneEdge getWallEdge( Side direction ) {
-		switch( direction ) {
-			case TOP: {
-				return topWall;
-			}
-			case BOTTOM: {
-				return bottomWall;
-			}
-			case LEFT: {
-				return leftWall;
-			}
-			case RIGHT: {
-				return rightWall;
-			}
-		}
-
-		return null;
+		return switch( direction ) {
+			case TOP -> topWall;
+			case BOTTOM -> bottomWall;
+			case LEFT -> leftWall;
+			case RIGHT -> rightWall;
+		};
 	}
 
 	Side getWallEdgeSide( WorkpaneEdge edge ) {
@@ -1018,7 +1001,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target == getDefaultView() ) return false;
 
 			// If auto, check the tool counts
-			if( auto && target.getTools().size() > 0 ) return false;
+			if( auto && !target.getTools().isEmpty() ) return false;
 
 			// Check targets for common back edge
 			if( commonBackEdge == null ) commonBackEdge = target.getEdge( direction );
@@ -1042,9 +1025,9 @@ public class Workpane extends Control implements WritableIdentity {
 			if( canPullMerge( target, direction.direction, auto ) ) return direction.direction;
 		}
 
-		int weight = directions.get( 0 ).getWeight();
+		int weight = directions.getFirst().getWeight();
 
-		return weight == 0 ? null : directions.get( 0 ).getDirection();
+		return weight == 0 ? null : directions.getFirst().getDirection();
 	}
 
 	public Tool addTool( Tool tool ) {
@@ -1162,7 +1145,7 @@ public class Workpane extends Control implements WritableIdentity {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			if( autoMerge ) pullMerge( view );
+			if( autoMerge && !view.isDefault() ) pullMerge( view );
 		} finally {
 			finishOperation( true );
 		}
@@ -1426,7 +1409,7 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta > 0 ) {
 			if( !blockingEdge.isWall() ) {
 				double result = moveHorizontal( blockingEdge, offset - delta );
@@ -1508,7 +1491,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneView getClosest( Set<WorkpaneView> views, WorkpaneView target, Orientation orientation ) {
 		WorkpaneView result = null;
-		double distance = Double.MAX_VALUE;
+		double distance;
 		double resultDistance = Double.MAX_VALUE;
 		double targetCenter = target.getCenter( orientation );
 
@@ -1530,7 +1513,7 @@ public class Workpane extends Control implements WritableIdentity {
 		edge.getViews( getOppositeSide( direction ) ).remove( target );
 
 		// If there are no more associated views, remove the edge.
-		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getOppositeSide( direction ) ).size() == 0 ) removeEdge( edge );
+		if( !edge.isWall() && edge.getViews( direction ).isEmpty() && edge.getViews( getOppositeSide( direction ) ).isEmpty() ) removeEdge( edge );
 	}
 
 	private WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
@@ -1577,7 +1560,7 @@ public class Workpane extends Control implements WritableIdentity {
 	/**
 	 * Split the workpane using the space to the north for a new tool view along the entire edge of the workpane.
 	 *
-	 * @param percent
+	 * @param percent 
 	 * @return
 	 */
 	private WorkpaneView splitNorth( double percent ) {

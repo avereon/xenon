@@ -29,7 +29,7 @@ public class Asset extends Node {
 
 	public static final String SETTINGS_TYPE_KEY = "asset-type-key";
 
-	public static final String MEDIA_TYPE_KEY = "asset.media.type";
+	public static final String MEDIA_TYPE_KEY = "asset-media-type";
 
 	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 

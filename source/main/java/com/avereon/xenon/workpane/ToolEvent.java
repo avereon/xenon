@@ -29,7 +29,7 @@ public class ToolEvent extends WorkpaneEvent {
 
 	public static final EventType<ToolEvent> DEACTIVATED = new EventType<>( TOOL, "DEACTIVATED" );
 
-	public static final EventType<ToolEvent> ORDERED = new EventType<>( TOOL, "ORDERED" );
+	public static final EventType<ToolEvent> REORDERED = new EventType<>( TOOL, "ORDERED" );
 
 	public static final EventType<ToolEvent> CLOSING = new EventType<>( TOOL, "CLOSING" );
 

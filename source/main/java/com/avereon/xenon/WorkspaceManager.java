@@ -130,6 +130,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	@Deprecated
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program, id );
+		// FIXME A new workspace should not have any settings to update from
+		// But that is where a lot of the settings listeners are added
+		// ...and this is used from the deprecated UiRegenerator anyway, so it may be going away
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
 
@@ -193,6 +196,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			.collect( Collectors.toSet() );
 	}
 
+	/**
+	 * Get the modified assets in the workspace.
+	 *
+	 * @param workspace This workspace to check
+	 * @return The modified assets in the workspace
+	 */
 	public Set<Asset> getModifiedAssets( Workspace workspace ) {
 		return workspace.getWorkareas().stream().flatMap( a -> a.getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}

@@ -1,14 +1,11 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
-import com.avereon.product.ProgramMode;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.Xenon;
+import com.avereon.xenon.*;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.ui.util.MenuBarFactory;
@@ -21,9 +18,10 @@ import com.avereon.zarra.javafx.Fx;
 import com.avereon.zarra.javafx.FxUtil;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -75,7 +73,13 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public static final String MAXIMIZE = "maximize";
 
+	public static final String MINIMIZE = "minimize";
+
 	public static final String NOTICE = "notice";
+
+	public static final String ORDER = "order";
+
+	public static final String ACTIVE = "active";
 
 	/**
 	 * Should the program menu be shown as a compact menu in the toolbar.
@@ -132,6 +136,7 @@ public class Workspace extends Stage implements WritableIdentity {
 	@Getter
 	private final StatusBar statusBar;
 
+	@Getter
 	private final WorkspaceBackground background;
 
 	private final Pane workpaneContainer;
@@ -154,13 +159,21 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private final SimpleObjectProperty<Workarea> activeWorkareaProperty;
 
+	private final SimpleIntegerProperty orderProperty;
+
 	private MemoryMonitor memoryMonitor;
 
 	private TaskMonitor taskMonitor;
 
 	private FpsMonitor fpsMonitor;
 
+	/**
+	 * Create a new workspace.
+	 *
+	 * @param program the program
+	 */
 	public Workspace( final Xenon program ) {
+		// Please create all workspaces from the UiWorkspaceFactory
 		this( program, null );
 	}
 
@@ -168,12 +181,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		super( TRANSPARENT_WINDOW_SUPPORTED ? StageStyle.TRANSPARENT : StageStyle.UNDECORATED );
 		if( !TRANSPARENT_WINDOW_SUPPORTED ) log.atWarn().log( "Transparent windows not supported" );
 
-		setUid( id );
-		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-
 		this.program = program;
 		this.eventBus = new FxEventHub();
 		this.eventBus.parent( program.getFxEventHub() );
+
+		setUid( id );
+		getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 
 		// Stage listeners
 		setOnCloseRequest( event -> {
@@ -185,6 +198,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 
 		activeWorkareaProperty = new SimpleObjectProperty<>();
+		orderProperty = new SimpleIntegerProperty();
 		workareas = FXCollections.observableArrayList();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
@@ -201,7 +215,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		String defaultDescriptor = program.getSettings().get( "workspace-menu" );
 		String menuDescriptor = program.getSettings().get( "menubar", defaultDescriptor );
 		programMenuBar = MenuBarFactory.createMenuBar( program, menuDescriptor, false );
-		if( ProgramMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, programMenuBar.getMenus() );
+		if( XenonMode.DEV.equals( program.getMode() ) ) insertDevMenu( program, programMenuBar.getMenus() );
 		programMenuToolStart = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + EDIT_ACTION );
 		programMenuToolEnd = FxUtil.findMenuItemById( programMenuBar.getMenus(), MenuBarFactory.MENU_ID_PREFIX + VIEW_ACTION );
 
@@ -247,7 +261,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		rails = new HashSet<>();
 		railPane = buildRailPane( workspaceLayout );
 
-		//visibleProperty().
+		orderProperty().addListener( ( p, o, n ) -> {
+			getSettings().set( "order", n );
+		} );
+
 		showingProperty().addListener( ( p, o, n ) -> {
 			if( n ) hideProgramMenuBar();
 		} );
@@ -347,6 +364,14 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private static Pane createStatusPane( StatusBar statusBar ) {
 		return new BorderPane( statusBar );
+	}
+
+	public void initializeScene( double width, double height ) {
+		if( scene != null ) return;
+		scene = new Scene( railPane, width, height, Color.TRANSPARENT );
+		getProgram().getActionLibrary().registerScene( scene );
+		setScene( scene );
+		sizeToScene();
 	}
 
 	public void setTheme( String url ) {
@@ -530,18 +555,29 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	public void setActive( boolean active ) {
 		if( !active ) {
-			getProgram().getActionLibrary().getAction( "minimize" ).pullAction( toggleMinimizeAction );
+			getProgram().getActionLibrary().getAction( MINIMIZE ).pullAction( toggleMinimizeAction );
 			getProgram().getActionLibrary().getAction( MAXIMIZE ).pullAction( toggleMaximizeAction );
 		}
 
 		this.active = active;
+		getSettings().set( ACTIVE, active );
 
 		if( active ) {
 			getProgram().getActionLibrary().getAction( MAXIMIZE ).pushAction( toggleMaximizeAction );
-			getProgram().getActionLibrary().getAction( "minimize" ).pushAction( toggleMinimizeAction );
+			getProgram().getActionLibrary().getAction( MINIMIZE ).pushAction( toggleMinimizeAction );
 		}
+	}
 
-		getSettings().set( "active", active );
+	public IntegerProperty orderProperty() {
+		return orderProperty;
+	}
+
+	public void setOrder( int order ) {
+		orderProperty.set( order );
+	}
+
+	public int getOrder() {
+		return orderProperty.get();
 	}
 
 	public ObservableList<Workarea> workareasProperty() {
@@ -598,7 +634,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( false );
 			workpaneContainer.getChildren().remove( activeWorkarea );
-			activeWorkarea.setVisible( false );
 		}
 
 		// If the workarea is not already added, add it
@@ -612,7 +647,6 @@ public class Workspace extends Stage implements WritableIdentity {
 		activeWorkarea = getActiveWorkarea();
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea );
-			activeWorkarea.setVisible( true );
 			activeWorkarea.setActive( true );
 			Tool activeTool = activeWorkarea.getActiveTool();
 			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
@@ -688,24 +722,32 @@ public class Workspace extends Stage implements WritableIdentity {
 		getProperties().put( Identity.KEY, id );
 	}
 
-	Settings getSettings() {
+	/**
+	 * Convenience method to get the workspace settings.
+	 *
+	 * @return The workspace settings
+	 */
+	private Settings getSettings() {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
-	@SuppressWarnings( "CommentedOutCode" )
+	public void applySettings() {
+		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+	}
+
+	// TODO Remove in 1.8
+	@Deprecated
 	public void updateFromSettings( Settings settings ) {
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
-		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-		scene = new Scene( railPane, w, h, Color.TRANSPARENT );
-		getProgram().getActionLibrary().registerScene( scene );
-
-		// Set up the stage
-		setScene( scene );
-		sizeToScene();
+		Double w = settings.get( "w", Double.class, UiWorkspaceFactory.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiWorkspaceFactory.DEFAULT_HEIGHT );
+		initializeScene( w, h );
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
@@ -714,15 +756,8 @@ public class Workspace extends Stage implements WritableIdentity {
 		if( x != null ) setX( x );
 		if( y != null ) setY( y );
 
-		// On Linux, setWidth() and setHeight() do not take the stage window
-		// decorations into account. The way to deal with this is to watch
-		// the scene size and set the scene size on creation.
-		// Do not use the following:
-		// if( w != null ) stage.setWidth( w );
-		// if( h != null ) stage.setHeight( h );
-
-		setMaximized( settings.get( "maximized", Boolean.class, false ) );
 		setActive( settings.get( "active", Boolean.class, false ) );
+		setMaximized( settings.get( "maximized", Boolean.class, false ) );
 
 		// Add the property listeners
 		maximizedProperty().addListener( ( v, o, n ) -> {
@@ -745,6 +780,7 @@ public class Workspace extends Stage implements WritableIdentity {
 		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateThemeFromSettings( settings );
 	}
 
 	public void screenshot( Path file ) {
@@ -787,7 +823,16 @@ public class Workspace extends Stage implements WritableIdentity {
 		return workareas.get( index == 0 ? 1 : index - 1 );
 	}
 
+	// TODO Remove in 1.8
+	@Deprecated
+	private void updateThemeFromSettings( Settings settings ) {
+		String themeId = settings.get( "theme", getProgram().getWorkspaceManager().getThemeId() );
+		setTheme( getProgram().getThemeManager().getMetadata( themeId ).getUrl() );
+	}
+
+	@Deprecated
 	private void updateBackgroundFromSettings( Settings settings ) {
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
 			background.updateFromSettings( settings );
@@ -795,11 +840,13 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 	}
 
+	@Deprecated
 	private void updateMemoryMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-memory-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 			updateContainer( memoryMonitor, enabled );
@@ -809,10 +856,12 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 	}
 
+	@Deprecated
 	private void updateTaskMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 			updateContainer( taskMonitor, enabled );
@@ -822,8 +871,10 @@ public class Workspace extends Stage implements WritableIdentity {
 		} );
 	}
 
+	@Deprecated
 	private void updateFpsMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-fps-monitor-enabled", Boolean.class, Boolean.TRUE );
+		// FIXME Arguably we should not need to unregister and re-register the settings listener
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
 			updateContainer( fpsMonitor, enabled );
@@ -843,50 +894,6 @@ public class Workspace extends Stage implements WritableIdentity {
 
 	private static boolean isAnyMenuShowing( MenuBar menuBar ) {
 		return menuBar.getMenus().stream().anyMatch( Menu::isShowing );
-	}
-
-	private static class ProgramMenuWatcher {
-
-		private TimerTask task;
-
-		private ProgramMenuWatcher() {}
-
-		public static void attach( Workspace workspace, MenuBar bar ) {
-			ProgramMenuWatcher watcher = new ProgramMenuWatcher();
-
-			for( Menu menu : bar.getMenus() ) {
-				ChangeListener<Boolean> menuWatcher = ( p, o, n ) -> {
-					if( Boolean.FALSE.equals( n ) ) {
-						watcher.task = new TimerTask() {
-
-							@Override
-							public void run() {
-								Fx.run( workspace::toggleProgramWorkspaceActions );
-							}
-
-						};
-						int delay = ProgramMode.TEST.equals( workspace.getProgram().getProfile() ) ? 100 : 20;
-						timer.schedule( watcher.task, delay );
-					} else {
-						if( watcher.task != null ) watcher.task.cancel();
-					}
-				};
-
-				if( !menu.getProperties().containsKey( "workspaceMenuWatcher" ) ) {
-					menu.getProperties().put( "workspaceMenuWatcher", menuWatcher );
-					menu.showingProperty().addListener( menuWatcher );
-				}
-			}
-		}
-
-		@SuppressWarnings( "unchecked" )
-		public static void detach( MenuBar bar ) {
-			for( Menu menu : bar.getMenus() ) {
-				ChangeListener<Boolean> menuWatcher = (ChangeListener<Boolean>)menu.getProperties().get( "workspaceMenuWatcher" );
-				menu.showingProperty().removeListener( menuWatcher );
-			}
-		}
-
 	}
 
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
