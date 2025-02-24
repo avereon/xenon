@@ -120,11 +120,12 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 		request.setPane( pane );
 
+		ProgramTool tool = null;
 		try {
 			// Check for a singleton lock before looking for a tool instance
 			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
 
-			ProgramTool tool = findToolInPane( pane, toolClass );
+			tool = findToolInPane( pane, toolClass );
 
 			// If the instance mode is SINGLETON, check for an existing tool in the workpane
 			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
@@ -154,14 +155,13 @@ public class ToolManager implements Controllable<ToolManager> {
 			if( !openDependencies( request, tool ) ) return null;
 
 			// FIXME Do we need to wait for the FX thread to complete???
-			//Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
-
-			return tool;
+			//Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		} catch( InterruptedException ignore ) {
-			return null;
 		} finally {
 			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}
+
+		return tool;
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+	boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
 		AssetManager assetManager = getProgram().getAssetManager();
 		Collection<URI> assetDependencies = tool.getAssetDependencies();
 
@@ -205,11 +205,12 @@ public class ToolManager implements Controllable<ToolManager> {
 				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 			} catch( InterruptedException ignore ) {
 			} catch( ExecutionException | TimeoutException exception ) {
-				log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", tool );
+				log.atWarn().withCause( exception ).log( "Error opening tool dependencies: %s", tool );
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	/**

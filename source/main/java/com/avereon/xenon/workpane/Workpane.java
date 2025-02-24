@@ -2,7 +2,6 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.tool.guide.GuideTool;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
@@ -1094,9 +1093,6 @@ public class Workpane extends Control implements WritableIdentity {
 	public Tool openTool( Tool tool, WorkpaneView view, Placement placement, boolean activate ) {
 		if( placement == null ) placement = tool.getPlacement();
 		if( view == null ) view = determineViewFromPlacement( placement );
-		if( tool instanceof GuideTool ) {
-			log.atWarn().log("GuideTool view=%s", view );
-		}
 		return openTool( tool, view, activate );
 	}
 

@@ -32,6 +32,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -1473,6 +1474,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		public ProgramTool call() throws AssetException, ExecutionException, TimeoutException, InterruptedException {
 			// Create and configure the asset
 			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
+
 			Asset asset = request.getAsset();
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
@@ -1484,7 +1486,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
-			ProgramTool tool;
+			ProgramTool tool = null;
 			try {
 				// If the asset is new get user input from the asset type
 				if( asset.isNew() ) {
@@ -1495,7 +1497,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					resolveScheme( asset );
 				}
 
-				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
+				if( request.isOpenTool() ) tool = program.getToolManager().openTool( request );
 			} catch( NoToolRegisteredException exception ) {
 				log.atConfig().log( "No tool registered for: %s", asset );
 				String title = Rb.text( "program", "no-tool-for-asset-title" );
