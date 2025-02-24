@@ -18,6 +18,8 @@ import javafx.scene.paint.Stop;
 import lombok.CustomLog;
 import lombok.Getter;
 
+import static com.avereon.xenon.UiWorkareaFactory.*;
+
 @Getter
 @CustomLog
 public final class UiFactory {
@@ -142,9 +144,9 @@ public final class UiFactory {
 
 		if( !restore ) {
 			// Save new state to settings
-			settings.set( "view-active", workarea.getActiveView() == null ? null : workarea.getActiveView().getUid() );
-			settings.set( "view-default", workarea.getDefaultView() == null ? null : workarea.getDefaultView().getUid() );
-			settings.set( "view-maximized", workarea.getMaximizedView() == null ? null : workarea.getMaximizedView().getUid() );
+			settings.set( VIEW_ACTIVE, workarea.getActiveView() == null ? null : workarea.getActiveView().getUid() );
+			settings.set( VIEW_DEFAULT, workarea.getDefaultView() == null ? null : workarea.getDefaultView().getUid() );
+			settings.set( VIEW_MAXIMIZED, workarea.getMaximizedView() == null ? null : workarea.getMaximizedView().getUid() );
 
 			// Setup existing views and edges
 			workarea.getEdges().forEach( e -> setupWorkpaneEdgeSettings( workarea, e ) );
@@ -156,9 +158,9 @@ public final class UiFactory {
 		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_LEFT_SIZE, newValue ) );
 		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_RIGHT_SIZE, newValue ) );
 		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_BOTTOM_SIZE, newValue ) );
-		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
-		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
-		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
+		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_ACTIVE, n == null ? null : n.getUid() ) );
+		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_DEFAULT, n == null ? null : n.getUid() ) );
+		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_MAXIMIZED, n == null ? null : n.getUid() ) );
 		workarea.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkareaChildrenChanges( workarea, c ) );
 	}
 
@@ -170,9 +172,9 @@ public final class UiFactory {
 
 		if( !restore ) {
 			// Save new state to settings
-			settings.set( "view-active", workpane.getActiveView() == null ? null : workpane.getActiveView().getUid() );
-			settings.set( "view-default", workpane.getDefaultView() == null ? null : workpane.getDefaultView().getUid() );
-			settings.set( "view-maximized", workpane.getMaximizedView() == null ? null : workpane.getMaximizedView().getUid() );
+			settings.set( VIEW_ACTIVE, workpane.getActiveView() == null ? null : workpane.getActiveView().getUid() );
+			settings.set( VIEW_DEFAULT, workpane.getDefaultView() == null ? null : workpane.getDefaultView().getUid() );
+			settings.set( VIEW_MAXIMIZED, workpane.getMaximizedView() == null ? null : workpane.getMaximizedView().getUid() );
 
 			// Setup existing views and edges
 			workpane.getEdges().forEach( e -> setupWorkpaneEdgeSettings( workpane, e ) );
@@ -184,9 +186,9 @@ public final class UiFactory {
 		workpane.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_LEFT_SIZE, newValue ) );
 		workpane.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_RIGHT_SIZE, newValue ) );
 		workpane.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( UiWorkareaFactory.DOCK_BOTTOM_SIZE, newValue ) );
-		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
-		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
-		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
+		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_ACTIVE, n == null ? null : n.getUid() ) );
+		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_DEFAULT, n == null ? null : n.getUid() ) );
+		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_MAXIMIZED, n == null ? null : n.getUid() ) );
 		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processWorkareaChildrenChanges( workpane, c ) );
 	}
 

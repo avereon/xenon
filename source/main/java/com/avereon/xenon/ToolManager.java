@@ -6,6 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
@@ -21,10 +22,8 @@ import lombok.CustomLog;
 import lombok.Getter;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.*;
 
 @CustomLog
@@ -117,9 +116,9 @@ public class ToolManager implements Controllable<ToolManager> {
 		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
 		if( pane == null && view != null ) pane = request.getView().getWorkpane();
-		if( pane == null ) log.atWarning().log( "Workpane not specified for tool: %s", toolClass.getName() );
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
+		request.setPane( pane );
 
 		try {
 			// Check for a singleton lock before looking for a tool instance
@@ -142,20 +141,20 @@ public class ToolManager implements Controllable<ToolManager> {
 				return null;
 			}
 
-			// Now that we have a tool...open dependent assets and associated tools
-			request.setPane( pane );
-			if( !openDependencies( request, tool ) ) return null;
-
-			// Determine the placement
-			// A null value allows the tool to determine its own placement
-			Workpane.Placement placement = toolClassMetadata.get( tool.getClass() ).getPlacement();
+			// Determine the placement - a null value allows the tool to determine its own placement
+			Workpane.Placement placementOverride = toolClassMetadata.get( tool.getClass() ).getPlacement();
 
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
 			final WorkpaneView finalView = view;
 			scheduleWaitForReady( request, finalTool );
-			Fx.run( () -> finalPane.openTool( finalTool, finalView, placement, request.isSetActive() ) );
-			Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+			Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
+
+			// Now that we have a tool...open dependent assets and associated tools
+			if( !openDependencies( request, tool ) ) return null;
+
+			// FIXME Do we need to wait for the FX thread to complete???
+			//Fx.waitFor( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 
 			return tool;
 		} catch( InterruptedException ignore ) {
@@ -196,16 +195,20 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
-		// NOTE There is no realistic way of opening the dependencies on the same thread
-		try {
-			for( Future<ProgramTool> future : program.getAssetManager().openDependencyAssets( tool.getAssetDependencies(), request.getPane() ) ) {
+		AssetManager assetManager = getProgram().getAssetManager();
+		Collection<URI> assetDependencies = tool.getAssetDependencies();
+
+		Collection<Future<ProgramTool>> futures = assetDependencies.stream().map( uri -> assetManager.openAsset( uri, request.getPane(), true, false ) ).toList();
+
+		for( Future<ProgramTool> future : futures ) {
+			try {
 				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+			} catch( InterruptedException ignore ) {
+			} catch( ExecutionException | TimeoutException exception ) {
+				log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", tool );
 			}
-			return true;
-		} catch( InterruptedException ignored ) {
-		} catch( ExecutionException | TimeoutException exception ) {
-			log.atSevere().withCause( exception ).log( "Error opening tool dependencies: %s", request.getToolClass().getName() );
 		}
+
 		return false;
 	}
 

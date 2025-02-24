@@ -539,11 +539,11 @@ public class Xenon extends Application implements XenonProgram {
 			uiReader.loadWorkspaces();
 			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} else {
-			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			if( workspaceManager.getActiveWorkpane() == null ) {
-				log.atWarning().log( "Failed to restore active workarea" );
-			}
+//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
+//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+//			if( workspaceManager.getActiveWorkpane() == null ) {
+//				log.atWarning().log( "Failed to restore active workarea" );
+//			}
 		}
 
 		log.atFine().log( "User interface restored." );
@@ -586,7 +586,7 @@ public class Xenon extends Application implements XenonProgram {
 		if( useUiReader ) {
 			uiReader.loadAssets();
 		} else {
-			uiRegenerator.startAssetLoading();
+//			uiRegenerator.startAssetLoading();
 		}
 
 		// Open assets specified on the command line

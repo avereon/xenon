@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO Remove in 1.8
 @ExtendWith( MockitoExtension.class )
 class UiRegeneratorUIT extends BaseFullXenonTestCase {
 

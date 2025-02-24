@@ -70,9 +70,9 @@ public class UiWorkareaFactory {
 		workarea.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_LEFT_SIZE, newValue ) );
 		workarea.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_RIGHT_SIZE, newValue ) );
 		workarea.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_BOTTOM_SIZE, newValue ) );
-		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getUid() ) );
-		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getUid() ) );
-		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getUid() ) );
+		workarea.activeViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_ACTIVE, n == null ? null : n.getUid() ) );
+		workarea.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_DEFAULT, n == null ? null : n.getUid() ) );
+		workarea.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( VIEW_MAXIMIZED, n == null ? null : n.getUid() ) );
 		workarea.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)c -> processAreaChildChanges( workarea, c ) );
 
 		return workarea;
