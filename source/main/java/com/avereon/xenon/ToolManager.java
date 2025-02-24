@@ -154,9 +154,11 @@ public class ToolManager implements Controllable<ToolManager> {
 			// Now that we have a tool...open dependent assets and associated tools
 			if( !openDependencies( request, tool ) ) return null;
 
-			// FIXME Do we need to wait for the FX thread to complete???
-			//Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
+			// Wait for FX to finish creating things to avoid race conditions checking for tools
+			Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		} catch( InterruptedException ignore ) {
+		} catch( TimeoutException exception ) {
+			log.atWarn(exception).log( "Timeout opening tool: %s", toolClass );
 		} finally {
 			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}
