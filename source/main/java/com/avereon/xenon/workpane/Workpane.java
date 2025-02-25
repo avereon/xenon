@@ -1223,7 +1223,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @param side The side the target view was split from
 	 * @param index The tab index in the target view
 	 */
-	public static void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
+	public void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
 		Workpane sourcePane = sourceTool.getWorkpane();
 		WorkpaneView sourceView = sourceTool.getToolView();
 		Workpane targetPane = targetView.getWorkpane();
@@ -1238,6 +1238,9 @@ public class Workpane extends Control implements WritableIdentity {
 
 		// Dropped on the side of a view...split it
 		if( side != null ) targetView = targetPane.split( targetView, side );
+
+		// NEXT When dropping on tab 0 the move works, it just doesn't show to the user
+		// Maybe because there is a listener on the tab list that doesn't fire correctly
 
 		sourcePane.removeTool( sourceTool, automerge );
 
@@ -1560,7 +1563,7 @@ public class Workpane extends Control implements WritableIdentity {
 	/**
 	 * Split the workpane using the space to the north for a new tool view along the entire edge of the workpane.
 	 *
-	 * @param percent 
+	 * @param percent
 	 * @return
 	 */
 	private WorkpaneView splitNorth( double percent ) {
@@ -2190,13 +2193,14 @@ public class Workpane extends Control implements WritableIdentity {
 
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
+			Workpane pane = event.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
 			// Check if being dropped on self
 			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-			moveTool( sourceTool, targetView, side, index );
+			pane.moveTool( sourceTool, targetView, side, index );
 		}
 
 	}
