@@ -73,7 +73,7 @@ public class ToolBarFactory extends NavFactory {
 		popup.setAutoFix( true );
 		popup.setAutoHide( true );
 		popup.setHideOnEscape( true );
-		popup.setConsumeAutoHidingEvents(false);
+		popup.setConsumeAutoHidingEvents( false );
 
 		ToolBar tray = new ToolBar();
 		tray.setId( TRAY_PREFIX + item.getId() );
@@ -86,7 +86,7 @@ public class ToolBarFactory extends NavFactory {
 
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
-		button.setOnAction( ( e ) -> doToggleTrayDialog( button, popup ) );
+		button.setOnMousePressed( ( e ) -> doToggleTrayDialog( button, popup ) );
 		button.setDisable( false );
 
 		return button;
@@ -98,7 +98,7 @@ public class ToolBarFactory extends NavFactory {
 
 		Button button = createToolBarButton( program, item, null );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
-		button.setOnAction( ( e ) -> doToggleTrayDialog( button, menu ) );
+		button.setOnMousePressed( ( e ) -> doToggleTrayDialog( button, menu ) );
 		button.setDisable( false );
 
 		return button;
@@ -147,6 +147,7 @@ public class ToolBarFactory extends NavFactory {
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
+		// FIXME The action still fires when there is a popup
 		button.addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> action.fire() );
 
 		if( popup != null ) button.addEventHandler( MouseEvent.MOUSE_CLICKED, ( e ) -> popup.hide() );
