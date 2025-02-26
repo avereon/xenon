@@ -284,6 +284,7 @@ public class GuideTool extends ProgramTool {
 		// Determine the selected node indexes
 		List<Integer> indexList = new ArrayList<>( selectedItems.size() );
 		for( TreeItem<GuideNode> selectedItem : selectedItems ) {
+			if( selectedItem == null ) continue;
 			Integer itemIndex = indexMap.get( selectedItem.getValue().getId() );
 			if( itemIndex != null ) indexList.add( itemIndex );
 		}
