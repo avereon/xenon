@@ -127,6 +127,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 			// Check for an existing tool instance
 			tool = findToolInPane( pane, toolClass );
+			boolean alreadyOpen = tool != null;
 
 			// Create a new tool instance if needed
 			if( tool == null || instanceMode != ToolInstanceMode.SINGLETON ) {
@@ -144,8 +145,12 @@ public class ToolManager implements Controllable<ToolManager> {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
 			final WorkpaneView finalView = view;
+			if( alreadyOpen ) {
+				Fx.run( () -> finalPane.setActiveTool( finalTool ) );
+			} else {
+				Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
+			}
 			scheduleWaitForReady( request, finalTool );
-			Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 			// Now that we have a tool...open dependent assets and associated tools
 			if( !openDependencies( request, tool ) ) return null;
