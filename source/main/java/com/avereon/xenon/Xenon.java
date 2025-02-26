@@ -181,9 +181,9 @@ public class Xenon extends Application implements XenonProgram {
 
 	private ProductAction productAction;
 
-	private ModulesAction modulesAction;
+	private SettingsAction modulesAction;
 
-	private ThemeAction themeAction;
+	private SettingsAction themeAction;
 
 	private UpdateAction updateAction;
 
@@ -1379,7 +1379,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "help-content" ).pushAction( helpAction = new HelpAction( this ) );
-		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this, "general" ) );
 		getActionLibrary().getAction( "settings-toggle" ).pushAction( settingsToggleAction = new SettingsToggleAction( this ) );
 		//getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
@@ -1390,8 +1390,8 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "search" ).pushAction( searchAction = new SearchAction( this ) );
 		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
-		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new ModulesAction( this ) );
-		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new ThemeAction( this ) );
+		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new SettingsAction( this, "modules" ) );
+		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "appearance" ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 

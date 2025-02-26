@@ -49,23 +49,32 @@ public class ToolBarFactory extends NavFactory {
 	}
 
 	public static Button createToolBarButton( Xenon program, String id ) {
-		return createToolBarButton( program, program.getActionLibrary().getAction( id ), null );
+		return createToolBarButton( program, new Token( id ) );
 	}
 
 	private static Node createToolBarItem( Xenon program, ToolBar toolbar, Token item, PopupWindow popup ) {
 		if( item.getType() == Token.Type.SEPARATOR ) {
 			return new Separator();
-		} else if( item.getChildren().isEmpty() ) {
-			return createToolBarButton( program, item, popup );
 		} else if( item.getType() == Token.Type.TRAY ) {
 			return createToolTray( program, toolbar, item );
 		} else if( item.getType() == Token.Type.MENU ) {
 			return createToolMenu( program, toolbar, item );
+		} else if( item.getChildren().isEmpty() ) {
+			return createToolBarButton( program, item );
 		}
 
 		log.atError().log( "Unknown toolbar item type: %s", item );
 
 		return ToolBarFactory.createPad();
+	}
+
+	private static Button createToolBarButton( Xenon program, Token item ) {
+		Button button = commonCreateToolBarButton( program, item );
+
+		ActionProxy action = program.getActionLibrary().getAction( item.getId() );
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> action.fire() );
+
+		return button;
 	}
 
 	private static Button createToolTray( Xenon program, ToolBar toolbar, Token item ) {
@@ -84,7 +93,7 @@ public class ToolBarFactory extends NavFactory {
 
 		popup.getContent().add( tray );
 
-		Button button = createToolBarButton( program, item, null );
+		Button button = commonCreateToolBarButton( program, item );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
 		button.setOnMousePressed( ( e ) -> doToggleTrayDialog( button, popup ) );
 		button.setDisable( false );
@@ -96,7 +105,7 @@ public class ToolBarFactory extends NavFactory {
 		ContextMenu menu = MenuBarFactory.createContextMenu( program, item, true );
 		menu.getStyleClass().addAll( "action-tray", "action-menu-tray" );
 
-		Button button = createToolBarButton( program, item, null );
+		Button button = commonCreateToolBarButton( program, item );
 		button.getStyleClass().add( "toolbar-tray-trigger-button" );
 		button.setOnMousePressed( ( e ) -> doToggleTrayDialog( button, menu ) );
 		button.setDisable( false );
@@ -130,15 +139,10 @@ public class ToolBarFactory extends NavFactory {
 		}
 	}
 
-	private static Button createToolBarButton( Xenon program, Token token ) {
-		return createToolBarButton( program, token, null );
-	}
+	private static Button commonCreateToolBarButton( Xenon program, Token token ) {
+		// Normal toolbar button
+		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
 
-	private static Button createToolBarButton( Xenon program, Token token, PopupWindow popup ) {
-		return createToolBarButton( program, program.getActionLibrary().getAction( token.getId() ), popup );
-	}
-
-	private static Button createToolBarButton( Xenon program, ActionProxy action, PopupWindow popup ) {
 		Button button = new Button();
 		button.setId( TOOL_ITEM_ID_PREFIX + action.getId() );
 		button.setDisable( !action.isEnabled() );
@@ -146,11 +150,6 @@ public class ToolBarFactory extends NavFactory {
 
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
-
-		// FIXME The action still fires when there is a popup
-		button.addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> action.fire() );
-
-		if( popup != null ) button.addEventHandler( MouseEvent.MOUSE_CLICKED, ( e ) -> popup.hide() );
 
 		return button;
 	}
