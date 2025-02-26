@@ -32,7 +32,6 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @CustomLog
@@ -1483,7 +1482,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Open the asset
 			openAssetsAndWait( asset, 5, TimeUnit.SECONDS );
-			if( !isManagedAssetOpen( asset ) ) return null;
+			//if( !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
 			ProgramTool tool = null;

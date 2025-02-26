@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
-import com.avereon.util.UriUtil;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -12,7 +11,6 @@ import javafx.scene.control.ScrollPane;
 import lombok.CustomLog;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,13 +53,16 @@ public class SettingsTool extends GuidedTool {
 		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = GENERAL;
+
+		log.atWarn().log( "Open settings page: %s", pageId );
+
 		selectPage( pageId );
 
-		URI uri = request.getUri();
-		if( uri != null ) {
-			String name = UriUtil.parseFragment( uri );
-			if( name != null ) selectPage( name );
-		}
+//		URI uri = request.getUri();
+//		if( uri != null ) {
+//			String name = UriUtil.parseFragment( uri );
+//			if( name != null ) selectPage( name );
+//		}
 	}
 
 	@Override

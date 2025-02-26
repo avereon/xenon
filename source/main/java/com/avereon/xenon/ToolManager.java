@@ -125,21 +125,17 @@ public class ToolManager implements Controllable<ToolManager> {
 			// Check for a singleton lock before looking for a tool instance
 			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
 
+			// Check for an existing tool instance
 			tool = findToolInPane( pane, toolClass );
 
-			// If the instance mode is SINGLETON, check for an existing tool in the workpane
-			if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
-				final Workpane finalPane = pane;
-				final ProgramTool finalTool = tool;
-				if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
-				return tool;
-			}
-
-			try {
-				tool = getToolInstance( request );
-			} catch( Exception exception ) {
-				log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
-				return null;
+			// Create a new tool instance if needed
+			if( tool == null || instanceMode != ToolInstanceMode.SINGLETON ) {
+				try {
+					tool = getToolInstance( request );
+				} catch( Exception exception ) {
+					log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
+					return null;
+				}
 			}
 
 			// Determine the placement - a null value allows the tool to determine its own placement
@@ -158,7 +154,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		} catch( InterruptedException ignore ) {
 		} catch( TimeoutException exception ) {
-			log.atWarn(exception).log( "Timeout opening tool: %s", toolClass );
+			log.atWarn( exception ).log( "Timeout opening tool: %s", toolClass );
 		} finally {
 			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
 		}

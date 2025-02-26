@@ -17,9 +17,7 @@ public class SettingsAction extends ProgramAction {
 
 	public SettingsAction( Xenon program, String fragment ) {
 		super( program );
-		if( fragment != null ) {
-			uri = ProgramSettingsType.URI.resolve( "#" + fragment );
-		}
+		if( fragment != null ) uri = ProgramSettingsType.URI.resolve( "#" + fragment );
 	}
 
 	@Override
