@@ -129,6 +129,7 @@ public class IconLibrary {
 		register( "remove", new CloseIcon() );
 		register( "tag", new TagIcon() );
 		register( "title", new TitleIcon() );
+		register( "theme", new ThemeIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );
