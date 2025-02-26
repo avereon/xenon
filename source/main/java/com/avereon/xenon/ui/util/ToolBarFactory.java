@@ -141,12 +141,13 @@ public class ToolBarFactory extends NavFactory {
 	private static Button createToolBarButton( Xenon program, ActionProxy action, PopupWindow popup ) {
 		Button button = new Button();
 		button.setId( TOOL_ITEM_ID_PREFIX + action.getId() );
-		button.setOnAction( action );
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
+
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> action.fire() );
 
 		if( popup != null ) button.addEventHandler( MouseEvent.MOUSE_CLICKED, ( e ) -> popup.hide() );
 
