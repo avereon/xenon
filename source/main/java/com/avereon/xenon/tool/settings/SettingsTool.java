@@ -53,16 +53,7 @@ public class SettingsTool extends GuidedTool {
 		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = GENERAL;
-
-		log.atWarn().log( "Open settings page: %s", pageId );
-
 		selectPage( pageId );
-
-//		URI uri = request.getUri();
-//		if( uri != null ) {
-//			String name = UriUtil.parseFragment( uri );
-//			if( name != null ) selectPage( name );
-//		}
 	}
 
 	@Override
