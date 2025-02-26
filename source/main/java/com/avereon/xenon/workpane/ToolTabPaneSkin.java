@@ -106,26 +106,27 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 			change.getRemoved().stream().filter( Objects::nonNull ).forEach( tab -> {
 				if( !getSkinnable().getTabs().contains( tab ) ) tab.setToolPane( null );
 				toolArea.getChildren().remove( tab.getTool() );
-				tabContainer.getChildren().remove( tab );
 			} );
 
 			change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
 				tab.setToolPane( getSkinnable() );
 				toolArea.getChildren().add( tab.getTool() );
-				tabContainer.getChildren().add( tab );
 			} );
 		}
 
+		tabContainer.getChildren().setAll( getSkinnable().getTabs() );
 		getSkinnable().requestLayout();
 	}
 
 	private void doUpdateTabSelection() {
 		// Hide all the tools
 		getSkinnable().getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
+		getSkinnable().getTabs().forEach( tab -> tab.setSelected( false ) );
 
 		// Show the selected tool
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+		if( selectedTab != null ) selectedTab.setSelected( true );
 
 		getSkinnable().requestLayout();
 	}

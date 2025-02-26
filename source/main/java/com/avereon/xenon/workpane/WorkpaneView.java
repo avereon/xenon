@@ -150,11 +150,9 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
-		toolTabPane.getTabs().add( index, new ToolTab( tool ) );
 		tool.setToolView( this );
+		toolTabPane.getTabs().add( index, new ToolTab( tool ) );
 		tool.callAllocate();
-
-		// NOTE the tool parent is not valid yet, but the tool view is
 
 		if( toolTabPane.getTabs().size() == 1 ) setActiveTool( tool );
 
@@ -167,18 +165,10 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 
 		Tool next = null;
 		if( isActiveTool ) {
-			// Determine the next tool for the view.
-			if( toolTabPane.getTabs().size() > 1 ) {
-				int index = getToolIndex( tool );
-				if( index < toolTabPane.getTabs().size() - 1 ) {
-					next = (Tool)toolTabPane.getTabs().get( index + 1 ).getContent();
-				} else if( index >= 1 ) {
-					next = (Tool)toolTabPane.getTabs().get( index - 1 ).getContent();
-				}
-			}
-
-			// If the tool is the active tool set the active tool to null.
+			// If the tool was the active tool set the active tool to null
 			if( parent != null ) parent.setActiveTool( null );
+
+			next = determineNextTool( tool );
 		}
 
 		// If the tool is currently displayed, call conceal.
@@ -186,7 +176,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		tool.callDeallocate();
 
 		// Remove the tool.
-		toolTabPane.getTabs().remove( getToolIndex( tool ) );
+		toolTabPane.getTabs().remove( tool.getOrder() );
 		tool.setToolView( null );
 		if( activeTool == tool ) activeTool = null;
 
@@ -206,20 +196,22 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		activeTool = tool;
 
 		if( activeTool != null ) {
-			toolTabPane.getSelectionModel().select( getToolIndex( tool ) );
+			toolTabPane.getSelectionModel().select( tool.getOrder() );
 			if( !activeTool.isDisplayed() ) activeTool.callDisplay();
 		}
 	}
 
-	private int getToolIndex( Tool tool ) {
-		int index = 0;
-
-		for( ToolTab tab : toolTabPane.getTabs() ) {
-			if( tab.getTool() == tool ) return index;
-			index++;
+	private Tool determineNextTool(Tool tool) {
+		Tool next = null;
+		if( toolTabPane.getTabs().size() > 1 ) {
+			int index = tool.getOrder();
+			if( index < toolTabPane.getTabs().size() - 1 ) {
+				next = (Tool)toolTabPane.getTabs().get( index + 1 ).getContent();
+			} else if( index >= 1 ) {
+				next = (Tool)toolTabPane.getTabs().get( index - 1 ).getContent();
+			}
 		}
-
-		return -1;
+		return next;
 	}
 
 	public boolean isActive() {

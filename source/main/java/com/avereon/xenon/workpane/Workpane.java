@@ -553,16 +553,14 @@ public class Workpane extends Control implements WritableIdentity {
 		startOperation();
 		try {
 			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				activeTool.callDeactivate();
-			}
+			if( activeTool != null ) activeTool.callDeactivate();
 
 			// Change the active view
-			WorkpaneView view = tool == null ? null : tool.getToolView();
-			if( view != null && getViews().contains( view ) ) {
-				if( activateViewAlso ) {
-					view.setActiveTool( tool );
+			if( activateViewAlso ) {
+				WorkpaneView view = tool == null ? null : tool.getToolView();
+				if( view != null && getViews().contains( view ) ) {
 					if( view != getActiveView() ) doSetActiveView( view, false );
+					if( tool != getActiveTool() ) view.setActiveTool( tool );
 				}
 			}
 
@@ -570,9 +568,7 @@ public class Workpane extends Control implements WritableIdentity {
 			activeToolProperty.set( tool );
 
 			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				activeTool.callActivate();
-			}
+			if( activeTool != null ) activeTool.callActivate();
 		} finally {
 			finishOperation( true );
 		}
@@ -1218,35 +1214,38 @@ public class Workpane extends Control implements WritableIdentity {
 	 * view and target view do not have to be in the same workpane but must be in
 	 * the same JVM.
 	 *
-	 * @param sourceTool The tool to move
-	 * @param targetView The view to move the tool to
+	 * @param tool The tool to move
+	 * @param view The view to move the tool to
 	 * @param side The side the target view was split from
 	 * @param index The tab index in the target view
 	 */
-	public void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
-		Workpane sourcePane = sourceTool.getWorkpane();
-		WorkpaneView sourceView = sourceTool.getToolView();
-		Workpane targetPane = targetView.getWorkpane();
+	public void moveTool( Tool tool, WorkpaneView view, Side side, int index ) {
+		Workpane sourcePane = tool.getWorkpane();
+		WorkpaneView sourceView = tool.getToolView();
+		Workpane targetPane = view.getWorkpane();
 
 		// NOTE The next remove and add steps can get messy due to merging views
 		// It is possible that when addTool is called the target view no longer
 		// exists because it had been auto merged during removeTool. If the source
 		// and target views are the same then turn off auto merge because the tool
 		// would just go back where it came from otherwise.
-		boolean differentViews = sourceView != targetView;
+		boolean differentViews = sourceView != view;
 		boolean automerge = sourcePane.isAutoMerge() && differentViews;
 
 		// Dropped on the side of a view...split it
-		if( side != null ) targetView = targetPane.split( targetView, side );
+		if( side != null ) view = targetPane.split( view, side );
 
-		// NEXT When dropping on tab 0 the move works, it just doesn't show to the user
-		// Maybe because there is a listener on the tab list that doesn't fire correctly
+		try {
+			startOperation();
+			sourcePane.removeTool( tool, automerge );
 
-		sourcePane.removeTool( sourceTool, automerge );
+			int targetViewTabCount = view.getTools().size();
+			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
 
-		int targetViewTabCount = targetView.getTools().size();
-		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
-		targetPane.addTool( sourceTool, targetView, index, true );
+			targetPane.addTool( tool, view, index, true );
+		} finally {
+			finishOperation( true );
+		}
 	}
 
 	/**
