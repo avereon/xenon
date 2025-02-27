@@ -17,14 +17,14 @@ class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
-		assertThat( pane.getActiveView().isMaximized() ).isTrue();
+		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 
 		openWelcomeTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
-		assertThat( pane.getActiveView().isMaximized() ).isTrue();
+		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 	}
 

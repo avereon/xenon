@@ -23,7 +23,7 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
-		assertThat( pane.getActiveView().isMaximized() ).isTrue();
+		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
