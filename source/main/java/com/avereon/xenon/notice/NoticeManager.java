@@ -179,6 +179,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 			actionIcon += "-unread";
 		}
 		getProgram().getActionLibrary().getAction( "notice" ).setIcon( actionIcon );
+		getProgram().getActionLibrary().getAction( "notice-toggle" ).setIcon( actionIcon );
 	}
 
 	private List<Notice> getUnreadNotices() {
