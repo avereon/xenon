@@ -7,7 +7,7 @@ import com.avereon.zarra.javafx.Fx;
 abstract class WelcomeToolUIT extends BaseToolUIT {
 
 	protected void openWelcomeTool() throws Exception {
-		openMenuItem( "#menu-help", "#menuitem-welcome" );
+		openMenuItem( "#menu-help", "#menu-item-welcome" );
 		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 

@@ -15,7 +15,7 @@ public class MenuBarFactoryTest extends BaseFullXenonTestCase {
 		assertThat( bar.getItems().get( 1 ).getId() ).isEqualTo( "menu-edit" );
 		assertThat( bar.getItems().get( 2 ).getId() ).isEqualTo( "menu-help" );
 		assertThat( bar.getItems().get( 3 ).getId() ).isEqualTo( "separator" );
-		assertThat( bar.getItems().get( 4 ).getId() ).isEqualTo( "menuitem-exit" );
+		assertThat( bar.getItems().get( 4 ).getId() ).isEqualTo( "menu-item-exit" );
 		assertThat( bar.getItems().size() ).isEqualTo( 5 );
 	}
 

@@ -21,7 +21,7 @@ public class MenuBarFactory extends NavFactory {
 
 	public static final String MENU_ID_PREFIX = "menu-";
 
-	public static final String MENU_ITEM_ID_PREFIX = "menuitem-";
+	public static final String MENU_ITEM_ID_PREFIX = "menu-item-";
 
 	public static final String MENU_BUTTON_ID_PREFIX = "menu-button-";
 

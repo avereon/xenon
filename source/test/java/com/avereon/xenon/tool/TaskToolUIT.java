@@ -7,7 +7,7 @@ import com.avereon.zarra.javafx.Fx;
 abstract class TaskToolUIT extends BaseToolUIT {
 
 	void openTaskTool() throws Exception {
-		openMenuItem( "#menu-view", "#menuitem-task" );
+		openMenuItem( "#menu-view", "#menu-item-task" );
 		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 

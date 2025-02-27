@@ -23,7 +23,7 @@ import java.util.List;
 @CustomLog
 public class ToolBarFactory extends NavFactory {
 
-	public static final String TOOL_ITEM_ID_PREFIX = "toolitem-";
+	public static final String TOOL_ITEM_ID_PREFIX = "tool-item-";
 
 	public static ToolBar createToolBar( Xenon program ) {
 		return createToolBar( program, "" );
@@ -113,32 +113,6 @@ public class ToolBarFactory extends NavFactory {
 		return button;
 	}
 
-	private static Orientation rotate( Orientation orientation ) {
-		if( orientation == Orientation.HORIZONTAL ) return Orientation.VERTICAL;
-		return Orientation.HORIZONTAL;
-	}
-
-	private static void doToggleTrayDialog( Button button, PopupWindow popup ) {
-		if( !popup.isShowing() ) {
-			// Calculate button anchor point
-			Point2D anchor = button.localToScreen( button.getBoundsInLocal().getMinX(), button.getBoundsInLocal().getMaxY() );
-
-			// Initial show to calculate the width
-			popup.show( button, anchor.getX(), anchor.getY() );
-
-			if( popup instanceof ContextMenu menu ) {
-				//
-			} else {
-				log.atConfig().log( "Button width=%s, popup width=%s", button.getWidth(), popup.getWidth() );
-				double offset = 0.5 * (button.getWidth() - popup.getWidth());
-				anchor = button.localToScreen( button.getBoundsInLocal().getMinX() + offset, button.getBoundsInLocal().getMaxY() );
-				popup.show( button, anchor.getX(), anchor.getY() );
-			}
-		} else {
-			popup.hide();
-		}
-	}
-
 	private static Button commonCreateToolBarButton( Xenon program, Token token ) {
 		// Normal toolbar button
 		ActionProxy action = program.getActionLibrary().getAction( token.getId() );
@@ -152,6 +126,28 @@ public class ToolBarFactory extends NavFactory {
 		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
 		return button;
+	}
+
+	private static Orientation rotate( Orientation orientation ) {
+		return orientation == Orientation.HORIZONTAL ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+	}
+
+	private static void doToggleTrayDialog( Button button, PopupWindow popup ) {
+		if( popup.isShowing() ) {
+			popup.hide();
+		} else {
+			// Calculate button anchor point
+			Point2D anchor = button.localToScreen( button.getBoundsInLocal().getMinX(), button.getBoundsInLocal().getMaxY() );
+
+			// Initial show to calculate the width
+			popup.show( button, anchor.getX(), anchor.getY() );
+
+			if( !(popup instanceof ContextMenu) ) {
+				double offset = 0.5 * (button.getWidth() - popup.getWidth());
+				anchor = button.localToScreen( button.getBoundsInLocal().getMinX() + offset, button.getBoundsInLocal().getMaxY() );
+				popup.show( button, anchor.getX(), anchor.getY() );
+			}
+		}
 	}
 
 }
