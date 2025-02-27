@@ -79,16 +79,6 @@ public class WelcomeTool extends ProgramTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 
-	@Override
-	protected void display() {
-		getWorkpane().setMaximizedView( getToolView() );
-	}
-
-	@Override
-	protected void conceal() {
-		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
-	}
-
 	private Button createButton( Node icon, String title, String description, ProgramAction action ) {
 		Label titleLabel = new Label( title );
 		titleLabel.getStyleClass().addAll( "title" );

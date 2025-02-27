@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.log.LazyEval;
+import com.avereon.log.LogLevel;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
@@ -30,12 +31,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 @CustomLog
 class UiReader {
 
-	private static final Level logLevel = Level.CONFIG;
+	private static final LogLevel logLevel = LogLevel.DEBUG;
 
 	@Getter
 	private final Xenon program;

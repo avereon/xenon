@@ -668,17 +668,16 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		log.atConfig().log( "Request to check for updates..." );
+		log.atDebug().log( "Request to check for updates..." );
 
 		if( updatesEnabled() ) {
-			log.atConfig().log( "Checking for updates..." );
+			log.atDebug().log( "Checking for updates..." );
 			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
 		}
 
-		log.atConfig().log( "Scheduling the next update..." );
+		log.atDebug().log( "Scheduling the next update..." );
 		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
 		scheduleUpdateCheck( false );
-
 	}
 
 	/**
