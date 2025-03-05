@@ -539,11 +539,11 @@ public class Xenon extends Application implements XenonProgram {
 			uiReader.loadWorkspaces();
 			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} else {
-//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-//			if( workspaceManager.getActiveWorkpane() == null ) {
-//				log.atWarning().log( "Failed to restore active workarea" );
-//			}
+			//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
+			//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//			if( workspaceManager.getActiveWorkpane() == null ) {
+			//				log.atWarning().log( "Failed to restore active workarea" );
+			//			}
 		}
 
 		log.atFine().log( "User interface restored." );
@@ -586,7 +586,7 @@ public class Xenon extends Application implements XenonProgram {
 		if( useUiReader ) {
 			uiReader.loadAssets();
 		} else {
-//			uiRegenerator.startAssetLoading();
+			//			uiRegenerator.startAssetLoading();
 		}
 
 		// Open assets specified on the command line
@@ -953,9 +953,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean isProgramUpdated() {
-		if( isProgramUpdated == null ) {
-			isProgramUpdated = calcProgramUpdated();
-		}
+		if( isProgramUpdated == null ) isProgramUpdated = calcProgramUpdated();
 		return isProgramUpdated;
 	}
 
@@ -1573,9 +1571,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
-		if( programUpdated ) {
-			getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
-		}
+		if( programUpdated ) getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 		getSettings().set( PROGRAM_RELEASE, Release.encode( runtime ) );
 
 		return programUpdated;

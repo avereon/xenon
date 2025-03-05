@@ -585,7 +585,7 @@ public class ProductManager implements Controllable<ProductManager> {
 			// problem applying an update.
 			//
 			// Otherwise, it should be safe to schedule update checks.
-			if( getProgram().isProgramUpdated() || getProgram().isUpdateInProgress() ) return;
+			//if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
 
