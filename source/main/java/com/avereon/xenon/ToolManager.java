@@ -124,14 +124,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		boolean alreadyOpen = false;
 		try {
 			if( instanceMode == ToolInstanceMode.SINGLETON ) {
-				try {
-					acquireSingletonLock( toolClass );
-					tool = findToolInPane( pane, toolClass );
-					alreadyOpen = tool != null;
-					if( tool == null ) tool = getToolInstance( request );
-				} finally {
-					clearSingletonLock( toolClass );
-				}
+				acquireSingletonLock( toolClass );
+				tool = findToolInPane( pane, toolClass );
+				alreadyOpen = tool != null;
+				if( tool == null ) tool = getToolInstance( request );
 			} else {
 				// Create a new tool instance
 				tool = getToolInstance( request );
@@ -166,6 +162,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			log.atWarn( exception ).log( "Timeout opening tool: %s", toolClass );
 		} catch( Exception exception ) {
 			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
+		} finally {
+			clearSingletonLock( toolClass );
 		}
 
 		return tool;
