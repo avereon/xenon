@@ -580,13 +580,6 @@ public class ProductManager implements Controllable<ProductManager> {
 	 */
 	public void scheduleUpdateCheck( boolean startup ) {
 		synchronized( scheduleLock ) {
-			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
-			// set, don't schedule update checks. This probably means there is a
-			// problem applying an update.
-			//
-			// Otherwise, it should be safe to schedule update checks.
-			//if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
-
 			long now = System.currentTimeMillis();
 
 			if( task != null ) {
@@ -606,13 +599,13 @@ public class ProductManager implements Controllable<ProductManager> {
 				return;
 			}
 
-			// Set the next update check time before scheduling the
-			// task to prevent this method from looping rapidly
-			long nextCheckTime = now + delay;
-			setNextUpdateCheck( nextCheckTime );
-
 			// Schedule the update check task
 			if( updatesEnabled() ) {
+				// Set the next update check time before scheduling the
+				// task to prevent this method from looping rapidly
+				long nextCheckTime = now + delay;
+				setNextUpdateCheck( nextCheckTime );
+
 				Date nextCheckDate = new Date( nextCheckTime );
 
 				// Log the next update check time
@@ -669,6 +662,16 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	public void checkForUpdates( boolean interactive ) {
 		log.atDebug().log( "Request to check for updates..." );
+
+		// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
+		// set, don't check for updates. This probably means there is a problem
+		// applying an update.
+		//
+		// Otherwise, it should be safe to check for updates.
+		if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) {
+			log.atWarn().log("Update cycle may be stuck, not checking for updates." );
+			return;
+		}
 
 		if( updatesEnabled() ) {
 			log.atDebug().log( "Checking for updates..." );
