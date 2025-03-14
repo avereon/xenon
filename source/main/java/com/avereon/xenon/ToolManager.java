@@ -121,22 +121,25 @@ public class ToolManager implements Controllable<ToolManager> {
 		request.setPane( pane );
 
 		ProgramTool tool = null;
+		boolean alreadyOpen = false;
 		try {
-			// Check for a singleton lock before looking for a tool instance
-			if( instanceMode == ToolInstanceMode.SINGLETON ) checkSingletonLock( toolClass );
-
-			// Check for an existing tool instance
-			tool = findToolInPane( pane, toolClass );
-			boolean alreadyOpen = tool != null;
-
-			// Create a new tool instance if needed
-			if( tool == null || instanceMode != ToolInstanceMode.SINGLETON ) {
+			if( instanceMode == ToolInstanceMode.SINGLETON ) {
 				try {
-					tool = getToolInstance( request );
-				} catch( Exception exception ) {
-					log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
-					return null;
+					acquireSingletonLock( toolClass );
+					tool = findToolInPane( pane, toolClass );
+					alreadyOpen = tool != null;
+					if( tool == null ) tool = getToolInstance( request );
+				} finally {
+					clearSingletonLock( toolClass );
 				}
+			} else {
+				// Create a new tool instance
+				tool = getToolInstance( request );
+			}
+
+			if( tool == null ) {
+				log.atWarn().log( "Unable to find or create tool: %s", request.getToolClass().getName() );
+				return null;
 			}
 
 			// Determine the placement - a null value allows the tool to determine its own placement
@@ -158,10 +161,11 @@ public class ToolManager implements Controllable<ToolManager> {
 			// Wait for FX to finish creating things to avoid race conditions checking for tools
 			Fx.waitForWithExceptions( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 		} catch( InterruptedException ignore ) {
+			Thread.currentThread().interrupt();
 		} catch( TimeoutException exception ) {
 			log.atWarn( exception ).log( "Timeout opening tool: %s", toolClass );
-		} finally {
-			if( instanceMode == ToolInstanceMode.SINGLETON ) clearSingletonLock( toolClass );
+		} catch( Exception exception ) {
+			log.atSevere().withCause( exception ).log( "Error creating tool: %s", request.getToolClass().getName() );
 		}
 
 		return tool;
@@ -175,7 +179,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param toolClass The singleton tool class
 	 * @throws InterruptedException If a waiting thread is interrupted
 	 */
-	private void checkSingletonLock( Class<? extends ProgramTool> toolClass ) throws InterruptedException {
+	private void acquireSingletonLock( Class<? extends ProgramTool> toolClass ) throws InterruptedException {
 		synchronized( singletonLocks ) {
 			// Need special handling of singletons
 			while( singletonLocks.contains( toolClass ) ) {
@@ -207,6 +211,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				future.get( WORK_TIME_LIMIT, WORK_TIME_UNIT );
 			} catch( InterruptedException ignore ) {
+				Thread.currentThread().interrupt();
+				return false;
 			} catch( ExecutionException | TimeoutException exception ) {
 				log.atWarn().withCause( exception ).log( "Error opening tool dependencies: %s", tool );
 				return false;
@@ -280,11 +286,12 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	public void updateDefaultToolsFromSettings() {
 		// Go through each asset type and set the default tool from the settings
-		for( AssetType assetType : assetTypeToolClasses.keySet() ) {
+		for( Map.Entry<AssetType, List<Class<? extends ProgramTool>>> entry : assetTypeToolClasses.entrySet() ) {
+			AssetType assetType = entry.getKey();
 			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
 			String defaultTool = settings.get( "tool" );
 			if( defaultTool != null ) {
-				Class<? extends ProgramTool> toolClass = findAssetTypeToolClassByName( assetType, defaultTool );
+				Class<? extends ProgramTool> toolClass = findAssetTypeToolClassByName( entry.getValue(), defaultTool );
 				if( toolClass != null ) {
 					setDefaultTool( assetType, toolClass );
 				} else {
@@ -294,12 +301,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private Class<? extends ProgramTool> findAssetTypeToolClassByName( AssetType assetType, String name ) {
-		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
-		for( Class<? extends ProgramTool> toolClass : toolClasses ) {
-			if( toolClass.getName().equals( name ) ) return toolClass;
-		}
-		return null;
+	private Class<? extends ProgramTool> findAssetTypeToolClassByName( List<Class<? extends ProgramTool>> toolClasses, String name ) {
+		return toolClasses.stream().filter( c -> c.getName().equals( name ) ).findFirst().orElse( null );
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
@@ -361,6 +364,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProgramTool getToolInstance( OpenAssetRequest request ) throws Exception {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
+
+		// Get the registered product for this tool class
 		XenonProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
 		// In order for this to be safe on any thread a task needs to be created
