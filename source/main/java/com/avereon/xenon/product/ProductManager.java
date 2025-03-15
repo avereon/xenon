@@ -12,8 +12,8 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.LogFlag;
 import com.avereon.util.TypeReference;
 import com.avereon.weave.Weave;
-import com.avereon.xenon.Module;
 import com.avereon.xenon.*;
+import com.avereon.xenon.Module;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
@@ -566,7 +566,7 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	void updateLastCheckTime() {
 		// Update when the last update check occurred.
-		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+		setLastUpdateCheck( System.currentTimeMillis() );
 
 		// Schedule the next update check.
 		scheduleUpdateCheck( false );
@@ -580,13 +580,6 @@ public class ProductManager implements Controllable<ProductManager> {
 	 */
 	public void scheduleUpdateCheck( boolean startup ) {
 		synchronized( scheduleLock ) {
-			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
-			// set, don't schedule update checks. This probably means there is a
-			// problem applying an update.
-			//
-			// Otherwise, it should be safe to schedule update checks.
-			//if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
-
 			long now = System.currentTimeMillis();
 
 			if( task != null ) {
@@ -611,19 +604,14 @@ public class ProductManager implements Controllable<ProductManager> {
 			long nextCheckTime = now + delay;
 			setNextUpdateCheck( nextCheckTime );
 
-			// Schedule the update check task
-			if( updatesEnabled() ) {
-				Date nextCheckDate = new Date( nextCheckTime );
+			Date nextCheckDate = new Date( nextCheckTime );
 
-				// Log the next update check time
-				String date = DateUtil.format( nextCheckDate, DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-				log.atInfo().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
+			// Log the next update check time
+			String date = DateUtil.format( nextCheckDate, DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+			log.atInfo().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
 
-				// Schedule the update check
-				timer.schedule( task = new UpdateCheckTask( this ), nextCheckDate );
-			} else {
-				log.atConfig().log( "Updates and update checks are disabled." );
-			}
+			// Schedule the update check
+			timer.schedule( task = new UpdateCheckTask( this ), nextCheckDate );
 		}
 	}
 
@@ -670,13 +658,25 @@ public class ProductManager implements Controllable<ProductManager> {
 	public void checkForUpdates( boolean interactive ) {
 		log.atDebug().log( "Request to check for updates..." );
 
+		// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
+		// set, don't check for updates. This probably means there is a problem
+		// applying an update.
+		//
+		// Otherwise, it should be safe to check for updates.
+		if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) {
+			log.atWarn().log( "Update cycle may be stuck, not checking for updates." );
+			return;
+		}
+
 		if( updatesEnabled() ) {
 			log.atDebug().log( "Checking for updates..." );
 			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
+			setLastUpdateCheck( System.currentTimeMillis() );
+		} else {
+			log.atDebug().log( "Updates are disabled, not checking for updates." );
 		}
 
 		log.atDebug().log( "Scheduling the next update..." );
-		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
 		scheduleUpdateCheck( false );
 	}
 
@@ -938,12 +938,11 @@ public class ProductManager implements Controllable<ProductManager> {
 
 	private void loadSettings() {
 		Settings programSettings = getProgram().getSettings();
-		Settings managerSettings = getSettings();
 		Settings updateCheckSettings = getUpdateCheckSettings();
 
 		// Migrate check time settings from program settings to manager settings
-		managerSettings.set( LAST_CHECK_TIME, programSettings.get( LAST_CHECK_TIME, Long.class ) );
-		managerSettings.set( NEXT_CHECK_TIME, programSettings.get( NEXT_CHECK_TIME, Long.class ) );
+		setLastUpdateCheck( programSettings.get( LAST_CHECK_TIME, Long.class ) );
+		setNextUpdateCheck( programSettings.get( NEXT_CHECK_TIME, Long.class ) );
 		programSettings.remove( LAST_CHECK_TIME );
 		programSettings.remove( NEXT_CHECK_TIME );
 
@@ -1001,7 +1000,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.UPDATES );
 	}
 
-	private boolean updatesEnabled() {
+	boolean updatesEnabled() {
 		return !getProgram().getProgramParameters().isTrue( XenonFlag.NO_UPDATES );
 	}
 
