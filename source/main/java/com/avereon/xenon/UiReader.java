@@ -13,6 +13,7 @@ import com.avereon.xenon.asset.exception.AssetNotFoundException;
 import com.avereon.xenon.asset.exception.AssetTypeNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.notice.Notice;
+import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
@@ -409,6 +410,8 @@ class UiReader {
 		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
 		Integer order = settings.get( Tool.ORDER, Integer.class, -1 );
+
+		if( "program:/guide".equals( assetTypeKey ) ) assetTypeKey = XenonScheme.ID + ":/guide";
 
 		// Create the asset
 		Asset asset;
