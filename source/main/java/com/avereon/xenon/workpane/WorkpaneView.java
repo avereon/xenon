@@ -14,6 +14,7 @@ import javafx.scene.layout.BorderPane;
 import lombok.CustomLog;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,7 +145,8 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	 * @return A list of the tools in the view.
 	 */
 	public List<Tool> getTools() {
-		return toolTabPane.getTabs().parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
+		List<ToolTab> tabs = new ArrayList<>( toolTabPane.getTabs() );
+		return tabs.parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
