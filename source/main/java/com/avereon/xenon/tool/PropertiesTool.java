@@ -12,7 +12,7 @@ import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPagePanel;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import lombok.CustomLog;

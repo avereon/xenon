@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class BaseFxPlatformTestCase extends BaseForAllTests {

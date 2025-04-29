@@ -17,7 +17,7 @@ import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import lombok.CustomLog;

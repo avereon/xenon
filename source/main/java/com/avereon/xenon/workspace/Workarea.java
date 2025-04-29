@@ -7,7 +7,7 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.*;
-import com.avereon.zarra.event.FxEventWrapper;
+import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;

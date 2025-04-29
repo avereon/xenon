@@ -4,7 +4,7 @@ import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.product.RepoStateComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.settings.panel.ModulesSourcesSettingsPanel;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 
 import java.util.ArrayList;
 import java.util.List;

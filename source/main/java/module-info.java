@@ -12,7 +12,7 @@ module com.avereon.xenon {
 
 	// Both compile-time and run-time
 	requires transitive com.avereon.zenna;
-	requires transitive com.avereon.zarra;
+	requires transitive com.avereon.zerra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;

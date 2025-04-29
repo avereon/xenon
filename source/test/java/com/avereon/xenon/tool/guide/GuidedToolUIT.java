@@ -9,7 +9,7 @@ import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

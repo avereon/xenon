@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor.paint;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
-import com.avereon.zarra.color.Colors;
+import com.avereon.zerra.color.Colors;
 
 import java.util.List;
 

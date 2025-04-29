@@ -11,7 +11,7 @@ import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.settings.SettingsPanel;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;

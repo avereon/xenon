@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.8</version>
+		<version>3.6.0</version>
 		<relativePath/>
 	</parent>
 
@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.8</version>
+	<version>1.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -70,10 +70,10 @@
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<weave.version>1.5</weave.version>
-		<zenna.version>0.10</zenna.version>
-		<zarra.version>0.10</zarra.version>
-		<zevra.version>0.10</zevra.version>
+		<weave.version>1.6-SNAPSHOT</weave.version>
+		<zenna.version>0.11-SNAPSHOT</zenna.version>
+		<zerra.version>0.11-SNAPSHOT</zerra.version>
+		<zevra.version>0.11-SNAPSHOT</zevra.version>
 		<jackson.version>2.18.3</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
@@ -104,8 +104,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>zarra</artifactId>
-			<version>${zarra.version}</version>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
 		</dependency>
 
 		<dependency>

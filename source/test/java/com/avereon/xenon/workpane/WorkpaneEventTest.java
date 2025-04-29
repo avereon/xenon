@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.zarra.event.FxEventWatcher;
+import com.avereon.zerra.event.FxEventWatcher;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Side;
