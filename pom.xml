@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.8-SNAPSHOT</version>
+	<version>1.8</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -69,17 +69,17 @@
 		<java.version>21</java.version>
 
 		<!-- Runtime dependencies -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
-		<weave.version>1.5-SNAPSHOT</weave.version>
-		<zenna.version>0.10-SNAPSHOT</zenna.version>
-		<zarra.version>0.10-SNAPSHOT</zarra.version>
-		<zevra.version>0.10-SNAPSHOT</zevra.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<weave.version>1.5</weave.version>
+		<zenna.version>0.10</zenna.version>
+		<zarra.version>0.10</zarra.version>
+		<zevra.version>0.10</zevra.version>
 		<jackson.version>2.18.3</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
 		<!-- Runtime dependencies -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
+		<!-- Version numbers reviewed 28 Apr 2025 -->
 		<openjfx.version>22.0.2</openjfx.version>
 		<controlsfx.version>11.2.2</controlsfx.version>
 
@@ -89,9 +89,9 @@
 		<monocle.version>21.0.2</monocle.version>
 
 		<!-- Build plugin versions -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
-		<cameo.version>2.10</cameo.version>
-		<curex.version>1.4.1</curex.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<cameo.version>2.11</cameo.version>
+		<curex.version>1.5.0</curex.version>
 	</properties>
 
 	<dependencies>
