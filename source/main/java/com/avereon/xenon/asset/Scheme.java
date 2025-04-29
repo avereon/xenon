@@ -122,6 +122,17 @@ public interface Scheme {
 	}
 
 	/**
+	 * Create the external folder asset that the asset represents.
+	 *
+	 * @param asset The asset folder to create
+	 * @return true If the external source is created, false otherwise
+	 * @throws AssetException If an error occurs during the operation
+	 */
+	default boolean createFolder( Asset asset ) throws AssetException {
+		return false;
+	}
+
+	/**
 	 * Save the asset as a different asset.
 	 *
 	 * @param asset The asset to save

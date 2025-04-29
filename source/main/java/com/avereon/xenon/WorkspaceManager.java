@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
-import com.avereon.util.IdGenerator;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -16,6 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
+	@Getter
 	private final Xenon program;
 
 	private final Set<Workspace> workspaces;
@@ -34,6 +36,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Workspace activeWorkspace;
 
+	@Getter
 	private boolean uiReady;
 
 	WorkspaceManager( Xenon program ) {
@@ -45,17 +48,14 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		} );
 	}
 
-	public Xenon getProgram() {
-		return program;
-	}
-
 	@Override
 	public boolean isRunning() {
-		return workspaces.size() > 0;
+		return !workspaces.isEmpty();
 	}
 
 	@Override
 	public WorkspaceManager start() {
+		program.getFxEventHub().register( ProgramEvent.UI_READY, e -> setUiReady( true ) );
 		return this;
 	}
 
@@ -82,7 +82,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// ... But during unit testing, Platform.exit() cannot be called or
 		// it hangs the tests. Furthermore, the tests will need to call
 		// Program.stop() which, in turn, calls WorkspaceManager.stop(), which
-		// should close the stages or they stay open during the duration of the
+		// should close the stages, or they stay open during the duration of the
 		// testing process.
 		//
 		// RESULT Do not close the stages in this method. The unit tests will just
@@ -101,11 +101,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	//		return this;
 	//	}
 
-	public boolean isUiReady() {
-		return uiReady;
-	}
-
-	void setUiReady( boolean uiReady ) {
+	private void setUiReady( boolean uiReady ) {
 		this.uiReady = uiReady;
 	}
 
@@ -118,6 +114,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void setTheme( String id ) {
+		if( TextUtil.isEmpty( id ) ) id = "xenon-dark";
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
 		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
 
@@ -130,12 +127,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return new HashSet<>( workspaces );
 	}
 
-	public Workspace newWorkspace() {
-		return newWorkspace( IdGenerator.getId() );
-	}
-
+	@Deprecated
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program, id );
+		// FIXME A new workspace should not have any settings to update from
+		// But that is where a lot of the settings listeners are added
+		// ...and this is used from the deprecated UiRegenerator anyway, so it may be going away
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
 
@@ -186,21 +183,27 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {
-		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getWorkpane().getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
+		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
 	}
 
 	public Set<Asset> getModifiedAssets() {
 		return workspaces
 			.stream()
 			.flatMap( w -> w.getWorkareas().stream() )
-			.flatMap( a -> a.getWorkpane().getTools().stream() )
+			.flatMap( a -> a.getTools().stream() )
 			.map( Tool::getAsset )
 			.filter( Asset::isNewOrModified )
 			.collect( Collectors.toSet() );
 	}
 
+	/**
+	 * Get the modified assets in the workspace.
+	 *
+	 * @param workspace This workspace to check
+	 * @return The modified assets in the workspace
+	 */
 	public Set<Asset> getModifiedAssets( Workspace workspace ) {
-		return workspace.getWorkareas().stream().flatMap( a -> a.getWorkpane().getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
+		return workspace.getWorkareas().stream().flatMap( a -> a.getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -269,7 +272,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		if( workspace == null ) return null;
 		Workarea workarea = workspace.getActiveWorkarea();
 		if( workarea == null ) return null;
-		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		return getActiveWorkspace().getActiveWorkarea();
 	}
 
 	public Set<Tool> getActiveWorkpaneTools( Class<? extends Tool> type ) {
@@ -285,7 +288,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public Workspace findWorkspace( ProgramTool tool ) {
 		for( Workspace workspace : getWorkspaces() ) {
 			for( Workarea workarea : workspace.getWorkareas() ) {
-				for( Tool check : workarea.getWorkpane().getTools() ) {
+				for( Tool check : workarea.getTools() ) {
 					if( check == tool ) return workspace;
 				}
 			}

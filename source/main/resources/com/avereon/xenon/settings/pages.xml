@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+These settings pages are normally associated with the /program/manager settings.
+However, there are some settings that are at a different location in the
+settings tree. Settings that are in a different location in the settings tree
+need a path attribute to specify the path to the settings node.
+-->
 <pages version="1.0">
 
 	<page id="general">
@@ -47,7 +53,7 @@
 			<setting key="shutdown-keepalive" editor="checkbox"/>
 		</group>
 
-		<page id="updates">
+		<page path="/program/manager/product" id="updates">
 			<group id="updates-schedule">
 				<setting key="product-update-check" editor="combobox">
 					<option key="interval"/>
@@ -250,9 +256,13 @@
 	</page>
 
 	<page id="assets">
-
 		<page id="asset-types" panel="asset-type" tagIds="file-type, resource-type, extension, media-type, mime-type, first-line"/>
+	</page>
 
+	<page id="modules" panel="modules-installed" tagIds="product, modules, module, mod, plugin, extension">
+		<page id="modules-available" panel="modules-available" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="modules-updates" panel="modules-updates" tagIds="product, modules, module, mod, plugin, extension"/>
+		<page id="modules-sources" panel="modules-sources" tagIds="product, modules, module, mod, plugin, extension"/>
 	</page>
 
 	<page id="network">

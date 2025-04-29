@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workspace.Workarea;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -14,17 +14,17 @@ class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		assertToolCount( pane, 0 );
+		Workarea area = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
+		assertToolCount( area, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		assertThat( pane.getActiveTool() ).isInstanceOf( GuideTool.class );
-		assertToolCount( pane, 1 );
+		assertThat( area.getActiveTool() ).isInstanceOf( GuideTool.class );
+		assertToolCount( area, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
-		assertToolCount( pane, 0 );
+		assertToolCount( area, 0 );
 	}
 
 }

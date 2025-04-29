@@ -208,7 +208,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public boolean hasTool( Class<? extends Tool> type ) {
-		return getTools( type ).size() > 0;
+		return !getTools( type ).isEmpty();
 	}
 
 	public double getEdgeSize() {
@@ -504,7 +504,7 @@ public class Workpane extends Control implements WritableIdentity {
 		while( (event = events.poll()) != null ) fireEvent( event );
 	}
 
-	WorkpaneEvent queueEvent( WorkpaneEvent event ) {
+	protected WorkpaneEvent queueEvent( WorkpaneEvent event ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + event.getEventType() );
 		events.offer( event );
 		return event;
@@ -553,24 +553,22 @@ public class Workpane extends Control implements WritableIdentity {
 		startOperation();
 		try {
 			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				activeTool.callDeactivate();
-			}
+			if( activeTool != null ) activeTool.callDeactivate();
 
 			// Change the active view
-			WorkpaneView view = tool == null ? null : tool.getToolView();
-			if( view != null && getViews().contains( view ) ) {
-				view.setActiveTool( tool );
-				if( activateViewAlso && view != getActiveView() ) doSetActiveView( view, false );
+			if( activateViewAlso ) {
+				WorkpaneView view = tool == null ? null : tool.getToolView();
+				if( view != null && getViews().contains( view ) ) {
+					if( view != getActiveView() ) doSetActiveView( view, false );
+					if( tool != getActiveTool() ) view.setActiveTool( tool );
+				}
 			}
 
 			// Change the active tool
 			activeToolProperty.set( tool );
 
 			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				activeTool.callActivate();
-			}
+			if( activeTool != null ) activeTool.callActivate();
 		} finally {
 			finishOperation( true );
 		}
@@ -649,23 +647,23 @@ public class Workpane extends Control implements WritableIdentity {
 		return view;
 	}
 
-	public WorkpaneEdge getWallEdge( Side direction ) {
-		switch( direction ) {
-			case TOP: {
-				return topWall;
-			}
-			case BOTTOM: {
-				return bottomWall;
-			}
-			case LEFT: {
-				return leftWall;
-			}
-			case RIGHT: {
-				return rightWall;
-			}
-		}
+	public WorkpaneEdge getWallEdge( char direction ) {
+		return switch( direction ) {
+			case 't', 'T' -> topWall;
+			case 'b', 'B' -> bottomWall;
+			case 'l', 'L' -> leftWall;
+			case 'r', 'R' -> rightWall;
+			default -> null;
+		};
+	}
 
-		return null;
+	public WorkpaneEdge getWallEdge( Side direction ) {
+		return switch( direction ) {
+			case TOP -> topWall;
+			case BOTTOM -> bottomWall;
+			case LEFT -> leftWall;
+			case RIGHT -> rightWall;
+		};
 	}
 
 	Side getWallEdgeSide( WorkpaneEdge edge ) {
@@ -999,7 +997,7 @@ public class Workpane extends Control implements WritableIdentity {
 			if( target == getDefaultView() ) return false;
 
 			// If auto, check the tool counts
-			if( auto && target.getTools().size() > 0 ) return false;
+			if( auto && !target.getTools().isEmpty() ) return false;
 
 			// Check targets for common back edge
 			if( commonBackEdge == null ) commonBackEdge = target.getEdge( direction );
@@ -1023,9 +1021,9 @@ public class Workpane extends Control implements WritableIdentity {
 			if( canPullMerge( target, direction.direction, auto ) ) return direction.direction;
 		}
 
-		int weight = directions.get( 0 ).getWeight();
+		int weight = directions.getFirst().getWeight();
 
-		return weight == 0 ? null : directions.get( 0 ).getDirection();
+		return weight == 0 ? null : directions.getFirst().getDirection();
 	}
 
 	public Tool addTool( Tool tool ) {
@@ -1143,7 +1141,7 @@ public class Workpane extends Control implements WritableIdentity {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			if( autoMerge ) pullMerge( view );
+			if( autoMerge && !view.isDefault() ) pullMerge( view );
 		} finally {
 			finishOperation( true );
 		}
@@ -1216,32 +1214,38 @@ public class Workpane extends Control implements WritableIdentity {
 	 * view and target view do not have to be in the same workpane but must be in
 	 * the same JVM.
 	 *
-	 * @param sourceTool The tool to move
-	 * @param targetView The view to move the tool to
+	 * @param tool The tool to move
+	 * @param view The view to move the tool to
 	 * @param side The side the target view was split from
 	 * @param index The tab index in the target view
 	 */
-	public static void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
-		Workpane sourcePane = sourceTool.getWorkpane();
-		WorkpaneView sourceView = sourceTool.getToolView();
-		Workpane targetPane = targetView.getWorkpane();
+	public void moveTool( Tool tool, WorkpaneView view, Side side, int index ) {
+		Workpane sourcePane = tool.getWorkpane();
+		WorkpaneView sourceView = tool.getToolView();
+		Workpane targetPane = view.getWorkpane();
 
 		// NOTE The next remove and add steps can get messy due to merging views
 		// It is possible that when addTool is called the target view no longer
 		// exists because it had been auto merged during removeTool. If the source
 		// and target views are the same then turn off auto merge because the tool
 		// would just go back where it came from otherwise.
-		boolean differentViews = sourceView != targetView;
+		boolean differentViews = sourceView != view;
 		boolean automerge = sourcePane.isAutoMerge() && differentViews;
 
 		// Dropped on the side of a view...split it
-		if( side != null ) targetView = targetPane.split( targetView, side );
+		if( side != null ) view = targetPane.split( view, side );
 
-		sourcePane.removeTool( sourceTool, automerge );
+		try {
+			startOperation();
+			sourcePane.removeTool( tool, automerge );
 
-		int targetViewTabCount = targetView.getTools().size();
-		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
-		targetPane.addTool( sourceTool, targetView, index, true );
+			int targetViewTabCount = view.getTools().size();
+			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
+
+			targetPane.addTool( tool, view, index, true );
+		} finally {
+			finishOperation( true );
+		}
 	}
 
 	/**
@@ -1407,7 +1411,7 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta > 0 ) {
 			if( !blockingEdge.isWall() ) {
 				double result = moveHorizontal( blockingEdge, offset - delta );
@@ -1489,7 +1493,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneView getClosest( Set<WorkpaneView> views, WorkpaneView target, Orientation orientation ) {
 		WorkpaneView result = null;
-		double distance = Double.MAX_VALUE;
+		double distance;
 		double resultDistance = Double.MAX_VALUE;
 		double targetCenter = target.getCenter( orientation );
 
@@ -1511,7 +1515,7 @@ public class Workpane extends Control implements WritableIdentity {
 		edge.getViews( getOppositeSide( direction ) ).remove( target );
 
 		// If there are no more associated views, remove the edge.
-		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getOppositeSide( direction ) ).size() == 0 ) removeEdge( edge );
+		if( !edge.isWall() && edge.getViews( direction ).isEmpty() && edge.getViews( getOppositeSide( direction ) ).isEmpty() ) removeEdge( edge );
 	}
 
 	private WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
@@ -2188,13 +2192,14 @@ public class Workpane extends Control implements WritableIdentity {
 
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
+			Workpane pane = event.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
 			// Check if being dropped on self
 			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-			moveTool( sourceTool, targetView, side, index );
+			pane.moveTool( sourceTool, targetView, side, index );
 		}
 
 	}

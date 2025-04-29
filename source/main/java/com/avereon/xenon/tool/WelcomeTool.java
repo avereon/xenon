@@ -2,9 +2,10 @@ package com.avereon.xenon.tool;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.*;
+import com.avereon.xenon.action.DesktopBrowserAction;
+import com.avereon.xenon.action.SettingsAction;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.task.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -13,10 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Ellipse;
 import lombok.CustomLog;
 
-import java.awt.*;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 @CustomLog
 public class WelcomeTool extends ProgramTool {
@@ -33,16 +31,15 @@ public class WelcomeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-welcome" );
 
-		Node icon = ((Xenon)product).getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
-		Node docsIcon = ((Xenon)product).getIconLibrary().getIcon( "document", ICON_SIZE );
-		Node modsIcon = ((Xenon)product).getIconLibrary().getIcon( "product", ICON_SIZE );
+		Node icon = product.getProgram().getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
+		Node docsIcon = product.getProgram().getIconLibrary().getIcon( "document", ICON_SIZE );
+		Node modsIcon = product.getProgram().getIconLibrary().getIcon( "product", ICON_SIZE );
 
 		String documentButtonTitle = Rb.text( RbKey.LABEL, "documentation" );
 		String documentButtonDescription = Rb.text( RbKey.LABEL, "documentation-desc" );
 		String documentButtonUrl = Rb.text( RbKey.LABEL, "documentation-url" );
 		String modsButtonTitle = Rb.text( RbKey.LABEL, "mods" );
 		String modsButtonDescription = Rb.text( RbKey.LABEL, "mods-desc" );
-		String modsButtonUrl = Rb.text( RbKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -53,9 +50,12 @@ public class WelcomeTool extends ProgramTool {
 		Pane accentPane = new Pane();
 		accentPane.getChildren().addAll( accent );
 
-		Button docsButton = createButton( docsIcon, documentButtonTitle, documentButtonDescription, documentButtonUrl );
+		DesktopBrowserAction docsAction = new DesktopBrowserAction( product.getProgram(), URI.create( documentButtonUrl ) );
+		Button docsButton = createButton( docsIcon, documentButtonTitle, documentButtonDescription, docsAction );
 		GridPane.setConstraints( docsButton, 0, 0 );
-		Button modsButton = createButton( modsIcon, modsButtonTitle, modsButtonDescription, modsButtonUrl );
+
+		SettingsAction modsAction = new SettingsAction( product.getProgram(), "modules-available" );
+		Button modsButton = createButton( modsIcon, modsButtonTitle, modsButtonDescription, modsAction );
 		GridPane.setConstraints( modsButton, 1, 0 );
 
 		GridPane buttonGrid = new GridPane();
@@ -79,17 +79,7 @@ public class WelcomeTool extends ProgramTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 
-	@Override
-	protected void display() {
-		getWorkpane().setMaximizedView( getToolView() );
-	}
-
-	@Override
-	protected void conceal() {
-		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
-	}
-
-	private Button createButton( Node icon, String title, String description, String uri ) {
+	private Button createButton( Node icon, String title, String description, ProgramAction action ) {
 		Label titleLabel = new Label( title );
 		titleLabel.getStyleClass().addAll( "title" );
 		Label descriptionLabel = new Label( description );
@@ -99,14 +89,7 @@ public class WelcomeTool extends ProgramTool {
 		BorderPane content = new BorderPane( text, null, null, null, icon );
 		Button button = new Button( "", content );
 		button.setMaxWidth( Double.MAX_VALUE );
-
-		button.setOnAction( e -> getProgram().getTaskManager().submit( Task.of( "", () -> {
-			try {
-				Desktop.getDesktop().browse( new URI( uri ) );
-			} catch( IOException | URISyntaxException ioException ) {
-				log.atWarn().log( "Unable to open uri=%s", uri );
-			}
-		} ) ) );
+		button.setOnAction( action );
 
 		return button;
 	}

@@ -4,7 +4,6 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
-import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -15,6 +14,7 @@ import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
@@ -100,7 +100,7 @@ import java.util.concurrent.TimeoutException;
  * </ul>
  */
 @CustomLog
-public abstract class ProgramTool extends Tool implements WritableIdentity {
+public abstract class ProgramTool extends Tool {
 
 	public static final int ASSET_READY_TIMEOUT = 10;
 
@@ -111,6 +111,8 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	private boolean isReady;
 
 	private boolean setActiveWhenReady;
+
+	private boolean setActiveWhenOpen;
 
 	public ProgramTool( XenonProgramProduct product, Asset asset ) {
 		super( asset );
@@ -251,6 +253,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		this.setActiveWhenReady = true;
 	}
 
+	public void setActiveWhenOpen() {
+		this.setActiveWhenOpen = true;
+	}
+
 	static void waitForReady( OpenAssetRequest request, ProgramTool tool ) {
 		TaskChain.of( "wait for ready", () -> {
 			waitForTool( tool );
@@ -302,6 +308,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		isReady = true;
 
 		// Determine if the asset is missing
+		// TODO This logic, and notice, about missing assets should be moved to the asset manager
 		boolean assetMissing;
 		try {
 			assetMissing = !request.getAsset().isNew() && !request.getAsset().exists();
@@ -309,6 +316,8 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 			assetMissing = true;
 		}
 		final boolean finalAssetMissing = assetMissing;
+
+		final Workpane pane = getWorkpane();
 
 		Fx.run( () -> {
 			// Notify the user if the asset is missing
@@ -321,9 +330,15 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 			// Set the tool active and call ready and open
 			try {
-				if( setActiveWhenReady ) doSetActiveWhenReady();
 				ready( request );
+				// Fire tool ready event
+				if( setActiveWhenReady ) doSetActiveWhenReady();
+				fireEvent( new ProgramToolEvent( this, ProgramToolEvent.READY, pane, this ) );
+
 				open( request );
+				// Fire tool open event
+				if( setActiveWhenOpen ) getWorkpane().setActiveTool( this );
+				fireEvent( new ProgramToolEvent( this, ProgramToolEvent.TOOL_OPEN_REQUEST_FINISHED, pane, this ) );
 			} catch( ToolException exception ) {
 				log.atSevere().withCause( exception ).log();
 			}

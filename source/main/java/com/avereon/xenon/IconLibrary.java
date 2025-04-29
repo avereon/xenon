@@ -41,6 +41,8 @@ public class IconLibrary {
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 
+		register( "new-folder", new NewFolderIcon() );
+
 		register( "document", new DocumentIcon() );
 		register( "asset", new DocumentIcon() );
 		register( "asset-new", new DocumentIcon() );
@@ -127,6 +129,7 @@ public class IconLibrary {
 		register( "remove", new CloseIcon() );
 		register( "tag", new TagIcon() );
 		register( "title", new TitleIcon() );
+		register( "theme", new ThemeIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );
@@ -182,12 +185,23 @@ public class IconLibrary {
 	public Node getIcon( List<String> ids, double size ) {
 		VectorImage icon = null;
 		for( String id : ids ) {
+			// Check the icon cache
 			icon = icons.get( id );
+
+			// If the icon is not in the cache, try to load it from a URL
 			if( icon == null ) icon = getIconFromUrl( id, size );
+
+			// If an icon is found, stop looking
 			if( icon != null ) break;
 		}
-		if( icon != null ) icon = icon.copy();
-		if( icon == null ) icon = new BrokenIcon();
+
+		// If there is an icon, make a copy of it
+		if( icon != null ) {
+			icon = icon.copy();
+		} else {
+			// If the icon is still null, use the broken icon
+			icon = new BrokenIcon();
+		}
 
 		return icon.resize( size );
 	}

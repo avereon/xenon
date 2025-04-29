@@ -19,6 +19,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
+import com.avereon.zarra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -105,8 +106,8 @@ public class AboutTool extends GuidedTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "about" ) );
 
 		updateCheckWatcher = e -> Platform.runLater( summaryPane.getInformationPane()::updateUpdateCheckInfo );
-		getProgram().getSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
-		getProgram().getSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProductManager().getSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProductManager().getSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 
 		modEnabledWatcher = e -> Platform.runLater( this::updatePages );
 		getProgram().register( ModEvent.ENABLED, modEnabledWatcher );
@@ -122,14 +123,16 @@ public class AboutTool extends GuidedTool {
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = SUMMARY;
 		selectPage( pageId );
+
+		summaryPane.getInformationPane().updateUpdateCheckInfo();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
 		getProgram().unregister( ModEvent.ENABLED, modEnabledWatcher );
 		getProgram().unregister( ModEvent.DISABLED, modEnabledWatcher );
-		getProgram().getSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
-		getProgram().getSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProductManager().getSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProductManager().getSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 		super.deallocate();
 	}
 
@@ -218,6 +221,8 @@ public class AboutTool extends GuidedTool {
 
 		private final Label javaFxRuntime;
 
+		private final Label javaFxProvider;
+
 		private final Label javaLabel;
 
 		private Label javaName;
@@ -275,6 +280,7 @@ public class AboutTool extends GuidedTool {
 			information.getChildren().add( makeSeparator() );
 			information.getChildren().add( javaFxHeader );
 			information.getChildren().add( javaFxRuntime = makeLabel( "tool-about-version" ) );
+			information.getChildren().add( javaFxProvider = makeLabel( "tool-about-provider" ) );
 
 			// Operating System
 			information.getChildren().add( makeSeparator() );
@@ -292,6 +298,7 @@ public class AboutTool extends GuidedTool {
 
 			javaFxHeader.setText( "JavaFX " + System.getProperty( "javafx.version" ) );
 			javaFxRuntime.setText( "JavaFX Runtime " + System.getProperty( "javafx.runtime.version" ) );
+			javaFxProvider.setText( from + " Community" );
 
 			javaLabel.setText( "Java " + System.getProperty( "java.version" ) );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
@@ -314,16 +321,16 @@ public class AboutTool extends GuidedTool {
 		}
 
 		private void updateUpdateCheckInfo() {
-			long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
-			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
-			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+			Long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
+			Long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
+			if( nextUpdateCheck != null && nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = null;
 
 			String unknown = Rb.text( RbKey.UPDATE, "unknown" );
 			String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
-			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
-			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String lastUpdateCheckText = lastUpdateCheck == null ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String nextUpdateCheckText = nextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 
-			Platform.runLater( () -> {
+			Fx.run( () -> {
 				lastUpdateTimestamp.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
 				nextUpdateTimestamp.setText( nextUpdateCheckPrompt + "  " + nextUpdateCheckText );
 			} );
@@ -652,12 +659,12 @@ public class AboutTool extends GuidedTool {
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );
 		threads.sort( new ThreadInfoNameComparator() );
-		for( ThreadInfo thread : threads ) {
+		threads.stream().filter( Objects::nonNull ).forEach( thread -> {
 			builder.append( TextUtil.leftJustify( thread.getThreadState().toString(), 15 ) );
 			builder.append( "  " );
 			builder.append( thread.getThreadName() );
 			builder.append( "\n" );
-		}
+		} );
 
 		return builder.toString();
 	}

@@ -1,8 +1,8 @@
 package com.avereon.xenon.mod;
 
-import com.avereon.xenon.Mod;
+import com.avereon.xenon.Module;
 
-public class MockMod extends Mod {
+public class MockMod extends Module {
 
 	public MockMod() {
 		super();

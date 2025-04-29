@@ -16,7 +16,8 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getWorkpane();
+		// given
+		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
@@ -26,9 +27,16 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( pane, 2 );
 
+		// FIXME The tool came back null
+		assertThat( future.get() ).withFailMessage( "Tool should not be null" ).isNotNull();
+		assertThat( future.get().getAsset() ).withFailMessage( "Asset should not be null" ).isNotNull();
+
+		// when
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
+
+		// then
 		assertToolCount( pane, 1 );
 	}
 

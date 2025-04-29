@@ -7,6 +7,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -16,6 +17,10 @@ import lombok.CustomLog;
 
 import java.util.*;
 
+/**
+ * @deprecated This functionality has moved to the SettingsTool
+ */
+@Deprecated
 @CustomLog
 public class ProductTool extends GuidedTool {
 
@@ -190,7 +195,7 @@ public class ProductTool extends GuidedTool {
 		currentPage.updateState( false );
 	}
 
-	List<ProductCard> createSourceList( List<ProductCard> cards ) {
+	protected List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
 		Map<String, List<ProductCard>> cardMap = new HashMap<>();
@@ -216,7 +221,7 @@ public class ProductTool extends GuidedTool {
 			List<ProductCard> releases = cardMap.get( card.getProductKey() );
 			if( releases != null ) {
 				releases.sort( Collections.reverseOrder( new ProgramProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
-				sources.add( releases.get( 0 ) );
+				sources.add( releases.getFirst() );
 			}
 		}
 
@@ -224,3 +229,4 @@ public class ProductTool extends GuidedTool {
 	}
 
 }
+

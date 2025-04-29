@@ -5,7 +5,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.PropertiesToolEvent;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.type.PropertiesType;
+import com.avereon.xenon.asset.type.ProgramPropertiesType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.workspace.Workspace;
@@ -38,7 +38,7 @@ public class PropertiesAction extends ProgramAction {
 		getProgram().getTaskManager().submit( Task.of( () -> {
 			try {
 				// Show the properties tool
-				getProgram().getAssetManager().openAsset( PropertiesType.URI ).get();
+				getProgram().getAssetManager().openAsset( ProgramPropertiesType.URI ).get();
 
 				// Fire the event on the FX thread
 				Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();

@@ -1,19 +1,20 @@
 {
-  "group": "${project.groupId}",
-  "artifact": "${project.artifactId}",
-  "version": "${project.version}",
+  "group": "${groupId}",
+  "artifact": "${artifactId}",
+  "version": "${version}",
   "timestamp": "${project.timestamp}",
+  "osSpecific": true,
   "iconUri": "program",
 	"icons": [ "program", "https://avereon.com/download/latest/xenon/product/icon" ],
-  "name": "${project.name}",
-  "provider": "${project.organization.name}",
-  "providerUrl": "${project.organization.url}",
-  "inception": "${project.inceptionYear}",
-  "summary": "Java application platform",
-  "description": "${project.description}",
+  "name": "${name}",
+  "provider": "${organization.name}",
+  "providerUrl": "${organization.url}",
+  "inception": "${inceptionYear}",
+  "summary": "Modular application platform",
+  "description": "${description}",
   "copyrightSummary": "All rights reserved.",
-  "licenseSummary": "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
-  "javaVersion": "11",
+  "licenseSummary": "${name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
+  "javaVersion": "${java.version}",
   "maintainers": [
   {
     "name": "Mark Soderquist",
@@ -25,13 +26,13 @@
   }
   ],
   "contributors": [
-  {
-    "name": "Chris Soderquist",
-    "roles": [ "User Experience" ]
-  },
-  {
-    "name": "Dan Langford",
-    "roles": [ "Consultant" ]
-  }
+		{
+			"name": "Eurydice Soderquist",
+			"roles": [ "User Experience" ]
+		},
+		{
+			"name": "Dan Langford",
+			"roles": [ "Consultant" ]
+		}
   ]
 }

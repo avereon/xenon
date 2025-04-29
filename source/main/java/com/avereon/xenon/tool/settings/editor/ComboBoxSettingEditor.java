@@ -72,6 +72,11 @@ public class ComboBoxSettingEditor extends SettingEditor {
 		}
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		combobox.getSelectionModel().select( setting.getOption( getCurrentValue() ) );
+	}
+
 	private void doComboBoxValueChanged( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
 		setting.getSettings().set( setting.getKey(), newValue == null ? null : newValue.getOptionValue() );
 	}

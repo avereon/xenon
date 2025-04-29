@@ -1,7 +1,8 @@
 package com.avereon.xenon;
 
-import com.avereon.zenna.icon.XRingLargeIcon;
 import com.avereon.zarra.image.RenderedImage;
+import com.avereon.zarra.javafx.Fx;
+import com.avereon.zenna.icon.XRingLargeIcon;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -11,6 +12,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 
 @CustomLog
 public class SplashScreenPane extends Pane {
@@ -19,17 +22,17 @@ public class SplashScreenPane extends Pane {
 
 	private static final double HEIGHT = 0.5625 * WIDTH;
 
-	private static final double TITLE_PAD = 40;
-
 	private static final double BAR_SIZE = 5;
 
 	private static final double BAR_PAD = 20;
 
-	private String title;
+	private final String title;
 
-	private int steps;
+	@Setter
+	@Getter
+	private int expectedSteps;
 
-	private int progress;
+	private int completedSteps;
 
 	private final Rectangle progressTray;
 
@@ -38,10 +41,6 @@ public class SplashScreenPane extends Pane {
 	public SplashScreenPane( String title ) {
 		this.title = title;
 		getStyleClass().addAll( "splashscreen" );
-
-		// The background is a workaround to the stage color changing on Windows
-		//Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		//background.setFill( Color.GRAY );
 
 		RenderedImage icon = new XRingLargeIcon().resize( 224 );
 		icon.setLayoutX( 0.5 * (WIDTH - icon.getWidth()) );
@@ -72,18 +71,6 @@ public class SplashScreenPane extends Pane {
 		setHeight( HEIGHT );
 	}
 
-	public int getSteps() {
-		return steps;
-	}
-
-	public void setSteps( int steps ) {
-		this.steps = steps;
-	}
-
-	public int getCompletedSteps() {
-		return progress;
-	}
-
 	public SplashScreenPane show( Stage stage ) {
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 
@@ -101,26 +88,33 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public void update() {
-		setProgress( ((double)progress++ / (double)steps) );
+		Fx.run( () -> doSetProgress( ((double)completedSteps++ / (double)expectedSteps) ) );
 	}
 
-	public void setProgress( double progress ) {
-		if( progress >= 1.0 ) {
-			progress = 1.0;
+	public void setCompletedSteps( final double completedSteps ) {
+		Fx.run( () -> doSetProgress( completedSteps ) );
+	}
+
+	public void done() {
+		Fx.run( () -> {
+			if( completedSteps != expectedSteps ) log.atWarning().log( "Progress/step mismatch: %d of %d", completedSteps, expectedSteps );
+			completedSteps = expectedSteps;
+			doSetProgress( 1 );
+		} );
+	}
+
+	public void hide() {
+		if( getScene() != null ) Fx.run( () -> getScene().getWindow().hide() );
+	}
+
+	private void doSetProgress( double requestedProgress ) {
+		if( requestedProgress >= 1.0 ) {
+			requestedProgress = 1.0;
 			progressTray.setVisible( false );
 			progressBar.getStyleClass().remove( "progress-incomplete" );
 			progressBar.getStyleClass().add( "progress-complete" );
 		}
-		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * progress );
-	}
-
-	public void done() {
-		progress = steps;
-		setProgress( 1 );
-	}
-
-	public void hide() {
-		if( getScene() != null ) getScene().getWindow().hide();
+		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * requestedProgress );
 	}
 
 }

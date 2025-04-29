@@ -115,7 +115,7 @@ public class WorkspaceBackground extends StackPane {
 		} catch( IOException exception ) {
 			images = List.of();
 		}
-		if( images.size() == 0 ) {
+		if( images.isEmpty() ) {
 			imagePane.setBackground( null );
 			return false;
 		}
@@ -141,7 +141,8 @@ public class WorkspaceBackground extends StackPane {
 		switch( style ) {
 			case "fill": {
 				// JavaFX cover
-				useFillBackgroundWorkaround( true );
+				BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+				background = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
 				break;
 			}
 			case "fit": {
@@ -205,42 +206,6 @@ public class WorkspaceBackground extends StackPane {
 		}
 
 		return tintEnabled;
-	}
-
-	/**
-	 * This workaround is in place to handle updating the fill style because the
-	 * BackgroundSize cover flag does not respect BackgroundPosition yet.
-	 */
-	private void useFillBackgroundWorkaround( boolean force ) {
-		if( !"fill".equals( style ) ) return;
-		if( image == null ) return;
-
-		double spaceWidth = getWidth();
-		double spaceHeight = getHeight();
-		double imageWidth = image.getWidth();
-		double imageHeight = image.getHeight();
-
-		double spaceRatio = spaceWidth / spaceHeight;
-		double imageRatio = imageWidth / imageHeight;
-		if( spaceWidth == 0 || spaceHeight == 0 ) spaceRatio = Double.POSITIVE_INFINITY;
-
-		boolean swap = (priorSpaceRatio > imageRatio && spaceRatio < imageRatio) || (priorSpaceRatio < imageRatio && spaceRatio > imageRatio);
-		boolean change = force || swap;
-
-		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );
-		if( change && spaceRatio < imageRatio ) {
-			// Switch to tall settings
-			BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, 1, false, true, false, false );
-			BackgroundImage newBackground = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
-			imagePane.setBackground( new Background( newBackground ) );
-		} else if( change && spaceRatio >= imageRatio ) {
-			// Switch to wide settings
-			BackgroundSize size = new BackgroundSize( 1, BackgroundSize.AUTO, true, false, false, false );
-			BackgroundImage newBackground = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
-			imagePane.setBackground( new Background( newBackground ) );
-		}
-
-		priorSpaceRatio = spaceRatio;
 	}
 
 }

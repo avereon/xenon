@@ -17,6 +17,7 @@ import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zarra.event.FxEventHub;
 import javafx.event.ActionEvent;
@@ -28,6 +29,7 @@ import lombok.CustomLog;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -35,11 +37,11 @@ import java.util.stream.Collectors;
 @CustomLog
 public class AssetManager implements Controllable<AssetManager> {
 
-	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
+	private static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
 
-	public static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
+	private static final long DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT = 100;
 
-	public static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
+	private static final String CURRENT_FILE_FOLDER_SETTING_KEY = "current-file-folder";
 
 	private final Xenon program;
 
@@ -83,6 +85,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Object currentAssetLock = new Object();
 
+	private final Map<URI, URI> aliases;
+
 	private boolean running;
 
 	public AssetManager( Xenon program ) {
@@ -92,15 +96,18 @@ public class AssetManager implements Controllable<AssetManager> {
 		schemes = new ConcurrentHashMap<>();
 		assetTypes = new ConcurrentHashMap<>();
 		registeredCodecs = new ConcurrentHashMap<>();
+		aliases = new ConcurrentHashMap<>();
 
 		// FIXME This is pretty dangerous for a couple of reasons
 		// 1. It saves all assets, not just the current one
-		// 2. In the even there was an error loading an asset, it can save the asset in a bad state
+		// 2. In the event there was an error loading an asset, it can save the asset in a bad state
 		// ?. Maybe this should be changed to save assets that submit themselves for autosave?
 		autosave = new DelayedAction( program.getTaskManager().getExecutor(), this::saveAll );
 		autosave.setMinTriggerLimit( program.getSettings().get( "autosave-trigger-min", Long.class, DEFAULT_AUTOSAVE_MIN_TRIGGER_LIMIT ) );
 		autosave.setMaxTriggerLimit( program.getSettings().get( "autosave-trigger-max", Long.class, DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT ) );
+
 		eventBus = new FxEventHub();
+		eventBus.parent( program.getFxEventHub() );
 		currentAssetWatcher = new CurrentAssetWatcher();
 		generalAssetWatcher = new GeneralAssetWatcher();
 
@@ -139,8 +146,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		//program.getEventHub().register( ToolEvent.ANY, activeToolWatcher );
 
-		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
-
 		program.getSettings().register( "autosave-trigger-min", e -> autosave.setMinTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
 		program.getSettings().register( "autosave-trigger-max", e -> autosave.setMaxTriggerLimit( Long.parseLong( String.valueOf( e.getNewValue() ) ) ) );
 
@@ -153,8 +158,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	public AssetManager stop() {
 		running = false;
 
-		// TODO ((FileScheme)Schemes.getScheme( "file" )).stopAssetWatching();
-
 		//program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
 
 		return this;
@@ -162,6 +165,29 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public FxEventHub getEventBus() {
 		return eventBus;
+	}
+
+	public Path getCurrentFileFolder() {
+		// Determine the current folder
+		// The current folder string is in URI format
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
+		log.atConfig().log( "Stored current folder: %s", currentFolderString );
+		URI currentFolderUri = URI.create( currentFolderString );
+		Path currentFolder = FileUtil.findValidFolder( currentFolderUri.toString() );
+		//if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
+		log.atConfig().log( "Result current folder: %s", currentFolderString );
+		setCurrentFileFolder( currentFolder.toUri() );
+		return currentFolder;
+	}
+
+	public void setCurrentFileFolder( Asset asset ) {
+		setCurrentFileFolder( asset.getUri() );
+	}
+
+	private void setCurrentFileFolder( URI uri ) {
+		if( !FileScheme.ID.equals( uri.getScheme() ) ) return;
+		// Current folder value is store in URI format
+		getProgram().getSettings().set( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY, uri );
 	}
 
 	public Asset getCurrentAsset() {
@@ -255,12 +281,14 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Get an asset type by the asset type key defined in the asset type. This is useful for getting asset types from persisted data.
+	 * Get an asset type by the asset type key defined in the asset type. This is
+	 * useful for getting asset types from persisted data.
 	 *
 	 * @param key The asset type key
 	 * @return The asset type associated to the key
 	 */
 	public AssetType getAssetType( String key ) {
+		if( key == null ) return null;
 		AssetType type = assetTypes.get( key );
 		if( type == null ) log.atWarning().log( "Asset type not found: %s", key );
 		return type;
@@ -391,37 +419,42 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
-		return openAsset( uri, model, null, null, true, true );
+		return openAsset( uri, model, null, null, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane ) {
+		return openAsset( uri, null, pane, null, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Class<? extends ProgramTool> toolClass ) {
-		return openAsset( uri, null, null, toolClass, true, true );
+		return openAsset( uri, null, null, null, toolClass, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( uri, null, null, null, openTool, setActive );
+		return openAsset( uri, null, null, null, null, openTool, setActive );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Workpane pane, boolean openTool, boolean setActive ) {
+		return openAsset( uri, null, pane, null, null, openTool, setActive );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
 		if( side != null ) view = view.getWorkpane().split( view, side );
-		return openAsset( uri, null, view, null, true, true );
+		return openAsset( uri, null, null, view, null, true, true );
 	}
 
-	public Set<Future<ProgramTool>> openAssets( Set<URI> uris, boolean openTool, boolean setActive ) {
-		Set<Future<ProgramTool>> futures = new HashSet<>();
-		for( URI uri : uris ) {
-			futures.add( openAsset( uri, null, null, null, openTool, setActive ) );
-		}
-		return futures;
+	public Set<Future<ProgramTool>> openDependencyAssets( Set<URI> uris, Workpane pane ) {
+		return uris.stream().map( uri -> openAsset( uri, null, pane, null, null, true, false ) ).collect( Collectors.toSet() );
 	}
 
-	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> openAsset( URI uri, Object model, Workpane pane, WorkpaneView view, Class<? extends ProgramTool> toolClass, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
+		request.setPane( pane );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
@@ -432,6 +465,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public Future<ProgramTool> openAsset( Asset asset ) {
 		return openAsset( asset, null, null, null );
+	}
+
+	public Future<ProgramTool> openAsset( Asset asset, Class<? extends ProgramTool> toolClass ) {
+		return openAsset( asset, null, null, toolClass );
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
@@ -517,6 +554,8 @@ public class AssetManager implements Controllable<AssetManager> {
 			return (createAsset( (URI)descriptor ));
 		} else if( descriptor instanceof File ) {
 			return (createAsset( ((File)descriptor).toURI() ));
+		} else if( descriptor instanceof Path ) {
+			return (createAsset( ((Path)descriptor).toUri() ));
 		} else {
 			return (createAsset( descriptor.toString() ));
 		}
@@ -525,7 +564,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	/**
 	 * Create an asset from a string. This asset is considered to be an old asset. See {@link Asset#isNew()}
 	 *
-	 * @param string A asset string
+	 * @param string The asset string
 	 * @return A new asset based on the specified string.
 	 */
 	public Asset createAsset( String string ) throws AssetException {
@@ -559,8 +598,19 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param file The file to create an asset from
 	 * @return The asset created from the file
 	 */
+	@Deprecated
 	public Asset createAsset( File file ) throws AssetException {
 		return doCreateAsset( null, file.toURI() );
+	}
+
+	/**
+	 * Create an asset from a path. This asset is considered to be an old asset. See {@link Asset#isNew()}
+	 *
+	 * @param path The path to create an asset from
+	 * @return The asset created from the path
+	 */
+	public Asset createAsset( Path path ) throws AssetException {
+		return doCreateAsset( null, path.toUri() );
 	}
 
 	/**
@@ -571,6 +621,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public Asset createAsset( AssetType type ) throws AssetException {
 		return doCreateAsset( type, null );
+	}
+
+	public Asset createAsset( AssetType type, String uri ) throws AssetException {
+		return doCreateAsset( type, UriUtil.resolve( uri ) );
 	}
 
 	/**
@@ -845,6 +899,30 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
+	 * Request that the specified assets be deleted. This method submits a task to
+	 * the task manager and returns immediately.
+	 *
+	 * @param assets The assets to close.
+	 */
+	public void deleteAssets( Collection<Asset> assets ) {
+		program.getTaskManager().submit( new DeleteAssetTask( assets ) );
+	}
+
+	/**
+	 * Request that the specified assets be deleted and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 *
+	 * @param assets The assets to delete.
+	 * @throws ExecutionException If there was an exception deleting the assets
+	 * @throws InterruptedException If the process of deleting the assets was interrupted
+	 * @implNote Do not call from a UI thread
+	 */
+	public void deleteAssetsAndWait( Collection<Asset> assets ) throws ExecutionException, InterruptedException {
+		program.getTaskManager().submit( new DeleteAssetTask( assets ) ).get();
+	}
+
+	/**
 	 * Get a collection of the supported codecs.
 	 *
 	 * @return A collection of all supported codecs
@@ -862,7 +940,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public Asset resolve( Asset asset, String name ) throws AssetException {
 		if( !asset.isFolder() ) return asset;
-		return createAsset( asset.getUri().resolve( name ) );
+		if( name == null ) return asset;
+		return createAsset( asset.getUri().resolve( name.replace( " ", "%20" ) ) );
 	}
 
 	private Settings getSettings() {
@@ -889,7 +968,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Look for asset types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( asset ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
-		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
+		Codec codec = codecs.isEmpty() ? null : codecs.getFirst();
 		if( codec != null ) type = codec.getAssetType();
 
 		// Assign values to asset
@@ -942,9 +1021,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		return filteredAssets;
 	}
 
-	// FIXME Need to check if callers really need to know if it is open or identified
 	private boolean isManagedAssetOpen( Asset asset ) {
-		return openAssets.contains( asset );
+		boolean isAssetOpen = asset.isOpen();
+		boolean isInOpenAssets = openAssets.contains( asset );
+
+		// This is a double check to ensure things are consistent
+		if( isAssetOpen != isInOpenAssets ) log.atWarn().log( "Asset open: %s, %s", isAssetOpen, isInOpenAssets );
+
+		return isAssetOpen;
 	}
 
 	private void updateActionState() {
@@ -984,10 +1068,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Determine if all of the assets can be saved.
+	 * Determine if all the assets can be saved.
 	 *
 	 * @param assets The set of assets to check
-	 * @return True if all of the assets can be saved
+	 * @return True if all the assets can be saved
 	 */
 	private boolean canSaveAllAssets( Collection<Asset> assets ) {
 		return assets.stream().mapToInt( a -> canSaveAsset( a ) ? 0 : 1 ).sum() == 0;
@@ -1038,9 +1122,22 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param asset The asset to check
 	 * @return True if the asset can be renamed, false otherwise.
 	 */
-	private boolean canRenameAsset( Asset asset ) {
-		if( asset == null || asset.isNew() ) return false;
-		return asset.isOpen();
+	boolean canRenameAsset( Asset asset ) {
+		return asset != null && !asset.isNew() && asset.isOpen();
+	}
+
+	public void registerAssetAlias( URI alias, URI uri ) {
+		aliases.put( alias, uri );
+	}
+
+	public void unregisterAssetAlias( URI alias ) {
+		aliases.remove( alias );
+	}
+
+	private URI resolveAssetAlias( URI uri ) {
+		URI resolved = aliases.get( uri );
+		if( resolved == null ) return uri;
+		return resolved;
 	}
 
 	/**
@@ -1054,7 +1151,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 
-		// NOTE Many assets require query parameters in the URI
+		uri = resolveAssetAlias( uri );
+
+		// Many assets use query parameters and fragments in the URI,
+		// so we need to clean up the URI before using it
 		uri = uriCleanup( uri );
 
 		Asset asset = identifiedAssets.get( uri );
@@ -1063,9 +1163,9 @@ public class AssetManager implements Controllable<AssetManager> {
 			resolveScheme( asset );
 			identifiedAssets.put( uri, asset );
 			asset.setIcon( asset.isFolder() ? "folder" : "file" );
-			log.atFiner().log( "Asset create: %s[%s] uri=%s", asset, System.identityHashCode( asset ), uri );
+			log.atDebug().log( "Asset create: %s", asset );
 		} else {
-			log.atFiner().log( "Asset exists: %s[%s] uri=%s", asset, System.identityHashCode( asset ), uri );
+			log.atDebug().log( "Asset exists: %s", asset );
 		}
 
 		return asset;
@@ -1111,11 +1211,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.atDebug().log( "Asset opened: %s", asset );
 
-		// NOTE Loading a new asset here does nothing
-		// since the ProgramAssetNewType just uses a placeholder codec
-		// FIXME If this call was to set the loaded flag on a new asset it should be done differently
-		//if( asset.isNew() ) doLoadAsset( asset );
-
 		updateActionState();
 		return true;
 	}
@@ -1124,7 +1219,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) return false;
 
 		if( !asset.isNew() && !asset.exists() ) {
-			log.atWarn().log("Asset not found: " + asset );
+			log.atWarn().log( "Asset not found: " + asset );
 			return false;
 		}
 
@@ -1185,7 +1280,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets.remove( asset );
 		identifiedAssets.remove( asset.getUri() );
 
-		if( openAssets.size() == 0 ) doSetCurrentAsset( null );
+		if( openAssets.isEmpty() ) doSetCurrentAsset( null );
 
 		// TODO Delete the asset settings?
 		// Should the settings be removed? Or left for later?
@@ -1194,6 +1289,20 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.atDebug().log( "Asset closed: %s", asset );
+
+		updateActionState();
+		return true;
+	}
+
+	private boolean doDeleteAsset( Asset asset ) throws AssetException {
+		if( asset == null ) return false;
+		if( asset.isOpen() ) doCloseAsset( asset );
+
+		// Delete the asset
+		asset.delete();
+
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.DELETED, asset ) );
+		log.atDebug().log( "Asset deleted: %s", asset );
 
 		updateActionState();
 		return true;
@@ -1221,14 +1330,22 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 	}
 
+	private String generateFilename() {
+		return "asset" + (currentAsset == null ? "" : "." + currentAsset.getCodec().getDefaultExtension());
+	}
+
 	private void askForTargetAsset( Asset source, boolean saveAs, boolean rename ) throws AssetException {
 		Codec codec = source.getCodec();
 		if( codec == null ) codec = source.getType().getDefaultCodec();
 
-		File folder = !source.isNew() ? new File( getParent( source ).getUri() ) : getCurrentFolder();
-		String filename = !source.isNew() ? source.getFileName() : "asset" + (codec == null ? "" : "." + codec.getDefaultExtension());
-		String uriString = ProgramAssetType.URI + "?uri=" + folder.toURI().resolve( filename ) + ProgramAssetType.SAVE_FRAGMENT;
-		log.atTrace().log( "save asset uri=%s", uriString );
+		// Determine the asset path
+		Path folder = source.isNew() ? getCurrentFileFolder() : Path.of( getParent( source ).getUri() );
+		String filename = source.isNew() ? generateFilename() : source.getFileName();
+		Path assetPath = folder.resolve( filename );
+
+		// Build a URI to open the asset tool
+		String uriString = ProgramAssetType.URI + "?mode=" + AssetTool.Mode.SAVE + "&uri=" + assetPath.toUri();
+		log.atTrace().log( "save asset uri=%s", URI.create( uriString ) );
 
 		final Asset finalAsset = source;
 		final Codec finalCodec = codec;
@@ -1238,7 +1355,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
 				tool.getFilters().addAll( 0, filters.values() );
 				tool.setSelectedFilter( filters.get( finalCodec ) );
-				tool.setSaveActionConsumer( a -> doAfterAssetTool( tool, filters, source, a, saveAs, rename ) );
+				tool.setSaveActionConsumer( target -> doAfterAssetTool( tool, filters, source, target, saveAs, rename ) );
 			} catch( Exception exception ) {
 				log.atWarn().withCause( exception ).log();
 			}
@@ -1248,7 +1365,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	private void doAfterAssetTool( AssetTool tool, Map<Codec, AssetFilter> filters, Asset source, Asset target, boolean saveAs, boolean rename ) {
 		try {
 			Asset folder = target.isFolder() ? target : getParent( target );
-			getSettings().set( CURRENT_FOLDER_SETTING_KEY, String.valueOf( folder.getUri() ) );
+
+			// Store the current folder in the settings
+			setCurrentFileFolder( folder );
 
 			// If the user specified a codec use it to set the codec and asset type
 			Map<AssetFilter, Codec> filterCodecs = MapUtil.mirror( filters );
@@ -1309,8 +1428,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return filters;
 	}
 
-	private URI uriCleanup( URI uri ) {
-		return UriUtil.removeFragment( uri ).normalize();
+	URI uriCleanup( URI uri ) {
+		return UriUtil.removeQueryAndFragment( uri ).normalize();
 	}
 
 	private boolean doSetCurrentAsset( Asset asset ) {
@@ -1342,12 +1461,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private File getCurrentFolder() {
-		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-		if( !folder.exists() || !folder.isDirectory() ) folder = new File( System.getProperty( "user.dir" ) );
-		return folder;
-	}
-
 	private class NewOrOpenAssetTask extends Task<ProgramTool> {
 
 		private final OpenAssetRequest request;
@@ -1360,6 +1473,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		public ProgramTool call() throws AssetException, ExecutionException, TimeoutException, InterruptedException {
 			// Create and configure the asset
 			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
+
 			Asset asset = request.getAsset();
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
@@ -1368,10 +1482,10 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Open the asset
 			openAssetsAndWait( asset, 5, TimeUnit.SECONDS );
-			if( !asset.isOpen() || !isManagedAssetOpen( asset ) ) return null;
+			//if( !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
-			ProgramTool tool;
+			ProgramTool tool = null;
 			try {
 				// If the asset is new get user input from the asset type
 				if( asset.isNew() ) {
@@ -1382,7 +1496,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					resolveScheme( asset );
 				}
 
-				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
+				if( request.isOpenTool() ) tool = program.getToolManager().openTool( request );
 			} catch( NoToolRegisteredException exception ) {
 				log.atConfig().log( "No tool registered for: %s", asset );
 				String title = Rb.text( "program", "no-tool-for-asset-title" );
@@ -1407,7 +1521,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return getUserAssetTypes().size() > 0;
+			return !getUserAssetTypes().isEmpty();
 		}
 
 		@Override
@@ -1433,7 +1547,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return !isHandling && getUserAssetTypes().size() > 0;
+			return !isHandling && !getUserAssetTypes().isEmpty();
 		}
 
 		@Override
@@ -1602,7 +1716,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				}
 			}
 
-			if( throwables.size() != 0 ) {
+			if( !throwables.isEmpty() ) {
 				for( Throwable throwable : throwables.keySet() ) {
 					String errorName = throwable.getClass().getSimpleName();
 					String taskName = getClass().getSimpleName();
@@ -1619,7 +1733,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public String toString() {
-			if( assets == null || assets.size() == 0 ) return super.toString() + ": none";
+			if( assets == null || assets.isEmpty() ) return super.toString() + ": none";
 			return super.toString() + ": " + assets.iterator().next().toString();
 		}
 
@@ -1686,6 +1800,19 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public boolean doOperation( Asset asset ) throws AssetException {
 			return doCloseAsset( asset );
+		}
+
+	}
+
+	private class DeleteAssetTask extends AssetTask {
+
+		private DeleteAssetTask( Collection<Asset> assets ) {
+			super( assets );
+		}
+
+		@Override
+		public boolean doOperation( Asset asset ) throws AssetException {
+			return doDeleteAsset( asset );
 		}
 
 	}

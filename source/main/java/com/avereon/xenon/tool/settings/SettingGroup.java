@@ -1,14 +1,14 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Getter
 public class SettingGroup extends SettingDependant {
-
-	private static final String ID = "id";
 
 	private static final String SETTINGS = "settings";
 
@@ -27,18 +27,6 @@ public class SettingGroup extends SettingDependant {
 		return null;
 	}
 
-	public SettingsPage getPage() {
-		return page;
-	}
-
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public void setId( String id ) {
-		setValue( ID, id );
-	}
-
 	public List<SettingData> getSettingsList() {
 		return Collections.unmodifiableList( getValue( SETTINGS ) );
 	}
@@ -48,8 +36,9 @@ public class SettingGroup extends SettingDependant {
 		settings.add( setting );
 	}
 
-	public Settings getSettings() {
-		return getPage().getSettings();
+	@Override
+	Settings getParentSettings() {
+		return page.getSettings();
 	}
 
 }

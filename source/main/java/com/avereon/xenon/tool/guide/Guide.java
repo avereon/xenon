@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+import javafx.scene.input.KeyEvent;
 import lombok.CustomLog;
 
 import java.util.Comparator;
@@ -35,7 +36,7 @@ public class Guide {
 
 	private final StringProperty iconProperty;
 
-	// Passthrough from guide
+	// Pass-through from guide
 	private final BooleanProperty dragAndDropEnabledProperty;
 
 	public Guide() {
@@ -125,7 +126,7 @@ public class Guide {
 	}
 
 	/**
-	 * This method can be overridden to capture when the nodes are moved in the guide
+	 * This method can be overridden to capture when the nodes are moved in the guide.
 	 *
 	 * @param item The guide node that was moved
 	 * @param target The guide node that the item was dropped on
@@ -133,17 +134,19 @@ public class Guide {
 	 */
 	protected void moveNode( GuideNode item, GuideNode target, Guide.Drop drop ) {}
 
+	protected void keyEvent( KeyEvent event ) {}
+
 	/* Only intended to be used by the GuideTool */
 	public final TreeItem<GuideNode> getRoot() {
 		return root;
 	}
 
-	private TreeItem<GuideNode> findItem( GuideNode node ) {
-		return findItem( node.getId() );
-	}
-
 	private TreeItem<GuideNode> findItem( String id ) {
 		return findItem( root, id );
+	}
+
+	private TreeItem<GuideNode> findItem( GuideNode node ) {
+		return findItem( node.getId() );
 	}
 
 	private TreeItem<GuideNode> findItem( GuideNode parent, GuideNode node ) {
@@ -179,7 +182,7 @@ public class Guide {
 	@SuppressWarnings( "unused" )
 	static String nodesToString( Set<GuideNode> nodes ) {
 		if( nodes == null ) return null;
-		if( nodes.size() == 0 ) return "";
+		if( nodes.isEmpty() ) return "";
 
 		StringBuilder builder = new StringBuilder();
 		for( GuideNode node : nodes ) {
@@ -197,8 +200,7 @@ public class Guide {
 		public int compare( TreeItem<GuideNode> o1, TreeItem<GuideNode> o2 ) {
 			GuideNode n1 = o1.getValue();
 			GuideNode n2 = o2.getValue();
-			return n1.getComparator().compare( n1, n2 );
-			//return n2.getOrder() - n1.getOrder();
+			return n1.getNaturalComparator().compare( n1, n2 );
 		}
 
 	}

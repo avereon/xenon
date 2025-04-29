@@ -3,7 +3,11 @@ package com.avereon.xenon.asset;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolManager;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.net.URI;
 import java.util.Map;
@@ -19,6 +23,9 @@ import java.util.Map;
  * @see AssetManager
  * @see ToolManager
  */
+@Getter
+@Setter
+@Accessors( chain = true )
 public class OpenAssetRequest {
 
 	private AssetType type;
@@ -28,6 +35,8 @@ public class OpenAssetRequest {
 	private Codec codec;
 
 	private Object model;
+
+	private Workpane pane;
 
 	private WorkpaneView view;
 
@@ -56,17 +65,14 @@ public class OpenAssetRequest {
 	 */
 	private Class<? extends ProgramTool> toolClass;
 
-	public URI getUri() {
-		return uri;
-	}
+	/**
+	 * The requested tool class name if restoring a tool.
+	 */
+	private String toolClassName;
 
 	public OpenAssetRequest setUri( URI uri ) {
 		this.uri = uri;
 		return this;
-	}
-
-	public AssetType getType() {
-		return type;
 	}
 
 	public OpenAssetRequest setType( AssetType type ) {
@@ -74,82 +80,48 @@ public class OpenAssetRequest {
 		return this;
 	}
 
+	/**
+	 * Get the model associated with this request, if one is used. Asset open
+	 * requests occasionally have a pre-existing model that should be used with
+	 * the request.
+	 *
+	 * @return The model associated with this request.
+	 * @param <M> The model type.
+	 */
 	@SuppressWarnings( "unchecked" )
 	public <M> M getModel() {
 		return (M)model;
 	}
 
+	/**
+	 * If the asset has an exising model that should be used with this request,
+	 * the model should be set with this method.
+	 *
+	 * @param model The model to use with this request.
+	 * @return This request.
+	 * @param <M> The model type.
+	 */
 	public <M> OpenAssetRequest setModel( M model ) {
 		this.model = model;
 		return this;
 	}
 
-	public Map<String,String> getQueryParameters() {
+	/**
+	 * Convenience method to get the query parameters from the URI.
+	 *
+	 * @return The query parameters from the URI.
+	 */
+	public Map<String, String> getQueryParameters() {
 		return uri == null ? null : UriUtil.parseQuery( uri.getQuery() );
 	}
 
+	/**
+	 * Convenience method to get the fragment from the URI.
+	 *
+	 * @return The fragment from the URI.
+	 */
 	public String getFragment() {
 		return uri == null ? null : UriUtil.parseFragment( uri );
 	}
 
-	public Codec getCodec() {
-		return codec;
-	}
-
-	public OpenAssetRequest setCodec( Codec codec ) {
-		this.codec = codec;
-		return this;
-	}
-
-	public WorkpaneView getView() {
-		return view;
-	}
-
-	public OpenAssetRequest setView( WorkpaneView view ) {
-		this.view = view;
-		return this;
-	}
-
-	public boolean isOpenTool() {
-		return openTool;
-	}
-
-	public OpenAssetRequest setOpenTool( boolean openTool ) {
-		this.openTool = openTool;
-		return this;
-	}
-
-	public boolean isSetActive() {
-		return setActive;
-	}
-
-	public OpenAssetRequest setSetActive( boolean setActive ) {
-		this.setActive = setActive;
-		return this;
-	}
-
-	public Asset getAsset() {
-		return asset;
-	}
-
-	public OpenAssetRequest setAsset( Asset asset ) {
-		this.asset = asset;
-		return this;
-	}
-
-	public String getToolId() {
-		return toolId;
-	}
-
-	public void setToolId( String toolId ) {
-		this.toolId = toolId;
-	}
-
-	public Class<? extends ProgramTool> getToolClass() {
-		return toolClass;
-	}
-
-	public void setToolClass( Class<? extends ProgramTool> toolClass ) {
-		this.toolClass = toolClass;
-	}
 }

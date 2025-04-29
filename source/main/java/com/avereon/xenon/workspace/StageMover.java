@@ -19,12 +19,20 @@ public class StageMover {
 
 	private static final double DRAG_DISTANCE_THRESHOLD = 10;
 
-	public StageMover( Node node ) {
+	private StageMover( Node node ) {
+		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handlePress );
+
+		// FIXME Why did I split this into two classes?
 		new StageDragContext( node, this::handleDrag );
-		node.addEventFilter( MouseEvent.MOUSE_PRESSED, this::handleClick );
 	}
 
-	private void handleClick( MouseEvent event ) {
+	public static <T extends Node> T of(T node) {
+		new StageMover( node );
+		node.getStyleClass().add( "stage-mover" );
+		return node;
+	}
+
+	private void handlePress( MouseEvent event ) {
 		boolean shouldToggleMaximize = !event.isDragDetect() && event.getClickCount() == 2;
 		if( shouldToggleMaximize ) toggleMaximize( Fx.getStage( event ) );
 	}
@@ -50,7 +58,7 @@ public class StageMover {
 		if( screens.isEmpty() ) return;
 
 		// Calculate what percent of the screen width the mouse pointer is located
-		double percent = event.getX() / screens.get( 0 ).getVisualBounds().getWidth();
+		double percent = event.getX() / screens.getFirst().getVisualBounds().getWidth();
 
 		// Normalize the window
 		toggleMaximize( stage );

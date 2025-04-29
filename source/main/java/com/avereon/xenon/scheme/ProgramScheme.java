@@ -1,70 +1,42 @@
 package com.avereon.xenon.scheme;
 
-import com.avereon.index.Document;
-import com.avereon.product.Rb;
-import com.avereon.util.IoUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.Codec;
-import lombok.CustomLog;
+import com.avereon.xenon.asset.exception.AssetException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
-@CustomLog
-public class ProgramScheme extends ProductScheme {
+public abstract class ProgramScheme extends BaseScheme {
 
-	public static final String ID = "program";
-
-	public ProgramScheme( Xenon program ) {
-		super( program, ID );
+	public ProgramScheme( Xenon program, String id ) {
+		super( program, id );
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean exists( Asset asset ) throws AssetException {
 		return true;
 	}
 
 	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
-		// Most assets don't actually load anything
-		// However, the following do:
-
-		// Help content
-		URI uri = URI.create( asset.getUri().getSchemeSpecificPart() );
-		if( uri.getScheme() != null ) {
-			switch( uri.getScheme() ) {
-				case "help" -> loadHelp( asset, codec );
+		if( codec != null ) {
+			try {
+				codec.load( asset, null );
+			} catch( IOException exception ) {
+				throw new AssetException( asset, "Unable to load " + asset.getUri(), exception );
 			}
 		}
 	}
 
-	private void loadHelp( Asset asset, Codec codec ) {
-		URI uri = asset.getUri();
-
-		String content;
-		try {
-			Document document = getProgram().getIndexService().lookupFromCache( uri );
-			if( document == null ) {
-				log.atWarn().log( "Document not found: doc=%s", uri );
-				String message = Rb.text( "program", "help-document-not-found" );
-				content = "<html><body>" + message + "</body></html>";
-			} else {
-				content = IoUtil.toString( document.reader() );
+	@Override
+	public void save( Asset asset, Codec codec ) throws AssetException {
+		if( codec != null ) {
+			try {
+				codec.save( asset, null );
+			} catch( IOException exception ) {
+				throw new AssetException( asset, "Unable to save asset", exception );
 			}
-		} catch( Exception exception ) {
-			String message = Rb.text( "program", "error-loading-help-content" );
-			content = "<html><body>" + message + "</body></html>";
-			log.atError( exception ).log();
-		}
-
-		try {
-			codec.load( asset, new ByteArrayInputStream( content.getBytes( StandardCharsets.UTF_8 ) ) );
-		} catch( IOException exception ) {
-			throw new RuntimeException( exception );
 		}
 	}
 

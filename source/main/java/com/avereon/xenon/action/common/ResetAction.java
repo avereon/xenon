@@ -7,7 +7,7 @@ import javafx.event.ActionEvent;
 
 public class ResetAction extends ProgramAction {
 
-	private Resettable resettable;
+	private final Resettable resettable;
 
 	public ResetAction( Xenon program, Resettable resettable ) {
 		super( program );

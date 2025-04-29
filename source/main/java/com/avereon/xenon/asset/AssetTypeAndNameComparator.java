@@ -18,7 +18,7 @@ public class AssetTypeAndNameComparator extends AssetNameComparator {
 				return 1;
 			}
 		} catch( AssetException exception ) {
-			log.atSevere().withCause( exception ).log();
+			log.atWarn().withCause( exception ).log();
 		}
 		return super.compare( o1, o2 );
 	}

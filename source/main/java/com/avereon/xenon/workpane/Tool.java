@@ -2,33 +2,36 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.zarra.javafx.Fx;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import lombok.CustomLog;
+import lombok.Getter;
 
 /**
  * The Tool class is a pane that "works on" an asset.
  */
 @CustomLog
-public abstract class Tool extends StackPane {
+public abstract class Tool extends StackPane implements WritableIdentity {
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 
-	public static final String ICON_PROPERTY = "icon";
+	public static final String ICON = "icon";
 
-	public static final String TITLE_PROPERTY = "title";
+	public static final String TITLE = "title";
 
-	public static final String DESCRIPTION_PROPERTY = "description";
+	public static final String ORDER = "order";
+
+	public static final String DESCRIPTION = "description";
+
+	public static final String ACTIVE = "active";
 
 	public static final Workpane.Placement DEFAULT_TOOL_PLACEMENT = Workpane.Placement.SMART;
 
@@ -36,22 +39,25 @@ public abstract class Tool extends StackPane {
 
 	private static final ToolInfo toolInfo = new ToolInfo();
 
-	private ObjectProperty<Node> graphicProperty;
+	private final ObjectProperty<Node> graphicProperty;
 
-	private StringProperty titleProperty;
+	private final StringProperty titleProperty;
 
-	private ObjectProperty<Node> contextGraphicProperty;
+	private final IntegerProperty orderProperty;
 
-	private ObjectProperty<Node> closeGraphicProperty;
+	private final ObjectProperty<Node> contextGraphicProperty;
 
-	private ObjectProperty<CloseOperation> closeOperation;
+	private final ObjectProperty<Node> closeGraphicProperty;
 
-	private Asset asset;
+	private final ObjectProperty<CloseOperation> closeOperation;
+
+	private final Asset asset;
 
 	private WorkpaneView parent;
 
 	private boolean allocated;
 
+	@Getter
 	private boolean displayed;
 
 	private EventHandler<AssetEvent> closer;
@@ -61,6 +67,7 @@ public abstract class Tool extends StackPane {
 
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
+		this.orderProperty = new SimpleIntegerProperty();
 		this.contextGraphicProperty = new SimpleObjectProperty<>();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
@@ -72,7 +79,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e ->  getWorkpane().setActiveTool( this ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> getWorkpane().setActiveTool( this ) );
 	}
 
 	public final Asset getAsset() {
@@ -149,6 +156,18 @@ public abstract class Tool extends StackPane {
 
 	public StringProperty titleProperty() {
 		return titleProperty;
+	}
+
+	public IntegerProperty orderProperty() {
+		return orderProperty;
+	}
+
+	public int getOrder() {
+		return orderProperty.getValue();
+	}
+
+	public void setOrder( int order ) {
+		orderProperty.setValue( order );
 	}
 
 	@SuppressWarnings( "unused" )
@@ -230,10 +249,6 @@ public abstract class Tool extends StackPane {
 		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
 	}
 
-	public boolean isDisplayed() {
-		return displayed;
-	}
-
 	public boolean isActive() {
 		return parent != null && parent.getActiveTool() == this;
 	}
@@ -311,7 +326,7 @@ public abstract class Tool extends StackPane {
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Determine if this tool is the the last tool of its type for the tool asset.
+	 * Determine if this tool is the last tool of its type for the tool asset.
 	 *
 	 * @return True if this is the last tool of its type, false otherwise.
 	 */
@@ -331,7 +346,7 @@ public abstract class Tool extends StackPane {
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
 		}
@@ -347,7 +362,7 @@ public abstract class Tool extends StackPane {
 		try {
 			display();
 			displayed = true;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error displaying tool" );
 		}
@@ -362,7 +377,7 @@ public abstract class Tool extends StackPane {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error activating tool" );
 		}
@@ -377,7 +392,7 @@ public abstract class Tool extends StackPane {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deactivating tool" );
 		}
@@ -393,7 +408,7 @@ public abstract class Tool extends StackPane {
 		try {
 			conceal();
 			displayed = false;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error concealing tool" );
 		}
@@ -409,11 +424,15 @@ public abstract class Tool extends StackPane {
 		try {
 			deallocate();
 			allocated = false;
-			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
+			triggerEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) );
 			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deallocating tool" );
 		}
+	}
+
+	private void triggerEvent( ToolEvent event ) {
+		fireEvent( getWorkpane().queueEvent( event ) );
 	}
 
 	private void doClose() {

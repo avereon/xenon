@@ -99,4 +99,20 @@ class SettingDependencyTest {
 		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( false );
 	}
 
+	@Test
+	void testEvaluateWithPath() {
+		Settings settings = new MapSettings();
+		SettingDependency dependency = new SettingDependency();
+		dependency.setPath( "path" );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
+
+		settings.getNode( "path" ).set( "enabled", false );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( false );
+
+		settings.getNode( "path" ).set( "enabled", true );
+		assertThat( dependency.evaluate( settings, false ) ).isEqualTo( false );
+		assertThat( dependency.evaluate( settings, true ) ).isEqualTo( true );
+	}
 }

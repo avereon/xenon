@@ -14,11 +14,11 @@ public class NodeOrderNameComparator<T extends Node> implements Comparator<T> {
 
 	Comparator<T> byName = Comparator.comparing( o -> o.getValue( NAME ) == null ? "" : o.getValue( NAME ) );
 
-	Comparator<T> c = byOrder.thenComparing( byName );
+	Comparator<T> byOrderThenByName = byOrder.thenComparing( byName );
 
 	@Override
 	public int compare( T o1, T o2 ) {
-		return c.compare( o1, o2 );
+		return byOrderThenByName.compare( o1, o2 );
 	}
 
 }

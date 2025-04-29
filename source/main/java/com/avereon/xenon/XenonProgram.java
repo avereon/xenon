@@ -9,6 +9,7 @@ import com.avereon.product.Program;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.AssetWatchService;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
@@ -35,7 +36,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	void requestRestart( RestartHook.Mode mode, String... commands );
+	void requestRestart( RestartJob.Mode mode, String... commands );
 
 	boolean requestExit( boolean skipChecks );
 
@@ -56,7 +57,19 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 	@Override
 	Xenon getProgram();
 
+	/**
+	 * Get the execution profile.
+	 *
+	 * @see XenonFlag#PROFILE
+	 */
 	String getProfile();
+
+	/**
+	 * Get the execution mode.
+	 *
+	 * @see XenonFlag#MODE
+	 */
+	String getMode();
 
 	/**
 	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like
@@ -103,6 +116,8 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 	NoticeManager getNoticeManager();
 
 	IndexService getIndexService();
+
+	AssetWatchService getAssetWatchService();
 
 	<T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler );
 

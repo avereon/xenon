@@ -1,5 +1,3 @@
-import com.avereon.xenon.Mod;
-
 // NOTE Multiple attempts have been made to consolidate test classes into this
 // module without success. There are several reasons this has not worked:
 // 1. JUnit does not like to be both a test-time library and a compile-time library.
@@ -50,8 +48,10 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
 	exports com.avereon.xenon.tool.settings;
+	exports com.avereon.xenon.tool.settings.editor;
 	exports com.avereon.xenon.undo;
 	exports com.avereon.xenon.util;
+	exports com.avereon.xenon.ui;
 	exports com.avereon.xenon.ui.util;
 	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
@@ -62,5 +62,5 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
 
-	uses Mod;
+	uses com.avereon.xenon.Module;
 }

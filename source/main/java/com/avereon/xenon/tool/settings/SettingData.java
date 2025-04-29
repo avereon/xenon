@@ -2,6 +2,8 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,10 +11,10 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 @CustomLog
 public class SettingData extends SettingDependant {
-
-	public static final String ID = "id";
 
 	public static final String KEY = "key";
 
@@ -38,18 +40,6 @@ public class SettingData extends SettingDependant {
 		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setModified( false );
-	}
-
-	public SettingGroup getGroup() {
-		return group;
-	}
-
-	public String getId() {
-		return getValue( ID );
-	}
-
-	public void setId( String id ) {
-		setValue( ID, id );
 	}
 
 	public String getKey() {
@@ -96,14 +86,6 @@ public class SettingData extends SettingDependant {
 		return this;
 	}
 
-	public SettingOptionProvider getOptionProvider() {
-		return optionProvider;
-	}
-
-	public void setOptionProvider( SettingOptionProvider optionProvider ) {
-		this.optionProvider = optionProvider;
-	}
-
 	public SettingOption getOption( String value ) {
 		return getOptions().stream().filter( o -> Objects.equals( o.getOptionValue(), value ) ).findFirst().orElse( null );
 	}
@@ -125,7 +107,8 @@ public class SettingData extends SettingDependant {
 		options.add( option );
 	}
 
-	public Settings getSettings() {
+	@Override
+	Settings getParentSettings() {
 		return getGroup().getSettings();
 	}
 

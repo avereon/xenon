@@ -14,7 +14,7 @@ public interface ProgramSettings {
 
 	String MANAGER = PROGRAM + "manager/";
 
-	//String UPDATE = PROGRAM + "update/";
+	String UPDATES = PROGRAM + "updates/";
 
 	// User Interface Settings
 
@@ -24,6 +24,7 @@ public interface ProgramSettings {
 
 	String AREA = UI + "area/";
 
+	@Deprecated
 	String PANE = UI + "pane/";
 
 	String EDGE = UI + "edge/";

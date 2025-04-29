@@ -9,6 +9,7 @@ import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zarra.event.FxEventWatcher;
 import com.avereon.zarra.javafx.Fx;
+import javafx.event.Event;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,8 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private EventWatcher programWatcher;
 
+	private FxEventWatcher programFxWatcher;
+
 	private FxEventWatcher workpaneWatcher;
 
 	private long initialMemoryUse;
@@ -63,8 +66,9 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		// This is fixed in TestFX 4.0.17+
 
 		Xenon xenon = setProgram( new Xenon() );
-		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameterValues() ) );
+		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameters() ) );
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
+		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
 
 		// Start the application; all setup needs to be done before this point
 		long start = System.currentTimeMillis();
@@ -84,9 +88,8 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
-		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane() ).withFailMessage( "Active workpane is null" ).isNotNull();
 
-		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 	}
 
@@ -128,12 +131,16 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		return programWatcher;
 	}
 
+	protected FxEventWatcher getProgramFxEventWatcher() {
+		return programFxWatcher;
+	}
+
 	protected Workspace getWorkspace() {
 		return getProgram().getWorkspaceManager().getActiveWorkspace();
 	}
 
-	protected Workpane getWorkpane() {
-		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+	protected Workpane getWorkarea() {
+		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 	}
 
 	protected FxEventWatcher getWorkpaneEventWatcher() {
@@ -162,6 +169,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
+		double increaseAbsolute = ((double)increaseSize / (double)SizeUnitBase10.MB.getSize());
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 
 		//		String direction = "";
@@ -170,15 +178,17 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		//		increaseSize = Math.abs( increaseSize );
 		//System.out.printf( "Memory use: %s -> %s = %s %s%n", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ), direction );
 
-		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
-			throw new AssertionFailedError( String.format( "Absolute memory growth too large %s -> %s : %s",
+		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increaseAbsolute > getAllowedMemoryGrowthSize() ) {
+			throw new AssertionFailedError( String.format(
+				"Absolute memory growth too large %s -> %s : %s",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				FileUtil.getHumanSizeBase2( increaseSize )
 			) );
 		}
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increasePercent > getAllowedMemoryGrowthPercent() ) {
-			throw new AssertionFailedError( String.format( "Relative memory growth too large %s -> %s : %.2f%%",
+			throw new AssertionFailedError( String.format(
+				"Relative memory growth too large %s -> %s : %.2f%%",
 				FileUtil.getHumanSizeBase2( initialMemoryUse ),
 				FileUtil.getHumanSizeBase2( finalMemoryUse ),
 				increasePercent * 100

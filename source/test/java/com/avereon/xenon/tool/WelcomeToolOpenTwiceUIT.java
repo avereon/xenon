@@ -10,21 +10,21 @@ class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getWorkpane();
+		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
 		openWelcomeTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
-		assertThat( pane.getActiveView().isMaximized() ).isTrue();
+		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 
 		openWelcomeTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
-		assertThat( pane.getActiveView().isMaximized() ).isTrue();
+		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 	}
 

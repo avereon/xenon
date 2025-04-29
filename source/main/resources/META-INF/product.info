@@ -1,14 +1,14 @@
-group: ${project.groupId}
-artifact: ${project.artifactId}
-version: ${project.version}
+group: ${groupId}
+artifact: ${artifactId}
+version: ${version}
 timestamp: ${project.timestamp}
 
-name: ${project.name}
+name: ${name}
 icon: program
-provider: ${project.organization.name}
-inception: ${project.inceptionYear}
+provider: ${organization.name}
+inception: ${inceptionYear}
 
 summary: Modular application platform
-description: ${project.description}
-copyright: All rights reserved
-license: ${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
+description: ${description}
+copyright: All rights reserved.
+license: ${name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.

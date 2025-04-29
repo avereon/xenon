@@ -6,14 +6,16 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.index.Document;
 import com.avereon.log.Log;
-import com.avereon.product.*;
+import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
+import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.asset.AssetTypeSettingsPanel;
+import com.avereon.xenon.asset.AssetWatchService;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -21,7 +23,6 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
-import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.scheme.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -46,13 +47,16 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,9 +76,11 @@ public class Xenon extends Application implements XenonProgram {
 
 	public static final long MANAGER_ACTION_SECONDS = 10;
 
-	private static final String PROGRAM_RELEASE = "product-release";
+	public static final String DEFAULT_LOG_FILE_PATTERN = "program.%u.log";
 
-	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
+	static final String PROGRAM_RELEASE = "product-release";
+
+	static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
 	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
@@ -88,11 +94,16 @@ public class Xenon extends Application implements XenonProgram {
 
 	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
 
+	@Getter
+	private final FxEventHub fxEventHub;
+
 	private com.avereon.util.Parameters parameters;
+
+	private boolean daemonRequested;
 
 	private SplashScreenPane splashScreen;
 
-	private ProgramTaskManager taskManager;
+	private TaskManager taskManager;
 
 	private ProductCard card;
 
@@ -106,15 +117,15 @@ public class Xenon extends Application implements XenonProgram {
 
 	private UpdateManager updateManager;
 
-	private Settings programSettings;
-
 	private String profile;
+
+	private String mode;
 
 	private IconLibrary iconLibrary;
 
 	private ActionLibrary actionLibrary;
 
-	private ProgramServer programServer;
+	private PeerServer peerServer;
 
 	private SettingsManager settingsManager;
 
@@ -132,9 +143,9 @@ public class Xenon extends Application implements XenonProgram {
 
 	private IndexService indexService;
 
-	private ProgramEventWatcher watcher;
+	private AssetWatchService assetWatchService;
 
-	private FxEventHub fxEventHub;
+	private ProgramEventWatcher watcher;
 
 	private ActionMenuAction actionMenuAction;
 
@@ -152,6 +163,8 @@ public class Xenon extends Application implements XenonProgram {
 
 	private SettingsAction settingsAction;
 
+	private SettingsToggleAction settingsToggleAction;
+
 	private PropertiesAction propertiesAction;
 
 	private ThemesAction themesAction;
@@ -160,9 +173,17 @@ public class Xenon extends Application implements XenonProgram {
 
 	private NoticeAction noticeAction;
 
+	private NoticeToggleAction noticeToggleAction;
+
 	private SearchAction searchAction;
 
+	private SearchToggleAction searchToggleAction;
+
 	private ProductAction productAction;
+
+	private SettingsAction modulesAction;
+
+	private SettingsAction themeAction;
 
 	private UpdateAction updateAction;
 
@@ -179,6 +200,8 @@ public class Xenon extends Application implements XenonProgram {
 	private WallpaperTintToggleAction wallpaperTintToggleAction;
 
 	private Boolean isProgramUpdated;
+
+	private RestartJob restartJob;
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
@@ -199,11 +222,12 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Create the event hub
 		fxEventHub = new FxEventHub();
+		time( "fx-event-hub" );
 	}
 
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
-	static void doLaunch( String[] commands ) {
+	public static void launch( String[] commands ) {
 		Application.launch( commands );
 	}
 
@@ -216,9 +240,10 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
+		time( "uncaught-exception-handler" );
 
 		// Init the product card
-		card = ProgramConfig.loadProductInfo();
+		card = XenonLauncherConfig.loadProductInfo();
 		time( "card" );
 
 		// Initialize the program parameters
@@ -237,43 +262,47 @@ public class Xenon extends Application implements XenonProgram {
 		configureLogging();
 		time( "configure-logging" );
 
+		// Get the memory setup
+		long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
 
-		// Check for the VERSION CL parameter, depends on program settings
-		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
+		// Check for the VERSION CLI parameter, depends on product card
+		if( getProgramParameters().isSet( XenonFlag.VERSION ) ) {
 			printVersion( card );
 			requestExit( true );
 			return;
+		} else {
+			log.atDebug().log( "JVM Max Memory: %sMB", maxMemory );
+			log.atDebug().log( "Parameters: %s", parameters );
+			log.atDebug().log( "Program home: %s", getHomeFolder() );
+			log.atDebug().log( "Program data: %s", getDataFolder() );
 		}
 		time( "version-check" );
 
-		// Check for the HELP CL parameter, depends on program settings
-		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
-			printHelp( getProgramParameters().get( ProgramFlag.HELP ) );
+		// Check for the HELP CLI parameter, depends on program parameters
+		if( getProgramParameters().isSet( XenonFlag.HELP ) ) {
+			printHelp( getProgramParameters().get( XenonFlag.HELP ) );
 			requestExit( true );
 			return;
 		}
 		time( "help-check" );
 
 		// Create the settings manager, depends on program data folder, FX event hub
-		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
+		settingsManager = new SettingsManager( this ).start();
+		time( "settings-manager" );
 
 		// Create the program settings, depends on settings manager and default settings values
-		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.loadDefaultValues( this, DEFAULT_SETTINGS );
+		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
 		time( "program-settings" );
 
 		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
-		int port = programSettings.get( "program-port", Integer.class, 0 );
-		if( !TestUtil.isTest() && peerCheck( port ) ) {
-			//			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-			//				log.log( Log.ERROR, "Cannot run update in peer mode" );
-			//			} else {
+		int port = getSettings().get( "program-port", Integer.class, 0 );
+		if( !TestUtil.isTest() && isHostAlreadyRunning( port ) ) {
 			new ProgramPeer( this, port ).start();
-			//			}
 			requestExit( true );
 			return;
 		}
@@ -282,17 +311,15 @@ public class Xenon extends Application implements XenonProgram {
 		// NOTE At this point this instance is a host not a peer
 
 		// If this instance is a host, process the CLI actions before showing the splash screen
-		if( !processCliActions( getProgramParameters(), true ) ) {
+		if( processPeerCommands( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
 		time( "cli-actions" );
 
+		// NOTE The task manager is created in the init() method, so it is available during tests
 		// Create the task manager, depends on program settings
-		// The task manager is created in the init() method, so it is available during tests
-		log.atFiner().log( "Starting task manager..." );
-		taskManager = (ProgramTaskManager)configureTaskManager( new ProgramTaskManager( this ) ).start();
-		log.atFine().log( "Task manager started." );
+		taskManager = new ProgramTaskManager( this ).start();
 		time( "task-manager" );
 
 		// NOTE The start( Stage ) method is called next
@@ -303,13 +330,10 @@ public class Xenon extends Application implements XenonProgram {
 	@Override
 	public void start( Stage stage ) {
 		time( "fx-start" );
-		if( !Profile.TEST.equals( profile ) && !isHardwareRendered() ) {
-			log.atWarning().log( "Hardware rendering is disabled! Consider adding -Dprism.forceGPU=true to the JVM parameters" );
+		if( !XenonMode.TEST.equals( mode ) && !isHardwareRendered() ) {
+			log.atWarning().log( "Hardware rendering is disabled!" );
+			log.atWarning().log( "  Consider adding -Dprism.forceGPU=true to the JVM parameters" );
 		}
-
-		// Add the uncaught exception handler to the FX thread
-		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
-		time( "uncaught-exception-handler" );
 
 		// This must be set before the splash screen is shown
 		Application.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
@@ -318,9 +342,9 @@ public class Xenon extends Application implements XenonProgram {
 		// Show the splash screen, depends stylesheet
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UNDECORATED ) stage.initStyle( StageStyle.UNDECORATED );
-		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
-		boolean nosplash = parameters.isSet( ProgramFlag.NOSPLASH );
-		if( !daemon && !nosplash ) {
+		daemonRequested = parameters.isSet( XenonFlag.DAEMON ) && !parameters.isSet( XenonFlag.NO_DAEMON );
+		boolean nosplash = parameters.isSet( XenonFlag.NO_SPLASH );
+		if( !daemonRequested && !nosplash ) {
 			splashScreen = new SplashScreenPane( card.getName() );
 			splashScreen.show( stage );
 			time( "splash-displayed" );
@@ -390,6 +414,9 @@ public class Xenon extends Application implements XenonProgram {
 	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
 
+		// Reset the UI if the reset flag is set
+		if( parameters.isSet( XenonFlag.RESET ) ) new UiFactory( this ).reset();
+
 		// Create the program event watcher, depends on logging
 		getFxEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
 		time( "event-hub" );
@@ -398,9 +425,9 @@ public class Xenon extends Application implements XenonProgram {
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTING ) );
 		time( "program-starting-event" );
 
-		// Create the product manager, depends on icon library
-		productManager = configureProductManager( new ProductManager( this ) );
-		time( "product-manager" );
+		// Update the product card
+		card = XenonLauncherConfig.loadProductCard();
+		time( "update-product-card" );
 
 		// Create the icon library
 		iconLibrary = new IconLibrary( this );
@@ -411,110 +438,91 @@ public class Xenon extends Application implements XenonProgram {
 		registerActionHandlers();
 		time( "program-actions" );
 
-		// Create the UI factory
-		UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
-
 		// Set the number of startup steps
-		int service = 7;
-		int steps = service + uiRegenerator.getToolCount();
+		int serviceCount = 8;
 		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.setSteps( steps ) );
+			Fx.run( () -> splashScreen.setExpectedSteps( serviceCount ) );
 		}
 
-		// Update the product card
-		card = ProductCard.card( this );
-		time( "update-product-card" );
-
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 
 		// Start the asset manager
 		log.atFiner().log( "Starting asset manager..." );
-		assetManager = new AssetManager( Xenon.this );
-		assetManager.getEventBus().parent( getFxEventHub() );
+		assetManager = new AssetManager( Xenon.this ).start();
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
-		assetManager.start();
-		//program-asset-type-provider
-		getSettingsManager().putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( this ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Asset manager started." );
 		time( "asset-manager" );
+
+		// Start the asset watch service
+		log.atFiner().log( "Starting asset watch service..." );
+		assetWatchService = new AssetWatchService( Xenon.this ).start();
+		if( splashScreen != null ) splashScreen.update();
+		log.atFine().log( "Asset watch service started." );
+		time( "asset-watch-service" );
 
 		// Start the index service
 		log.atFiner().log( "Starting index service..." );
 		indexService = new IndexService( Xenon.this ).start();
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Index service started." );
 		time( "index-service" );
 
 		// Load the settings pages
-		getSettingsManager().putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
-		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
+		getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
 		time( "settings-pages" );
 
 		// Start the tool manager
 		log.atFiner().log( "Starting tool manager..." );
-		toolManager = new ToolManager( this );
+		toolManager = new ToolManager( this ).start();
 		registerTools( toolManager );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Tool manager started." );
 		time( "tool-manager" );
 
 		// Create the theme manager
 		log.atFiner().log( "Starting theme manager..." );
-		themeManager = new ThemeManager( Xenon.this ).start();
+		themeManager = new ThemeManager( this ).start();
 		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Theme manager started." );
 		time( "theme-manager" );
 
 		// Create the workspace manager
 		log.atFiner().log( "Starting workspace manager..." );
-		workspaceManager = new WorkspaceManager( Xenon.this ).start();
-		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		workspaceManager = new WorkspaceManager( this ).start();
+		workspaceManager.setTheme( getSettings().get( "workspace-theme-id" ) );
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Workspace manager started." );
 		time( "workspace-manager" );
 
 		// Create the notice manager, depends on workspace manager
 		log.atFiner().log( "Starting notice manager..." );
-		noticeManager = new NoticeManager( Xenon.this ).start();
+		noticeManager = new NoticeManager( this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
-		if( splashScreen != null ) {
-			Fx.run( () -> splashScreen.update() );
-		}
+		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Notice manager started." );
 		time( "notice-manager" );
 
-		// Start the product manager
+		// Start the product manager, depends on icon library
 		log.atFiner().log( "Starting product manager..." );
-		productManager.start();
+		productManager = new ProductManager( this ).start();
 		log.atFine().log( "Product manager started." );
 		time( "product-manager" );
+
+		// Start the update manager, depends on product manager
+		log.atFiner().log( "Starting update manager..." );
+		updateManager = new UpdateManager( this );
+		restartJob = new RestartJob( this );
+		log.atFine().log( "Update manager started." );
+		time( "update-manager" );
 
 		// Start the mods, depends on product manager
 		log.atFiner().log( "Starting mods..." );
 		productManager.startMods();
 		log.atFine().log( "Mods started." );
 		time( "product-mods" );
-
-		// Start the update manager, depends on product manager
-		log.atFiner().log( "Starting update manager..." );
-		updateManager = new UpdateManager( this );
-		log.atFine().log( "Update manager started." );
-		time( "update-manager" );
 
 		// Before restoring the UI, update the default tools
 		log.atFiner().log( "Updating default tools..." );
@@ -524,35 +532,43 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
-		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		if( workspaceManager.getActiveWorkpane() == null ) {
-			log.atWarning().log( "Active workarea not set" );
+		boolean useUiReader = true;
+		UiReader uiReader = new UiReader( Xenon.this );
+		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
+		if( useUiReader ) {
+			uiReader.loadWorkspaces();
+			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		} else {
+			//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
+			//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//			if( workspaceManager.getActiveWorkpane() == null ) {
+			//				log.atWarning().log( "Failed to restore active workarea" );
+			//			}
 		}
+
 		log.atFine().log( "User interface restored." );
 		time( "user-interface-restored" );
 
 		// Finish the splash screen
 		if( splashScreen != null ) {
-			int totalSteps = splashScreen.getSteps();
-			int completedSteps = splashScreen.getCompletedSteps();
-			if( completedSteps != totalSteps ) {
-				log.atWarning().log( "Startup step mismatch: %s of %s", completedSteps, totalSteps );
-			}
 			Fx.run( () -> splashScreen.done() );
 			time( "splash-done" );
 
 			// Give the slash screen time to render and the user to see it
-			if( splashScreen.isVisible() ) {
-				Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
-			}
+			if( splashScreen.isVisible() ) Thread.sleep( SPLASH_SCREEN_PAUSE_TIME_MS );
 
 			Fx.run( () -> splashScreen.hide() );
 			time( "splash-hidden" );
 		}
 
-		boolean daemon = !parameters.isSet( ProgramFlag.NODAEMON ) && parameters.isSet( ProgramFlag.DAEMON );
-		if( !daemon ) {
+		// Set the workarea actions
+		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Xenon.this ) );
+		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Xenon.this ) );
+		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Xenon.this ) );
+
+		// Show the active stage
+		Stage activeStage = getWorkspaceManager().getActiveStage();
+		if( !daemonRequested && activeStage != null ) {
 			Fx.run( () -> {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
@@ -560,13 +576,18 @@ public class Xenon extends Application implements XenonProgram {
 			} );
 		}
 
-		// Initiate asset loading
-		uiRegenerator.startAssetLoading();
+		// Notify listeners the UI is ready
+		getProgram().getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.UI_READY ) );
 
-		// Set the workarea actions
-		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Xenon.this ) );
-		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Xenon.this ) );
-		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Xenon.this ) );
+		// Register the program checks
+		new ProgramChecks( this ).register();
+
+		// Initiate asset loading
+		if( useUiReader ) {
+			uiReader.loadAssets();
+		} else {
+			//			uiRegenerator.startAssetLoading();
+		}
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
@@ -575,9 +596,10 @@ public class Xenon extends Application implements XenonProgram {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartSuccess() {
+		time( "program-started" );
+
 		// Program started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
-		time( "program-started" );
 
 		// Check for staged updates
 		getProductManager().checkForStagedUpdatesAtStart();
@@ -585,14 +607,8 @@ public class Xenon extends Application implements XenonProgram {
 		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
 		getProductManager().scheduleUpdateCheck( true );
 
-		// Check to see if the application was updated
-		if( isProgramUpdated() ) {
-			Fx.run( this::notifyProgramUpdated );
-		}
-
 		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
-		new ProgramChecks( this );
 
 		// Index program documents
 		indexProgramDocuments();
@@ -730,6 +746,13 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFine().log( "Index service stopped." );
 		}
 
+		// Stop the file watch service
+		if( assetWatchService != null ) {
+			log.atFiner().log( "Stopping asset watch service..." );
+			assetWatchService.stop();
+			log.atFine().log( "Asset watch service stopped." );
+		}
+
 		// Stop the asset manager
 		if( assetManager != null ) {
 			log.atFiner().log( "Stopping asset manager..." );
@@ -756,11 +779,11 @@ public class Xenon extends Application implements XenonProgram {
 			productManager.unregisterProgram( this );
 		}
 
-		// Stop the program server
-		if( programServer != null ) {
-			log.atFiner().log( "Stopping program server..." );
-			programServer.stop();
-			log.atFine().log( "Program server stopped." );
+		// Stop the peer server
+		if( peerServer != null ) {
+			log.atFiner().log( "Stopping peer server..." );
+			peerServer.stop();
+			log.atFine().log( "Peer server stopped." );
 		}
 
 		// Stop the task manager
@@ -770,6 +793,9 @@ public class Xenon extends Application implements XenonProgram {
 			log.atFine().log( "Task manager stopped." );
 		}
 
+		// Start the restart job, if requested
+		if( restartJob != null ) restartJob.start();
+
 		// NOTE Do not call Platform.exit() here, it was called already
 	}
 
@@ -778,21 +804,20 @@ public class Xenon extends Application implements XenonProgram {
 	private void doStopSuccess() {
 		// Do not add this as a shutdown hook, it hangs the JVM.
 		new JvmSureStop( 5000 ).start();
+
+		// Dispatch the program stopped event
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 
-		// Unregister the event watcher
-		getFxEventHub().unregister( Event.ANY, watcher );
+		// Unregister the program event watcher
+		//getFxEventHub().unregister( Event.ANY, watcher );
 	}
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	@Override
-	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		RestartHook hook = new RestartHook( this, mode, commands );
-		Runtime.getRuntime().addShutdownHook( hook );
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( hook );
-		}
+	public void requestRestart( RestartJob.Mode mode, String... commands ) {
+		restartJob.setMode( mode, commands );
+		requestExit( true );
 	}
 
 	@Override
@@ -802,20 +827,15 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
-		return doRequestExit( skipVerifyCheck, skipKeepAliveCheck );
-	}
-
-	@SuppressWarnings( "ConstantConditions" )
-	private boolean doRequestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) {
 			return false;
 		}
 
 		boolean shutdownVerify = true;
 		boolean shutdownKeepAlive = false;
-		if( programSettings != null ) {
-			shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, shutdownVerify );
-			shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
+		if( getSettings() != null ) {
+			shutdownVerify = getSettings().get( "shutdown-verify", Boolean.class, shutdownVerify );
+			shutdownKeepAlive = getSettings().get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
 		}
 
 		// If the user desires, prompt to exit the program
@@ -840,9 +860,8 @@ public class Xenon extends Application implements XenonProgram {
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 
-		if( exiting ) {
-			Platform.exit();
-		}
+		// Shutdown the FX platform
+		if( exiting ) Platform.exit();
 
 		return exiting;
 	}
@@ -859,12 +878,12 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean isUpdateInProgress() {
-		return programSettings.get( "update-in-progress", Boolean.class, false );
+		return getSettings().get( "update-in-progress", Boolean.class, false );
 	}
 
 	@Override
 	public void setUpdateInProgress( boolean updateInProgress ) {
-		programSettings.set( "update-in-progress", updateInProgress ).flush();
+		getSettings().set( "update-in-progress", updateInProgress ).flush();
 	}
 
 	@Override
@@ -885,10 +904,46 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public String getProfile() {
-		if( profile == null ) {
-			profile = parameters.get( ProgramFlag.PROFILE );
-		}
+		if( profile == null ) profile = parameters.get( XenonFlag.PROFILE );
 		return profile;
+	}
+
+	@Override
+	public String getMode() {
+		if( mode == null ) mode = parameters.get( XenonFlag.MODE );
+		return mode;
+	}
+
+	private String getProfileMode() {
+		String profile = getProfile();
+		String mode = getMode();
+		return combineProfileMode( profile, mode );
+	}
+
+	/**
+	 * Get the profile and mode as a single string. If there is not a profile or
+	 * mode, the empty string is returned.
+	 *
+	 * @return The profile and mode as a single string
+	 */
+	String combineProfileMode( String profile, String mode ) {
+		String profileModeString;
+
+		if( TextUtil.isEmpty( profile ) ) {
+			if( TextUtil.isEmpty( mode ) ) {
+				profileModeString = "";
+			} else {
+				profileModeString = mode;
+			}
+		} else {
+			if( TextUtil.isEmpty( mode ) ) {
+				profileModeString = profile;
+			} else {
+				profileModeString = profile + "-" + mode;
+			}
+		}
+
+		return profileModeString;
 	}
 
 	@Override
@@ -898,9 +953,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public boolean isProgramUpdated() {
-		if( isProgramUpdated == null ) {
-			isProgramUpdated = calcProgramUpdated();
-		}
+		if( isProgramUpdated == null ) isProgramUpdated = calcProgramUpdated();
 		return isProgramUpdated;
 	}
 
@@ -909,6 +962,11 @@ public class Xenon extends Application implements XenonProgram {
 		return card;
 	}
 
+	/**
+	 * The program data folder. See {@link #configureDataFolder()} for details.
+	 *
+	 * @return The program data folder
+	 */
 	@Override
 	public Path getDataFolder() {
 		return programDataFolder;
@@ -955,7 +1013,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	@Override
 	public Settings getSettings() {
-		return programSettings;
+		return getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 	}
 
 	@Override
@@ -993,6 +1051,10 @@ public class Xenon extends Application implements XenonProgram {
 		return indexService;
 	}
 
+	public AssetWatchService getAssetWatchService() {
+		return assetWatchService;
+	}
+
 	@Override
 	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {
 		return fxEventHub.register( type, handler );
@@ -1008,14 +1070,14 @@ public class Xenon extends Application implements XenonProgram {
 		return getCard().getName();
 	}
 
-	public FxEventHub getFxEventHub() {
-		return fxEventHub;
-	}
-
+	/**
+	 * Simple method to show the number of milliseconds since the program started
+	 * using a marker to denote where the time is taken.
+	 *
+	 * @param markerName The marker name
+	 */
 	private static void time( String markerName ) {
-		if( !SHOW_TIMING ) {
-			return;
-		}
+		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
 	}
@@ -1052,14 +1114,14 @@ public class Xenon extends Application implements XenonProgram {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck( int port ) {
-		// If the program server starts this process is a host, not a peer
-		programServer = new ProgramServer( this, port ).start();
-		return !programServer.isRunning();
+	private boolean isHostAlreadyRunning( int port ) {
+		// If the peer server starts this process is a host, not a peer
+		if( peerServer == null ) peerServer = new PeerServer( this, port ).start();
+		return isPeer();
 	}
 
 	private boolean isHost() {
-		return programServer.isRunning();
+		return peerServer.isRunning();
 	}
 
 	private boolean isPeer() {
@@ -1072,18 +1134,18 @@ public class Xenon extends Application implements XenonProgram {
 	 * @param parameters The command line parameters
 	 * @return True if the program should continue to start when it is a host
 	 */
-	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
-		if( parameters.isSet( ProgramFlag.HELLO ) ) {
+	boolean processPeerCommands( com.avereon.util.Parameters parameters, boolean startup ) {
+		if( parameters.isSet( XenonFlag.HELLO ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to say hello to, just talking to myself!" );
 			} else {
 				log.atWarning().log( "Hello peer. Good to hear from you!" );
 			}
-			return false;
-		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			return true;
+		} else if( parameters.isSet( XenonFlag.STATUS ) ) {
 			printStatus( startup );
-			return false;
-		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
+			return true;
+		} else if( parameters.isSet( XenonFlag.STOP ) ) {
 			if( startup ) {
 				if( isHost() ) {
 					log.atWarning().log( "Program is already stopped!" );
@@ -1093,21 +1155,19 @@ public class Xenon extends Application implements XenonProgram {
 					Fx.run( () -> requestExit( true ) );
 				}
 			}
-			return false;
-		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			return true;
+		} else if( parameters.isSet( XenonFlag.WATCH ) ) {
 			if( startup ) {
 				log.atWarning().log( "No existing host to watch, I'm out!" );
 			} else {
 				log.atWarning().log( "A watcher has connected!" );
 			}
-			return false;
-		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
-			if( !startup ) {
-				getWorkspaceManager().showActiveWorkspace();
-			}
+			return true;
+		} else if( !parameters.anySet( XenonFlag.QUIET_ACTIONS ) ) {
+			if( !startup ) getWorkspaceManager().showActiveWorkspace();
 		}
 
-		return true;
+		return false;
 	}
 
 	//	/**
@@ -1170,13 +1230,12 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
-		String profile = getProfile();
-		if( Profile.TEST.equals( profile ) ) {
-			return;
-		}
+		String mode = getMode();
+		if( XenonMode.TEST.equals( mode ) ) return;
 
-		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
-		String versionString = card.getVersion() + (profile == null ? "" : " [" + profile + "]");
+		String profileMode = getProfileMode();
+		boolean versionParameterSet = parameters.isSet( XenonFlag.VERSION );
+		String versionString = card.getVersion() + (TextUtil.isEmpty( profileMode ) ? "" : " [" + profileMode + "]");
 		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
 		String releaseString = "";
 
@@ -1190,7 +1249,7 @@ public class Xenon extends Application implements XenonProgram {
 		System.out.println( card.getName() + " data=" + getDataFolder() );
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
-		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
+		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + Charset.defaultCharset().displayName() );
 		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
 	}
 
@@ -1202,11 +1261,10 @@ public class Xenon extends Application implements XenonProgram {
 		log.atInfo().log( "Status: %s", status );
 	}
 
-	private void printHelp( String category ) {
-		if( "true".equals( category ) ) {
-			category = "general";
-		}
-		InputStream input = getClass().getResourceAsStream( "help/" + category + ".txt" );
+	private static void printHelp( String category ) {
+		if( "true".equals( category ) ) category = "general";
+
+		InputStream input = Xenon.class.getResourceAsStream( "help/" + category + ".txt" );
 
 		if( input == null ) {
 			System.out.println( "No help for category: " + category );
@@ -1224,34 +1282,41 @@ public class Xenon extends Application implements XenonProgram {
 		}
 	}
 
-	private String getProfileSuffix() {
-		return profile == null ? "" : "-" + profile;
+	private String getDataFolderSuffix() {
+		String profileMode = getProfileMode();
+		return TextUtil.isEmpty( profileMode ) ? "" : "-" + profileMode;
 	}
 
 	private void configureDataFolder() {
-		String suffix = getProfileSuffix();
+		String suffix = getDataFolderSuffix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
 		programTempFolder = programDataFolder.resolve( "temp" );
 	}
 
 	private void configureLogging() {
 		programLogFolder = getDataFolder().resolve( "logs" );
-		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		Log.configureLogging( this, parameters, programLogFolder, DEFAULT_LOG_FILE_PATTERN );
 		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL, LogFlag.INFO ) );
 		//Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL, LogFlag.WARN ) );
 	}
 
 	/**
-	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
-	 * <code>$HOME/lib/program.jar</code>
+	 * Find the home directory. The home directory is resolved by using the first of:
+	 * <ul>
+	 *   <li>The HOME flag on the command line</li>
+	 *   <li>The launcher path</li>
+	 *   <li>The java home</li>
+	 *   <li>The user directory</li>
+	 *   <li>The current directory</li>
+	 * </ul>
 	 *
 	 * @param parameters The command line parameters
 	 */
 	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
-			// If the HOME flag was specified on the command line use it
-			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) {
-				programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			// Check the command line HOME flag
+			if( programHomeFolder == null && parameters.isSet( XenonFlag.HOME ) ) {
+				programHomeFolder = Paths.get( parameters.get( XenonFlag.HOME ) );
 			}
 
 			// Check the launcher path
@@ -1259,15 +1324,11 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = getHomeFromLauncherPath();
 			}
 
+			// Check Java home when running as a linked (jlink) program
 			// When running as a linked (jlink) program, there is not a jdk.module.path system property
 			// The java home can be used as the program home when running as a linked application
 			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
 				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
-			}
-
-			// However, when in development, don't use the java home
-			if( Profile.DEV.equals( getProfile() ) ) {
-				programHomeFolder = Paths.get( "target/program" );
 			}
 
 			// Use the user folder as a last resort (usually for unit tests)
@@ -1275,11 +1336,19 @@ public class Xenon extends Application implements XenonProgram {
 				programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 			}
 
+			// When in development mode, use the target/program folder
+			if( XenonMode.DEV.equals( getMode() ) ) {
+				programHomeFolder = Paths.get( "target/program" );
+			}
+
 			// Canonicalize the home path
 			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
+			// Set install folder on product card
+			card.setInstallFolder( programHomeFolder );
+
 			// Create the program home folder when in DEV mode
-			if( Profile.DEV.equals( getProfile() ) ) {
+			if( XenonMode.DEV.equals( getMode() ) ) {
 				Files.createDirectories( programHomeFolder );
 			}
 
@@ -1289,35 +1358,17 @@ public class Xenon extends Application implements XenonProgram {
 		} catch( IOException exception ) {
 			log.atSevere().withCause( exception ).log( "Error configuring home folder" );
 		}
-
-		// Set install folder on product card
-		card.setInstallFolder( programHomeFolder );
-
-		log.atFine().log( "Program home: %s", getHomeFolder() );
-		log.atFine().log( "Program data: %s", getDataFolder() );
 	}
 
 	@Override
 	public Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath() );
+		return getHomeFromLauncherPath( OperatingSystem.getJavaLauncherPath(), OperatingSystem.isWindows() );
 	}
 
-	private Path getHomeFromLauncherPath( String launcherPath ) {
-		if( launcherPath == null ) {
-			return null;
-		}
-
+	Path getHomeFromLauncherPath( String launcherPath, boolean isWindows ) {
+		if( launcherPath == null ) return null;
 		Path path = Paths.get( launcherPath ).getParent();
-		if( OperatingSystem.isWindows() ) {
-			return path;
-		} else if( OperatingSystem.isLinux() ) {
-			return path.getParent();
-		} else if( OperatingSystem.isMac() ) {
-			// FIXME Unchecked, may be incorrect. Please review on actual platform.
-			return path.getParent();
-		}
-
-		return null;
+		return isWindows ? path : path.getParent();
 	}
 
 	private void registerActionHandlers() {
@@ -1326,35 +1377,36 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "help-content" ).pushAction( helpAction = new HelpAction( this ) );
-		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this, "general" ) );
+		getActionLibrary().getAction( "settings-toggle" ).pushAction( settingsToggleAction = new SettingsToggleAction( this ) );
 		//getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
+		getActionLibrary().getAction( "notice-toggle" ).pushAction( noticeToggleAction = new NoticeToggleAction( this ) );
 		getActionLibrary().getAction( "search" ).pushAction( searchAction = new SearchAction( this ) );
+		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
+		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new SettingsAction( this, "modules" ) );
+		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "appearance" ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
-		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
-		getActionLibrary().getAction( "uireset" ).pushAction( uiResetAction = new UiResetAction( this ) );
+
 		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
 		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );
 		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pushAction( wallpaperTintToggleAction = new WallpaperTintToggleAction( this ) );
 
-		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
-			log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log();
-		} ) );
-		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );
-		} ) );
-		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) );
-		} ) );
-		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {
-			//
-		} ) );
+		getActionLibrary().getAction( "show-updates-posted" ).pushAction( new RunnableTestAction( this, () -> getProductManager().showPostedUpdates() ) );
+		getActionLibrary().getAction( "show-updates-staged" ).pushAction( new RunnableTestAction( this, () -> getProductManager().showStagedUpdates() ) );
+
+		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
+		getActionLibrary().getAction( "uireset" ).pushAction( uiResetAction = new UiResetAction( this ) );
+		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> log.atSevere().withCause( new Throwable( "This is a test throwable" ) ).log() ) );
+		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" ) ) );
+		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) ) ) );
+		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {} ) );
 	}
 
 	private void unregisterActionHandlers() {
@@ -1364,12 +1416,15 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "help-content" ).pullAction( helpAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
+		getActionLibrary().getAction( "settings-toggle" ).pullAction( settingsToggleAction );
 		//getActionLibrary().getAction( "properties" ).pullAction( propertiesAction );
 		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
+		getActionLibrary().getAction( "notice-toggle" ).pullAction( noticeToggleAction );
 		getActionLibrary().getAction( "search" ).pullAction( searchAction );
+		getActionLibrary().getAction( "search-toggle" ).pullAction( searchToggleAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
@@ -1384,7 +1439,7 @@ public class Xenon extends Application implements XenonProgram {
 	private void registerSchemes( AssetManager manager ) {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
-		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new XenonScheme( this ) );
 		//manager.addScheme( new ProgramHelpScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new HttpsScheme( this ) );
@@ -1396,7 +1451,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
 		//manager.removeScheme( ProgramHelpScheme.ID );
-		manager.removeScheme( ProgramScheme.ID );
+		manager.removeScheme( XenonScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( NewScheme.ID );
 	}
@@ -1409,23 +1464,44 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addAssetType( new ProgramNoticeType( this ) );
 		manager.addAssetType( new ProgramSearchType( this ) );
 		manager.addAssetType( new ProgramHelpType( this ) );
-		manager.addAssetType( new ProgramProductType( this ) );
+		manager.addAssetType( new ProgramModuleType( this ) );
 		manager.addAssetType( new ProgramTaskType( this ) );
 		manager.addAssetType( new ProgramAssetNewType( this ) );
 		manager.addAssetType( new ProgramAssetType( this ) );
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
-		manager.addAssetType( new PropertiesType( this ) );
+		manager.addAssetType( new ProgramPropertiesType( this ) );
+
+		registerProgramAssetAliases( manager );
+	}
+
+	private void registerProgramAssetAliases( AssetManager manager ) {
+		// This is a reflection way of going through all the current program asset types
+		List<String> programAliases = List.of( "about", "asset", "fault", "guide", "help", "new", "notice", "properties", "search", "settings", "task", "welcome" );
+		for( String alias : programAliases ) {
+			URI aliasUri = URI.create( "program:/" + alias );
+			char[] targetChars = alias.toCharArray();
+			targetChars[ 0 ] = Character.toUpperCase( targetChars[ 0 ] );
+			String targetClassName = "Program" + new String( targetChars ) + "Type";
+			try {
+				Class<?> targetClass = Class.forName( AssetType.class.getPackageName() + ".type." + targetClassName );
+				Field uriField = targetClass.getField( "URI" );
+				URI targetUri = (URI)uriField.get( null );
+				manager.registerAssetAlias( aliasUri, targetUri );
+			} catch( ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignore ) {
+				// Intentionally ignore exception
+			}
+		}
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
-		manager.removeAssetType( new PropertiesType( this ) );
+		manager.removeAssetType( new ProgramPropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
 		manager.removeAssetType( new ProgramAssetType( this ) );
 		manager.removeAssetType( new ProgramAssetNewType( this ) );
 		manager.removeAssetType( new ProgramTaskType( this ) );
-		manager.removeAssetType( new ProgramProductType( this ) );
+		manager.removeAssetType( new ProgramModuleType( this ) );
 		manager.removeAssetType( new ProgramHelpType( this ) );
 		manager.removeAssetType( new ProgramSearchType( this ) );
 		manager.removeAssetType( new ProgramNoticeType( this ) );
@@ -1440,7 +1516,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, new ProgramSearchType( this ), SearchTool.class, ToolInstanceMode.SINGLETON, "search", "search" );
-		registerTool( manager, new ProgramProductType( this ), ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, new ProgramModuleType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, new ProgramSettingsType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
@@ -1449,7 +1525,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.UNLIMITED, "help", "help" );
-		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
+		registerTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
@@ -1458,13 +1534,13 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
+		unregisterTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
 		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
 		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );
-		unregisterTool( manager, new ProgramProductType( this ), ProductTool.class );
+		unregisterTool( manager, new ProgramModuleType( this ), ProductTool.class );
 		unregisterTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class );
 		unregisterTool( manager, new ProgramSearchType( this ), SearchTool.class );
 		unregisterTool( manager, new ProgramNoticeType( this ), NoticeTool.class );
@@ -1473,9 +1549,7 @@ public class Xenon extends Application implements XenonProgram {
 		unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
 	}
 
-	private void registerTool(
-		ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey
-	) {
+	private void registerTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		// The problem with using the class name is it can change if the class package or name is changed.
 		AssetType type = assetManager.getAssetType( assetType.getKey() );
 		String name = Rb.text( "tool", toolRbKey + "-name" );
@@ -1490,95 +1564,15 @@ public class Xenon extends Application implements XenonProgram {
 		manager.unregisterTool( assetManager.getAssetType( assetType.getKey() ), toolClass );
 	}
 
-	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
-		settingsManager.getEventBus().parent( fxEventHub );
-		return settingsManager;
-	}
-
-	private TaskManager configureTaskManager( TaskManager taskManager ) {
-		taskManager.getEventBus().parent( fxEventHub );
-		return taskManager;
-	}
-
-	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
-		productManager.getEventBus().parent( fxEventHub );
-
-		// Register the provider repos
-		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );
-
-		// FIXME Do I want the update settings in the program settings?
-		// There is also a set of comments regarding this issue in the ProductManager class
-		productManager.setSettings( programSettings );
-
-		// Register the product
-		productManager.registerProgram( this );
-
-		return productManager;
-	}
-
-	//	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
-	//		// Required to set values needed for:
-	//		// - the title of the progress window to have the product name
-	//		// - the updater to launch an elevated updater with the correct launcher name
-	//		// - the proper location for the log file
-	//		config();
-	//
-	//		log.log( Log.WARN, "Starting the update process!" );
-	//
-	//		// All the update commands should be in a file
-	//		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-	//		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
-	//			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
-	//			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
-	//		}
-	//
-	//		// The progress window title
-	//		String updatingProgramText = Rb.textOr( RbKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
-	//
-	//		// Force the location of the updater log file
-	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
-	//		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
-	//
-	//		List<String> commands = new ArrayList<>();
-	//		commands.add( UpdateFlag.TITLE );
-	//		commands.add( updatingProgramText );
-	//		commands.add( UpdateFlag.FILE );
-	//		commands.add( parameters.get( ProgramFlag.UPDATE ) );
-	//		commands.add( ProgramFlag.LOG_FILE );
-	//		commands.add( logFile );
-	//		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
-	//			commands.add( LogFlag.LOG_LEVEL );
-	//			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
-	//		}
-	//
-	//		return commands.toArray( new String[]{} );
-	//	}
-
-	private void notifyProgramUpdated() {
-		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );
-		Release runtime = this.getCard().getRelease();
-		String priorVersion = prior.getVersion().toHumanString();
-		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = Rb.text( RbKey.UPDATE, "updates" );
-		String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		Runnable action = () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
-
-		Notice notice = new Notice( title, message, action );
-		notice.setBalloonStickiness( Notice.Balloon.NEVER );
-		getNoticeManager().addNotice( notice );
-	}
-
 	private boolean calcProgramUpdated() {
 		// Get the last release setting
-		Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
+		Release previous = Release.decode( getSettings().get( PROGRAM_RELEASE, (String)null ) );
 		Release runtime = this.getCard().getRelease();
 
 		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
-		if( programUpdated ) {
-			programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
-		}
-		programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
+		if( programUpdated ) getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+		getSettings().set( PROGRAM_RELEASE, Release.encode( runtime ) );
 
 		return programUpdated;
 	}

@@ -64,23 +64,49 @@ public class SettingsTool extends GuidedTool {
 	private void selectPage( String pageId ) {
 		currentPageId = pageId;
 		if( pageId == null ) return;
+
+		// Select the node in the guide
+		getGuideContext().setExpandedIds( pageId );
+		getGuideContext().setSelectedIds( pageId );
+
 		setPage( getProgram().getSettingsManager().getSettingsPage( pageId ) );
 	}
 
 	private void setPage( SettingsPage page ) {
-		SettingsPanel panel;
-		if( page.getPanel() == null ) {
-			panel = new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() );
-		} else {
-			try {
-				Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
-				panel = type.getConstructor( XenonProgramProduct.class ).newInstance( page.getProduct() );
-			} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
-				throw new RuntimeException( e );
-			}
-		}
+		SettingsPanel currentPanel = (SettingsPanel)scroller.getContent();
+		if( currentPanel != null ) currentPanel.setSelected( false );
 
-		scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> panel ) );
+		SettingsPanel nextPanel = findOrCreatePanel( page );
+
+		if( nextPanel != null ) {
+			scroller.setContent( panelCache.computeIfAbsent( page.getId(), k -> nextPanel ) );
+			nextPanel.setSelected( true );
+		}
+	}
+
+	private SettingsPanel findOrCreatePanel( SettingsPage page ) {
+		SettingsPanel panel;
+		if( panelCache.containsKey( page.getId() ) ) {
+			panel = panelCache.get( page.getId() );
+		} else if( page.getPanel() == null ) {
+			panel = createStandardPanel( page );
+		} else {
+			panel = createCustomPanel( page );
+		}
+		return panel;
+	}
+
+	private SettingsPanel createStandardPanel( SettingsPage page ) {
+		return new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() );
+	}
+
+	private SettingsPanel createCustomPanel( SettingsPage page ) {
+		try {
+			Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
+			return type.getConstructor( XenonProgramProduct.class ).newInstance( page.getProduct() );
+		} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
+			throw new RuntimeException( e );
+		}
 	}
 
 }

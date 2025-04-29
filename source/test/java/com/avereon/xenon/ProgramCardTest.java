@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.Profile;
 import com.avereon.util.OperatingSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,13 +55,13 @@ public class ProgramCardTest extends ProgramTestCase {
 
 		assertThat( metadata.getSummary() ).isEqualTo( "Modular application platform" );
 		assertThat( metadata.getDescription() ).isEqualTo( description );
-		assertThat( metadata.getCopyrightSummary() ).isEqualTo( "All rights reserved" );
+		assertThat( metadata.getCopyrightSummary() ).isEqualTo( "All rights reserved." );
 		assertThat( metadata.getLicenseSummary() ).isEqualTo( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." );
 	}
 
 	@Test
 	void testProgramDataFolder() {
-		String suffix = "-" + Profile.TEST;
+		String suffix = "-" + XenonMode.TEST;
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( getProgram().getDataFolder() ).isEqualTo( programDataFolder );
 	}

@@ -15,11 +15,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import lombok.CustomLog;
 
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+@CustomLog
 public class UpdateSettingViewer extends SettingEditor {
 
 	private Label lastUpdateCheckField;
@@ -71,7 +73,12 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		Fx.run( this::updateLabels );
+		updateLabels();
+	}
+
+	@Override
+	protected void pageSettingsChanged() {
+		updateLabels();
 	}
 
 	private void updateLabels() {
@@ -79,13 +86,17 @@ public class UpdateSettingViewer extends SettingEditor {
 		String unknown = Rb.text( getProduct(), RbKey.UPDATE, "unknown" );
 		String notScheduled = Rb.text( getProduct(), RbKey.UPDATE, "not-scheduled" );
 
-		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		Long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
+		Long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
+
+		final Long finalLastUpdateCheck = lastUpdateCheck;
+		final Long finalNextUpdateCheck = nextUpdateCheck;
 
 		// Update the labels
-		lastUpdateCheckField.setText( (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
-		nextUpdateCheckField.setText( (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+		Fx.run( () -> {
+			lastUpdateCheckField.setText( (finalLastUpdateCheck == null ? unknown : DateUtil.format( new Date( finalLastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+			nextUpdateCheckField.setText( (finalNextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( finalNextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() )) );
+		} );
 	}
 
 }

@@ -4,11 +4,12 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
+import com.avereon.xenon.scheme.XenonScheme;
 
 @Deprecated
 public class ProgramThemesType extends AssetType {
 
-	private static final String uriPattern = "program:/themes";
+	private static final String uriPattern = XenonScheme.ID + ":/themes";
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 

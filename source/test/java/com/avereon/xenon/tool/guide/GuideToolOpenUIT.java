@@ -11,7 +11,7 @@ class GuideToolOpenUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getWorkpane();
+		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
 		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );

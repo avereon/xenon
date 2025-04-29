@@ -3,9 +3,9 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
@@ -27,6 +27,12 @@ import lombok.CustomLog;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The guide tool is a tool that provides a tree view  guide. The guide is
+ * used to provide a hierarchical view of the data in a tool. The guide tool
+ * listens for tool changes and updates the guide as tools are activated and
+ * concealed.
+ */
 @CustomLog
 public class GuideTool extends ProgramTool {
 
@@ -52,6 +58,8 @@ public class GuideTool extends ProgramTool {
 
 	private final EventHandler<TreeItem.TreeModificationEvent<Object>> treeToGuideExpandedItemsListener;
 
+	private EventHandler<KeyEvent> keyEventHandler;
+
 	private GuideContext context;
 
 	private ContextMenu contextMenu;
@@ -62,9 +70,13 @@ public class GuideTool extends ProgramTool {
 	public GuideTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-guide" );
+
+		// Create the guide tree
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		guideTree.setCellFactory( new GuideCellFactory() );
+
+		// Put the guide tree in a scroll pane and add it to the tool
 		ScrollPane scroller = new ScrollPane( guideTree );
 		scroller.setFitToWidth( true );
 		scroller.setFitToHeight( true );
@@ -159,6 +171,9 @@ public class GuideTool extends ProgramTool {
 
 		// Disconnect the old guide
 		if( oldGuide != null ) {
+			// Remove the key event handler
+			if( keyEventHandler != null ) guideTree.removeEventHandler( KeyEvent.ANY, keyEventHandler );
+
 			// Remove the tree to guide expansion listener
 			TreeItem<?> root = guideTree.getRoot();
 			if( root != null ) {
@@ -232,6 +247,9 @@ public class GuideTool extends ProgramTool {
 				root.addEventHandler( TreeItem.branchExpandedEvent(), treeToGuideExpandedItemsListener );
 				root.addEventHandler( TreeItem.branchCollapsedEvent(), treeToGuideExpandedItemsListener );
 			}
+
+			// Set the key event handler
+			guideTree.addEventHandler( KeyEvent.ANY, keyEventHandler = newGuide::keyEvent );
 		}
 
 		getGuideContext().dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, newGuide ) );
@@ -266,12 +284,13 @@ public class GuideTool extends ProgramTool {
 		// Determine the selected node indexes
 		List<Integer> indexList = new ArrayList<>( selectedItems.size() );
 		for( TreeItem<GuideNode> selectedItem : selectedItems ) {
+			if( selectedItem == null ) continue;
 			Integer itemIndex = indexMap.get( selectedItem.getValue().getId() );
 			if( itemIndex != null ) indexList.add( itemIndex );
 		}
 
 		// If there are no selected items just return
-		if( indexList.size() == 0 ) return;
+		if( indexList.isEmpty() ) return;
 
 		// Set the selected indexes
 		int[] indexes = indexList.stream().mapToInt( value -> value ).toArray();
@@ -312,7 +331,7 @@ public class GuideTool extends ProgramTool {
 		draggedCell = target;
 
 		// Root node cannot be moved
-		if( target == null || target.getTreeItem().getParent() == null ) return;
+		if( target == null || target.getTreeItem() == null || target.getTreeItem().getParent() == null ) return;
 
 		ClipboardContent content = new ClipboardContent();
 		content.put( DATA_FORMAT, "" );
@@ -402,6 +421,7 @@ public class GuideTool extends ProgramTool {
 			log.atFine().log( "hide guide: %s", event.getTool().getClass().getName() );
 			doSetGuide( null );
 		}
+
 	}
 
 	private class TreeToGuideSelectedItemsListener implements ListChangeListener<Integer> {
@@ -414,7 +434,7 @@ public class GuideTool extends ProgramTool {
 				items.add( guideTree.getTreeItem( index ) );
 			}
 
-			if( items.size() > 0 ) expandAndCollapsePaths( items.iterator().next() );
+			if( !items.isEmpty() ) expandAndCollapsePaths( items.iterator().next() );
 
 			getGuideContext().setSelectedItems( items );
 		}

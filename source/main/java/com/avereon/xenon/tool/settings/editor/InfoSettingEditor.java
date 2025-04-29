@@ -57,7 +57,12 @@ public abstract class InfoSettingEditor extends SettingEditor {
 
 	@Override
 	protected void doSettingValueChanged( SettingsEvent event ) {
-		// No need to change the editor
+		// No need to change the [read-only] editor
+	}
+
+	@Override
+	protected void pageSettingsChanged() {
+		// No need to change the [read-only] editor
 	}
 
 }

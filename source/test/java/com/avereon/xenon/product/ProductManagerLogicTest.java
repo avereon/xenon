@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProductManagerLogicTest extends ProgramTestCase {
 
-	private final String group = "eg.provider";
+	private final String group = "example.provider";
 
 	private final String timestamp = "2018-06-11 06:30:07";
 
@@ -26,7 +26,9 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	private Map<RepoState, Set<ProductCard>> repos;
 
 	@BeforeEach
-	public void setup() {
+	public void setup() throws Exception {
+		super.setup();
+
 		logic = new ProductManagerLogic( getProgram() );
 		generateRepoProductMap();
 
@@ -89,7 +91,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	@Test
 	void testDetermineUpdatableProductsWithLatestVersionInstalled() {
 		// In this test both product A and product B are installed and are the
-		// the latest version. Because they are both at the latest version there
+		// latest version. Because they are both at the latest version there
 		// should not be any updates available.
 		ProductCard installedA = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.5" ).setTimestamp( timestamp );
 		ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.2" ).setTimestamp( timestamp );

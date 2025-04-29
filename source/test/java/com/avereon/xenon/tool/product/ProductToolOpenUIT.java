@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
@@ -10,14 +11,14 @@ class ProductToolOpenUIT extends ProductToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getWorkpane();
+		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
 		openProductTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 
-		assertThat( pane.getActiveTool() ).isInstanceOf( ProductTool.class );
+		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 	}
 

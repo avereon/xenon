@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProgramTestCase;
+import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,13 @@ public class AssetManagerTest extends ProgramTestCase {
 	}
 
 	@Test
+	void testGetNullAssetType() {
+		assertThat( manager.getAssetType( null ) ).isNull();
+	}
+
+	@Test
 	void testNewAsset() throws Exception {
-		// New assets have a asset type when created.
+		// New assets have an asset type when created.
 		// The URI is assigned when the asset is saved.
 		Asset newAsset = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
 		assertThat( newAsset.isNew() ).isTrue();
@@ -228,6 +234,31 @@ public class AssetManagerTest extends ProgramTestCase {
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );
+	}
+
+	@Test
+	void canRenameAssetWithNull() {
+		assertThat( manager.canRenameAsset( null ) ).isFalse();
+	}
+
+	@Test
+	void canRenameAssetWithNewAsset() throws Exception {
+		Asset asset = manager.createAsset( manager.getAssetType( FileScheme.ID ), "mock://test.mock" );
+		assertThat( manager.canRenameAsset( asset ) ).isFalse();
+	}
+
+	@Test
+	void canRenameAssetWithOldAsset() throws Exception {
+		Asset asset = manager.createAsset( "mock://test.mock" );
+		manager.openAssetsAndWait( asset, 100, TimeUnit.MILLISECONDS );
+		assertThat( manager.canRenameAsset( asset ) ).isTrue();
+	}
+
+	@Test
+	void cleanupUri() {
+		URI provided = URI.create( "mock:///home/user/temp/test.txt?param1=one&param2=two#readwrite" );
+		URI expected = URI.create( "mock:/home/user/temp/test.txt" );
+		assertThat( manager.uriCleanup( provided ) ).isEqualTo( expected );
 	}
 
 }

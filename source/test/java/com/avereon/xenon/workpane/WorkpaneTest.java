@@ -137,21 +137,42 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testSetActiveTool() {
+		// given
 		Tool tool1 = new MockTool( asset );
 		Tool tool2 = new MockTool( asset );
 		Tool tool3 = new MockTool( asset );
+
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
+		tool3.setTitle( "Tool 3" );
 
 		workpane.addTool( tool1, false );
 		workpane.addTool( tool2, false );
 		workpane.addTool( tool3, false );
 
-		assertThat( getActiveTool( view ) ).isEqualTo( tool1 );
+		assertThat( view.getActiveTool() ).isEqualTo( tool1 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool1 );
+
+		// when
 		workpane.setActiveTool( tool2 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool2 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool2 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool2 );
+
+		// when
 		workpane.setActiveTool( tool3 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool3 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool3 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool3 );
+
+		// when
 		workpane.setActiveTool( tool1 );
-		assertThat( getActiveTool( view ) ).isEqualTo( tool1 );
+
+		// then
+		assertThat( view.getActiveTool() ).isEqualTo( tool1 );
+		assertThat( getActiveToolTabTool( view ) ).isEqualTo( tool1 );
 	}
 
 	@Test
@@ -523,13 +544,65 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( position );
 	}
 
-	private Tool getActiveTool( WorkpaneView view ) {
-		ToolTabPane pane = (ToolTabPane)view.getChildren().get( 0 );
+	@Test
+	void testCloseLastToolInDefaultView() {
+		// given
+		Tool tool1 = new MockTool( asset );
+		Tool tool2 = new MockTool( asset );
 
-		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
-		ToolTab tab = pane.getTabs().get( selectedIndex );
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
 
-		return tab.getTool();
+		WorkpaneView defaultView = workpane.getDefaultView();
+		WorkpaneView leftView = workpane.split( Side.LEFT );
+
+		workpane.addTool( tool1, leftView, false );
+		workpane.addTool( tool2, defaultView, true );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+
+		// when
+		workpane.closeTool( tool2 );
+
+		// then
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+		assertThat( leftView.getTools() ).containsExactly( tool1 );
+		assertThat( defaultView.getTools() ).isEmpty();
+		assertThat( workpane.getTools() ).hasSize( 1 );
+	}
+
+	@Test
+	void testCloseToolInViewThatCanAutoMerge() {
+		// given
+		Tool tool1 = new MockTool( asset );
+		Tool tool2 = new MockTool( asset );
+
+		tool1.setTitle( "Tool 1" );
+		tool2.setTitle( "Tool 2" );
+
+		WorkpaneView defaultView = workpane.getDefaultView();
+		WorkpaneView leftView = workpane.split( Side.LEFT );
+
+		workpane.addTool( tool1, leftView, false );
+		workpane.addTool( tool2, defaultView, true );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( leftView, defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+
+		// when
+		workpane.closeTool( tool1 );
+
+		// then
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( defaultView );
+		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
+		assertThat( defaultView.getTools() ).containsExactly( tool2 );
+		assertThat( workpane.getTools() ).hasSize( 1 );
+	}
+
+	private Tool getActiveToolTabTool( WorkpaneView view ) {
+		return view.getToolTabPane().getSelectionModel().getSelectedItem().getTool();
 	}
 
 }

@@ -1,9 +1,12 @@
 package com.avereon.xenon.task;
 
 import com.avereon.skill.Controllable;
+import com.avereon.util.TestUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.zarra.event.FxEventHub;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +35,16 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
 
+	@Setter
+	@Getter
 	int p1ThreadCount;
 
+	@Setter
+	@Getter
 	int p2ThreadCount;
 
+	@Setter
+	@Getter
 	int p3ThreadCount;
 
 	private TaskManagerExecutor executorP1;
@@ -44,15 +53,14 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private TaskManagerExecutor executorP3;
 
-	private ThreadGroup group;
+	private final ThreadGroup group;
 
-	private int maxThreadCount;
+	private final Map<Task<?>, Task<?>> taskMap;
 
-	private Map<Task<?>, Task<?>> taskMap;
+	private final Queue<Task<?>> taskQueue;
 
-	private Queue<Task<?>> taskQueue;
-
-	private FxEventHub eventBus;
+	@Getter
+	private final FxEventHub eventBus;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>();
@@ -63,6 +71,7 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	public static void taskThreadCheck() {
+		if( TestUtil.isTest() ) return;
 		if( !TaskManager.isTaskThread() ) {
 			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
@@ -122,19 +131,13 @@ public class TaskManager implements Controllable<TaskManager> {
 	}
 
 	public TaskManager setMaxThreadCount( int count ) {
-		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-
-		redistributeThreadCounts( maxThreadCount );
+		redistributeThreadCounts( Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT ) );
 
 		if( executorP3 != null ) executorP3.setCorePoolSize( p3ThreadCount );
 		if( executorP2 != null ) executorP2.setCorePoolSize( p2ThreadCount );
 		if( executorP1 != null ) executorP1.setCorePoolSize( p1ThreadCount );
 
 		return this;
-	}
-
-	public FxEventHub getEventBus() {
-		return eventBus;
 	}
 
 	public int getThreadIdleTimeout() {
@@ -151,7 +154,8 @@ public class TaskManager implements Controllable<TaskManager> {
 		if( isRunning() ) return this;
 		LinkedBlockingQueue<Runnable> sharedQueue = new LinkedBlockingQueue<>();
 		executorP3 = new TaskManagerExecutor( Task.Priority.LOW, p3ThreadCount, getThreadIdleTimeout(), TimeUnit.MILLISECONDS, sharedQueue, new TaskThreadFactory( this, group, Thread.MIN_PRIORITY ) );
-		executorP2 = new TaskManagerExecutor( Task.Priority.MEDIUM,
+		executorP2 = new TaskManagerExecutor(
+			Task.Priority.MEDIUM,
 			p2ThreadCount,
 			getThreadIdleTimeout(),
 			TimeUnit.MILLISECONDS,
@@ -159,7 +163,8 @@ public class TaskManager implements Controllable<TaskManager> {
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
 			executorP3
 		);
-		executorP1 = new TaskManagerExecutor( Task.Priority.HIGH,
+		executorP1 = new TaskManagerExecutor(
+			Task.Priority.HIGH,
 			p1ThreadCount,
 			getThreadIdleTimeout(),
 			TimeUnit.MILLISECONDS,
@@ -185,32 +190,29 @@ public class TaskManager implements Controllable<TaskManager> {
 		return this;
 	}
 
+	public void waitFor( long timeout ) {
+			waitFor( timeout, TimeUnit.MILLISECONDS );
+	}
+
+	public void waitFor( long count, TimeUnit unit ) {
+		try {
+			waitForWithExceptions( count, unit );
+		} catch( ExecutionException | TimeoutException | InterruptedException exception ) {
+			// Intentionally ignore exception
+		}
+	}
+
+	public void waitForWithExceptions( long timeout ) throws ExecutionException, InterruptedException, TimeoutException {
+		waitForWithExceptions( timeout, TimeUnit.MILLISECONDS );
+	}
+
+	public void waitForWithExceptions( long count, TimeUnit unit ) throws ExecutionException, InterruptedException, TimeoutException {
+		submit( Task.of( () -> null ) ).get( count, unit );
+	}
+
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		log.atWarn( throwable ).log( "Task failed" );
-	}
-
-	public int getP1ThreadCount() {
-		return p1ThreadCount;
-	}
-
-	public void setP1ThreadCount( int p1ThreadCount ) {
-		this.p1ThreadCount = p1ThreadCount;
-	}
-
-	public int getP2ThreadCount() {
-		return p2ThreadCount;
-	}
-
-	public void setP2ThreadCount( int p2ThreadCount ) {
-		this.p2ThreadCount = p2ThreadCount;
-	}
-
-	public int getP3ThreadCount() {
-		return p3ThreadCount;
-	}
-
-	public void setP3ThreadCount( int p3ThreadCount ) {
-		this.p3ThreadCount = p3ThreadCount;
+		// No need to be noisy here
+		//log.atWarn( throwable ).log( "Task failed" );
 	}
 
 	private static boolean isTaskThread() {
@@ -235,16 +237,12 @@ public class TaskManager implements Controllable<TaskManager> {
 
 		private TaskManagerExecutor backup;
 
-		private TaskManagerExecutor(
-			Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory
-		) {
+		private TaskManagerExecutor( Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
 			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory );
 			init( priority );
 		}
 
-		private TaskManagerExecutor(
-			Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, TaskManagerExecutor backup
-		) {
+		private TaskManagerExecutor( Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, TaskManagerExecutor backup ) {
 			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory, new CascadingExecutionExceptionHandler( backup ) );
 			this.backup = backup;
 			init( priority );
@@ -280,13 +278,9 @@ public class TaskManager implements Controllable<TaskManager> {
 
 		@Override
 		protected void afterExecute( Runnable runnable, Throwable throwable ) {
-			if( runnable instanceof Task ) {
-				Task<?> task = (Task<?>)runnable;
+			if( runnable instanceof Task<?> task ) {
 				taskQueue.remove( task );
 				taskMap.remove( task );
-
-				// TODO submit the next task in the chain
-				//task.getChain();
 			}
 		}
 

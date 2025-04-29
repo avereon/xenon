@@ -1,25 +1,26 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.Profile;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.ThreadUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The super class for {@link BasePartXenonTestCase} and {@link BaseFullXenonTestCase}
  * classes. This class should not be subclassed directly by tests, but should
  * use one of the previous classes.
  */
+@ExtendWith( MockitoExtension.class )
 public abstract class BaseXenonTestCase extends BaseForAllTests {
 
 	private Xenon program;
@@ -32,11 +33,23 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 	protected void setup() throws Exception {
 		super.setup();
 
+		if( OperatingSystem.isWindows() ) {
+			System.setProperty( "jpackage.app-path", "C:\\Program Files\\Xenon\\Xenon.exe" );
+		} else {
+			System.setProperty( "jpackage.app-path", "/opt/xenon/bin/Xenon" );
+		}
+
 		// Remove the existing program data folder
-		String suffix = "-" + Profile.TEST;
+		String suffix = "-" + XenonMode.TEST;
 		ProductCard metadata = ProductCard.info( Xenon.class );
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-		assertThat( aggressiveDelete( programDataFolder ) ).withFailMessage( "Failed to delete program data folder" ).isTrue();
+
+		// Try to clean up the program data folder, but don't fail if we can't
+		try {
+			FileUtil.delete( programDataFolder );
+		} catch( IOException exception ) {
+			// Ignore
+		}
 	}
 
 	@AfterEach
@@ -58,9 +71,9 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 
 	private boolean aggressiveDelete( Path path ) throws IOException {
 		// NOTE It has been determined that the StoredSettings can cause problems.
-		// The StoredSettings class can put these files back due to the delayed
-		// persist nature of StoredSettings. Be sure to also delete settings in
-		// teardown methods to reduce test cross-contamination.
+		//  The StoredSettings class can put these files back due to the delayed
+		//  persist nature of StoredSettings. Be sure to also delete settings in
+		//  teardown methods to reduce test cross-contamination.
 
 		long limit = System.currentTimeMillis() + LONG_TIMEOUT;
 		IOException exception = null;

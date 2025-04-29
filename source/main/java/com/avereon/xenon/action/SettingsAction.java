@@ -5,10 +5,19 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import javafx.event.ActionEvent;
 
+import java.net.URI;
+
 public class SettingsAction extends ProgramAction {
 
+	private URI uri = ProgramSettingsType.URI;
+
 	public SettingsAction( Xenon program ) {
+		this( program, null );
+	}
+
+	public SettingsAction( Xenon program, String fragment ) {
 		super( program );
+		if( fragment != null ) uri = ProgramSettingsType.URI.resolve( "#" + fragment );
 	}
 
 	@Override
@@ -18,7 +27,7 @@ public class SettingsAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
+		getProgram().getAssetManager().openAsset( uri );
 	}
 
 }

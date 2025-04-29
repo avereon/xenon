@@ -16,7 +16,7 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 
 	@Test
 	void execute() throws Exception {
-		Workpane pane = getWorkpane();
+		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramTaskType.URI );

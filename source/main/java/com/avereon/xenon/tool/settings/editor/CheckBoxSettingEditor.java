@@ -57,6 +57,11 @@ public class CheckBoxSettingEditor extends SettingEditor {
 		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( String.valueOf( event.getNewValue() ) ) );
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		checkbox.setSelected( Boolean.parseBoolean( getCurrentValue() ) );
+	}
+
 	private void doCheckboxValueChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
 		setting.getSettings().set( getKey(), String.valueOf( newValue ) );
 	}

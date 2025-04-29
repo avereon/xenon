@@ -3,11 +3,11 @@ package com.avereon.xenon.asset;
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.util.IdGenerator;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.asset.exception.AssetException;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
 import com.avereon.zarra.event.FxEventHub;
@@ -23,13 +23,13 @@ import java.util.Objects;
 @CustomLog
 public class Asset extends Node {
 
-	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
+	public static final Asset NONE = new Asset( java.net.URI.create( XenonScheme.ID + ":none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
 	public static final String SETTINGS_TYPE_KEY = "asset-type-key";
 
-	public static final String MEDIA_TYPE_KEY = "asset.media.type";
+	public static final String MEDIA_TYPE_KEY = "asset-media-type";
 
 	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
@@ -52,6 +52,8 @@ public class Asset extends Node {
 	private static final String EXTERNALLY_MODIFIED = "externally-modified";
 
 	private static final String LAST_SAVED_KEY = "last-saved";
+
+	private static final String LAST_WATCHED_KEY = "last-watched";
 
 	//	private static final String EDITABLE = "editable";
 
@@ -92,11 +94,10 @@ public class Asset extends Node {
 	}
 
 	public Asset( AssetType type, URI uri ) {
-		if( uri == null ) uri = java.net.URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
-		setUri( uri );
+		setUri( uri == null ? NewScheme.uri() : uri );
 		setType( type );
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
@@ -166,7 +167,7 @@ public class Asset extends Node {
 	public Scheme getScheme() {
 		Scheme scheme = getValue( SCHEME );
 		//if( scheme == null ) log.atWarn().log( "Asset missing scheme: " + this );
-		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this);
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme: " + this );
 		return scheme;
 	}
 
@@ -231,11 +232,19 @@ public class Asset extends Node {
 	}
 
 	public long getLastSaved() {
-		return getValue( LAST_SAVED_KEY );
+		return getValue( LAST_SAVED_KEY, 0L );
 	}
 
 	public void setLastSaved( long timestamp ) {
 		setValue( LAST_SAVED_KEY, timestamp );
+	}
+
+	public long getLastWatched() {
+		return getValue( LAST_WATCHED_KEY );
+	}
+
+	public void setLastWatched( long timestamp ) {
+		setValue( LAST_WATCHED_KEY, timestamp );
 	}
 
 	//	public File getFile() {
@@ -259,12 +268,6 @@ public class Asset extends Node {
 	 * @return If the asset is "new"
 	 */
 	public final synchronized boolean isNew() {
-		// FIXME The isNew() logic may need improving
-		// This logic is problematic in the case of an asset that has been created
-		// but not yet saved. It can be in a tool, the program restarted and the
-		// tool restored. In this case it should be restored with any prior
-		// temporary state that should have been saved. The asset is not new but
-		// it does not yet have a "real" URI.
 		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 
@@ -431,8 +434,7 @@ public class Asset extends Node {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( !(object instanceof Asset) ) return false;
-		Asset that = (Asset)object;
+		if( !(object instanceof Asset that) ) return false;
 		return this == that || Objects.equals( this.getUri(), that.getUri() );
 	}
 
@@ -440,8 +442,8 @@ public class Asset extends Node {
 	public String toString() {
 		URI uri = getUri();
 		AssetType type = getType();
-		String assetTypeName = type == null ? "Unknown asset type" : type.getName();
-		return isNew() ? assetTypeName : String.valueOf( uri );
+		String assetTypeName = type == null ? "Unknown" : type.getName();
+		return "[" + assetTypeName + "](" + System.identityHashCode( this ) + ")" + (isNew() ? "" : " uri=" + uri);
 	}
 
 	private String getDefaultName() {

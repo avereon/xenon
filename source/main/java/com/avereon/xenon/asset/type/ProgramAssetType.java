@@ -4,30 +4,33 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
+import com.avereon.xenon.scheme.XenonScheme;
 
 public class ProgramAssetType extends AssetType {
 
-	public static final String URI = "program:/asset";
+	private static final String uriPattern = XenonScheme.ID + ":/asset";
 
-	public static final String OPEN_FRAGMENT = "#open";
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
-	public static final String SAVE_FRAGMENT = "#save";
+	public static final String MODE_OPEN = "?mode=open";
 
-	public static final java.net.URI OPEN_URI = java.net.URI.create( URI + OPEN_FRAGMENT );
+	public static final String MODE_SAVE = "?mode=save";
+	
+	public static final java.net.URI OPEN_URI = java.net.URI.create( URI + MODE_OPEN );
 
-	public static final java.net.URI SAVE_URI = java.net.URI.create( URI + SAVE_FRAGMENT );
+	public static final java.net.URI SAVE_URI = java.net.URI.create( URI + MODE_SAVE );
 
 	public ProgramAssetType( XenonProgramProduct product ) {
 		super( product, "asset-open" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();
-		codec.addSupported( Codec.Pattern.URI, URI );
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
 		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return URI;
+		return uriPattern;
 	}
 
 	@Override

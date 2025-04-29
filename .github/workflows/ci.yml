@@ -23,16 +23,16 @@ env:
 
   DISPLAY: ":99"
   GITHUB_REF: ${{ github.ref }}
-  JAVA_VERSION: "17"
+  JAVA_VERSION: "21"
+  MAVEN_OPTS: "-Xms1g -Xmx2g"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
 
 jobs:
   build:
-    name: Build
+    name: Compile, Unit Test, CodeQL
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
         uses: actions/checkout@v4
@@ -84,13 +84,62 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-      - name: Publish Arifacts
+      - name: Upload Artifacts for Next Steps
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: target
+
+  publish:
+    needs: build
+    name: Maven Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v4
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v4
+        with:
+          repository: avereon/canoe
+          path: .github
+
+      - name: Configuration
+        shell: bash
+        run: |
+          source .github/config.sh
+
+      # Required to render the product icon
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{env.JAVA_DISTRO}}
+          java-version: ${{env.JAVA_VERSION}}
+          java-package: ${{env.JAVA_PACKAGE}}
+
+      - name: Maven Repository Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
+
+      - name: Publish Artifacts
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true deploy
-
-      - name: Trigger Dependent Builds
-        run: |
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
 
       - name: Publish Icons
         run: |
@@ -109,11 +158,22 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
+  trigger_dependent_builds:
+    needs: publish
+    name: Trigger Dependent Builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
+    steps:
+      - name: Trigger Dependent Builds
+        run: |
+          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
+
   screenshots1x:
     needs: build
     name: Screenshots 1x
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
@@ -152,6 +212,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
+
       - name: Generate Screenshots
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots1x package
@@ -166,7 +232,7 @@ jobs:
     needs: build
     name: Screenshots 2x
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
@@ -204,6 +270,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
 
       - name: Generate Screenshots
         run: |
@@ -257,15 +329,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
 
-      #      - name: Unit Tests
-      #        run: |
-      #          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
@@ -273,20 +343,20 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      - name: Post Install Pack (jpackage)
+      - name: Publish Install Pack
         run: |
           scp -B target/jpackage/*.deb ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.deb 2>&1
       #    scp -B target/jpackage/*.rpm ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      #      - name: Post Install Pack (izpack)
+      #      - name: Publish Install Pack (izpack)
       #        run: |
       #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
-      - name: Post Product Pack
+      - name: Publish Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
@@ -332,15 +402,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
 
-          #      - name: Unit Tests
-          #        run: |
-          #          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
@@ -348,20 +416,20 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      - name: Post Install Pack (jpackage)
+      - name: Publish Install Pack
         run: |
           scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
       #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      #      - name: Post Install Pack (izpack)
+      #      - name: Publish Install Pack (izpack)
       #        run: |
       #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
-      - name: Post Product Pack
+      - name: Publish Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1
 
@@ -408,40 +476,42 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: target
 
-#      - name: Unit Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Tests
+      - name: UI Tests
+        shell: bash
         run: |
           mvn ${{env.MAVEN_PARMS}} verify
       #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Packs
-        run: |
-          mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      - name: Post Install Pack (jpackage)
         shell: bash
         run: |
-          scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
-      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
-      #      - name: Post Install Pack (izpack)
-      #        shell: bash
-      #        run: |
-      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      # JPackage uses Wix 3.x in Java 11, 17, 21
+      - name: Publish Install Pack
+        shell: bash
+        run: |
+          scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.msi 2>&1
+        # scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
 
-      - name: Post Product Pack
+#      # Originally implemented with IzPack
+#      - name: Publish Install Pack (izpack)
+#        shell: bash
+#        run: |
+#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+
+      - name: Publish Product Pack
         shell: bash
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.jar 2>&1
 
-      - name: Post Product Card
+      - name: Publish Product Card
         shell: bash
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/product.card 2>&1

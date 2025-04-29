@@ -123,7 +123,11 @@ public class GuideContext {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	// WORKAROUND This method is public because tests need access
+	public final void setExpandedIds( String... ids ) {
+		setExpandedIds( Set.of( ids ) );
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	public final void setExpandedIds( Set<String> ids ) {
 		setExpandedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}
@@ -144,7 +148,11 @@ public class GuideContext {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	// WORKAROUND This method is public because tests need access
+	public final void setSelectedIds( String... ids ) {
+		setSelectedIds( Set.of( ids ) );
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	public final void setSelectedIds( Set<String> ids ) {
 		setSelectedItems( ids.stream().map( getItemMap()::get ).filter( Objects::nonNull ).collect( Collectors.toSet() ) );
 	}

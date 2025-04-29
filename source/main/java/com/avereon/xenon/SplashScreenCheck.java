@@ -26,7 +26,7 @@ public class SplashScreenCheck extends Application {
 			double progress = 0;
 			while( progress < 1.0 ) {
 				double lambdaProgress = progress += 0.009;
-				Fx.run( () -> splash.setProgress( lambdaProgress ) );
+				Fx.run( () -> splash.setCompletedSteps( lambdaProgress ) );
 				ThreadUtil.pause( 10 );
 			}
 

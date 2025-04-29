@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.task.Task;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
  * locking runtime file resources. The task result is the path to the temporary
  * location.
  */
+@Getter
 @CustomLog
 public class StageUpdaterTask extends Task<Void> {
 
@@ -22,10 +24,6 @@ public class StageUpdaterTask extends Task<Void> {
 
 	StageUpdaterTask( Xenon program ) {
 		this.program = program;
-	}
-
-	public Xenon getProgram() {
-		return program;
 	}
 
 	@Override

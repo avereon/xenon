@@ -1,34 +1,26 @@
 package com.avereon.xenon.task;
 
-import java.util.Arrays;
-
+/**
+ * The TaskException is a convenience class to help manage exceptions in tasks.
+ * When a checked exception is thrown during the execution of a task, it is
+ * recommended to wrap it in a TaskException and rethrow it.
+ */
 public class TaskException extends RuntimeException {
 
 	public TaskException() {
 		super();
-		setStackTrace( trimStackTrace() );
 	}
 
-	private StackTraceElement[] trimStackTrace() {
-		int index = 0;
-		String className = Task.class.getName();
-		StackTraceElement[] elements = getStackTrace();
-
-		while( className.equals( elements[ index ].getClassName() ) ) {
-			index++;
-		}
-
-		return Arrays.copyOfRange( elements, index, elements.length );
+	public TaskException( String message ) {
+		super( message );
 	}
 
-	@Override
-	public String getMessage() {
-		return getCause().getMessage();
+	public TaskException( Throwable cause ) {
+		super( cause );
 	}
 
-	@Override
-	public String getLocalizedMessage() {
-		return getCause().getLocalizedMessage();
+	public TaskException( String message, Throwable cause ) {
+		super( message, cause );
 	}
 
 }

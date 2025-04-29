@@ -4,13 +4,21 @@ import com.avereon.product.RepoCard;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+@Getter
+@Setter
+@Accessors( chain = true )
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class RepoState extends RepoCard {
+
+	public static final String CONFIG = "/META-INF/repositories.json";
 
 	private boolean enabled = true;
 
@@ -31,33 +39,6 @@ public class RepoState extends RepoCard {
 	@Override
 	public RepoState setUrl( String url ) {
 		super.setUrl( url );
-		return this;
-	}
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public RepoState setEnabled( boolean enabled ) {
-		this.enabled = enabled;
-		return this;
-	}
-
-	public boolean isRemovable() {
-		return removable;
-	}
-
-	public RepoState setRemovable( boolean removable ) {
-		this.removable = removable;
-		return this;
-	}
-
-	public int getRank() {
-		return rank;
-	}
-
-	public RepoState setRank( int rank ) {
-		this.rank = rank;
 		return this;
 	}
 

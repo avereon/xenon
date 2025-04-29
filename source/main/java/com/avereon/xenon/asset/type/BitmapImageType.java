@@ -12,7 +12,7 @@ public class BitmapImageType extends AssetType {
 
 	private static final String assetTypeKey = "image:bitmap";
 
-	private static final String givMediaTypePattern = "image/gif";
+	private static final String gifMediaTypePattern = "image/gif";
 
 	private static final String jpgMediaTypePattern = "image/jpg";
 

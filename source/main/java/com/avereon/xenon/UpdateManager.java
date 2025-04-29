@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.product.Profile;
 import com.avereon.util.OperatingSystem;
 
 import java.nio.file.Path;
@@ -23,7 +22,7 @@ public class UpdateManager {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater";
 
-		updaterLauncher = calcUpdaterLauncher( program.getHomeFolder(), program.getProductManager().getUpdatesFolder(), prefix, program.getProfile() );
+		updaterLauncher = calcUpdaterLauncher( program.getHomeFolder(), program.getProductManager().getUpdatesFolder(), prefix, program.getMode() );
 
 		// Linux and Mac launcher is in a /bin folder. Windows is not.
 		if( OperatingSystem.isWindows() ) {
@@ -33,7 +32,7 @@ public class UpdateManager {
 		}
 	}
 
-	public static Path calcUpdaterLauncher( Path home, Path updatesFolder, String prefix, String profile ) {
+	public static Path calcUpdaterLauncher( Path home, Path updatesFolder, String prefix, String mode ) {
 		// The pre-17 implementation expected java launcher to be a sub-folder of
 		// the java home folder. Java home is now in a different location which
 		// makes this strategy incorrect. The new strategy should be to relativize
@@ -42,7 +41,7 @@ public class UpdateManager {
 		final Path updaterLauncher;
 
 		Path javaLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
-		if( Profile.DEV.equals( profile ) ) {
+		if( XenonMode.DEV.equals( mode ) ) {
 			String updaterTarget = "target/" + prefix;
 			Path updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
 			updaterLauncher = updaterFolder.resolve( OperatingSystem.getJavaLauncherName() );
@@ -78,7 +77,7 @@ public class UpdateManager {
 	}
 
 	/**
-	 * Should only be called from {@link RestartHook} to ensure the
+	 * Should only be called from {@link RestartJob} to ensure the
 	 * updater is ready for use.
 	 *
 	 * @param timeout How long to wait

@@ -6,28 +6,38 @@ import com.avereon.log.Log;
 import com.avereon.product.*;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.weave.Weave;
-import com.avereon.xenon.Configurable;
 import com.avereon.skill.Controllable;
-import com.avereon.util.*;
+import com.avereon.util.DateUtil;
+import com.avereon.util.FileUtil;
+import com.avereon.util.LogFlag;
+import com.avereon.util.TypeReference;
+import com.avereon.weave.Weave;
 import com.avereon.xenon.*;
+import com.avereon.xenon.Module;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -42,7 +52,7 @@ import java.util.stream.Collectors;
  * files.
  */
 @CustomLog
-public class ProductManager implements Controllable<ProductManager>, Configurable {
+public class ProductManager implements Controllable<ProductManager> {
 
 	public enum CheckOption {
 		MANUAL,
@@ -51,22 +61,30 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		SCHEDULE
 	}
 
+	@Getter
 	public enum CheckInterval {
-		MONTH,
-		WEEK,
-		DAY,
-		HOUR
+		MONTH( TimeUnit.DAYS.toMillis( 30 ) ),
+		WEEK( TimeUnit.DAYS.toMillis( 7 ) ),
+		DAY( TimeUnit.DAYS.toMillis( 1 ) ),
+		HOUR( TimeUnit.HOURS.toMillis( 1 ) );
+
+		private final long duration;
+
+		CheckInterval( long duration ) {
+			this.duration = duration;
+		}
+
 	}
 
 	public enum CheckWhen {
 		DAILY,
-		SUNDAY,
 		MONDAY,
 		TUESDAY,
 		WEDNESDAY,
 		THURSDAY,
 		FRIDAY,
-		SATURDAY
+		SATURDAY,
+		SUNDAY
 	}
 
 	public enum FoundOption {
@@ -79,17 +97,17 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public static final String NEXT_CHECK_TIME = "product-update-next-check-time";
 
-	static final String UPDATE_FOLDER_NAME = "updates";
+	private static final String UPDATE_FOLDER_NAME = "updates";
 
 	private static final String MODULE_INSTALL_FOLDER_NAME = "modules";
 
-	private static final String CHECK = "product-update-check";
+	static final String CHECK = "product-update-check";
 
-	private static final String INTERVAL_UNIT = CHECK + "-interval-unit";
+	static final String INTERVAL_UNIT = CHECK + "-interval-unit";
 
-	private static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
+	static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
 
-	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
+	static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
 	private static final String FOUND = "product-update-found";
 
@@ -105,39 +123,35 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private static final int MILLIS_IN_HOUR = 3600000;
 
-	private static final int NO_CHECK = -1;
+	private static final long NO_CHECK = Long.MIN_VALUE;
 
-	private Xenon program;
+	private final Xenon program;
 
-	private Settings settings;
+	private final Map<String, RepoState> providerRepos;
 
-	private Settings updateSettings;
+	private final Map<String, RepoState> repos;
 
-	private Map<String, RepoState> providerRepos;
+	private final Map<String, Module> modules;
 
-	private Map<String, RepoState> repos;
-
-	private Map<String, Mod> modules;
-
+	@Getter
 	private Path homeModuleFolder;
 
+	@Getter
 	private Path userModuleFolder;
 
-	private CheckOption checkOption;
+	private final Map<String, Product> products;
 
-	private FoundOption foundOption;
+	private final Map<String, ProductCard> productCards;
 
-	private Map<String, Product> products;
+	private final Map<String, ProductUpdate> updates;
 
-	private Map<String, ProductCard> productCards;
+	private final Map<String, ProductState> productStates;
 
-	private Map<String, ProductUpdate> updates;
+	//private final Set<ProductCard> postedUpdateCache;
 
-	private Map<String, ProductState> productStates;
+	private final Set<ProductCard> includedProducts;
 
-	private Set<ProductCard> postedUpdateCache;
-
-	private Set<ProductCard> includedProducts;
+	private final Object updateProviderReposLock = new Object();
 
 	private final Object availableProductsLock = new Object();
 
@@ -147,7 +161,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private Set<ProductCard> availableUpdates;
 
-	private long postedUpdateCacheTime;
+	//private long postedUpdateCacheTime;
 
 	private final Object scheduleLock = new Object();
 
@@ -155,54 +169,93 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private UpdateCheckTask task;
 
+	@Getter
 	private final FxEventHub eventBus;
+
+	private long lastProviderRepoCheck;
 
 	private long lastAvailableProductCheck;
 
 	private long lastAvailableUpdateCheck;
 
-	private final RepoClient repoClient;
-
-	private boolean productReposRegistered;
-
 	public ProductManager( Xenon program ) {
 		this.program = program;
 
 		repos = new ConcurrentHashMap<>();
+		providerRepos = new ConcurrentHashMap<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
 		products = new ConcurrentHashMap<>();
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
-		postedUpdateCache = new CopyOnWriteArraySet<>();
+		//postedUpdateCache = new CopyOnWriteArraySet<>();
 		eventBus = new FxEventHub();
 
-		repoClient = new V2RepoClient( program );
+		registerProgram( program );
+
+		//repoClient = new V2RepoClient( program );
 
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new Weave().getCard() );
+
+		// Link the event bus to the parent event hub
+		getEventBus().parent( program.getFxEventHub() );
+
+		registerProviderRepos();
+		loadSettings();
 	}
 
 	private Xenon getProgram() {
 		return program;
 	}
 
-	public FxEventHub getEventBus() {
-		return eventBus;
+	public Set<RepoState> getRepos() {
+		return getRepos( false );
 	}
 
-	public Set<RepoState> getRepos() {
+	public Set<RepoState> getRepos( boolean force ) {
+		if( !updatesEnabled() ) return Set.of();
+
+		TaskManager.taskThreadCheck();
+
+		synchronized( updateProviderReposLock ) {
+			if( repos == null ) return Set.of();
+			if( !force ) return new HashSet<>( repos.values() );
+			if( System.currentTimeMillis() - lastProviderRepoCheck < 1000 ) return Set.of();
+
+			// Update the last provider repo check time
+			lastProviderRepoCheck = System.currentTimeMillis();
+
+			// Update the provider repos
+			try {
+				repos.values().forEach( this::updateRepo );
+			} catch( Exception exception ) {
+				log.atError().withCause( exception ).log( "Error getting available products" );
+			}
+		}
+
 		return new HashSet<>( repos.values() );
 	}
 
-	public void registerProviderRepos( Collection<RepoState> repos ) {
-		if( providerRepos != null ) return;
-		providerRepos = new ConcurrentHashMap<>();
-		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
+	public void updateRepo( RepoCard repo ) {
+		TaskManager.taskThreadCheck();
+
+		try {
+			URI uri = URI.create( repo.getUrl() + "/catalog" );
+			DownloadTask task = new DownloadTask( getProgram(), uri );
+			Future<Download> future = getProgram().getTaskManager().submit( task );
+			RepoState source = repos.get( repo.getInternalId() );
+			source.copyFrom( CatalogCard.fromJson( future.get().getInputStream() ) );
+			repo.copyFrom( source );
+			saveRepos();
+		} catch( Exception exception ) {
+			log.atWarning().withCause( exception ).log( "Error loading repository metadata" );
+		}
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	public RepoCard addRepo( RepoCard repo ) {
 		log.atWarn().log( "upsert repo=%s", repo );
 		this.repos.put( repo.getInternalId(), new RepoState( repo ) );
@@ -210,6 +263,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return repo;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	public RepoCard removeRepo( RepoCard repo ) {
 		log.atWarn().log( "remove repo=%s", repo );
 		this.repos.remove( repo.getInternalId() );
@@ -225,6 +279,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !repos.containsKey( repo.getInternalId() ) ) return;
 		repos.get( repo.getInternalId() ).setEnabled( enabled );
 		saveRepos();
+	}
+
+	public void showPostedUpdates() {
+		new ProductManagerLogic( getProgram() ).showPostedUpdates();
+	}
+
+	public void showStagedUpdates() {
+		new ProductManagerLogic( getProgram() ).showStagedUpdates();
 	}
 
 	/**
@@ -257,7 +319,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	public Set<Mod> getModules() {
+	public Set<Module> getModules() {
 		return new HashSet<>( modules.values() );
 	}
 
@@ -269,7 +331,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return modules.keySet();
 	}
 
-	public Mod getMod( String productKey ) {
+	public Module getMod( String productKey ) {
 		return modules.get( productKey );
 	}
 
@@ -287,6 +349,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return productCards;
 	}
 
+	private void registerProgram( Xenon program ) {
+		registerProduct( program );
+		ProductCard card = program.getCard();
+		setUpdatable( card, true );
+		setRemovable( card, false );
+	}
+
 	private void registerProduct( Product product ) {
 		ProductCard card = product.getCard();
 		String productKey = card.getProductKey();
@@ -295,20 +364,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productStates.put( productKey, new ProductState() );
 	}
 
-	public void registerProgram( Xenon program ) {
-		registerProduct( program );
-		ProductCard card = program.getCard();
-
-		setUpdatable( card, true );
-		setRemovable( card, false );
-	}
-
-	private void registerMod( Mod mod ) {
-		registerProduct( mod );
-		ProductCard card = mod.getCard();
+	void registerMod( Module module ) {
+		registerProduct( module );
+		ProductCard card = module.getCard();
 
 		// Add the mod to the collection
-		modules.put( card.getProductKey(), mod );
+		modules.put( card.getProductKey(), module );
 
 		// Set the state flags
 		setUpdatable( card, card.getProductUri() != null );
@@ -327,14 +388,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		unregisterProduct( program );
 	}
 
-	private void unregisterMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	void unregisterMod( Module module ) {
+		ProductCard card = module.getCard();
 
 		// Remove the module.
 		modules.remove( card.getProductKey() );
 
 		// Treat mods like other products
-		unregisterProduct( mod );
+		unregisterProduct( module );
 	}
 
 	public Task<Collection<InstalledProduct>> installProducts( DownloadRequest... download ) {
@@ -362,8 +423,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	/**
 	 * Determines if a product is installed regardless of release.
 	 *
-	 * @param card
-	 * @return
+	 * @param card The product card
+	 * @return If the product installed
 	 */
 	public boolean isInstalled( ProductCard card ) {
 		return getInstalledProductCard( card ) != null;
@@ -376,8 +437,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	/**
 	 * Determines if a specific release of a product is installed.
 	 *
-	 * @param card
-	 * @return
+	 * @param card The product card
+	 * @return If the product release is installed
 	 */
 	public boolean isReleaseInstalled( ProductCard card ) {
 		return isInstalled( card ) && getInstalledProductCard( card ).getRelease().equals( card.getRelease() );
@@ -430,130 +491,110 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return getProgram().getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
-	public boolean isModEnabled( Mod mod ) {
-		return isEnabled( mod.getCard() );
+	public boolean isModEnabled( Module module ) {
+		return isEnabled( module.getCard() );
 	}
 
 	public void setModEnabled( ProductCard card, boolean enabled ) {
-		Mod mod = getMod( card.getProductKey() );
-		if( mod != null ) setModEnabled( mod, enabled );
+		Module module = getMod( card.getProductKey() );
+		if( module != null ) {
+			// Should be called before setting the enabled flag
+			if( !enabled ) callModShutdown( module );
+
+			setModEnabled( module, enabled );
+
+			// Should be called after setting the enabled flag
+			if( enabled ) callModStart( module );
+		}
 	}
 
-	private void setModEnabled( Mod mod, boolean enabled ) {
-		if( isModEnabled( mod ) == enabled ) return;
+	void setModEnabled( Module module, boolean enabled ) {
+		if( isModEnabled( module ) == enabled ) return;
 
-		// Should be called before setting the enabled flag
-		if( !enabled ) callModShutdown( mod );
-
-		Settings settings = getProgram().getSettingsManager().getProductSettings( mod.getCard() );
+		Settings settings = getProgram().getSettingsManager().getProductSettings( module.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.atTrace().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
-		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
-
-		// Should be called after setting the enabled flag
-		if( enabled ) callModStart( mod );
+		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, module.getCard() ) );
+		log.atDebug().log( "Set mod enabled: %s: %s", settings.getPath(), enabled );
 	}
 
 	public CheckOption getCheckOption() {
-		return checkOption;
+		return getSettings().get( CHECK, CheckOption.class, CheckOption.MANUAL );
 	}
 
 	public void setCheckOption( CheckOption checkOption ) {
-		this.checkOption = checkOption;
-		settings.set( CHECK, checkOption.name().toLowerCase() );
+		if( getCheckOption() == checkOption ) return;
+		getSettings().set( CHECK, checkOption );
 	}
 
 	public FoundOption getFoundOption() {
-		return foundOption;
+		return getSettings().get( FOUND, FoundOption.class, FoundOption.NOTIFY );
 	}
 
 	public void setFoundOption( FoundOption foundOption ) {
-		this.foundOption = foundOption;
-		settings.set( FOUND, foundOption.name().toLowerCase() );
+		if( getFoundOption() == foundOption ) return;
+		getSettings().set( FOUND, foundOption );
 	}
 
-	public long getLastUpdateCheck() {
-		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
+	public Long getLastUpdateCheck() {
+		return getSettings().get( LAST_CHECK_TIME, Long.class );
+	}
+
+	private void setLastUpdateCheck( Long lastUpdateCheck ) {
+		getSettings().set( LAST_CHECK_TIME, lastUpdateCheck );
 	}
 
 	public String getLastUpdateCheckText() {
-		long lastUpdateCheck = getLastUpdateCheck();
+		Long lastUpdateCheck = getLastUpdateCheck();
 		String unknown = Rb.text( RbKey.UPDATE, "unknown" );
-		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+		return (lastUpdateCheck == null ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+	}
+
+	public Long getNextUpdateCheck() {
+		return getSettings().get( NEXT_CHECK_TIME, Long.class );
+	}
+
+	private void setNextUpdateCheck( Long nextUpdateCheck ) {
+		getSettings().set( NEXT_CHECK_TIME, nextUpdateCheck );
 	}
 
 	public String getNextUpdateCheckText() {
-		long nextUpdateCheck = getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		Long nextUpdateCheck = getNextUpdateCheck();
 		String notScheduled = Rb.text( RbKey.UPDATE, "not-scheduled" );
-		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
-	}
-
-	public long getNextUpdateCheck() {
-		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
+		return (nextUpdateCheck == null ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	void updateLastCheckTime() {
 		// Update when the last update check occurred.
-		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+		setLastUpdateCheck( System.currentTimeMillis() );
 
 		// Schedule the next update check.
 		scheduleUpdateCheck( false );
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method is
+	 * thread safe.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
 	public void scheduleUpdateCheck( boolean startup ) {
 		synchronized( scheduleLock ) {
-			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
-			// set, don't schedule update checks. This probably means there is a
-			// problem applying an update. Otherwise, it should be safe to schedule
-			// update checks.
-			if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
-
 			long now = System.currentTimeMillis();
 
 			if( task != null ) {
-				boolean alreadyRun = task.scheduledExecutionTime() < now;
-				task.cancel();
-				task = null;
-				if( !alreadyRun ) log.atTrace().log( "Current check for updates task cancelled for new schedule." );
-			}
-
-			Settings checkSettings = getSettings();
-
-			long lastUpdateCheck = getLastUpdateCheck();
-			long nextUpdateCheck = getNextUpdateCheck();
-			long delay = NO_CHECK;
-
-			// This is ensures updates are not checked during tests
-			if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
-
-			switch( checkOption ) {
-				case STARTUP:
-					if( startup ) delay = 0;
-					break;
-				case INTERVAL: {
-					CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-					delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
-					if( nextUpdateCheck < (now - 1000) ) delay = 0;
-					break;
-				}
-				case SCHEDULE: {
-					CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
-					int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-					delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
-					if( nextUpdateCheck < (now - 1000) ) delay = 0;
-					break;
+				boolean currentTaskWaiting = task.scheduledExecutionTime() > now;
+				if( currentTaskWaiting ) {
+					task.cancel();
+					task = null;
+					log.atTrace().log( "Current check for updates task cancelled for new schedule." );
 				}
 			}
+
+			final long delay = computeCheckDelay( startup, now );
 
 			if( delay == NO_CHECK ) {
-				checkSettings.set( NEXT_CHECK_TIME, 0 );
+				setNextUpdateCheck( null );
 				log.atDebug().log( "Future update check not scheduled." );
 				return;
 			}
@@ -561,16 +602,50 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Set the next update check time before scheduling the
 			// task to prevent this method from looping rapidly
 			long nextCheckTime = now + delay;
-			checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
+			setNextUpdateCheck( nextCheckTime );
 
-			// Schedule the update check task
-			timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
+			Date nextCheckDate = new Date( nextCheckTime );
 
 			// Log the next update check time
-			final long finalDelay = delay;
-			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.atDebug().log( "Next check scheduled for: %s", LazyEval.of( () -> (finalDelay == 0 ? "now" : date) ) );
+			String date = DateUtil.format( nextCheckDate, DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+			log.atInfo().log( "Next check scheduled for: %s", LazyEval.of( () -> (delay == 0 ? "now" : date) ) );
+
+			// Schedule the update check
+			timer.schedule( task = new UpdateCheckTask( this ), nextCheckDate );
 		}
+	}
+
+	private long computeCheckDelay( boolean startup, long instant ) {
+		Long lastUpdateCheck = getLastUpdateCheck();
+		Long nextUpdateCheck = getNextUpdateCheck();
+		long aMomentPrior = instant - TimeUnit.MINUTES.toMillis( 1 );
+		long delay = NO_CHECK;
+
+		switch( getCheckOption() ) {
+			case MANUAL: {
+				break;
+			}
+			case STARTUP:
+				if( startup ) delay = 0;
+				break;
+			case INTERVAL: {
+				CheckInterval intervalUnit = getUpdateCheckSettings().get( INTERVAL_UNIT, CheckInterval.class, CheckInterval.WEEK );
+				delay = getNextIntervalDelay( lastUpdateCheck, instant, intervalUnit );
+				break;
+			}
+			case SCHEDULE: {
+				CheckWhen scheduleWhen = getUpdateCheckSettings().get( SCHEDULE_WHEN, CheckWhen.class, CheckWhen.DAILY );
+				int scheduleHour = getUpdateCheckSettings().get( SCHEDULE_HOUR, Integer.class, 0 );
+				delay = getNextScheduleDelay( instant, ZoneId.systemDefault(), scheduleWhen, scheduleHour );
+				break;
+			}
+			default: {
+				if( nextUpdateCheck == null || nextUpdateCheck < aMomentPrior ) delay = 0;
+				break;
+			}
+		}
+
+		return delay;
 	}
 
 	/**
@@ -581,10 +656,36 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		if( !isEnabled() ) return;
-		new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
+		log.atDebug().log( "Request to check for updates..." );
+
+		// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
+		// set, don't check for updates. This probably means there is a problem
+		// applying an update.
+		//
+		// Otherwise, it should be safe to check for updates.
+		if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) {
+			log.atWarn().log( "Update cycle may be stuck, not checking for updates." );
+			return;
+		}
+
+		if( updatesEnabled() ) {
+			log.atDebug().log( "Checking for updates..." );
+			new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
+			setLastUpdateCheck( System.currentTimeMillis() );
+		} else {
+			log.atDebug().log( "Updates are disabled, not checking for updates." );
+		}
+
+		log.atDebug().log( "Scheduling the next update..." );
+		scheduleUpdateCheck( false );
 	}
 
+	/**
+	 * Check for staged updates at the start of the program. Staged updates are
+	 * those that have been downloaded and "staged" to be applied. This method
+	 * does not do any network operations and should not impact normal startup
+	 * procedures.
+	 */
 	public void checkForStagedUpdatesAtStart() {
 		if( getProgram().getHomeFolder() == null ) {
 			log.atWarn().log( "Program not running from updatable location." );
@@ -613,7 +714,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
 		log.atInfo().log( "Staged update count: %s", stagedUpdateCount );
-		if( !isEnabled() || stagedUpdateCount == 0 ) return;
+		if( !updatesEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {
 			getProgram().setUpdateInProgress( false );
@@ -667,7 +768,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 
 		// Remove updates that cannot be found
-		if( remove.size() > 0 ) {
+		if( !remove.isEmpty() ) {
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
 			}
@@ -722,16 +823,18 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 *
 	 * @return The number of updates applied.
 	 */
+	@SuppressWarnings( "UnusedReturnValue" )
 	public int applyStagedUpdates() {
-		log.atInfo().log( "Update manager enabled: %s", LazyEval.of( this::isEnabled ) );
-		if( !isEnabled() ) return 0;
+		log.atInfo().log( "Updates enabled: %s", LazyEval.of( this::updatesEnabled ) );
+		if( !updatesEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE, ProgramFlag.NODAEMON ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartJob.Mode.UPDATE, XenonFlag.NO_DAEMON, XenonFlag.LOG_APPEND ) );
 
 		return count;
 	}
 
+	@SuppressWarnings( "unused" )
 	public Task<Collection<ProductUpdate>> updateProducts( DownloadRequest update, boolean interactive ) {
 		return updateProducts( Set.of( update ), interactive );
 	}
@@ -759,6 +862,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return null;
 	}
 
+	@SuppressWarnings( "unused" )
 	public static boolean areResourcesValid( Set<ProductResource> resources ) {
 		for( ProductResource resource : resources ) {
 			if( !resource.isValid() ) return false;
@@ -767,102 +871,137 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return true;
 	}
 
-	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck ) {
-		long delay;
-		long intervalDelay = 0;
-		switch( intervalUnit ) {
-			case MONTH: {
-				intervalDelay = 30L * 24L * MILLIS_IN_HOUR;
-				break;
-			}
-			case WEEK: {
-				intervalDelay = 7L * 24L * MILLIS_IN_HOUR;
-				break;
-			}
-			case DAY: {
-				intervalDelay = 24L * MILLIS_IN_HOUR;
-				break;
-			}
-			case HOUR: {
-				intervalDelay = (long)MILLIS_IN_HOUR;
-				break;
-			}
-		}
-
-		return (lastUpdateCheck + intervalDelay) - currentTime;
+	/**
+	 * Compute the delay needed from {@code currentTime} until the next interval
+	 * update check. The result of this method is commonly used to schedule the
+	 * next update check.
+	 *
+	 * @param lastUpdateCheck The last time, in milliseconds, an update check was performed
+	 * @param now The current time, in milliseconds
+	 * @param intervalUnit The check interval
+	 * @return The delay, in milliseconds, until the next update check
+	 */
+	static long getNextIntervalDelay( Long lastUpdateCheck, long now, CheckInterval intervalUnit ) {
+		if( lastUpdateCheck == null ) return 0;
+		return (lastUpdateCheck + intervalUnit.duration) - now;
 	}
 
-	public static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-		Calendar calendar = new GregorianCalendar( TimeZone.getDefault() );
+	/**
+	 * Compute the delay needed from {@code currentTime} until the next scheduled
+	 * update check. The result of this method is commonly used to schedule the
+	 * next update check.
+	 *
+	 * @param now The current time, in milliseconds
+	 * @param scheduleWhen The day of the week to check for updates
+	 * @param scheduleHour The hour of the day to check for updates
+	 * @return The delay, in milliseconds, until the next update check
+	 */
+	static long getNextScheduleDelay( long now, ZoneId timeZoneId, CheckWhen scheduleWhen, int scheduleHour ) {
+		// Start with an instant in UTC
+		Instant instant = Instant.ofEpochMilli( now );
+
+		// Get the local date-time according to the user
+		LocalDateTime localDateTime = instant.atZone( timeZoneId ).toLocalDateTime();
+
+		// Get the day of week from 1 (Monday) to 7 (Sunday)
+		int nowDayOfWeek = localDateTime.getDayOfWeek().getValue();
+
+		// Calculate the day offset to the next check day
+		int dayOffset;
+		if( scheduleWhen == ProductManager.CheckWhen.DAILY ) {
+			dayOffset = 1;
+		} else {
+			dayOffset = scheduleWhen.ordinal() - nowDayOfWeek;
+		}
+		if( dayOffset < 1 ) dayOffset += 7;
 
 		// Calculate the next update check.
-		calendar.setTimeInMillis( currentTime );
-		calendar.set( Calendar.HOUR_OF_DAY, scheduleHour );
-		calendar.set( Calendar.MINUTE, 0 );
-		calendar.set( Calendar.SECOND, 0 );
-		calendar.set( Calendar.MILLISECOND, 0 );
-		if( scheduleWhen != CheckWhen.DAILY ) calendar.set( Calendar.DAY_OF_WEEK, scheduleWhen.ordinal() );
+		LocalDateTime nextCheck = localDateTime.plusDays( dayOffset ).withHour( scheduleHour ).withMinute( 0 ).withSecond( 0 ).withNano( 0 );
 
-		long delay = calendar.getTimeInMillis() - currentTime;
+		// Convert the local date-time to an instant
+		Instant nextCheckInstant = nextCheck.atZone( timeZoneId ).toInstant();
 
-		// If past the scheduled time, add a day or week.
-		if( delay < 0 ) {
-			if( scheduleWhen == CheckWhen.DAILY ) {
-				delay += 24 * MILLIS_IN_HOUR;
-			} else {
-				delay += 7 * 24 * MILLIS_IN_HOUR;
-			}
-		}
-
-		return delay;
+		return nextCheckInstant.toEpochMilli() - now;
 	}
 
-	//	public Set<ProductManagerListener> getProductManagerListeners() {
-	//		return new HashSet<>( listeners );
-	//	}
-	//
-	//	public void addProductManagerListener( ProductManagerListener listener ) {
-	//		listeners.add( listener );
-	//	}
-	//
-	//	public void removeProductManagerListener( ProductManagerListener listener ) {
-	//		listeners.remove( listener );
-	//	}
+	private void registerProviderRepos() {
+		try {
+			registerProviderRepos( RepoState.forProduct( getClass() ) );
+		} catch( IOException exception ) {
+			log.atError().withCause( exception ).log( "Error loading program repos" );
+		}
+	}
 
-	@Override
-	public void setSettings( Settings settings ) {
-		if( settings == null || this.settings != null ) return;
+	private void registerProviderRepos( Collection<RepoState> repos ) {
+		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
+	}
 
-		// FIXME The settings passed in serve two purposes (config and updates) but should not
+	private void loadSettings() {
+		Settings programSettings = getProgram().getSettings();
+		Settings updateCheckSettings = getUpdateCheckSettings();
 
-		// What are these settings if the update node is retrieved below?
-		this.settings = settings;
+		// Migrate check time settings from program settings to manager settings
+		setLastUpdateCheck( programSettings.get( LAST_CHECK_TIME, Long.class ) );
+		setNextUpdateCheck( programSettings.get( NEXT_CHECK_TIME, Long.class ) );
+		programSettings.remove( LAST_CHECK_TIME );
+		programSettings.remove( NEXT_CHECK_TIME );
 
-		if( "STAGE".equals( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() ) ) {
-			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
+		// Backward compatibility for old STAGE option
+		if( "STAGE".equalsIgnoreCase( updateCheckSettings.get( FOUND, FoundOption.NOTIFY.name() ) ) ) {
+			updateCheckSettings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
-		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
-
-		// FIXME These settings are apparently used to store the catalogs and updates
-		// Maybe the catalogs and updates should be stored in a different location
-		this.updateSettings = settings.getNode( "update" );
-
-		// Load the product catalogs
+		// Load the module sources
 		loadRepos();
 
-		// Load the product updates
+		// Load the module updates
 		loadUpdates();
 	}
 
-	@Override
+	/**
+	 * Get the product manager settings. The settings path is defined in
+	 * {@link ManagerSettings#PRODUCT}.
+	 *
+	 * @return The product manager settings
+	 */
 	public Settings getSettings() {
-		return settings;
+		// The settings are under: /program/manager/product
+		return getProgram().getSettingsManager().getSettings( ManagerSettings.PRODUCT );
 	}
 
-	protected boolean isEnabled() {
-		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NOUPDATE );
+	/**
+	 * Get the product repository settings.
+	 *
+	 * @return The product repository {@link Settings}
+	 */
+	public Settings getRepositorySettings() {
+		return getSettings();
+	}
+
+	/**
+	 * Get the settings for update checking. These settings are stored in the
+	 * program settings because they are changeable by the user in the settings
+	 * tool.
+	 *
+	 * @return The settings for update checking
+	 */
+	public Settings getUpdateCheckSettings() {
+		return getSettings();
+	}
+
+	/**
+	 * Get the settings for the product updates. These settings are stored
+	 * separately from the program settings and from the product manager settings
+	 * to avoid conflicts.
+	 *
+	 * @return The settings for the product updates
+	 */
+	public Settings getUpdatesSettings() {
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.UPDATES );
+	}
+
+	boolean updatesEnabled() {
+		return !getProgram().getProgramParameters().isTrue( XenonFlag.NO_UPDATES );
 	}
 
 	@Override
@@ -910,15 +1049,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		// Disable mods specified on the command line
-		List<String> disableMods = getProgram().getProgramParameters().getValues( ProgramFlag.DISABLE_MOD );
+		List<String> disableMods = getProgram().getProgramParameters().getValues( XenonFlag.DISABLE_MOD );
 		modules.values().stream().filter( mod -> disableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, false ) );
+		if( !disableMods.isEmpty() ) log.atDebug().log( "Disabled mods: %s", disableMods );
 
 		// Enable mods specified on the command line
-		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
+		List<String> enableMods = getProgram().getProgramParameters().getValues( XenonFlag.ENABLE_MOD );
 		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
-
-		// Allow the mods to register resources
-		modules.values().forEach( this::callModRegister );
+		if( !enableMods.isEmpty() ) log.atDebug().log( "Enabled mods: %s", enableMods );
 
 		return this;
 	}
@@ -928,7 +1066,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		modules.values().forEach( this::callModUnregister );
 
 		if( timer != null ) timer.cancel();
-		timer = null;
+
 		return this;
 	}
 
@@ -941,14 +1079,16 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	private void loadRepos() {
-		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
+		Set<RepoState> repoStates = getRepositorySettings().get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
 		repoStates.forEach( ( state ) -> repos.put( state.getInternalId(), state ) );
 
-		// Remove old repos
-		//repos.remove( "https://avereon.com/download/stable" );
-		//repos.remove( "https://avereon.com/download/latest" );
+		// Remove old repos. These repositories were replaced with:
+		//   https://www.avereon.com/download/stable
+		//   https://www.avereon.com/download/latest
+		repos.remove( "https://avereon.com/download/stable" );
+		repos.remove( "https://avereon.com/download/latest" );
 
+		// TODO Can this logic be moved to registerProviderRepos(repos)?
 		repos.values().forEach( ( repo ) -> {
 			if( providerRepos.containsKey( repo.getInternalId() ) ) {
 				// Keep some values for provider repos
@@ -965,20 +1105,24 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		providerRepos.keySet().forEach( ( id ) -> repos.putIfAbsent( id, providerRepos.get( id ) ) );
 
 		saveRepos();
+
+		getRepos( true );
 	}
 
 	private void saveRepos() {
-		updateSettings.set( REPOS_SETTINGS_KEY, repos.values() );
+		getRepositorySettings().set( REPOS_SETTINGS_KEY, repos.values() );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadUpdates() {
-		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
+		if( !updatesEnabled() ) return;
+
+		updates.clear();
+		updates.putAll( getUpdatesSettings().get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates ) );
 	}
 
 	private void saveUpdates( Map<String, ProductUpdate> updates ) {
-		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
+		getUpdatesSettings().set( UPDATES_SETTINGS_KEY, updates );
 	}
 
 	private boolean isIncludedProduct( ProductCard card ) {
@@ -995,8 +1139,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 		// Look for standard mods (most common)
 		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
-			try {
-				Files.list( folder ).filter( Files::isDirectory ).forEach( this::loadStandardMod );
+			try( Stream<Path> modFolder = Files.list( folder ).filter( Files::isDirectory ) ) {
+				modFolder.forEach( this::loadStandardMod );
 			} catch( IOException exception ) {
 				log.atError().withCause( exception ).log( "Error loading modules from: %s", folder );
 			}
@@ -1008,86 +1152,96 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 		log.atDebug().log( "Install product to: %s", installFolder );
 
-		// Install all the resource files to the install folder
+		// Install all the resource files to the installation folder
 		copyProductResources( resources, installFolder );
 		log.atDebug().log( "Mod copied to: %s", installFolder );
 
 		// Load the mod
-		loadModules( getUserModuleFolder() );
-		log.atDebug().log( "Mod loaded from: ", LazyEval.of( this::getUserModuleFolder ) );
+		loadModules( installFolder );
+		log.atDebug().log( "Mod loaded from: %s", installFolder );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
-		log.atDebug().log( "Mod registered: ", LazyEval.of( card::getProductKey ) );
+		log.atDebug().log( "Mod registered: %s", LazyEval.of( card::getProductKey ) );
 
 		// Set the enabled state
 		setModEnabled( getMod( card.getProductKey() ), true );
-		log.atDebug().log( "Mod enabled: ", LazyEval.of( card::getProductKey ) );
+		log.atDebug().log( "Mod enabled: %s", LazyEval.of( card::getProductKey ) );
 	}
 
-	void doRemoveMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	void doRemoveMod( Module module ) {
+		ProductCard card = module.getCard();
 		Path installFolder = card.getInstallFolder();
 		String source = installFolder == null ? "classpath" : installFolder.toString();
 
 		log.atDebug().log( "Remove product from: %s", source );
 
 		// Disable the product
-		setModEnabled( mod, false );
+		setModEnabled( module, false );
 		log.atDebug().log( "Mod disabled: ", LazyEval.of( card::getProductKey ) );
 
 		// Allow the mod to unregister resources
-		callModUnregister( mod );
+		callModUnregister( module );
 		log.atDebug().log( "Mod unregistered: ", LazyEval.of( card::getProductKey ) );
 
 		// Unload the mod
-		unloadMod( mod );
+		unloadMod( module );
 		log.atDebug().log( "Mod unloaded from: ", source );
 
 		// Remove the product settings
 		getProgram().getSettingsManager().getProductSettings( card ).delete();
 	}
 
-	private void callModRegister( Mod mod ) {
+	void callModRegister( Module module ) {
+		if( module.getStatus() != Module.Status.UNREGISTERED ) return;
 		try {
-			mod.register();
-			mod.setStatus( ModStatus.REGISTERED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
-		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			module.setStatus( Module.Status.REGISTERING );
+			module.register();
+			module.setStatus( Module.Status.REGISTERED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, module.getCard() ) );
+		} catch( Exception throwable ) {
+			log.atError().withCause( throwable ).log( "Error registering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
 	}
 
-	private void callModStart( Mod mod ) {
-		if( !isEnabled( mod.getCard() ) ) return;
+	void callModStart( Module module ) {
+		if( module.getStatus() == Module.Status.UNREGISTERED ) callModRegister( module );
+		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.REGISTERED ) return;
 		try {
-			mod.startup();
-			mod.setStatus( ModStatus.STARTED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
+			module.setStatus( Module.Status.STARTING );
+			module.startup();
+			module.setStatus( Module.Status.STARTED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().withCause( throwable ).log( "Error starting mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
-	private void callModShutdown( Mod mod ) {
-		if( !isEnabled( mod.getCard() ) ) return;
+	void callModShutdown( Module module ) {
+		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.STARTED ) return;
 		try {
-			mod.shutdown();
-			mod.setStatus( ModStatus.STOPPED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
+			module.setStatus( Module.Status.STOPPING );
+			module.shutdown();
+			module.setStatus( Module.Status.STOPPED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().withCause( throwable ).log( "Error stopping mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
-	private void callModUnregister( Mod mod ) {
+	void callModUnregister( Module module ) {
+		if( module.getStatus() == Module.Status.STARTED ) callModShutdown( module );
 		try {
-			mod.unregister();
-			mod.setStatus( ModStatus.UNREGISTERED );
-			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
+			module.setStatus( Module.Status.UNREGISTERING );
+			module.unregister();
+			module.setStatus( Module.Status.UNREGISTERED );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, module.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> mod.getCard().getProductKey() ) );
+			log.atError().log( "Error unregistering mod: %s", LazyEval.of( () -> module.getCard().getProductKey() ) );
 		}
+		log.atDebug().log( "module=%s  status=%s", LazyEval.of( () -> module.getCard().getProductKey() ), LazyEval.of( module::getStatus ) );
 	}
 
 	private void purgeRemovedProducts() {
@@ -1129,14 +1283,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
 	}
 
-	public Path getHomeModuleFolder() {
-		return homeModuleFolder;
-	}
-
-	public Path getUserModuleFolder() {
-		return userModuleFolder;
-	}
-
 	public Path getUpdatesFolder() {
 		return getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 	}
@@ -1144,7 +1290,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	private void loadModulePathMods() {
 		log.atTrace().log( "Loading standard mod from: module-path" );
 		try {
-			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
+			ServiceLoader.load( Module.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error loading module-path mods" );
 		}
@@ -1174,21 +1320,17 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Create the mod module layer
 			Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), finder, Set.of() );
 			ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, getProgram().getClass().getClassLoader() );
-			ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
+			ServiceLoader<Module> loader = ServiceLoader.load( modLayer, Module.class );
 
 			// Load the mod
-			loader.stream().findFirst().ifPresentOrElse( m -> {
-				loadMod( m.get(), folder );
-			}, () -> {
-				log.atError().log( "Standard mod expected: %s", folder );
-			} );
+			loader.stream().findFirst().ifPresentOrElse( m -> loadMod( m.get(), folder ), () -> log.atError().log( "Standard mod expected: %s", folder ) );
 		} catch( Throwable throwable ) {
 			log.atError().withCause( throwable ).log( "Error loading standard mods: %s", folder );
 		}
 	}
 
-	private void loadMod( Mod mod, Path source ) {
-		ProductCard card = mod.getCard();
+	private void loadMod( Module module, Path source ) {
+		ProductCard card = module.getCard();
 		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
 		try {
 			log.atDebug().log( "Loading mod: %s", message );
@@ -1203,23 +1345,23 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 
 			// Configure logging for the mod
-			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+			Log.setPackageLogLevel( module.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+
+			// Initialize the mod
+			module.init( getProgram(), card );
 
 			// This will need to change if nested mods are to be supported
 			// Set the parent product
-			mod.setParent( getProgram() );
+			module.setParent( getProgram() );
 
-			// Initialize the mod
-			mod.init( getProgram(), card );
-
-			// Set the mod install folder
+			// Set the mod installation folder
 			card.setInstallFolder( source );
 
 			// Add the product registration to the manager
-			registerMod( mod );
+			registerMod( module );
 
 			// Notify handlers of install
-			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, module.getCard() ) );
 
 			log.atDebug().log( "Mod loaded: %s", message );
 		} catch( Throwable throwable ) {
@@ -1227,18 +1369,18 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void unloadMod( Mod mod ) {
-		ProductCard card = mod.getCard();
+	private void unloadMod( Module module ) {
+		ProductCard card = module.getCard();
 
 		String message = card.getProductKey();
 		try {
 			log.atDebug().log( "Unloading mod: %s", message );
 
 			// Remove the product registration from the manager
-			unregisterMod( mod );
+			unregisterMod( module );
 
 			// Notify handlers of remove
-			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, module.getCard() ) );
 
 			// TODO Disable logging for a mod that has been removed
 
@@ -1253,11 +1395,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		@Override
 		public void handle( SettingsEvent event ) {
 			switch( event.getKey() ) {
-				case CHECK -> {
-					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-					scheduleUpdateCheck( false );
-				}
+				case CHECK -> setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 				case FOUND -> setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+			}
+			switch( event.getKey() ) {
+				case CHECK, INTERVAL_UNIT, SCHEDULE_WHEN, SCHEDULE_HOUR -> scheduleUpdateCheck( false );
 			}
 		}
 

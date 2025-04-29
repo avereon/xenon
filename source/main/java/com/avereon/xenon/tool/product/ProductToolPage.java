@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 
+@Deprecated
 abstract class ProductToolPage extends VBox {
 
 	private ProductPageHeader header;

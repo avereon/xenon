@@ -22,7 +22,7 @@ public class ToolTab extends Control {
 	 */
 	private ToolTabPane pane;
 
-	private Tool tool;
+	private final Tool tool;
 
 	private ReadOnlyBooleanWrapper selected;
 

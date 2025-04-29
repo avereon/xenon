@@ -6,14 +6,16 @@ import com.avereon.log.LazyEval;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zarra.javafx.Fx;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -23,9 +25,13 @@ import java.util.Objects;
 @CustomLog
 public class SettingsPanel extends VBox {
 
+	@Getter
 	private final XenonProgramProduct product;
 
-	private Map<String, SettingOptionProvider> optionProviders;
+	@Getter
+	private final Xenon program;
+
+	private final Map<String, SettingOptionProvider> optionProviders;
 
 	protected SettingsPanel( XenonProgramProduct product ) {
 		this( product, null );
@@ -33,37 +39,38 @@ public class SettingsPanel extends VBox {
 
 	protected SettingsPanel( XenonProgramProduct product, Map<String, SettingOptionProvider> optionProviders ) {
 		this.product = product;
+		this.program = product.getProgram();
 		this.optionProviders = optionProviders;
 		getStyleClass().addAll( "settings-panel" );
 	}
 
-	protected XenonProgramProduct getProduct() {
-		return product;
+	protected void addTitle( String title ) {
+		addTitle( new Label( title ), null, null, false, false );
 	}
 
-	protected void addTitle( String title ) {
-		// Add the title label
-		Label titleLabel = new Label( title );
-		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-		titleLabel.prefWidthProperty().bind( widthProperty() );
-		titleLabel.getStyleClass().add( "setting-title" );
-		titleLabel.setAlignment( Pos.CENTER );
+	protected void addTitle( String title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
+		addTitle( new Label( title ), left, right, skipTopBlank, skipBottomBlank );
+	}
 
-		addBlankLine();
-		getChildren().add( titleLabel );
-		addBlankLine();
+	protected void addTitle( Node title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
+		BorderPane titleBox = new BorderPane( title, null, right, null, left );
+		title.getStyleClass().add( "settings-title" );
+
+		if( !skipTopBlank ) addBlankLine();
+		getChildren().add( titleBox );
+		if( !skipBottomBlank ) addBlankLine();
 	}
 
 	protected void addBlankLine() {
 		Label blankLine = new Label( " " );
 		blankLine.prefWidthProperty().bind( widthProperty() );
-		blankLine.getStyleClass().add( "setting-blank" );
+		blankLine.getStyleClass().add( "settings-blank" );
 		blankLine.setAlignment( Pos.CENTER );
 		getChildren().add( blankLine );
 	}
 
 	protected TitledPane createGroupPane( String name ) {
-		return createGroupPane(createSettingsPane(), name, false, true );
+		return createGroupPane( createSettingsPane(), name, false, true );
 	}
 
 	protected TitledPane createGroupPane( Pane pane, String name, boolean collapsible, boolean expanded ) {
@@ -133,8 +140,13 @@ public class SettingsPanel extends VBox {
 
 			// Create the editor
 			SettingEditor editor = createSettingEditor( product, rbKey, setting, editorClass );
-			if( editor != null ) editor.addComponents( grid, row++ );
-			if( editor == null ) log.atDebug().log( "Editor not created: %s", LazyEval.of( editorClass::getName ) );
+			if( editor != null ) {
+				editor.addComponents( grid, row++ );
+				// Add a listener for when the settings change for the page
+				page.register( SettingsPage.SETTINGS, e -> editor.pageSettingsChanged() );
+			} else {
+				log.atDebug().log( "Editor not created: %s", LazyEval.of( editorClass::getName ) );
+			}
 
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
@@ -167,6 +179,10 @@ public class SettingsPanel extends VBox {
 		new EditorChangeHandler( editor );
 
 		return editor;
+	}
+
+	protected void setSelected( boolean selected ) {
+		// Do nothing
 	}
 
 	private void addGroupDependencyWatchers( Settings settings, SettingGroup group, SettingDependency dependency ) {
@@ -242,11 +258,11 @@ public class SettingsPanel extends VBox {
 		}
 
 		private void setDisable( boolean disable ) {
-			pane.setDisable( disable );
+			Fx.run( () -> pane.setDisable( disable ) );
 		}
 
 		private void setVisible( boolean visible ) {
-			pane.setVisible( visible );
+			Fx.run( () -> pane.setVisible( visible ) );
 		}
 
 	}
@@ -255,19 +271,19 @@ public class SettingsPanel extends VBox {
 
 		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
-			SettingData setting = editor.getSetting();
+			SettingData settingData = editor.getSetting();
 
 			// Register a handler when the setting value changes to update the editor
-			setting.getSettings().register( SettingsEvent.CHANGED, editor::handle );
+			settingData.getSettings().register( SettingsEvent.CHANGED, editor::handle );
 
 			// Register a handler on the setting node to update other setting nodes
-			setting.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );
+			settingData.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );
 		}
 
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
-				case SettingData.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
-				case SettingData.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
+				case SettingData.DISABLE -> editor.setDisable( event.getNewValue() );
+				case SettingData.VISIBLE -> editor.setVisible( event.getNewValue() );
 			}
 		}
 

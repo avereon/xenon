@@ -12,10 +12,12 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.*;
+import com.avereon.xenon.tool.settings.panel.*;
 import com.avereon.zarra.event.FxEventHub;
 import com.avereon.zarra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.*;
@@ -24,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @CustomLog
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final String ROOT = "settings";
+	static final String ROOT = "settings";
 
 	private static final String GENERAL = "general";
 
@@ -34,6 +36,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private final StoredSettings settings;
 
+	@Getter
 	private final FxEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
@@ -50,10 +53,37 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.rootSettingsPages = new ConcurrentHashMap<>();
 		this.optionProviders = new ConcurrentHashMap<>();
 		this.eventBus = new FxEventHub();
+		eventBus.parent( program.getFxEventHub() );
+
+		// Add setting editors
+		putPagePanel( "asset-type", AssetTypeSettingsPanel.class );
+		putPagePanel( "modules-installed", ModulesInstalledSettingsPanel.class );
+		putPagePanel( "modules-available", ModulesAvailableSettingsPanel.class );
+		putPagePanel( "modules-updates", ModulesUpdatesSettingsPanel.class );
+		putPagePanel( "modules-sources", ModulesSourcesSettingsPanel.class );
+
+		// Add options providers
+		putOptionProvider( "program-asset-type-provider", new AssetTypeOptionProvider( program ) );
 
 		guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 		this.settings.register( SettingsEvent.ANY, eventBus::dispatch );
+	}
+
+	public long getMaxFlushLimit() {
+		return settings.getMaxFlushLimit();
+	}
+
+	public void setMaxFlushLimit( long maxFlushLimit ) {
+		settings.setMaxFlushLimit( maxFlushLimit );
+	}
+
+	public long getMinFlushLimit() {
+		return settings.getMinFlushLimit();
+	}
+
+	public void setMinFlushLimit( long minFlushLimit ) {
+		settings.setMinFlushLimit( minFlushLimit );
 	}
 
 	public Settings getSettings( String path ) {
@@ -63,10 +93,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	public Settings getSettings( String root, String path ) {
 		return getSettings( PathUtil.resolve( root, path ) );
 	}
-
-	//	public Settings getProductSettings( Product product ) {
-	//		return getSettings( getSettingsPath( product.getCard() ) );
-	//	}
 
 	public Settings getProductSettings( ProductCard card ) {
 		return getSettings( getSettingsPath( card ) );
@@ -109,7 +135,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void addSettingsPages( Map<String, SettingsPage> pages, Settings settings ) {
 		synchronized( rootSettingsPages ) {
-			log.atFine().log( "Adding settings pages..." );
+			log.atTrace().log( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -118,18 +144,20 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			}
 
 			Fx.run( this::updateSettingsGuide );
+			log.atDebug().log( "Settings pages added" );
 		}
 	}
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.atFine().log( "Removing settings pages..." );
+			log.atTrace().log( "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );
 			}
 
 			Fx.run( this::updateSettingsGuide );
+			log.atDebug().log( "Settings pages removed" );
 		}
 	}
 
@@ -169,13 +197,16 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private void createGuide( GuideNode node, Map<String, SettingsPage> pages ) {
+		// Order the pages
+		List<SettingsPage> orderedPages = new ArrayList<>( pages.values() );
+		orderedPages.sort( new SettingsOrderComparator() );
+
 		// Clear the guide nodes
 		guide.clear( node );
 
 		for( SettingsPage page : pages.values() ) {
 			GuideNode pageNode = addGuideNode( node, pages.get( page.getId() ) );
-			int order = GENERAL.equals( page.getId() ) ? 0 : 1;
-			pageNode.setOrder( order );
+			pageNode.setOrder( page.getOrder() );
 		}
 	}
 
@@ -204,36 +235,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-	//	@Override
-	//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return this;
-	//	}
-	//
-	//	@Override
-	//	public SettingsManager restart() {
-	//		stop();
-	//		start();
-	//		return this;
-	//	}
-	//
-	//	@Override
-	//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return this;
-	//	}
-
 	@Override
 	public SettingsManager stop() {
 		settings.flush();
 		return this;
-	}
-
-	//	@Override
-	//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return this;
-	//	}
-
-	public FxEventHub getEventBus() {
-		return eventBus;
 	}
 
 	private static class SettingsTitleComparator implements Comparator<SettingsPage> {
@@ -243,6 +248,15 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			if( GENERAL.equals( o1.getId() ) ) return -1;
 			if( GENERAL.equals( o2.getId() ) ) return 1;
 			return o1.getTitle().compareTo( o2.getTitle() );
+		}
+
+	}
+
+	private static class SettingsOrderComparator implements Comparator<SettingsPage> {
+
+		@Override
+		public int compare( SettingsPage o1, SettingsPage o2 ) {
+			return o1.getOrder().compareTo( o2.getOrder() );
 		}
 
 	}

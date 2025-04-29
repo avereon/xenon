@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.ui.util.MenuFactory;
+import com.avereon.xenon.ui.util.MenuBarFactory;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventDispatchChain;
@@ -161,7 +161,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	public void setShortcut( String shortcut ) {
 		this.shortcut = shortcut;
-		this.accelerator = MenuFactory.parseShortcut( shortcut );
+		this.accelerator = MenuBarFactory.parseShortcut( shortcut );
 	}
 
 	public KeyCombination getAccelerator() {
@@ -270,7 +270,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 	}
 
 	private void updateEnabled() {
-		setEnabled( actionStack.size() > 0 && actionStack.peek().isEnabled() );
+		setEnabled( !actionStack.isEmpty() && actionStack.peek().isEnabled() );
 	}
 
 	private void updateMnemonicName() {

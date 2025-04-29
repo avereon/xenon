@@ -13,6 +13,7 @@ import lombok.CustomLog;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -132,8 +133,8 @@ public abstract class GuidedTool extends ProgramTool {
 		public void changed(
 			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
 		) {
-			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
-			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+			Set<GuideNode> oldNodes = oldValue.stream().filter( Objects::nonNull ).map( TreeItem::getValue ).collect( Collectors.toSet() );
+			Set<GuideNode> newNodes = newValue.stream().filter( Objects::nonNull ).map( TreeItem::getValue ).collect( Collectors.toSet() );
 
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {

@@ -7,7 +7,7 @@ import com.avereon.zarra.javafx.Fx;
 abstract class ProductToolUIT extends BaseToolUIT {
 
 	void openProductTool() throws Exception {
-		openMenuItem( "#menu-view", "#menuitem-product" );
+		openMenuItem( "#menu-view", "#menu-item-product" );
 		Fx.waitForWithExceptions( ProgramTestConfig.LONG_TIMEOUT );
 	}
 

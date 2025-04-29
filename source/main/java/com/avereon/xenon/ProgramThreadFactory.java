@@ -21,7 +21,7 @@ public class ProgramThreadFactory implements ThreadFactory {
 
 		@Override
 		public void uncaughtException( Thread thread, Throwable throwable ) {
-			log.atSevere().withCause( throwable ).log( "Error on thread %s", thread.getName() );
+			log.atError().withCause( throwable ).log( "Error on thread %s", thread.getName() );
 		}
 	}
 

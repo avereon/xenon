@@ -16,7 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @CustomLog
-public class HttpScheme extends BaseScheme {
+public class HttpScheme extends ProgramScheme {
 
 	public static final String ID = "http";
 

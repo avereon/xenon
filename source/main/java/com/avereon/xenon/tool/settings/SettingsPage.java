@@ -4,6 +4,8 @@ import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,13 +17,17 @@ public class SettingsPage extends Node {
 
 	public static final SettingsPage EMPTY = new SettingsPage( null );
 
+	public static final String SETTINGS = "settings";
+
 	public static final String ID = "id";
 
-	private static final Map<String, Class<? extends SettingsPanel>> panels;
+	private static final String PATH = "path";
 
 	private static final String ICON = "icon";
 
 	private static final String TITLE = "title";
+
+	private static final String ORDER = "order";
 
 	private static final String GROUPS = "groups";
 
@@ -29,12 +35,14 @@ public class SettingsPage extends Node {
 
 	private static final String PRODUCT = "product";
 
-	private static final String SETTINGS = "settings";
-
 	private static final String PANEL = "panel";
+
+	private static final Map<String, Class<? extends SettingsPanel>> panels;
 
 	private final SettingsPage parent;
 
+	@Setter
+	@Getter
 	private String rbKey = RbKey.SETTINGS;
 
 	static {
@@ -80,6 +88,14 @@ public class SettingsPage extends Node {
 		setValue( ID, id );
 	}
 
+	public String getPath() {
+		return getValue( PATH );
+	}
+
+	public void setPath( String path ) {
+		setValue( PATH, path );
+	}
+
 	public String getIcon() {
 		return getValue( ICON );
 	}
@@ -94,6 +110,14 @@ public class SettingsPage extends Node {
 
 	public void setTitle( String title ) {
 		setValue( TITLE, title );
+	}
+
+	public Integer getOrder() {
+		return getValue( ORDER );
+	}
+
+	public void setOrder( Integer order ) {
+		setValue( ORDER, order );
 	}
 
 	public SettingGroup getGroup( String id ) {
@@ -130,8 +154,13 @@ public class SettingsPage extends Node {
 	}
 
 	public Settings getSettings() {
-		if( parent != null ) return parent.getSettings();
-		return getValue( SETTINGS );
+		Settings settings = getValue( SETTINGS, getParentSettings() );
+
+		// If the path is set, get the settings from the path
+		String path = getPath();
+		if( path != null ) settings = settings.getNode( path );
+
+		return settings;
 	}
 
 	public void setSettings( Settings settings ) {
@@ -146,12 +175,8 @@ public class SettingsPage extends Node {
 		setValue( PANEL, panel );
 	}
 
-	public String getRbKey() {
-		return rbKey;
-	}
-
-	public void setRbKey( String rbKey ) {
-		this.rbKey = rbKey;
+	private Settings getParentSettings() {
+		return parent == null ? null : parent.getSettings();
 	}
 
 }

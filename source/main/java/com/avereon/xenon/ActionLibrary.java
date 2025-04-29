@@ -46,6 +46,8 @@ public class ActionLibrary {
 		register( product, "maximize" );
 		register( product, "exit" );
 
+		register( product, "new-folder" );
+
 		register( product, "edit" );
 		register( product, "undo" );
 		register( product, "redo" );
@@ -70,6 +72,9 @@ public class ActionLibrary {
 		//		register( bundle, "view-merge-west" );
 		register( product, "statusbar-show" );
 		register( product, "settings" );
+		register( product, "settings-toggle" );
+		register( product, "modules" );
+		register( product, "theme" );
 
 		register( product, "tool" );
 		register( product, "tools" );
@@ -77,21 +82,27 @@ public class ActionLibrary {
 		register( product, "help" );
 		register( product, "help-content" );
 		register( product, "search" );
+		register( product, "search-toggle" );
 		register( product, "welcome" );
 		register( product, "notice" );
+		register( product, "notice-toggle" );
 		register( product, "product" );
 		register( product, "update" );
 		register( product, "about" );
 
 		register( product, "development" );
+		register( product, "restart" );
+		register( product, "uireset" );
+		register( product, "mock-update" );
+
+		register( product, "show-updates-posted" );
+		register( product, "show-updates-staged" );
+
 		register( product, "test-action-1" );
 		register( product, "test-action-2" );
 		register( product, "test-action-3" );
 		register( product, "test-action-4" );
 		register( product, "test-action-5" );
-		register( product, "mock-update" );
-		register( product, "restart" );
-		register( product, "uireset" );
 
 		register( product, "workarea" );
 		register( product, "workarea-new" );
@@ -161,6 +172,10 @@ public class ActionLibrary {
 		if( "multi-state".equals( type ) ) addStates( product, id, proxy );
 
 		actionsById.put( id, proxy );
+	}
+
+	public void unregister( String id ) {
+		//actionsById.remove( id );
 	}
 
 	public void registerScene( Scene scene ) {

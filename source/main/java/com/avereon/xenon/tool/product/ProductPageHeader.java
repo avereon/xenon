@@ -4,6 +4,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
+@Deprecated
 public class ProductPageHeader extends BorderPane {
 
 	private Label title;

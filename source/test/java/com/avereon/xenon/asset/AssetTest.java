@@ -3,10 +3,11 @@ package com.avereon.xenon.asset;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AssetTest {
+class AssetTest extends BaseAssetTestCase {
 
 	@Test
 	void testGetNameWithOpaqueUri() {
@@ -78,6 +79,12 @@ class AssetTest {
 	void testGetFileNameWithFolderUri() {
 		Asset asset = new Asset( URI.create( "/home/test/" ) );
 		assertThat( asset.getFileName() ).isEqualTo( "test" );
+	}
+
+	@Test
+	void isNew() {
+		Asset asset = new Asset( new MockAssetType( getProduct() ), URI.create( "new:" + UUID.randomUUID() ) );
+		assertThat( asset.isNew() ).isTrue();
 	}
 
 }

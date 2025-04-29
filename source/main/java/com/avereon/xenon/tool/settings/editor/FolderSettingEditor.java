@@ -83,6 +83,11 @@ public class FolderSettingEditor extends SettingEditor {
 		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
 	}
 
+	@Override
+	protected void pageSettingsChanged() {
+		field.setText( getCurrentValue() );
+	}
+
 	/**
 	 * Key listener
 	 *

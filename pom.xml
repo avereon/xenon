@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.3</version>
+		<version>3.5.8</version>
 		<relativePath/>
 	</parent>
 
@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.7</version>
+	<version>1.8</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -66,29 +66,32 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
-		<!-- Version numbers updated 02 Jul 2020 -->
+		<java.version>21</java.version>
+
 		<!-- Runtime dependencies -->
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<weave.version>1.5</weave.version>
+		<zenna.version>0.10</zenna.version>
+		<zarra.version>0.10</zarra.version>
+		<zevra.version>0.10</zevra.version>
+		<jackson.version>2.18.3</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
-		<weave.version>[1.4,)</weave.version>
-		<zenna.version>[0.9,)</zenna.version>
-		<zarra.version>[0.9,)</zarra.version>
-		<zevra.version>[0.9,)</zevra.version>
-		<jackson.version>[2.16.1]</jackson.version>
 
-		<!-- Version numbers updated 11 Oct 2021 -->
 		<!-- Runtime dependencies -->
-		<controlsfx.version>[11.1,)</controlsfx.version>
-		<openjfx.version>20.0.1</openjfx.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<openjfx.version>22.0.2</openjfx.version>
+		<controlsfx.version>11.2.2</controlsfx.version>
 
 		<!-- Test dependencies -->
-		<!-- TestFX 4.0.17 broke the module -->
-		<testfx.version>4.0.17</testfx.version>
-		<monocle.version>jdk-12.0.1+2</monocle.version>
+		<!-- Version numbers reviewed 18 Feb 2023 -->
+		<testfx.version>4.0.18</testfx.version>
+		<monocle.version>21.0.2</monocle.version>
 
 		<!-- Build plugin versions -->
-		<cameo.version>2.10</cameo.version>
-		<curex.version>1.4.1</curex.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<cameo.version>2.11</cameo.version>
+		<curex.version>1.5.0</curex.version>
 	</properties>
 
 	<dependencies>
@@ -253,6 +256,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -270,7 +280,20 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<!-- Version comes from parent -->
 				<configuration>
-					<argLine>-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
+					<forkCount>1</forkCount>
+					<argLine>
+						-Xmx128m
+						-Xshare:off
+						--add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
+						<!-- This works in Maven, of course, but not in IntelliJ -->
+						<!--										-javaagent:${net.bytebuddy:byte-buddy-agent:jar}-->
+						<!--										-javaagent:${org.mockito:mockito-core:jar}-->
+						-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
+						-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+					</argLine>
 				</configuration>
 			</plugin>
 
@@ -418,6 +441,11 @@
 				<version>${maven.dependency.version}</version>
 				<executions>
 					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+					<execution>
 						<id>copy</id>
 						<phase>package</phase>
 						<goals>
@@ -449,12 +477,6 @@
 								</jar>
 								<jar>
 									<name>jsr305*.jar</name>
-								</jar>
-								<jar>
-									<name>jsoup*.jar</name>
-									<modules>
-										<module>jsr305</module>
-									</modules>
 								</jar>
 								<jar>
 									<name>image4j*.jar</name>
@@ -491,7 +513,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${maven.exec.version}</version>
+						<version>${exec.maven.version}</version>
 						<executions>
 							<execution>
 								<id>screenshots1x</id>
@@ -503,11 +525,12 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx128m</argument>
+										<argument>-Xmx256m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.XenonScreenshots</argument>
+										<argument>1</argument>
 									</arguments>
 								</configuration>
 							</execution>
@@ -524,7 +547,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${maven.exec.version}</version>
+						<version>${exec.maven.version}</version>
 						<executions>
 							<execution>
 								<id>screenshots2x</id>
@@ -540,7 +563,8 @@
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.XenonScreenshots</argument>
+										<argument>2</argument>
 									</arguments>
 								</configuration>
 							</execution>
@@ -569,24 +593,19 @@
 									<forkCount>1</forkCount>
 									<reuseForks>false</reuseForks>
 									<runOrder>alphabetical</runOrder>
-									<argLine>-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
-<!--									<systemPropertyVariables>-->
-<!--										&lt;!&ndash; Set testfx.setup.timeout to a reasonable time &ndash;&gt;-->
-<!--										&lt;!&ndash; This might be as low as 1000 for a fast computer &ndash;&gt;-->
-<!--										&lt;!&ndash; This might be as high as 5000 for a slow computer &ndash;&gt;-->
-<!--										<testfx.setup.timeout>5000</testfx.setup.timeout>-->
-<!--										&lt;!&ndash; Set testfx.headless to true to run FX tests in headless mode &ndash;&gt;-->
-<!--										<testfx.headless>true</testfx.headless>-->
-<!--										&lt;!&ndash; Set testfx.robot to glass when running tests in headless mode &ndash;&gt;-->
-<!--										<testfx.robot>glass</testfx.robot>-->
-<!--										&lt;!&ndash; Set prism.order to sw when running tests in headless mode &ndash;&gt;-->
-<!--										&lt;!&ndash; https://wiki.openjdk.java.net/display/OpenJFX/Monocle &ndash;&gt;-->
-<!--										<prism.order>sw</prism.order>-->
-<!--										&lt;!&ndash; Not sure what this setting does but it's in all the examples found &ndash;&gt;-->
-<!--										<prism.text>t2k</prism.text>-->
-<!--										&lt;!&ndash; Set java.awt.headless to true when running tests in headless mode &ndash;&gt;-->
-<!--										<java.awt.headless>true</java.awt.headless>-->
-<!--									</systemPropertyVariables>-->
+									<argLine>
+										-Xmx128m
+										-Xshare:off
+										--add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED
+										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+										--add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
+										<!-- This works in Maven, of course, but not in IntelliJ -->
+										<!--										-javaagent:${net.bytebuddy:byte-buddy-agent:jar}-->
+										<!--										-javaagent:${org.mockito:mockito-core:jar}-->
+										-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
+										-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+									</argLine>
 								</configuration>
 							</execution>
 						</executions>
@@ -635,7 +654,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${maven.exec.version}</version>
+						<version>${exec.maven.version}</version>
 						<executions>
 							<execution>
 								<id>jpackage-product-pack</id>
@@ -652,6 +671,7 @@
 									</arguments>
 								</configuration>
 							</execution>
+
 							<execution>
 								<id>jpackage-install-pack</id>
 								<phase>post-integration-test</phase>
