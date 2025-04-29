@@ -90,7 +90,7 @@
 
 		<!-- Build plugin versions -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<cameo.version>2.11</cameo.version>
+		<cameo.version>2.12-SNAPSHOT</cameo.version>
 		<curex.version>1.5.0</curex.version>
 	</properties>
 
@@ -247,6 +247,13 @@
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj.version}</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
+			<version>${bytebuddy.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
