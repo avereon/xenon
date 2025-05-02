@@ -1157,7 +1157,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		log.atDebug().log( "Mod copied to: %s", installFolder );
 
 		// Load the mod
-		loadModules( installFolder );
+		loadStandardMod( installFolder );
 		log.atDebug().log( "Mod loaded from: %s", installFolder );
 
 		// Allow the mod to register resources
