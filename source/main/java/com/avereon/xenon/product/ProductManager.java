@@ -1046,7 +1046,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		}
 
 		// Load the modules
-		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
+		loadModulesInFolders( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		// Disable mods specified on the command line
 		List<String> disableMods = getProgram().getProgramParameters().getValues( XenonFlag.DISABLE_MOD );
@@ -1129,7 +1129,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		return includedProducts.contains( card );
 	}
 
-	private void loadModules( Path... folders ) {
+	private void loadModulesInFolders( Path... folders ) {
 		// Look for mods on the module path
 		try {
 			loadModulePathMods();
