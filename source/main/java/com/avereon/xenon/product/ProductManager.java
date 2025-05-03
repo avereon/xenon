@@ -1045,8 +1045,8 @@ public class ProductManager implements Controllable<ProductManager> {
 			}
 		}
 
-		// Load the modules
-		loadModulesInFolders( moduleFolders.toArray( new Path[ 0 ] ) );
+		// Load all the modules
+		loadAllModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		// Disable mods specified on the command line
 		List<String> disableMods = getProgram().getProgramParameters().getValues( XenonFlag.DISABLE_MOD );
@@ -1129,13 +1129,23 @@ public class ProductManager implements Controllable<ProductManager> {
 		return includedProducts.contains( card );
 	}
 
+	/**
+	 * Load all the modules found on the module-path and in the specified folders.
+	 *
+	 * @param folders The folders to search for standard mods
+	 */
+	private void loadAllModules( Path... folders) {
+		loadModulePathMods();
+		loadModulesInFolders( folders );
+	}
+
+	/**
+	 * Load standard mods found in the specified folders. The specified folders
+	 * are searched for child folders that are expected to be standard mods.
+	 *
+	 * @param folders The folders to search for mods
+	 */
 	private void loadModulesInFolders( Path... folders ) {
-		// Look for mods on the module path
-		try {
-			loadModulePathMods();
-		} catch( Exception exception ) {
-			log.atError().withCause( exception ).log( "Error loading modules from module path" );
-		}
 
 		// Look for standard mods (most common)
 		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
