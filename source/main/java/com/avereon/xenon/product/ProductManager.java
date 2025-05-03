@@ -338,10 +338,11 @@ public class ProductManager implements Controllable<ProductManager> {
 	/**
 	 * Get the product cards for the currently installed products including the program and all mods.
 	 *
+	 * @param refresh Refresh the installed product information cache
 	 * @return A new set of currently installed product cards
 	 */
-	public Set<ProductCard> getInstalledProductCards( boolean force ) {
-		// TODO The force flag could be used to refresh the installed product information
+	@SuppressWarnings( "unused" )
+	public Set<ProductCard> getInstalledProductCards( boolean refresh ) {
 		return new HashSet<>( productCards.values() );
 	}
 
@@ -1392,7 +1393,8 @@ public class ProductManager implements Controllable<ProductManager> {
 			// Notify handlers of remove
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, module.getCard() ) );
 
-			// TODO Disable logging for a mod that has been removed
+			// Disable logging for the mod
+			Log.setPackageLogLevel( module.getClass().getPackageName(), LogFlag.NONE );
 
 			log.atDebug().log( "Mod unloaded: %s", message );
 		} catch( Throwable throwable ) {
