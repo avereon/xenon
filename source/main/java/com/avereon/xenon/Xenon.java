@@ -1389,7 +1389,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new SettingsAction( this, "modules" ) );
-		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "appearance" ) );
+		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "workspace-theme" ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 
