@@ -56,7 +56,7 @@ public class DnDCheck extends Application {
 		Set<TransferMode> modes = e.getDragboard().getTransferModes();
 		System.out.println( "etype="+ e.getEventType()+ " dtms=" + modes + " tm=" + e.getTransferMode() );
 		if( modes.isEmpty() ) return;
-		TransferMode[] mode = modes.size() == 1 ? TransferMode.ANY : defaultTransferMode;
+		TransferMode[] mode = modes.size() == 1 ? defaultTransferMode : TransferMode.ANY;
 		e.acceptTransferModes( mode );
 	}
 
