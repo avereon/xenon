@@ -289,7 +289,7 @@ public class AssetTool extends GuidedTool {
 		pushAction( "new-folder", newFolderAction );
 		pushAction( "delete", deleteAction );
 
-		pushTools( "new-folder | delete | refresh | prior next up" );
+		pushTools( "refresh | prior next up | new-folder | delete" );
 	}
 
 	@Override
@@ -617,8 +617,20 @@ public class AssetTool extends GuidedTool {
 		// or, let the roots be defined in asset tool
 
 		try {
-			guide.addNode( createGuideNode( "Home", "asset-home", System.getProperty( "user.home" ) ) );
+			// Bookmarks
 
+			// Project folder
+			guide.addNode( createGuideNode( "Home", "asset-home", System.getProperty( "user.home" ) ) );
+			// Desktop
+			// Documents
+			// Downloads
+			// Music
+			// Pictures
+			// Videos
+
+			// Recent
+
+			// Computer with all the drives
 			for( Path path : FileSystems.getDefault().getRootDirectories() ) {
 				guide.addNode( createGuideNode( UriUtil.parseName( path.toUri() ), "asset-root", path.toString() ) );
 			}
