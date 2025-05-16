@@ -1,0 +1,154 @@
+package com.avereon.xenon;
+
+import com.avereon.zerra.javafx.Fx;
+import javafx.application.Application;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point3D;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+
+import java.util.Random;
+
+public class GeomPerfCheck extends Application {
+
+	private static final double WIDTH = 1920;
+
+	private static final double HEIGHT = 1080;
+
+	@Override
+	public void start( Stage stage ) throws Exception {
+		Pane root = new Pane();
+		root.setBackground( Background.EMPTY );
+
+		Layer layer = new Layer();
+		layer.setLayoutX( 0 );
+		layer.setLayoutY( 0 );
+		root.getChildren().add( layer );
+
+		Scene scene = new Scene( root, WIDTH, HEIGHT, Color.web( "#222222" ) );
+
+		stage.setScene( scene );
+		stage.centerOnScreen();
+		stage.setMaximized( true );
+		stage.show();
+
+		//		Rectangle selector = new Rectangle( 300, 0, 100, 500 );
+
+		//		root.getChildren().add( createVBounds( cmLine ) );
+		//		root.getChildren().add( createVBounds( inchLine ) );
+		//
+		//		Shape intersection = Shape.intersect( inchLine, selector );
+		//		intersection.setFill( Color.TRANSPARENT );
+		//		intersection.setStroke( Color.YELLOW );
+		//		intersection.setStrokeWidth( 1 );
+		//		root.getChildren().add( intersection );
+	}
+
+	private static Line createLine( double x1, double y1, double x2, double y2, Color color, String unit ) {
+		return createLine( x1, y1, x2, y2, color, 1, unit );
+	}
+
+	private static Line createLine( double x1, double y1, double x2, double y2, Color color, double size, String unit ) {
+		Line line = new Line( x1, y1, x2, y2 );
+		line.styleProperty().set( "-fx-stroke-width: " + size + unit + ";" );
+		line.setFill( Color.TRANSPARENT );
+		line.setStroke( color );
+		return line;
+	}
+
+	private static Rectangle createVBounds( Node node ) {
+		Bounds vBounds = node.getBoundsInParent();
+		Rectangle rect = new Rectangle( vBounds.getMinX(), vBounds.getMinY(), vBounds.getWidth(), vBounds.getHeight() );
+		rect.setFill( Color.TRANSPARENT );
+		rect.setStroke( Color.YELLOW );
+		rect.setStrokeWidth( 1 );
+		return rect;
+	}
+
+	private static class Layer extends Pane {
+
+		private Point3D origin;
+
+		private Point3D anchor;
+
+		private Line line;
+
+		public Layer() {
+			setBackground( Background.EMPTY );
+
+			generateGeometry();
+
+			addMouseDragBehavior();
+		}
+
+		private void generateGeometry() {
+			int n = 50000;
+			double w = 0.05;
+			Random random = new Random();
+			for( int index = 0; index < n; index++ ) {
+				double x1 = random.nextDouble() * WIDTH;
+				double y1 = random.nextDouble() * HEIGHT;
+				double x2 = random.nextDouble() * WIDTH;
+				double y2 = random.nextDouble() * HEIGHT;
+				double z = random.nextDouble() * w;
+				if( z < 0.001 ) z = 0.001;
+
+				Color c = Color.rgb( random.nextInt( 255 ), random.nextInt( 255 ), random.nextInt( 255 ) );
+
+				Line line = createLine( x1, y1, x2, y2, c, z, "mm" );
+				getChildren().add( line );
+			}
+
+			line = createLine( 50, 0, 50, HEIGHT, Color.YELLOW, 5, "mm" );
+			getChildren().add( line );
+
+			for( int index = 0; index < n; index++ ) {
+				double x1 = random.nextDouble() * WIDTH;
+				double y1 = random.nextDouble() * HEIGHT;
+				double x2 = random.nextDouble() * WIDTH;
+				double y2 = random.nextDouble() * HEIGHT;
+				double z = random.nextDouble() * w;
+				if( z < 0.001 ) z = 0.001;
+
+				Color c = Color.rgb( random.nextInt( 255 ), random.nextInt( 255 ), random.nextInt( 255 ) );
+
+				Line line = createLine( x1, y1, x2, y2, c, z, "mm" );
+				getChildren().add( line );
+			}
+		}
+
+		private void addMouseDragBehavior() {
+			// Add the dragging behavior
+			setOnMousePressed( e -> {
+				// To move the pane
+				//origin = new Point3D( getLayoutX(), getLayoutY(), 0 );
+				//anchor = new Point3D( e.getSceneX(), e.getSceneY(), 0 );
+
+				// To move the line
+				origin = new Point3D( line.getStartX(), line.getStartY(), 0 );
+				anchor = new Point3D( e.getSceneX(), e.getSceneY(), 0 );
+			} );
+
+			setOnMouseDragged( e -> {
+				Point3D offset = new Point3D( e.getSceneX() - anchor.getX(), e.getSceneY() - anchor.getY(), 0 );
+				Fx.run( () -> {
+					// To move the pane
+					//setLayoutX( origin.getX() + offset.getX() );
+					//setLayoutY( origin.getY() + offset.getY() );
+
+					// To move the line
+					line.setStartX( origin.getX() + offset.getX() );
+					line.setEndX( origin.getX() + offset.getX() );
+				} );
+			} );
+		}
+
+	}
+
+}
