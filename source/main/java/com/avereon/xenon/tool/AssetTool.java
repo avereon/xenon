@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.log.LogLevel;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.util.UriUtil;
@@ -164,9 +165,9 @@ public class AssetTool extends GuidedTool {
 		nameColumn.setCellValueFactory( new NameValueFactory() );
 		nameColumn.setComparator( new AssetLabelComparator() );
 		nameColumn.setSortType( TableColumn.SortType.ASCENDING );
+		// TODO Make custom TextFieldTableCell to avoid the double-click to edit
 		nameColumn.setCellFactory( TextFieldTableCell.forTableColumn( new StringLabelConverter() ) );
 		nameColumn.onEditCommitProperty().set( this::doUpdateAssetName );
-		nameColumn.setEditable( true );
 
 		uriColumn = new TableColumn<>( uriColumnHeader );
 		uriColumn.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
@@ -471,7 +472,8 @@ public class AssetTool extends GuidedTool {
 
 	private void editAssetName( Asset asset ) {
 		int index = assetTable.getItems().indexOf( asset );
-		if( index >= 0 ) assetTable.edit( index, nameColumn );
+		log.at( LogLevel.DEBUG).log( "Editing asset %s named: %s", index, asset.getName() );
+		if( index >= 0 ) Fx.run(() -> assetTable.edit( index, nameColumn ) );
 	}
 
 	private void requestSaveAsset() throws AssetException {
