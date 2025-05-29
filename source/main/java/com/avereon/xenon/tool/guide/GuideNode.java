@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.IdNode;
-import com.avereon.data.Node;
 import com.avereon.xenon.NodeOrderNameComparator;
 import com.avereon.xenon.Xenon;
 import com.avereon.zerra.javafx.Fx;
@@ -18,6 +17,8 @@ public class GuideNode extends IdNode {
 	public static final String ORDER = "order";
 
 	private static final String TREE_ITEM = "tree-item";
+
+	private static final Comparator<GuideNode> ORDER_NAME_COMPARATOR = new NodeOrderNameComparator<>();
 
 	private final Xenon program;
 
@@ -94,8 +95,8 @@ public class GuideNode extends IdNode {
 	//	}
 
 	@Override
-	public <T extends Node> Comparator<T> getNaturalComparator() {
-		return new NodeOrderNameComparator<>();
+	public Comparator<GuideNode> getNaturalComparator() {
+		return ORDER_NAME_COMPARATOR;
 	}
 
 	@Override

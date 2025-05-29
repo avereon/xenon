@@ -623,12 +623,12 @@ public class AssetTool extends GuidedTool {
 
 			// Project folder
 			guide.addNode( createGuideNode( "Home", "asset-home", System.getProperty( "user.home" ) ) );
-			// Desktop
-			// Documents
-			// Downloads
-			// Music
-			// Pictures
-			// Videos
+//			guide.addNode( createGuideNode( "Desktop", "asset-desktop", System.getProperty( "user.home" ) +"/Desktop" ) );
+//			guide.addNode( createGuideNode( "Documents", "asset-documents", System.getProperty( "user.home" ) +"/Documents" ) );
+//			guide.addNode( createGuideNode( "Downloads", "asset-downloads", System.getProperty( "user.home" ) +"/Downloads" ) );
+//			guide.addNode( createGuideNode( "Music", "asset-music", System.getProperty( "user.home" ) +"/Music" ) );
+//			guide.addNode( createGuideNode( "Pictures", "asset-pictures", System.getProperty( "user.home" ) +"/Pictures" ) );
+//			guide.addNode( createGuideNode( "Videos", "asset-videos", System.getProperty( "user.home" ) +"/Videos" ) );
 
 			// Recent
 
