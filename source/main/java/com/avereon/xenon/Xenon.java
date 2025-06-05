@@ -532,19 +532,9 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
-		boolean useUiReader = true;
 		UiReader uiReader = new UiReader( Xenon.this );
-		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
-		if( useUiReader ) {
-			uiReader.loadWorkspaces();
-			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		} else {
-			//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-			//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			//			if( workspaceManager.getActiveWorkpane() == null ) {
-			//				log.atWarning().log( "Failed to restore active workarea" );
-			//			}
-		}
+		uiReader.loadWorkspaces();
+		uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 
 		log.atFine().log( "User interface restored." );
 		time( "user-interface-restored" );
@@ -583,11 +573,7 @@ public class Xenon extends Application implements XenonProgram {
 		new ProgramChecks( this ).register();
 
 		// Initiate asset loading
-		if( useUiReader ) {
-			uiReader.loadAssets();
-		} else {
-			//			uiRegenerator.startAssetLoading();
-		}
+		uiReader.loadAssets();
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
@@ -598,7 +584,7 @@ public class Xenon extends Application implements XenonProgram {
 	private void doStartSuccess() {
 		time( "program-started" );
 
-		// Program started event should be fired after the window is shown
+		// The program-started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
 
 		// Check for staged updates
