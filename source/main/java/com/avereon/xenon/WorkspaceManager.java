@@ -11,6 +11,8 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -27,12 +29,14 @@ import java.util.stream.Collectors;
 @CustomLog
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
+	public static final String DEFAULT_THEME_ID = "xenon-dark";
+
 	@Getter
 	private final Xenon program;
 
 	private final Set<Workspace> workspaces;
 
-	private String currentThemeId;
+	private final StringProperty themeId;
 
 	private Workspace activeWorkspace;
 
@@ -42,6 +46,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	WorkspaceManager( Xenon program ) {
 		this.program = program;
 		this.workspaces = new CopyOnWriteArraySet<>();
+		this.themeId = new SimpleStringProperty( DEFAULT_THEME_ID );
 
 		program.getSettings().register( SettingsEvent.CHANGED, e -> {
 			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
@@ -106,7 +111,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public String getThemeId() {
-		return currentThemeId;
+		return themeId.get();
 	}
 
 	public ThemeMetadata getThemeMetadata() {
@@ -114,29 +119,22 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void setTheme( String id ) {
-		if( TextUtil.isEmpty( id ) ) id = "xenon-dark";
+		if( TextUtil.isEmpty( id ) ) id = DEFAULT_THEME_ID;
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
-		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
+		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = DEFAULT_THEME_ID );
 
-		this.currentThemeId = id;
+		this.themeId.set( id );
+
 		final ThemeMetadata finalTheme = theme;
 		workspaces.forEach( w -> w.setTheme( finalTheme.getUrl() ) );
 	}
 
-	public Set<Workspace> getWorkspaces() {
-		return new HashSet<>( workspaces );
+	public StringProperty themeIdProperty() {
+		return themeId;
 	}
 
-	@Deprecated
-	public Workspace newWorkspace( String id ) {
-		Workspace workspace = new Workspace( program, id );
-		// FIXME A new workspace should not have any settings to update from
-		// But that is where a lot of the settings listeners are added
-		// ...and this is used from the deprecated UiRegenerator anyway, so it may be going away
-		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
-		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getUrl() );
-
-		return workspace;
+	public Set<Workspace> getWorkspaces() {
+		return new HashSet<>( workspaces );
 	}
 
 	public void addWorkspace( Workspace workspace ) {

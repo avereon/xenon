@@ -171,8 +171,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * assets.
 	 * <p>
 	 * Unlike the {@link #assetOpen(Xenon, Asset)} method this method is
-	 * only called for new assets. If the asset is not new this method will not
-	 * be called unlike the process for opening or restoring existing assets.
+	 * only called for new assets. If the asset is not new, this method will not
+	 * be called, unlike the process for opening or restoring existing assets.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components.

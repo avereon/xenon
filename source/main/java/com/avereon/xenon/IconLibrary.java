@@ -117,6 +117,12 @@ public class IconLibrary {
 		register( "folder", new FolderIcon() );
 		register( "asset-home", new HomeIcon() );
 		register( "asset-root", new FileSystemIcon() );
+		register( "asset-desktop", new FolderIcon() );
+		register( "asset-documents", new DocumentIcon() );
+		register( "asset-download", new DownloadIcon() );
+		register( "asset-music", new FolderIcon() );
+		register( "asset-photos", new FolderIcon() );
+		register( "asset-videos", new FolderIcon() );
 
 		register( "add", new PlusIcon() );
 		register( "refresh", new RefreshIcon() );

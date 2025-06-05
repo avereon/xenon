@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Xenon with Cartesia (Low Memory)" type="Application" factoryName="Application">
-    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <option name="ALTERNATIVE_JRE_PATH" value="temurin-22" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
     <module name="carta" />
