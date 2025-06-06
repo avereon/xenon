@@ -1,4 +1,4 @@
-package com.avereon.xenon;
+package com.avereon.xenon.trial;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
