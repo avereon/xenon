@@ -19,6 +19,11 @@ public interface XenonFlag extends ProgramFlag {
 	String NO_DAEMON = "--no-daemon";
 
 	/**
+	 * Start the program without any modules started.
+	 */
+	String NO_MODS = "--no-mods";
+
+	/**
 	 * Disable a specific mod. May be specified more than once.
 	 */
 	String DISABLE_MOD = "--disable-mod";

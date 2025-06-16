@@ -1216,6 +1216,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	void callModStart( Module module ) {
+		if( getProgram().getProgramParameters().isSet( XenonFlag.NO_MODS) ) return;
 		if( module.getStatus() == Module.Status.UNREGISTERED ) callModRegister( module );
 		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.REGISTERED ) return;
 		try {
