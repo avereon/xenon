@@ -259,9 +259,9 @@ public class Asset extends Node {
 		return getValue( MODEL );
 	}
 
-	public <M> M setModel( M model ) {
+	public <M> Asset setModel( M model ) {
 		setValue( MODEL, model );
-		return model;
+		return this;
 	}
 
 	/**
