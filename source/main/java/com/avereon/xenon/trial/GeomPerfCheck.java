@@ -1,8 +1,8 @@
 package com.avereon.xenon.trial;
 
+import com.avereon.xenon.util.DragCapability;
 import javafx.application.Application;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Background;
@@ -30,7 +30,7 @@ public class GeomPerfCheck extends Application {
 		root.getChildren().add( layer1 );
 		root.getChildren().add( layer2 );
 
-		MouseDragBehavior.add( layer2 );
+		DragCapability.add( layer2 );
 
 		Scene scene = new Scene( root, WIDTH, HEIGHT, Color.web( "#222222" ) );
 
@@ -86,31 +86,6 @@ public class GeomPerfCheck extends Application {
 				Line line = createLine( x1, y1, x2, y2, c, z, "mm" );
 				getChildren().add( line );
 			}
-		}
-
-	}
-
-	private static class MouseDragBehavior {
-
-		private Point3D origin;
-
-		private Point3D anchor;
-
-		private MouseDragBehavior( Node node ) {
-			node.setOnMousePressed( e -> {
-				origin = new Point3D( node.getLayoutX(), node.getLayoutY(), 0 );
-				anchor = new Point3D( e.getSceneX(), e.getSceneY(), 0 );
-			});
-
-			node.setOnMouseDragged( e -> {
-				Point3D offset = new Point3D( e.getSceneX() - anchor.getX(), e.getSceneY() - anchor.getY(), 0 );
-				node.setLayoutX( origin.getX() + offset.getX() );
-				node.setLayoutY( origin.getY() + offset.getY() );
-			});
-		}
-
-		public static void add( Node node ) {
-			new MouseDragBehavior( node );
 		}
 
 	}
