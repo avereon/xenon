@@ -172,9 +172,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		// The current folder string is in URI format
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
 		log.atConfig().log( "Stored current folder: %s", currentFolderString );
+		if( currentFolderString == null ) currentFolderString = System.getProperty( "user.dir" );
 		URI currentFolderUri = URI.create( currentFolderString );
 		Path currentFolder = FileUtil.findValidFolder( currentFolderUri.toString() );
-		//if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
 		log.atConfig().log( "Result current folder: %s", currentFolderString );
 		setCurrentFileFolder( currentFolder.toUri() );
 		return currentFolder;
