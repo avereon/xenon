@@ -25,7 +25,6 @@ module com.avereon.xenon {
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
-	requires jdk.crypto.ec;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires org.controlsfx.controls;
