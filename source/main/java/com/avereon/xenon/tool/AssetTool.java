@@ -1,7 +1,9 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.log.LogLevel;
 import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
+import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
@@ -12,7 +14,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -36,11 +38,13 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.filechooser.FileSystemView;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -164,9 +168,9 @@ public class AssetTool extends GuidedTool {
 		nameColumn.setCellValueFactory( new NameValueFactory() );
 		nameColumn.setComparator( new AssetLabelComparator() );
 		nameColumn.setSortType( TableColumn.SortType.ASCENDING );
+		// TODO Make custom TextFieldTableCell to avoid the double-click to edit
 		nameColumn.setCellFactory( TextFieldTableCell.forTableColumn( new StringLabelConverter() ) );
 		nameColumn.onEditCommitProperty().set( this::doUpdateAssetName );
-		nameColumn.setEditable( true );
 
 		uriColumn = new TableColumn<>( uriColumnHeader );
 		uriColumn.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
@@ -289,7 +293,7 @@ public class AssetTool extends GuidedTool {
 		pushAction( "new-folder", newFolderAction );
 		pushAction( "delete", deleteAction );
 
-		pushTools( "new-folder | delete | refresh | prior next up" );
+		pushTools( "refresh | prior next up | new-folder | delete" );
 	}
 
 	@Override
@@ -471,7 +475,8 @@ public class AssetTool extends GuidedTool {
 
 	private void editAssetName( Asset asset ) {
 		int index = assetTable.getItems().indexOf( asset );
-		if( index >= 0 ) assetTable.edit( index, nameColumn );
+		log.at( LogLevel.DEBUG ).log( "Editing asset %s named: %s", index, asset.getName() );
+		if( index >= 0 ) Fx.run( () -> assetTable.edit( index, nameColumn ) );
 	}
 
 	private void requestSaveAsset() throws AssetException {
@@ -534,18 +539,20 @@ public class AssetTool extends GuidedTool {
 			handleAssetException( exception );
 		}
 
-		getProgram().getTaskManager().submit( Task.of( "load-asset", () -> {
-			try {
-				parentAsset = getProgram().getAssetManager().getParent( asset );
-				List<Asset> assets = asset.getChildren();
-				Fx.run( () -> {
-					this.assets.setAll( assets );
-					if( editAsset != null ) editAssetName( editAsset );
-				} );
-			} catch( AssetException exception ) {
-				handleAssetException( exception );
+		getProgram().getTaskManager().submit( Task.of(
+			"load-asset", () -> {
+				try {
+					parentAsset = getProgram().getAssetManager().getParent( asset );
+					List<Asset> assets = asset.getChildren();
+					Fx.run( () -> {
+						this.assets.setAll( assets );
+						if( editAsset != null ) editAssetName( editAsset );
+					} );
+				} catch( AssetException exception ) {
+					handleAssetException( exception );
+				}
 			}
-		} ) );
+		) );
 	}
 
 	private void activateUriField() {
@@ -617,8 +624,23 @@ public class AssetTool extends GuidedTool {
 		// or, let the roots be defined in asset tool
 
 		try {
-			guide.addNode( createGuideNode( "Home", "asset-home", System.getProperty( "user.home" ) ) );
+			// Bookmarks
 
+			// Project folders
+
+			// User folders
+			Path home = FileSystemView.getFileSystemView().getHomeDirectory().toPath();
+			guide.addNode( createGuideNode( "Home", "asset-home", home ) );
+			guide.addNode( createGuideNode( "Desktop", "asset-desktop", OperatingSystem.UserFolder.DESKTOP ) );
+			guide.addNode( createGuideNode( "Documents", "asset-documents", OperatingSystem.UserFolder.DOCUMENTS ) );
+			guide.addNode( createGuideNode( "Downloads", "asset-download", OperatingSystem.UserFolder.DOWNLOAD ) );
+			guide.addNode( createGuideNode( "Music", "asset-music", OperatingSystem.UserFolder.MUSIC ) );
+			guide.addNode( createGuideNode( "Photos", "asset-photos", OperatingSystem.UserFolder.PHOTOS ) );
+			guide.addNode( createGuideNode( "Videos", "asset-videos", OperatingSystem.UserFolder.VIDEOS ) );
+
+			// Recent
+
+			// Computer with all the drives
 			for( Path path : FileSystems.getDefault().getRootDirectories() ) {
 				guide.addNode( createGuideNode( UriUtil.parseName( path.toUri() ), "asset-root", path.toString() ) );
 			}
@@ -629,7 +651,15 @@ public class AssetTool extends GuidedTool {
 		return guide;
 	}
 
+	private GuideNode createGuideNode( String name, String icon, OperatingSystem.UserFolder folder ) throws AssetException {
+		return createGuideNode( name, icon, OperatingSystem.getUserFolder( folder ) );
+	}
+
 	private GuideNode createGuideNode( String name, String icon, String path ) throws AssetException {
+		return createGuideNode( name, icon, Paths.get( path ) );
+	}
+
+	private GuideNode createGuideNode( String name, String icon, Path path ) throws AssetException {
 		Asset asset = getProgram().getAssetManager().createAsset( path );
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
 		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.8</version>
+		<version>3.6.1</version>
 		<relativePath/>
 	</parent>
 
@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.8-SNAPSHOT</version>
+	<version>1.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -66,22 +66,22 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
-		<java.version>21</java.version>
+		<java.version>22</java.version>
 
 		<!-- Runtime dependencies -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
-		<weave.version>1.5-SNAPSHOT</weave.version>
-		<zenna.version>0.10-SNAPSHOT</zenna.version>
-		<zarra.version>0.10-SNAPSHOT</zarra.version>
-		<zevra.version>0.10-SNAPSHOT</zevra.version>
-		<jackson.version>2.18.3</jackson.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<weave.version>1.6-SNAPSHOT</weave.version>
+		<zenna.version>0.11-SNAPSHOT</zenna.version>
+		<zerra.version>0.11-SNAPSHOT</zerra.version>
+		<zevra.version>0.11-SNAPSHOT</zevra.version>
+		<jackson.version>2.19.1</jackson.version>
 		<reactfx.version>2.0-M5</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
 		<!-- Runtime dependencies -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
-		<openjfx.version>22.0.2</openjfx.version>
-		<controlsfx.version>11.2.1</controlsfx.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<openjfx.version>24.0.1</openjfx.version>
+		<controlsfx.version>11.2.2</controlsfx.version>
 
 		<!-- Test dependencies -->
 		<!-- Version numbers reviewed 18 Feb 2023 -->
@@ -89,9 +89,9 @@
 		<monocle.version>21.0.2</monocle.version>
 
 		<!-- Build plugin versions -->
-		<!-- Version numbers reviewed 18 Feb 2023 -->
-		<cameo.version>2.10</cameo.version>
-		<curex.version>1.4.1</curex.version>
+		<!-- Version numbers reviewed 28 Apr 2025 -->
+		<cameo.version>2.12-SNAPSHOT</cameo.version>
+		<curex.version>1.5.0</curex.version>
 	</properties>
 
 	<dependencies>
@@ -104,8 +104,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>zarra</artifactId>
-			<version>${zarra.version}</version>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
 		</dependency>
 
 		<dependency>
@@ -247,6 +247,13 @@
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj.version}</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
+			<version>${bytebuddy.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

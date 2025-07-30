@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
-import com.avereon.zarra.image.RenderedImage;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.image.RenderedImage;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.zenna.icon.XRingLargeIcon;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

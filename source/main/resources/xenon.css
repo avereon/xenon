@@ -524,6 +524,10 @@ Derived from modena.css
 }
 */
 
+.tool-toast {
+	-fx-font-size: 2em;
+}
+
 .accent {
 	-fx-fill: -fx-background;
 	-fx-opacity: 0.3;

@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
-import com.avereon.zarra.style.Motif;
+import com.avereon.zerra.style.Motif;
 
 import java.io.IOException;
 import java.net.URI;

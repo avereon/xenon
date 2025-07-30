@@ -16,7 +16,7 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import lombok.CustomLog;
 
 import java.net.URI;

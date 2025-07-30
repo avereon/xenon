@@ -19,7 +19,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;

@@ -23,7 +23,7 @@ env:
 
   DISPLAY: ":99"
   GITHUB_REF: ${{ github.ref }}
-  JAVA_VERSION: "21"
+  JAVA_VERSION: "22"
   MAVEN_OPTS: "-Xms1g -Xmx2g"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
@@ -167,7 +167,7 @@ jobs:
     steps:
       - name: Trigger Dependent Builds
         run: |
-          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/zerra/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
+          curl -XPOST -u "${{secrets.AVN_CI_USERNAME}}:${{secrets.AVN_CI_PASSWORD}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/avereon/xenos/actions/workflows/ci.yml/dispatches --data '{"ref": "main"}'
 
   screenshots1x:
     needs: build
@@ -341,6 +341,7 @@ jobs:
 
       - name: Build Packs
         run: |
+          chmod a+x $JAVA_HOME/lib/jspawnhelper
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Publish Install Pack
@@ -414,6 +415,7 @@ jobs:
 
       - name: Build Packs
         run: |
+          chmod a+x $JAVA_HOME/lib/jspawnhelper
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Publish Install Pack

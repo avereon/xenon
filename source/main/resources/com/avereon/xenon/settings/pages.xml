@@ -123,60 +123,67 @@ need a path attribute to specify the path to the settings node.
 
 	<page id="appearance">
 
-		<group id="workspace-theme">
-			<setting key="workspace-theme-id" editor="combobox" provider="workspace-theme-option-provider"/>
-		</group>
-
-		<page id="background">
-			<group id="background">
-				<setting key="workspace-scenery-back-direction" editor="combobox">
-					<!--					<option key="theme" value="0"/>-->
-					<option key="vertical" value="1"/>
-					<option key="horizontal" value="2"/>
-				</setting>
-				<setting key="workspace-scenery-back-color1" editor="color" opaque="true"/>
-				<setting key="workspace-scenery-back-color2" editor="color" opaque="true"/>
-
-				<setting key="workspace-scenery-image-enabled" editor="checkbox"/>
-				<setting key="workspace-scenery-image-path" editor="folder">
-					<dependency key="workspace-scenery-image-enabled" value="true"/>
-				</setting>
-				<setting key="workspace-scenery-image-style" editor="combobox">
-					<dependency key="workspace-scenery-image-enabled" value="true"/>
-					<option key="fill"/>
-					<option key="fit"/>
-					<option key="stretch"/>
-					<option key="tile"/>
-					<option key="anchor"/>
-				</setting>
-				<setting key="workspace-scenery-image-align" editor="combobox">
-					<dependency key="workspace-scenery-image-enabled" value="true"/>
-					<dependency key="workspace-scenery-image-style" value="stretch" operator="not"/>
-					<option key="northwest"/>
-					<option key="north"/>
-					<option key="northeast"/>
-					<option key="west"/>
-					<option key="center"/>
-					<option key="east"/>
-					<option key="southwest"/>
-					<option key="south"/>
-					<option key="southeast"/>
-				</setting>
-
-				<setting key="workspace-scenery-tint-enabled" editor="checkbox"/>
-				<setting key="workspace-scenery-tint-mode" editor="combobox">
-					<dependency key="workspace-scenery-tint-enabled" value="true"/>
-					<option key="theme" value="0"/>
-					<option key="vertical" value="1"/>
-					<option key="horizontal" value="2"/>
-				</setting>
-				<setting key="workspace-scenery-tint-color1" editor="color">
-					<dependency key="workspace-scenery-tint-enabled" value="true"/>
-				</setting>
-				<setting key="workspace-scenery-tint-color2" editor="color">
-					<dependency key="workspace-scenery-tint-enabled" value="true"/>
-				</setting>
+		<page id="workspace-theme">
+			<group id="workspace-theme">
+				<setting key="workspace-theme-id" editor="combobox" provider="workspace-theme-option-provider"/>
 			</group>
+
+			<page id="background">
+
+				<group id="background-tint-layer">
+					<setting key="workspace-scenery-tint-enabled" editor="checkbox"/>
+					<setting key="workspace-scenery-tint-mode" editor="combobox">
+						<dependency key="workspace-scenery-tint-enabled" value="true"/>
+						<option key="theme" value="0"/>
+						<option key="vertical" value="1"/>
+						<option key="horizontal" value="2"/>
+					</setting>
+					<setting key="workspace-scenery-tint-color1" editor="color">
+						<dependency key="workspace-scenery-tint-enabled" value="true"/>
+					</setting>
+					<setting key="workspace-scenery-tint-color2" editor="color">
+						<dependency key="workspace-scenery-tint-enabled" value="true"/>
+					</setting>
+				</group>
+
+				<group id="background-image-layer">
+					<setting key="workspace-scenery-image-enabled" editor="checkbox"/>
+					<setting key="workspace-scenery-image-path" editor="folder">
+						<dependency key="workspace-scenery-image-enabled" value="true"/>
+					</setting>
+					<setting key="workspace-scenery-image-style" editor="combobox">
+						<dependency key="workspace-scenery-image-enabled" value="true"/>
+						<option key="fill"/>
+						<option key="fit"/>
+						<option key="stretch"/>
+						<option key="tile"/>
+						<option key="anchor"/>
+					</setting>
+					<setting key="workspace-scenery-image-align" editor="combobox">
+						<dependency key="workspace-scenery-image-enabled" value="true"/>
+						<dependency key="workspace-scenery-image-style" value="stretch" operator="not"/>
+						<option key="northwest"/>
+						<option key="north"/>
+						<option key="northeast"/>
+						<option key="west"/>
+						<option key="center"/>
+						<option key="east"/>
+						<option key="southwest"/>
+						<option key="south"/>
+						<option key="southeast"/>
+					</setting>
+				</group>
+
+				<group id="background-color-layer">
+					<setting key="workspace-scenery-back-direction" editor="combobox">
+						<!--					<option key="theme" value="0"/>-->
+						<option key="vertical" value="1"/>
+						<option key="horizontal" value="2"/>
+					</setting>
+					<setting key="workspace-scenery-back-color1" editor="color" opaque="true"/>
+					<setting key="workspace-scenery-back-color2" editor="color" opaque="true"/>
+				</group>
+			</page>
 		</page>
 
 		<page id="notice">

@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import lombok.Getter;

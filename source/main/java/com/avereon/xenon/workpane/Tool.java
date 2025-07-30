@@ -5,7 +5,7 @@ import com.avereon.log.LazyEval;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;

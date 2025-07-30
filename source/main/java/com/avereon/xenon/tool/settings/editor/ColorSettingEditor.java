@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.zarra.color.Colors;
+import com.avereon.zerra.color.Colors;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;

@@ -17,8 +17,8 @@ import com.avereon.xenon.Module;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.zarra.event.FxEventHub;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import lombok.CustomLog;
 import lombok.Getter;
 
@@ -338,10 +338,11 @@ public class ProductManager implements Controllable<ProductManager> {
 	/**
 	 * Get the product cards for the currently installed products including the program and all mods.
 	 *
+	 * @param refresh Refresh the installed product information cache
 	 * @return A new set of currently installed product cards
 	 */
-	public Set<ProductCard> getInstalledProductCards( boolean force ) {
-		// TODO The force flag could be used to refresh the installed product information
+	@SuppressWarnings( "unused" )
+	public Set<ProductCard> getInstalledProductCards( boolean refresh ) {
 		return new HashSet<>( productCards.values() );
 	}
 
@@ -1045,8 +1046,8 @@ public class ProductManager implements Controllable<ProductManager> {
 			}
 		}
 
-		// Load the modules
-		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
+		// Load all the modules
+		loadAllModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		// Disable mods specified on the command line
 		List<String> disableMods = getProgram().getProgramParameters().getValues( XenonFlag.DISABLE_MOD );
@@ -1129,13 +1130,23 @@ public class ProductManager implements Controllable<ProductManager> {
 		return includedProducts.contains( card );
 	}
 
-	private void loadModules( Path... folders ) {
-		// Look for mods on the module path
-		try {
-			loadModulePathMods();
-		} catch( Exception exception ) {
-			log.atError().withCause( exception ).log( "Error loading modules from module path" );
-		}
+	/**
+	 * Load all the modules found on the module-path and in the specified folders.
+	 *
+	 * @param folders The folders to search for standard mods
+	 */
+	private void loadAllModules( Path... folders) {
+		loadModulePathMods();
+		loadModulesInFolders( folders );
+	}
+
+	/**
+	 * Load standard mods found in the specified folders. The specified folders
+	 * are searched for child folders that are expected to be standard mods.
+	 *
+	 * @param folders The folders to search for mods
+	 */
+	private void loadModulesInFolders( Path... folders ) {
 
 		// Look for standard mods (most common)
 		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
@@ -1157,7 +1168,7 @@ public class ProductManager implements Controllable<ProductManager> {
 		log.atDebug().log( "Mod copied to: %s", installFolder );
 
 		// Load the mod
-		loadModules( installFolder );
+		loadStandardMod( installFolder );
 		log.atDebug().log( "Mod loaded from: %s", installFolder );
 
 		// Allow the mod to register resources
@@ -1205,6 +1216,7 @@ public class ProductManager implements Controllable<ProductManager> {
 	}
 
 	void callModStart( Module module ) {
+		if( getProgram().getProgramParameters().isSet( XenonFlag.NO_MODS) ) return;
 		if( module.getStatus() == Module.Status.UNREGISTERED ) callModRegister( module );
 		if( !isEnabled( module.getCard() ) || module.getStatus() != Module.Status.REGISTERED ) return;
 		try {
@@ -1382,7 +1394,8 @@ public class ProductManager implements Controllable<ProductManager> {
 			// Notify handlers of remove
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, module.getCard() ) );
 
-			// TODO Disable logging for a mod that has been removed
+			// Disable logging for the mod
+			Log.setPackageLogLevel( module.getClass().getPackageName(), LogFlag.NONE );
 
 			log.atDebug().log( "Mod unloaded: %s", message );
 		} catch( Throwable throwable ) {

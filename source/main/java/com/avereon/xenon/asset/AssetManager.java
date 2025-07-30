@@ -19,7 +19,7 @@ import com.avereon.xenon.tool.AssetTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
-import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zerra.event.FxEventHub;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert;
@@ -172,9 +172,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		// The current folder string is in URI format
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
 		log.atConfig().log( "Stored current folder: %s", currentFolderString );
+		if( currentFolderString == null ) currentFolderString = System.getProperty( "user.dir" );
 		URI currentFolderUri = URI.create( currentFolderString );
 		Path currentFolder = FileUtil.findValidFolder( currentFolderUri.toString() );
-		//if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
 		log.atConfig().log( "Result current folder: %s", currentFolderString );
 		setCurrentFileFolder( currentFolder.toUri() );
 		return currentFolder;

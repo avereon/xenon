@@ -4,7 +4,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;

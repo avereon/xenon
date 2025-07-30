@@ -3,10 +3,10 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.task.Task;
-import com.avereon.zarra.image.BrokenIcon;
-import com.avereon.zarra.image.ImageIcon;
-import com.avereon.zarra.image.Images;
-import com.avereon.zarra.image.VectorImage;
+import com.avereon.zerra.image.BrokenIcon;
+import com.avereon.zerra.image.ImageIcon;
+import com.avereon.zerra.image.Images;
+import com.avereon.zerra.image.VectorImage;
 import com.avereon.zenna.icon.*;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -117,6 +117,12 @@ public class IconLibrary {
 		register( "folder", new FolderIcon() );
 		register( "asset-home", new HomeIcon() );
 		register( "asset-root", new FileSystemIcon() );
+		register( "asset-desktop", new FolderIcon() );
+		register( "asset-documents", new DocumentIcon() );
+		register( "asset-download", new DownloadIcon() );
+		register( "asset-music", new FolderIcon() );
+		register( "asset-photos", new FolderIcon() );
+		register( "asset-videos", new FolderIcon() );
 
 		register( "add", new PlusIcon() );
 		register( "refresh", new RefreshIcon() );
@@ -129,7 +135,7 @@ public class IconLibrary {
 		register( "remove", new CloseIcon() );
 		register( "tag", new TagIcon() );
 		register( "title", new TitleIcon() );
-		register( "theme", new ThemeIcon() );
+		register( "theme", new PaintBrushIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );

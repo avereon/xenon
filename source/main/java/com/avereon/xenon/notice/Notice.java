@@ -10,6 +10,7 @@ import javafx.scene.text.TextFlow;
 import lombok.CustomLog;
 
 import java.text.MessageFormat;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class Notice extends IdNode {
@@ -58,12 +59,12 @@ public class Notice extends IdNode {
 
 	private final Object[] parameters;
 
-	public Notice(  ) {
-		this( null, null, null, null, new Object[0] );
+	public Notice() {
+		this( null, null, null, null, new Object[ 0 ] );
 	}
 
 	public Notice( Object title ) {
-		this( title, null, null, null, new Object[0] );
+		this( title, null, null, null, new Object[ 0 ] );
 	}
 
 	public Notice( Object title, Object message, Object... parameters ) {
@@ -186,7 +187,7 @@ public class Notice extends IdNode {
 
 	@Override
 	public String toString() {
-		return toString(TITLE, MESSAGE);
+		return toString( TITLE, MESSAGE );
 	}
 
 	String getFormattedMessage() {
@@ -199,26 +200,21 @@ public class Notice extends IdNode {
 		return string;
 	}
 
-	private String getMessageStringContent( Object message ) {
-		StringBuilder builder = new StringBuilder();
+	String getMessageStringContent( Object message ) {
+		if( message == null ) return "null";
 
-		if( message instanceof javafx.scene.Node ) {
-			if( message instanceof TextInputControl ) {
-				// Handle text input controls
-				builder = new StringBuilder( ((TextInputControl)message).getText() );
-			} else if( message instanceof TextFlow flow ) {
-				// Handle text flow nodes
-				for( javafx.scene.Node node : flow.getChildren() ) {
-					builder.append( ((Text)node).getText() );
-				}
-			} else {
-				builder = new StringBuilder( message.toString() );
-			}
-		} else {
-			builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
+		StringBuilder builder = switch( message ) {
+			case TextInputControl textInputControl -> new StringBuilder( textInputControl.getText() );
+			case TextFlow flow -> new StringBuilder( flow.getChildren().stream().map( node -> ((Text)node).getText() ).collect( Collectors.joining() ) );
+			case Text text -> new StringBuilder( text.getText() );
+			default -> new StringBuilder( message.toString().trim() );
+		};
+
+		try {
+			return MessageFormat.format( builder.toString(), parameters );
+		} catch( IllegalArgumentException exception ) {
+			return builder.toString();
 		}
-
-		return MessageFormat.format( builder.toString(), parameters );
 	}
 
 }
