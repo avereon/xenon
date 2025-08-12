@@ -132,7 +132,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
@@ -213,7 +213,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
@@ -272,7 +272,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
@@ -330,7 +330,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
@@ -404,7 +404,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
@@ -479,7 +479,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
           path: target
