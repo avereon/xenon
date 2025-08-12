@@ -35,10 +35,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -98,10 +98,10 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -180,10 +180,10 @@ jobs:
       XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -239,10 +239,10 @@ jobs:
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -297,10 +297,10 @@ jobs:
       AVN_PLATFORM: "linux"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -371,10 +371,10 @@ jobs:
       AVN_PLATFORM: "macosx"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
@@ -445,10 +445,10 @@ jobs:
       AVN_PLATFORM: "windows"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: avereon/canoe
           path: .github
