@@ -91,6 +91,9 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
+
+		// Wait for things to settle down
+		ThreadUtil.pause( 500 );
 	}
 
 	/**
