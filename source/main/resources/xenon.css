@@ -62,6 +62,15 @@ Derived from modena.css
 	);
 }
 
+.separator:horizontal .line {
+	-fx-border-color: -fx-text-box-border transparent transparent transparent,
+	-fx-shadow-highlight-color transparent transparent transparent;
+}
+.separator:vertical .line {
+	-fx-border-color: transparent transparent transparent -fx-shadow-highlight-color,
+	transparent transparent transparent -fx-text-box-border;
+}
+
 .text-input {
 	-fx-prompt-text-fill: ladder(
 		-fx-base,
