@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ class AboutToolOpenTwiceUIT extends AboutToolUIT {
 	void execute() throws Exception {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
+
+		// Wait for things to settle down
+		ThreadUtil.pause( 1000 );
 
 		openAboutTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
