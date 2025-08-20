@@ -487,8 +487,7 @@ jobs:
       - name: UI Tests
         shell: bash
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify
-      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Packs
         shell: bash
