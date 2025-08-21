@@ -1487,7 +1487,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the tool if needed
 			ProgramTool tool = null;
 			try {
-				// If the asset is new get user input from the asset type
+				// If the asset is "new", get user input from the asset type
 				if( asset.isNew() ) {
 					if( !asset.getType().callAssetNew( program, asset ) ) return null;
 					log.atFiner().log( "Asset initialized with user values." );
@@ -1495,6 +1495,8 @@ public class AssetManager implements Controllable<AssetManager> {
 					// The asset type may have changed the URI so resolve the scheme again
 					resolveScheme( asset );
 				}
+
+				if( asset.getType() == null ) log.atError().log( "Asset type is null for: %s", asset );
 
 				if( request.isOpenTool() ) tool = program.getToolManager().openTool( request );
 			} catch( NoToolRegisteredException exception ) {

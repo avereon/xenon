@@ -15,8 +15,9 @@ class AboutToolOpenTwiceUIT extends AboutToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
-		// NOTE This appears to be intermittently failing on macOS but for an unknown reason.
-		// Other tests of this nature also fail occasionally on macOS.
+		// NEXT Work on fixing this test on MacOS
+		// NOTE This appears to be intermittently failing on MacOS but for an unknown reason.
+		// Other tests of this nature also fail occasionally on MacOS.
 
 		// DEGUG This line appears to execute correctly by causing the about tool to be added to the workpane.
 		// However, the guide is not added to the workpane. This is a similar problem with other guided tools,
