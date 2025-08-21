@@ -12,6 +12,8 @@ class AboutToolOpenTwiceUIT extends AboutToolUIT {
 
 	@Test
 	@DisabledOnOs( OS.MAC )
+		// This appears to be failing on macOS, but for an unknown reason
+		// Other tests of this nature appear to be passing on macOS.
 	void execute() throws Exception {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
