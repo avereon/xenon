@@ -311,7 +311,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 
-		if( toolClasses == null ) {
+		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
@@ -320,8 +320,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			toolClass = toolClasses.getFirst();
 		} else {
 			// There is more than one tool registered for the asset type
-			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
-			toolClasses.forEach( c -> log.atConfig().log( "  %s", c.getName() ) );
+			log.atFine().log( "Multiple tools registered for asset type %s", assetType.getKey() );
+			toolClasses.forEach( c -> log.atFiner().log( "  %s", c.getName() ) );
 			toolClass = toolClasses.getFirst();
 		}
 
