@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This class is a duplicate of com.avereon.zenna.BaseXenonUiTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
  * avoid a circular dependency. Attempts at making this
- * class publicly available have run in to various challenges with the most
+ * class publicly available have run in to various challenges, with the most
  * recent being with Surefire not putting JUnit 5 on the module path at test
  * time if it is also on the module path at compile time.
  */
@@ -91,9 +91,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
-
-		// Wait for things to settle down
-		ThreadUtil.pause( 500 );
 	}
 
 	/**
@@ -111,9 +108,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		}
 
 		Log.reset();
-
-		// Pause to let things wind down
-		//ThreadUtil.pause( TIMEOUT );
 
 		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
