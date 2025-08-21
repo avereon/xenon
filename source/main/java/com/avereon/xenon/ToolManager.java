@@ -20,6 +20,7 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import lombok.CustomLog;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
@@ -303,7 +304,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return toolClasses.stream().filter( c -> c.getName().equals( name ) ).findFirst().orElse( null );
 	}
 
-	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
+	private Class<? extends ProgramTool> determineToolClassForAssetType( @Nullable AssetType assetType ) {
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 

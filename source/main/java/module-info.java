@@ -9,6 +9,7 @@ module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
+	requires static org.jspecify;
 
 	// Both compile-time and run-time
 	requires transitive com.avereon.zenna;
