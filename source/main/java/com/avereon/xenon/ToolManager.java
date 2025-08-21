@@ -305,6 +305,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private Class<? extends ProgramTool> determineToolClassForAssetType( @Nullable AssetType assetType ) {
+		if( assetType == null ) return null;
+
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 
