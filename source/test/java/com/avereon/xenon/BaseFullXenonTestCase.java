@@ -26,7 +26,7 @@ import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * This class is a duplicate of com.avereon.zenna.BaseXenonUiTestCase which is
+ * This class is a duplicate of com.avereon.xenos.BaseFullXenonTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
  * avoid a circular dependency. Attempts at making this
  * class publicly available have run in to various challenges, with the most
