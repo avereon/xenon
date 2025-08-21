@@ -7,6 +7,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
+import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zerra.javafx.Fx;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class GuidedToolUIT extends BaseToolUIT {
 
@@ -29,6 +31,8 @@ public class GuidedToolUIT extends BaseToolUIT {
 		super.setup();
 
 		assertToolCount( getWorkarea(), 0 );
+
+		assumeThat( getProgram().getAssetManager().getAssetType( ProgramAssetType.URI.toString() ) ).isNotNull();
 
 		MockAssetType assetType = new MockAssetType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
