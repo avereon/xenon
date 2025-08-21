@@ -28,10 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * This class is a duplicate of com.avereon.xenos.BaseFullXenonTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
- * avoid a circular dependency. Attempts at making this
- * class publicly available have run in to various challenges, with the most
- * recent being with Surefire not putting JUnit 5 on the module path at test
- * time if it is also on the module path at compile time.
+ * avoid a circular dependency. Attempts at making this class publicly available
+ * have run in to various challenges. The most recent challenge is with Surefire
+ * not putting JUnit 5 on the module path at test time if it is also on the
+ * module path at compile time.
  */
 @ExtendWith( ApplicationExtension.class )
 public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
@@ -77,20 +77,25 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		long end = System.currentTimeMillis();
 		System.out.println( "Program start duration=" + (end - start) );
 
-		// Get initial memory use after program is started
+		// Get initial memory use after the program is started
 		initialMemoryUse = getMemoryUse();
 		long initialMemoryUseTimeLimit = System.currentTimeMillis() + TIMEOUT;
 		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
 			initialMemoryUse = getMemoryUse();
 		}
 
+		// Check that the program is started and has a workspace
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
 
+		// Add a workpane event watcher to the active workarea
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
+
+		// Let things settle down
+		ThreadUtil.pause( 100 );
 	}
 
 	/**
@@ -169,12 +174,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		double increaseAbsolute = ((double)increaseSize / (double)SizeUnitBase10.MB.getSize());
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 
-		//		String direction = "";
-		//		if( increaseSize > 0 ) direction = "more";
-		//		if( increaseSize < 0 ) direction = "less";
-		//		increaseSize = Math.abs( increaseSize );
-		//System.out.printf( "Memory use: %s -> %s = %s %s%n", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ), direction );
-
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increaseAbsolute > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format(
 				"Absolute memory growth too large %s -> %s : %s",
@@ -183,6 +182,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 				FileUtil.getHumanSizeBase2( increaseSize )
 			) );
 		}
+
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increasePercent > getAllowedMemoryGrowthPercent() ) {
 			throw new AssertionFailedError( String.format(
 				"Relative memory growth too large %s -> %s : %.2f%%",

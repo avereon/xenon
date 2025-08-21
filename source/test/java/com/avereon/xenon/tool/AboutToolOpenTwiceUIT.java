@@ -22,6 +22,11 @@ class AboutToolOpenTwiceUIT extends AboutToolUIT {
 		// DEGUG This line appears to execute correctly by causing the about tool to be added to the workpane.
 		// However, the guide is not added to the workpane. This is a similar problem with other guided tools,
 		// when they happen to fail.
+
+		// Well, this might be the problem:
+		// determineToolClassForAssetType: Multiple tools registered for asset type xenon:/guide
+		// If there are multiple tools registered for the same asset type, no tool is returned
+
 		setLogLevel( LogLevel.INFO );
 		openAboutTool();
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
