@@ -70,7 +70,8 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
 		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
 
-		// Start the application; all setup needs to be done before this point
+		// Start the application
+		// All application setup needs to be done before this point
 		long start = System.currentTimeMillis();
 		FxToolkit.setupApplication( () -> xenon );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
@@ -93,9 +94,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		// Add a workpane event watcher to the active workarea
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
-
-		// Let things settle down
-		ThreadUtil.pause( 100 );
 	}
 
 	/**

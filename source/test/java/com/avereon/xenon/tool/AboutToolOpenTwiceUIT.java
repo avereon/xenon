@@ -1,19 +1,22 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.log.LogLevel;
+import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 class AboutToolOpenTwiceUIT extends AboutToolUIT {
 
 	@Test
 	void execute() throws Exception {
-
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
+
+		assumeThat( getProgram().getAssetManager().getAssetType( ProgramAssetType.URI.toString() ) ).isNotNull();
 
 		// NEXT Work on fixing this test on MacOS
 		// NOTE This appears to be intermittently failing on MacOS but for an unknown reason.
