@@ -316,9 +316,9 @@ public class ToolManager implements Controllable<ToolManager> {
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 			log.atWarning().log( "Using tool manager: %s", System.identityHashCode( this ) );
 			for( AssetType type : assetTypeToolClasses.keySet() ) {
-				log.atFiner().log( "Type  %s", type.getKey() );
+				log.atWarning().log( "Type  %s", type.getKey() );
 				for( Class<? extends ProgramTool> typeToolClass : assetTypeToolClasses.get( type ) ) {
-					log.atFiner().log( "  Tool  %s", typeToolClass );
+					log.atWarning().log( "  Tool  %s", typeToolClass );
 				}
 			}
 		} else if( toolClasses.size() == 1 ) {
