@@ -315,6 +315,12 @@ public class ToolManager implements Controllable<ToolManager> {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 			log.atWarning().log( "Using tool manager: %s", System.identityHashCode( this ) );
+			for( AssetType type : assetTypeToolClasses.keySet() ) {
+				log.atFiner().log( "Type  %s", type.getKey() );
+				for( Class<? extends ProgramTool> typeToolClass : assetTypeToolClasses.get( type ) ) {
+					log.atFiner().log( "  Tool  %s", typeToolClass );
+				}
+			}
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
 			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
