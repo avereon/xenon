@@ -11,7 +11,6 @@ import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +18,9 @@ import java.util.Set;
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GuidedToolUIT extends BaseToolUIT {
+public abstract class GuidedToolUIT extends BaseToolUIT {
 
-	private MockGuidedTool mockGuidedTool;
+	protected MockGuidedTool mockGuidedTool;
 
 	@BeforeEach
 	@Override
@@ -48,56 +47,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 		mockGuidedTool = (MockGuidedTool)getWorkarea().getActiveTool();
 		mockGuidedTool.reset();
 	}
-
-	@Test
-	void testGuidedToolReceivesGuideNodeExpandedChanges() throws Exception {
-		// NOTE When testing expanded nodes the node to expand cannot be a leaf
-		// Assert initial state
-		assertThat( mockGuidedTool.getExpandedNodes().size() ).isEqualTo( 0 );
-
-		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
-		Fx.waitForWithExceptions( LONG_TIMEOUT );
-
-		assertThat( mockGuidedTool.getExpandedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
-	}
-
-	// FIXME There are three more tests, they may be failing due to odd state
-	// AboutToolUIT for a pattern to fix this
-
-//	@Test
-//	void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
-//		// NOTE When testing expanded nodes the node to expand cannot be a leaf
-//		// Assert initial state
-//		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
-//		Fx.waitForWithExceptions( LONG_TIMEOUT );
-//		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount() ).isEqualTo( 1 );
-//
-//		Fx.run( () -> mockGuidedTool.getGuideContext().setExpandedIds( Set.of( "general" ) ) );
-//		Fx.waitForWithExceptions( LONG_TIMEOUT );
-//		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount() ).isEqualTo( 1 );
-//	}
-//
-//	@Test
-//	void testGuidedToolReceivesGuideNodeSelectedChanges() throws Exception {
-//		// Assert initial state
-//		assertThat( mockGuidedTool.getSelectedNodes().size() ).isEqualTo( 0 );
-//
-//		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
-//		Fx.waitForWithExceptions( LONG_TIMEOUT );
-//		assertThat( mockGuidedTool.getSelectedNodes() ).contains( mockGuidedTool.getCurrentGuide().getNode( "general" ) );
-//	}
-//
-//	@Test
-//	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
-//		// Assert initial state
-//		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
-//		Fx.waitForWithExceptions( LONG_TIMEOUT );
-//		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount() ).isEqualTo( 1 );
-//
-//		Fx.run( () -> mockGuidedTool.getGuideContext().setSelectedIds( Set.of( "general" ) ) );
-//		Fx.waitForWithExceptions( LONG_TIMEOUT );
-//		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount() ).isEqualTo( 1 );
-//	}
 
 	public static class MockGuidedTool extends GuidedTool {
 
