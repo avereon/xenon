@@ -26,11 +26,10 @@ public abstract class BasePartXenonTestCase extends BaseXenonTestCase {
 		super.setup();
 
 		// Create the program
-		Xenon xenon = spy( new Xenon() );
+		Xenon xenon = setProgram( spy( new Xenon() ) );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameters() ) );
 		xenon.init();
 
-		setProgram( xenon );
 		this.taskManager = xenon.getTaskManager();
 	}
 

@@ -50,9 +50,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	private long finalMemoryUse;
 
-	/**
-	 * Overrides setup() in ApplicationTest and does not call super.setup().
-	 */
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();

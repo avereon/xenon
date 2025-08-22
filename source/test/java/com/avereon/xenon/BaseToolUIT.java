@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Collection;
 
@@ -12,7 +13,7 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 
 	protected static final String MAIN_MENU = "#menu-button-menu";
 
-	@Override
+	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
 
