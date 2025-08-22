@@ -119,11 +119,11 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	}
 
 	protected void closeProgram() throws Exception {
-		closeProgram( false );
+		closeProgram( true );
 	}
 
-	protected void closeProgram( boolean force ) throws Exception {
-		Fx.run( () -> getProgram().requestExit( force ) );
+	protected void closeProgram( boolean skipUserChecks ) throws Exception {
+		Fx.run( () -> getProgram().requestExit( skipUserChecks ) );
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
