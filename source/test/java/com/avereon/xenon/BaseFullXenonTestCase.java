@@ -110,10 +110,10 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
 
-		// Clear the program reference
-		setProgram( null );
-
 		super.teardown();
+
+		// Clear the program reference
+		//setProgram( null );
 	}
 
 	protected void closeProgram() throws Exception {
