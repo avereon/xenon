@@ -17,6 +17,8 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 	protected void setup() throws Exception {
 		super.setup();
 
+		System.out.println( "Using tool manager: " + System.identityHashCode( getProgram().getToolManager() ) );
+
 		// This seems to be a problem on MacOS for some reason
 		AssetType assetType = getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() );
 		assertThat( assetType ).isNotNull();
@@ -25,8 +27,6 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		List<Class<? extends ProgramTool>> tools = getProgram().getToolManager().getRegisteredTools( assetType );
 		assertThat( tools ).isNotNull();
 		assertThat( tools ).isNotEmpty();
-
-		System.out.println( "Using tool manager: " + System.identityHashCode( getProgram().getToolManager() ) );
 
 		// FIXME These assertions still do not ensure that the test will pass on MacOS
 		// Do we have two asset managers? or two tool managers?
@@ -49,6 +49,29 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		//		at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 		//		at java.base/java.util.ArrayList.forEach( ArrayList.java:1597)
 		//		at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+
+		// NOTE This looks problematic - not enough tools registered
+
+//		2025-08-22 16:52:14.037 [W] c.a.x.ToolManager.determineToolClassForAssetType: No tools registered for asset type xenon:/guide
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Using tool manager: 514793058
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/index-search
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/help
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/themes
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType:   Tool  ThemeTool
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/notice
+//		2025-08-22 16:52:14.038 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/asset
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/modules
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType:   Tool  SettingsTool
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  mock
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType:   Tool  MockGuidedTool
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/about
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/task
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/fault
+//		2025-08-22 16:52:14.039 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/new
+//		2025-08-22 16:52:14.040 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/welcome
+//		2025-08-22 16:52:14.040 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/properties
+//		2025-08-22 16:52:14.040 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/settings
+//		2025-08-22 16:52:14.040 [W] c.a.x.ToolManager.determineToolClassForAssetType: Type  xenon:/guide
 
 	}
 
