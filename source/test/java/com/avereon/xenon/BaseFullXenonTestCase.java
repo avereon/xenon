@@ -101,11 +101,9 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupStages();
-
 		Xenon program = getProgram();
 		if( program != null ) {
-			FxToolkit.cleanupApplication( program );
+			FxToolkit.cleanupAfterTest( robot, program );
 			programWatcher.waitForEvent( ProgramEvent.STOPPED );
 			program.unregister( ProgramEvent.ANY, programWatcher );
 		}
