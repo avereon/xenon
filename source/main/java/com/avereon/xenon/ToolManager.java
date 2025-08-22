@@ -314,7 +314,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
-			log.atWarning().log( "Using tool manager: %s", System.identityHashCode( getProgram().getToolManager() ) );
+			log.atWarning().log( "Using tool manager: %s", System.identityHashCode( this ) );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
 			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
