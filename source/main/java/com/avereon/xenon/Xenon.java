@@ -1494,7 +1494,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeAssetType( new ProgramWelcomeType( this ) );
 		manager.removeAssetType( new ProgramSettingsType( this ) );
 		manager.removeAssetType( new ProgramAboutType( this ) );
-		manager.removeAssetType( new ProgramGuideType( this ) );
+		//manager.removeAssetType( new ProgramGuideType( this ) );
 	}
 
 	private void registerTools( ToolManager manager ) {
@@ -1532,7 +1532,7 @@ public class Xenon extends Application implements XenonProgram {
 		unregisterTool( manager, new ProgramNoticeType( this ), NoticeTool.class );
 		unregisterTool( manager, new ProgramSettingsType( this ), SettingsTool.class );
 		unregisterTool( manager, new ProgramAboutType( this ), AboutTool.class );
-		unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
+		//unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
 	}
 
 	private void registerTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
