@@ -318,7 +318,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			for( AssetType type : assetTypeToolClasses.keySet() ) {
 				log.atWarning().log( "Type  %s", type.getKey() );
 				for( Class<? extends ProgramTool> typeToolClass : assetTypeToolClasses.get( type ) ) {
-					log.atWarning().log( "  Tool  %s", typeToolClass );
+					log.atWarning().log( "  Tool  %s", typeToolClass.getSimpleName() );
 				}
 			}
 		} else if( toolClasses.size() == 1 ) {
