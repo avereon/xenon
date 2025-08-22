@@ -1338,7 +1338,7 @@ public class Xenon extends Application implements XenonProgram {
 				Files.createDirectories( programHomeFolder );
 			}
 
-			if( !Files.exists( programHomeFolder ) ) {
+			if( !Files.exists( programHomeFolder ) && !TestUtil.isTest() ) {
 				log.atWarning().log( "Program home folder does not exist: %s", programHomeFolder );
 			}
 		} catch( IOException exception ) {
