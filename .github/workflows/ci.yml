@@ -289,7 +289,7 @@ jobs:
 
   linux:
     needs: build
-    name: Linux Binaries
+    name: Pack Linux Binaries
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
@@ -363,7 +363,7 @@ jobs:
 
   macos:
     needs: build
-    name: Mac OS Binaries
+    name: Pack Mac OS Binaries
     runs-on: macos-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
@@ -437,7 +437,7 @@ jobs:
 
   windows:
     needs: build
-    name: Windows Binaries
+    name: Pack Windows Binaries
     runs-on: windows-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
