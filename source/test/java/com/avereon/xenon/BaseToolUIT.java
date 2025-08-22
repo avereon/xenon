@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 
@@ -10,6 +11,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class BaseToolUIT extends BaseXenonUIT {
 
 	protected static final String MAIN_MENU = "#menu-button-menu";
+
+	@Override
+	protected void setup() throws Exception {
+		super.setup();
+
+		// This seems to be a problem on MacOS for some reason
+		assertThat( getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() ) ).isNotNull();
+	}
 
 	protected void assertToolCount( Workpane pane, int count ) {
 		Collection<Tool> tools = pane.getTools();
