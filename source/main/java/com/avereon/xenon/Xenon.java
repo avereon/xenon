@@ -1443,7 +1443,6 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void registerAssetTypes( AssetManager manager ) {
-		log.atWarn().log( "Registering asset types...for troubleshooting on MacOS" );
 		manager.addAssetType( new ProgramGuideType( this ) );
 		manager.addAssetType( new ProgramAboutType( this ) );
 		manager.addAssetType( new ProgramSettingsType( this ) );
