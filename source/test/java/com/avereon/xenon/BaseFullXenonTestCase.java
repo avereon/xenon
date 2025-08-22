@@ -119,7 +119,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	}
 
 	protected void closeProgram() throws Exception {
-		closeProgram( true );
+		closeProgram( false );
 	}
 
 	protected void closeProgram( boolean skipUserChecks ) throws Exception {
