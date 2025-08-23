@@ -6,6 +6,7 @@ import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
+import java.util.logging.Level;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +18,7 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 	protected void setup() throws Exception {
 		super.setup();
 
-		//System.out.println( "Using tool manager: " + System.identityHashCode( getProgram().getToolManager() ) );
+		setLogLevel( Level.INFO );
 
 		// This seems to be a problem on MacOS for some reason
 		AssetType assetType = getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() );
