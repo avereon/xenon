@@ -73,9 +73,10 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		FxToolkit.setupApplication( () -> xenon );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
 		long end = System.currentTimeMillis();
-		System.out.println( "Xenon ID=" + System.identityHashCode( xenon ) );
 		System.out.println( "Program start duration=" + (end - start) );
-		xenon.getToolManager().printAssetTypeToolMap();
+
+		//		// NOTE For MacOS debugging
+		//		xenon.getToolManager().printAssetTypeToolMap();
 
 		// Get initial memory use after the program is started
 		initialMemoryUse = getMemoryUse();

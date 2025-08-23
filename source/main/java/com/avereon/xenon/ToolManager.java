@@ -314,7 +314,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
-			printAssetTypeToolMap();
+			//		// NOTE For MacOS debugging
+			//		printAssetTypeToolMap();
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
 			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
@@ -329,12 +330,13 @@ public class ToolManager implements Controllable<ToolManager> {
 		return toolClass;
 	}
 
+	// NOTE For MacOS debugging
 	public void printAssetTypeToolMap() {
 		System.out.println( "Tool manager ID: " + System.identityHashCode( this ) );
 		for( AssetType type : assetTypeToolClasses.keySet() ) {
-			System.out.println( "Type  "+ type.getKey() );
+			System.out.println( "Type  " + type.getKey() );
 			for( Class<? extends ProgramTool> typeToolClass : assetTypeToolClasses.get( type ) ) {
-				System.out.println( "  Tool  "+ typeToolClass.getSimpleName() );
+				System.out.println( "  Tool  " + typeToolClass.getSimpleName() );
 			}
 		}
 	}
