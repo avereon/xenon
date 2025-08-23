@@ -73,7 +73,9 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		FxToolkit.setupApplication( () -> xenon );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
 		long end = System.currentTimeMillis();
+		System.out.println( "Xenon ID=" + System.identityHashCode( xenon ) );
 		System.out.println( "Program start duration=" + (end - start) );
+		xenon.getToolManager().printAssetTypeToolMap();
 
 		// Get initial memory use after the program is started
 		initialMemoryUse = getMemoryUse();
@@ -99,11 +101,11 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	@AfterEach
 	protected void teardown() throws Exception {
 		Xenon program = getProgram();
-		if( program != null ) {
-			FxToolkit.cleanupAfterTest( robot, program );
-			programWatcher.waitForEvent( ProgramEvent.STOPPED );
-			program.unregister( ProgramEvent.ANY, programWatcher );
-		}
+//		if( program != null ) {
+//			FxToolkit.cleanupAfterTest( robot, program );
+//			programWatcher.waitForEvent( ProgramEvent.STOPPED );
+//			program.unregister( ProgramEvent.ANY, programWatcher );
+//		}
 
 		Log.reset();
 

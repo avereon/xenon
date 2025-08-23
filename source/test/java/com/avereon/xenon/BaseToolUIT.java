@@ -17,7 +17,7 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 	protected void setup() throws Exception {
 		super.setup();
 
-		System.out.println( "Using tool manager: " + System.identityHashCode( getProgram().getToolManager() ) );
+		//System.out.println( "Using tool manager: " + System.identityHashCode( getProgram().getToolManager() ) );
 
 		// This seems to be a problem on MacOS for some reason
 		AssetType assetType = getProgram().getAssetManager().getAssetType( ProgramGuideType.URI.toString() );
