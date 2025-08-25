@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -23,10 +24,14 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
+		Xenon.time( "AboutToolCloseAssetCloseToolUIT openAsset" );
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
+		Xenon.time( "AboutToolCloseAssetCloseToolUIT waiting for tool added one" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		Xenon.time( "AboutToolCloseAssetCloseToolUIT waiting for tool added two" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
+		Xenon.time( "AboutToolCloseAssetCloseToolUIT FX is settled" );
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( pane, 2 );
 
