@@ -54,9 +54,9 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		// getting in the way?:
 		//		Program start duration=1007
 		//		time=2389 marker=program-started thread=TaskPool-3-worker-1
-		//		time=2692 marker=workspace-visible thread=JavaFX Application Thread
+		//->	time=2692 marker=workspace-visible thread=JavaFX Application Thread
 		//		registerTool: assetType=mock -> tool=com.avereon.xenon.tool.guide.GuidedToolUIT$MockGuidedTool
-		//		time=3640 marker=program-shutdown thread=JavaFX Application Thread
+		//->	time=3640 marker=program-shutdown thread=JavaFX Application Thread
 		//		unregisterTool: assetType=xenon:/properties -> tool=com.avereon.xenon.tool.PropertiesTool
 		//		time=3641 marker=do-shutdown-tasks thread=TaskPool-1-worker-1
 		//		2025-08-25 01:48:01.804 [W] c.a.x.ToolManager.determineToolClassForAssetType: No tools registered for asset type xenon:/guide

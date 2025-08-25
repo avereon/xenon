@@ -1062,7 +1062,7 @@ public class Xenon extends Application implements XenonProgram {
 	 *
 	 * @param markerName The marker name
 	 */
-	private static void time( String markerName ) {
+	public static void time( String markerName ) {
 		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
