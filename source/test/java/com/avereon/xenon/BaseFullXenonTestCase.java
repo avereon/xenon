@@ -101,6 +101,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
+		System.out.println( "Tearing down in JVM " + Xenon.JVM_ID );
 		Xenon.time( getClass().getSimpleName() + " teardown starting..." );
 		Xenon program = getProgram();
 		if( program != null ) {
