@@ -17,6 +17,8 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 
 	@Test
 	void execute() throws Exception {
+		setLogLevel( Level.FINE );
+
 		// given
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
