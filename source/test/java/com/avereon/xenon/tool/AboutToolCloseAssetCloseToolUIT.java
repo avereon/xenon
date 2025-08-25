@@ -29,7 +29,9 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		System.out.println( "AboutToolCloseAssetCloseToolUIT FX is settled" );
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
+		System.out.println( "AboutToolCloseAssetCloseToolUIT FX tool count asserting..." );
 		assertToolCount( pane, 2 );
+		System.out.println( "AboutToolCloseAssetCloseToolUIT FX tool count asserted" );
 
 		// when
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
