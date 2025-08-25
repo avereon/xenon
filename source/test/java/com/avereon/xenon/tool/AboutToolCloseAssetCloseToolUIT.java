@@ -8,6 +8,7 @@ import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,8 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		// given
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
+
+		setLogLevel( Level.INFO );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
