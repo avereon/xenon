@@ -21,8 +21,6 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
-		setLogLevel( Level.INFO );
-
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );

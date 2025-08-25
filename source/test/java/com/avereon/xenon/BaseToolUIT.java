@@ -3,6 +3,8 @@ package com.avereon.xenon;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.logging.Level;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class BaseToolUIT extends BaseXenonUIT {
@@ -13,6 +15,8 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
+
+		setLogLevel( Level.INFO );
 
 		// NOTE Research on MacOS Aug 2025
 		// After researching the test failure flakiness on MacOS this is what we
