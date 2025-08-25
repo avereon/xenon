@@ -27,6 +27,8 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( pane, 2 );
 
+		getProgram().getToolManager().printAssetTypeToolMap( getClass().getSimpleName() );
+
 		// FIXME The tool came back null
 		assertThat( future.get() ).withFailMessage( "Tool should not be null" ).isNotNull();
 		assertThat( future.get().getAsset() ).withFailMessage( "Asset should not be null" ).isNotNull();
