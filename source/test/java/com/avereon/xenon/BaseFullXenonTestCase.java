@@ -75,9 +75,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		long end = System.currentTimeMillis();
 		System.out.println( "Program start duration=" + (end - start) );
 
-		//		// NOTE For MacOS debugging
-		//		xenon.getToolManager().printAssetTypeToolMap();
-
 		// Get initial memory use after the program is started
 		initialMemoryUse = getMemoryUse();
 		long initialMemoryUseTimeLimit = System.currentTimeMillis() + (TIMEOUT / 2);
@@ -114,9 +111,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		assertSafeMemoryProfile();
 
 		super.teardown();
-
-		// Clear the program reference
-		//setProgram( null );
 	}
 
 	protected void closeProgram() throws Exception {
