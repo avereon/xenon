@@ -54,7 +54,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -117,7 +117,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -198,7 +198,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -257,7 +257,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -315,7 +315,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -389,7 +389,7 @@ jobs:
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
@@ -464,7 +464,7 @@ jobs:
       #    Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
