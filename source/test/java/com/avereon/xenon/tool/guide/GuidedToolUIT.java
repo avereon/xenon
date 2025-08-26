@@ -7,7 +7,6 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
-import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,13 +33,15 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 
 		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
 		getProgram().getToolManager().registerTool( assetType, registration );
-		getProgram().getAssetManager().openAsset( MockCodec.URI );
 
+		// NOTE Returns immediately
+		getProgram().getAssetManager().openAsset( MockCodec.URI );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
 		assertThat( getWorkarea().getActiveTool() ).isInstanceOf( MockGuidedTool.class );
+		System.out.println( "MockGuidedTool FX tool count asserting..." );
 		assertToolCount( getWorkarea(), 2 );
 
 		mockGuidedTool = (MockGuidedTool)getWorkarea().getActiveTool();
