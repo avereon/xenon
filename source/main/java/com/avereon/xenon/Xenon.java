@@ -1065,7 +1065,7 @@ public class Xenon extends Application implements XenonProgram {
 	 *
 	 * @param markerName The marker name
 	 */
-	public static void time( String markerName ) {
+	private static void time( String markerName ) {
 		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
@@ -1501,6 +1501,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void registerTools( ToolManager manager ) {
+		System.out.println( "Xenon.registerTools()" );
 		registerTool( manager, new ProgramAboutType( this ), AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
@@ -1523,6 +1524,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		System.out.println( "Xenon.unregisterTools()" );
 		unregisterTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
 		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );

@@ -20,18 +20,19 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
-		System.out.println( "AboutToolCloseAssetCloseToolUIT openAsset" );
+		//System.out.println( "AboutToolCloseAssetCloseToolUIT openAsset" );
+		// NOTE Returns immediately
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
-		System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added one" );
+		//System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added one" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added two" );
+		//System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added two" );
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		System.out.println( "AboutToolCloseAssetCloseToolUIT FX is settled" );
+		//System.out.println( "AboutToolCloseAssetCloseToolUIT FX is settled" );
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		System.out.println( "AboutToolCloseAssetCloseToolUIT FX tool count asserting..." );
 		assertToolCount( pane, 2 );
-		System.out.println( "AboutToolCloseAssetCloseToolUIT FX tool count asserted" );
+		//System.out.println( "AboutToolCloseAssetCloseToolUIT FX tool count asserted" );
 
 		// when
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );

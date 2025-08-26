@@ -65,7 +65,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		System.out.println( "registerTool: assetType=" + assetType.getKey() + " -> tool=" + type.getName() );
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
@@ -75,7 +74,6 @@ public class ToolManager implements Controllable<ToolManager> {
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
 		toolClassMetadata.remove( type );
 
-		System.out.println( "unregisterTool: assetType=" + assetType.getKey() + " -> tool=" + type.getName() );
 		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
@@ -315,6 +313,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
+			System.out.println( "No tools registered for asset type " + assetType.getKey() );
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 			// NOTE For MacOS debugging
 			printAssetTypeToolMap( "ToolManager" );

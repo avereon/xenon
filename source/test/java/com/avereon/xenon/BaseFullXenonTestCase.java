@@ -52,7 +52,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	@BeforeEach
 	protected void setup() throws Exception {
-		Xenon.time( getClass().getSimpleName() + " setup starting..." );
 		super.setup();
 
 		// For the parameters to be available using Java 9 or later, the following
@@ -93,7 +92,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
-		Xenon.time( getClass().getSimpleName() + " setup complete" );
+		System.out.println( "Setup done JVM " + Xenon.JVM_ID );
 	}
 
 	/**
@@ -101,8 +100,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		System.out.println( "Tearing down in JVM " + Xenon.JVM_ID );
-		Xenon.time( getClass().getSimpleName() + " teardown starting..." );
+		System.out.println( "Tearing down JVM " + Xenon.JVM_ID );
 		Xenon program = getProgram();
 		if( program != null ) {
 			FxToolkit.cleanupAfterTest( robot, program );
@@ -116,7 +114,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		assertSafeMemoryProfile();
 
 		super.teardown();
-		Xenon.time( getClass().getSimpleName() + " teardown complete" );
 	}
 
 	protected void closeProgram() throws Exception {
