@@ -74,7 +74,9 @@
 		<zenna.version>0.11-SNAPSHOT</zenna.version>
 		<zerra.version>0.11-SNAPSHOT</zerra.version>
 		<zevra.version>0.11-SNAPSHOT</zevra.version>
-		<jackson.version>2.19.2</jackson.version>
+		<jackson.version>2.20.0</jackson.version>
+		<!-- Annotations caused a mismatch with version 2.20.0 -->
+		<jackson.annotations.version>2.20</jackson.annotations.version>
 		<reactfx.version>2.0-M6</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
@@ -135,7 +137,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
+			<version>${jackson.annotations.version}</version>
 		</dependency>
 
 		<dependency>
