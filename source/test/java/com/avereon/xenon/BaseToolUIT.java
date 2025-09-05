@@ -102,6 +102,11 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		// of the double event, the test is allowed to proceed before it should.
 		//		Received event=[1497538476] Workarea > ToolEvent : ADDED: AboutTool
 		//		Received event=[118504112] Workarea > ToolEvent : ADDED: AboutTool
+		// Next insight:
+		//		Received event=[1497538476] Workarea > ToolEvent : ADDED: SettingsTool from tool=[1688940590]
+		//		Received event=[1485624601] Workarea > ToolEvent : ADDED: SettingsTool from tool=[1688940590]
+		// The double events appear to be for the same tool. So, we'll need to look
+		// for why two events are being posted.
 
 	}
 
