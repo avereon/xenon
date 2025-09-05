@@ -33,13 +33,13 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		// first of this type of test to be run, but others fail on occasion as well:
 		// - AboutToolCloseAssetCloseToolUIT
 		//
- 		// The JvmSureStop timeout is 10 seconds. I have adjusted this time to 15
+		// The JvmSureStop timeout is 10 seconds. I have adjusted this time to 15
 		// seconds on 24 Aug 2025 to see if that helps. If it does, then I might
 		// consider increasing the timeout to 20 seconds, just to give more
 		// breathing room for the tests. If not, at least we have a lead about what
 		// is going on. Result: this does not appear to have been the cause.
 		//
- 		// This might also be a mix of the Maven FailSafe plugin not using a
+		// This might also be a mix of the Maven FailSafe plugin not using a
 		// separate JVM for each UI test as expected, new tests being run in an old
 		// JVM that is shutting down, and the JvmSureStop hook terminating the JVM
 		// as expected. Xenon tries to allow the JVM to terminate nicely, but we
@@ -91,6 +91,18 @@ public abstract class BaseToolUIT extends BaseXenonUIT {
 		//		Type  xenon:/settings
 		//		Type  xenon:/task
 		//		Type  xenon:/guide
+
+		// 27 Aug 2025 - Looks like this is our problem. The mock tool was either added twice, or
+		// the event posted twice, or something like that. The event was received twice:
+		//		Received event=Workarea > ToolEvent : ADDED: GuidedToolUIT$MockGuidedTool
+		//		Received event=Workarea > ToolEvent : ADDED: GuidedToolUIT$MockGuidedTool
+
+		// 04 Sep 2025 - Further research has yielded that we receive two different
+		// tool added events for the same tool (need to double check this). Because
+		// of the double event, the test is allowed to proceed before it should.
+		//		Received event=[1497538476] Workarea > ToolEvent : ADDED: AboutTool
+		//		Received event=[118504112] Workarea > ToolEvent : ADDED: AboutTool
+
 	}
 
 	protected void assertToolCount( Workpane pane, int count ) {

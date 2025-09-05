@@ -45,20 +45,6 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
-		// For whatever reason, the theory is that the test thread makes it to this
-		// point, discovers there is only one tool in the workarea and fails the
-		// test. It's possible that this is happening before the task thread even
-		// has a chance to finish opening the guide tool. By the time the task
-		// thread can get to that point, the program is shutting down. At least this
-		// theory matches the current output. If that is the case, a little more
-		// waiting here on the test thread should resolve the problem for this set
-		// of tests.
-
-		// FIXME Looks like this is our problem. The mock tool was either added twice, or
-		// the event posted twice, or something like that. The event was received twice:
-		//		Received event=Workarea > ToolEvent : ADDED: GuidedToolUIT$MockGuidedTool
-		//		Received event=Workarea > ToolEvent : ADDED: GuidedToolUIT$MockGuidedTool
-
 		System.out.println( "MockGuidedTool FX tool count asserting..." );
 		assertThat( getWorkarea().getActiveTool() ).isInstanceOf( MockGuidedTool.class );
 		assertToolCount( getWorkarea(), 2 );
