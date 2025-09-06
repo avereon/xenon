@@ -501,7 +501,10 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private void dispatchEvents() {
 		WorkpaneEvent event;
-		while( (event = events.poll()) != null ) fireEvent( event );
+		while( (event = events.poll()) != null ) {
+			if( event.getSource() instanceof Tool tool ) tool.fireEvent( event );
+			fireEvent( event );
+		}
 	}
 
 	protected WorkpaneEvent queueEvent( WorkpaneEvent event ) {
