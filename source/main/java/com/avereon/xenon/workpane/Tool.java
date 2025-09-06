@@ -346,7 +346,6 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
-			new Throwable( "TOOL ADDED" ).printStackTrace(System.out);
 			triggerEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
@@ -433,7 +432,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	}
 
 	private void triggerEvent( ToolEvent event ) {
-		fireEvent( getWorkpane().queueEvent( event ) );
+		getWorkpane().queueEvent( event );
 	}
 
 	private void doClose() {
