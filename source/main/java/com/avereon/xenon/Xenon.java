@@ -563,6 +563,13 @@ public class Xenon extends Application implements XenonProgram {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
 				time( "workspace-visible" );
+
+				// WORKAROUND This works to help center future dialogs
+				// but it is centered to begin with, so why is it needed?
+				Alert alert = new Alert( Alert.AlertType.INFORMATION, "This dialog is a workaround to help center future dialogs" );
+				alert.setTitle( "Xenon" );
+				DialogUtil.show( getWorkspaceManager().getActiveStage(), alert );
+				Fx.run( alert::hide );
 			} );
 		}
 
