@@ -7,12 +7,14 @@ import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import javafx.stage.Screen;
+import lombok.CustomLog;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.avereon.xenon.Xenon.PROGRAM_RELEASE_PRIOR;
 
+@CustomLog
 public class ProgramChecks implements Runnable{
 
 	private final Xenon program;
@@ -50,8 +52,8 @@ public class ProgramChecks implements Runnable{
 
 		Path pkexec = Path.of( "/usr/bin/pkexec" );
 		if( !Files.exists( pkexec) ) {
-			String title = Rb.text( "program", "program-pkexec-title" );
-			String message = Rb.text( "program", "program-pkexec-message" );
+			String title = Rb.text( "program", "program-linux-no-pkexec-title" );
+			String message = Rb.text( "program", "program-linux-no-pkexec-message" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
 		}
 	}
