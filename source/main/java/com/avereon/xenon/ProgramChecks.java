@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.product.Release;
 import com.avereon.util.OperatingSystem;
+import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
@@ -29,6 +30,8 @@ public class ProgramChecks implements Runnable{
 	}
 
 	public void run() {
+		if( TestUtil.isTest() ) return;
+
 		checkForHiDpi();
 		checkForLinuxPkExec();
 		checkForProgramUpdated();
