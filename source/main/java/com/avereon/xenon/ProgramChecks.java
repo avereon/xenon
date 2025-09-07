@@ -2,10 +2,14 @@ package com.avereon.xenon;
 
 import com.avereon.product.Rb;
 import com.avereon.product.Release;
+import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import javafx.stage.Screen;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.avereon.xenon.Xenon.PROGRAM_RELEASE_PRIOR;
 
@@ -24,6 +28,7 @@ public class ProgramChecks implements Runnable{
 
 	public void run() {
 		checkForHiDpi();
+		checkForLinuxPkExec();
 		checkForProgramUpdated();
 	}
 
@@ -36,6 +41,17 @@ public class ProgramChecks implements Runnable{
 		if( noScale && hiDpi && largeSize ) {
 			String title = Rb.text( "program", "program-hidpi-title" );
 			String message = Rb.text( "program", "program-hidpi-message" );
+			program.getNoticeManager().addNotice( new Notice( title, message ) );
+		}
+	}
+
+	private void checkForLinuxPkExec() {
+		if( !OperatingSystem.isLinux() ) return;
+
+		Path pkexec = Path.of( "/usr/bin/pkexec" );
+		if( !Files.exists( pkexec) ) {
+			String title = Rb.text( "program", "program-pkexec-title" );
+			String message = Rb.text( "program", "program-pkexec-message" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
 		}
 	}
