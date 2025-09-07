@@ -313,10 +313,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
-			System.out.println( "No tools registered for asset type " + assetType.getKey() );
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
-			// NOTE For MacOS debugging
-			printAssetTypeToolMap( "ToolManager" );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
 			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
@@ -329,18 +326,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		return toolClass;
-	}
-
-	// NOTE For MacOS debugging
-	public void printAssetTypeToolMap( String prefix ) {
-		Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolMap = new ConcurrentHashMap<>( assetTypeToolClasses );
-		System.out.println( prefix );
-		for( AssetType type : assetTypeToolMap.keySet() ) {
-			System.out.println( "Type  " + type.getKey() );
-			for( Class<? extends ProgramTool> typeToolClass : assetTypeToolMap.get( type ) ) {
-				System.out.println( "  Tool  " + typeToolClass.getSimpleName() );
-			}
-		}
 	}
 
 	public Product getToolProduct( ProgramTool tool ) {

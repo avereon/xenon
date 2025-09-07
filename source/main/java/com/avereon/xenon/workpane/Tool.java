@@ -346,7 +346,11 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
-			triggerEvent( new ToolEvent( this, ToolEvent.ADDED, pane, this ) );
+			ToolEvent event = new ToolEvent( this, ToolEvent.ADDED, pane, this );
+			triggerEvent( event );
+			long eventId = System.identityHashCode( this );
+			long toolId = System.identityHashCode( this );
+			new Throwable( getClass().getSimpleName() + "[" + eventId + "]"+ event.getEventType() + ": for tool=[" + toolId + "]" ).printStackTrace( System.out );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
 		}
