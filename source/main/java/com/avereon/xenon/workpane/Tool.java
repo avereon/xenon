@@ -3,6 +3,7 @@ package com.avereon.xenon.workpane;
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.skill.WritableIdentity;
+import com.avereon.util.Jvm;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.zerra.javafx.Fx;
@@ -348,9 +349,9 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			allocated = true;
 			ToolEvent event = new ToolEvent( this, ToolEvent.ADDED, pane, this );
 			triggerEvent( event );
-			long eventId = System.identityHashCode( this );
-			long toolId = System.identityHashCode( this );
-			new Throwable( getClass().getSimpleName() + "[" + eventId + "]"+ event.getEventType() + ": for tool=[" + toolId + "]" ).printStackTrace( System.out );
+			long eventId = System.identityHashCode( event ) | Jvm.ID;
+			long toolId = System.identityHashCode( this ) | Jvm.ID;
+			new Throwable( event.getClass().getSimpleName() + "[" + eventId + "]" + event.getEventType() + ": for " + this.getClass().getSimpleName() + "=[" + toolId + "]" ).printStackTrace( System.out );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
 		}

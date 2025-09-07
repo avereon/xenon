@@ -61,7 +61,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -72,8 +71,6 @@ import java.util.logging.Logger;
 
 @CustomLog
 public class Xenon extends Application implements XenonProgram {
-
-	public static final String JVM_ID = String.valueOf( new SecureRandom().nextLong() );
 
 	public static final String STYLESHEET = "xenon.css";
 

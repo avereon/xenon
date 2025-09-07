@@ -92,7 +92,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
 
-		System.out.println( "Setup done JVM " + Xenon.JVM_ID );
+		System.out.println( "Setup done JVM " + Jvm.ID );
 	}
 
 	/**
@@ -100,7 +100,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		System.out.println( "Tearing down JVM " + Xenon.JVM_ID );
+		System.out.println( "Tearing down JVM " + Jvm.ID );
 		Xenon program = getProgram();
 		if( program != null ) {
 			FxToolkit.cleanupAfterTest( robot, program );
