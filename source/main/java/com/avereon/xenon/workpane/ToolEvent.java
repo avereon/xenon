@@ -58,8 +58,8 @@ public class ToolEvent extends WorkpaneEvent {
 	public String toString() {
 		long eventId = System.identityHashCode( this ) | Jvm.ID;
 		long toolId = System.identityHashCode( getSource() ) | Jvm.ID;
-		StringBuilder builder = new StringBuilder( "Received event=[" + eventId + "] " + this + " from tool=[" + toolId + "]" );
-		if( throwable != null ) builder.append( "\nwith throwable=" ).append( throwable );
+		StringBuilder builder = new StringBuilder( "Received event=ToolEvent[" + eventId + "]" + getEventType() + " for tool=[" + toolId + "]" );
+		if( throwable != null ) builder.append( "\n  with throwable=" ).append( throwable );
 		return builder.toString();
 	}
 
