@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.JavaUtil;
+import com.avereon.util.Jvm;
 import javafx.event.EventType;
 import lombok.Getter;
 
@@ -40,9 +40,12 @@ public class ToolEvent extends WorkpaneEvent {
 
 	private final Tool tool;
 
+	private Throwable throwable;
+
 	public ToolEvent( Object source, EventType<? extends ToolEvent> type, Workpane workpane, Tool tool ) {
 		super( source, type, workpane );
 		this.tool = tool;
+		this.throwable = new Throwable();
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -53,7 +56,11 @@ public class ToolEvent extends WorkpaneEvent {
 
 	@Override
 	public String toString() {
-		return super.toString() + ": " + JavaUtil.getClassName( getTool() );
+		long eventId = System.identityHashCode( this ) | Jvm.ID;
+		long toolId = System.identityHashCode( getSource() ) | Jvm.ID;
+		StringBuilder builder = new StringBuilder( "Received event=[" + eventId + "] " + this + " from tool=[" + toolId + "]" );
+		if( throwable != null ) builder.append( "\nwith throwable=" ).append( throwable );
+		return builder.toString();
 	}
 
 }
