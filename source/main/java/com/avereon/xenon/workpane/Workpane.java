@@ -504,7 +504,7 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneEvent event;
 		while( (event = events.poll()) != null ) {
 			if( event.getSource() instanceof Tool tool ) {
-				EventType<? extends WorkpaneEvent> et = event.getEventType();
+				EventType<? extends WorkpaneEvent> type = event.getEventType();
 
 				// Tricky problem here. Since this is delayed event dispatching, we may
 				// be in a bind when it comes to the tool state. If the tool is visible,
@@ -513,7 +513,7 @@ public class Workpane extends Control implements WritableIdentity {
 				// determine how to send the events to the tool without causing
 				// duplicate events on the workpane.
 
-				if( et == ToolEvent.ADDED || et == ToolEvent.ACTIVATED || et == ToolEvent.DISPLAYED ) {
+				if( type == ToolEvent.ADDED || type == ToolEvent.ACTIVATED || type == ToolEvent.DISPLAYED ) {
 					// The event should be propagated to the workpane
 					tool.fireEvent( event );
 
@@ -528,7 +528,7 @@ public class Workpane extends Control implements WritableIdentity {
 					if( !isVisible || !hasSize ) event.getWorkpane().fireEvent( event );
 					continue;
 				}
-				else if( et == ToolEvent.REMOVED || et == ToolEvent.DEACTIVATED || et == ToolEvent.CONCEALED ) {
+				else if( type == ToolEvent.REMOVED || type == ToolEvent.DEACTIVATED || type == ToolEvent.CONCEALED ) {
 					tool.fireEvent( event );
 					// The event must be fired to the workpane as well because the tool
 					// has already been removed from the workpane.
