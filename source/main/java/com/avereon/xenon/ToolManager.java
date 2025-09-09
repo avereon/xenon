@@ -149,7 +149,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			if( alreadyOpen ) {
 				Fx.run( () -> finalPane.setActiveTool( finalTool ) );
 			} else {
-				new Throwable( "Open tool: " + finalTool.getClass().getName() ).printStackTrace(System.out);
 				Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 			}
 			scheduleWaitForReady( request, finalTool );
