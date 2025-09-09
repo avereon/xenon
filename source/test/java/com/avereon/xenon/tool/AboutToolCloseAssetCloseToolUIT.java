@@ -24,9 +24,9 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		// NOTE Returns immediately
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
 		//System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added one" );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		//System.out.println( "AboutToolCloseAssetCloseToolUIT waiting for tool added two" );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		//System.out.println( "AboutToolCloseAssetCloseToolUIT FX is settled" );
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
@@ -36,7 +36,7 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 
 		// when
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
 		// then

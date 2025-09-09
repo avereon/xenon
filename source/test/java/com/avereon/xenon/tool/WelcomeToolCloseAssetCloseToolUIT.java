@@ -20,14 +20,14 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 		assertToolCount( pane, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
 		assertThat( pane.getActiveView().isMaximized() ).isFalse();
 		assertToolCount( pane, 1 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getMaximizedView() ).isNull();
 		assertToolCount( pane, 0 );

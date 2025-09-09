@@ -10,6 +10,7 @@ import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.event.FxEventWatcher;
 import com.avereon.zerra.javafx.Fx;
 import javafx.event.Event;
+import lombok.Getter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,11 +41,14 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	protected FxRobot robot = new FxRobot();
 
+	@Getter
 	private EventWatcher programWatcher;
 
-	private FxEventWatcher programFxWatcher;
+	@Getter
+	private FxEventWatcher<Event> programFxWatcher;
 
-	private FxEventWatcher workpaneWatcher;
+	@Getter
+	private FxEventWatcher<WorkpaneEvent> workpaneWatcher;
 
 	private long initialMemoryUse;
 
@@ -53,6 +57,10 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
+
+		programWatcher = new EventWatcher( TIMEOUT );
+		programFxWatcher = new FxEventWatcher<>( TIMEOUT );
+		workpaneWatcher = new FxEventWatcher<>( TIMEOUT );
 
 		// For the parameters to be available using Java 9 or later, the following
 		// needs to be added to the test JVM command line parameters because
@@ -64,8 +72,8 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		Xenon xenon = setProgram( new Xenon() );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameters() ) );
-		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
-		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
+		xenon.register( ProgramEvent.ANY, programWatcher );
+		xenon.getFxEventHub().register( Event.ANY, programFxWatcher );
 
 		// Start the application
 		// All application setup needs to be done before this point
@@ -90,7 +98,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		// Add a workpane event watcher to the active workarea
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
-		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 
 		System.out.println( "Setup done JVM " + Jvm.ID );
 	}
@@ -125,24 +133,12 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
 	}
 
-	protected EventWatcher getProgramEventWatcher() {
-		return programWatcher;
-	}
-
-	protected FxEventWatcher getProgramFxEventWatcher() {
-		return programFxWatcher;
-	}
-
 	protected Workspace getWorkspace() {
 		return getProgram().getWorkspaceManager().getActiveWorkspace();
 	}
 
 	protected Workpane getWorkarea() {
 		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
-	}
-
-	protected FxEventWatcher getWorkpaneEventWatcher() {
-		return workpaneWatcher;
 	}
 
 	protected double getAllowedMemoryGrowthSize() {

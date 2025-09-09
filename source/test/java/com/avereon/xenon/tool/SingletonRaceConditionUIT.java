@@ -18,7 +18,7 @@ class SingletonRaceConditionUIT extends BaseToolUIT {
 		getProgram().getAssetManager().openAsset( ProgramGuideType.URI, true, false );
 		getProgram().getAssetManager().openAsset( ProgramGuideType.URI, true, false );
 
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		Workpane pane = getWorkarea();
 

@@ -12,8 +12,8 @@ class AboutToolOpenUIT extends AboutToolUIT {
 		assertToolCount( getWorkarea(), 0 );
 
 		openAboutTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( getWorkarea().getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( getWorkarea(), 2 );

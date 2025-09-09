@@ -14,7 +14,7 @@ class WelcomeToolOpenUIT extends WelcomeToolUIT {
 		assertToolCount( pane, 0 );
 
 		openWelcomeTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( WelcomeTool.class );
 		assertThat( pane.getActiveView().isMaximized() ).isFalse();

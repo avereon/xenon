@@ -40,9 +40,9 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 		// And openAsset only returns one future, the mock tool future
 		getProgram().getAssetManager().openAsset( MockCodec.URI );
 		// We would expect the first tool event to be the mock tool
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		// We would expect the second tool event to be the guide tool
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
 		System.out.println( "MockGuidedTool FX tool count asserting..." );

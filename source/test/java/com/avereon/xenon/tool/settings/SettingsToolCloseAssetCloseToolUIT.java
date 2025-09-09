@@ -20,14 +20,14 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 		assertToolCount( area, 0 );
 
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( area.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( area, 2 );
 
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertToolCount( area, 1 );
 	}

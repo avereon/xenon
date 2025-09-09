@@ -16,8 +16,8 @@ class SettingsToolOpenUIT extends SettingsToolUIT {
 		assertToolCount( pane, 0 );
 
 		openSettingsTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
