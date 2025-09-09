@@ -4,7 +4,9 @@ import com.avereon.util.Jvm;
 import javafx.event.EventType;
 import lombok.Getter;
 
+import java.io.PrintWriter;
 import java.io.Serial;
+import java.io.StringWriter;
 
 @Getter
 public class ToolEvent extends WorkpaneEvent {
@@ -40,12 +42,12 @@ public class ToolEvent extends WorkpaneEvent {
 
 	private final Tool tool;
 
-	private Throwable throwable;
+	private final Throwable throwable;
 
 	public ToolEvent( Object source, EventType<? extends ToolEvent> type, Workpane workpane, Tool tool ) {
 		super( source, type, workpane );
 		this.tool = tool;
-		this.throwable = new Throwable();
+		this.throwable = new Throwable( "ToolEvent:" + type + " creation stack" );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -59,12 +61,12 @@ public class ToolEvent extends WorkpaneEvent {
 		long eventId = System.identityHashCode( this ) | Jvm.ID;
 		long toolId = System.identityHashCode( getSource() ) | Jvm.ID;
 		StringBuilder builder = new StringBuilder( "ToolEvent[" + eventId + "]" + getEventType() + " for tool=[" + toolId + "]" );
-//		if( throwable != null ) {
-//			StringWriter writer = new StringWriter();
-//			throwable.printStackTrace( new PrintWriter( writer ) );
-//			builder.append( "\n  with throwable=" ).append( throwable );
-//			builder.append( "\n" ).append( writer );
-//		}
+		if( throwable != null ) {
+			StringWriter writer = new StringWriter();
+			throwable.printStackTrace( new PrintWriter( writer ) );
+			//builder.append( "\n" ).append( throwable );
+			builder.append( "\n" ).append( writer );
+		}
 		return builder.toString();
 	}
 
