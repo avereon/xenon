@@ -683,11 +683,11 @@ public class Workspace extends Stage implements WritableIdentity {
 			event.consume();
 		} );
 
-		pane.getCloseButton().setOnMouseClicked( e -> {
+		pane.getCloseButton().setOnMouseClicked( event -> {
 			getProgram().getNoticeManager().readNotice( notice );
 			noticeBox.getChildren().remove( pane );
 			if( noticeBox.getChildren().isEmpty() ) noticeBox.setVisible( false );
-			e.consume();
+			event.consume();
 		} );
 
 		int balloonTimeout = getProgram().getSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
