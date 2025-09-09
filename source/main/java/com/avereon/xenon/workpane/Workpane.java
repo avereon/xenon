@@ -4,6 +4,7 @@ import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
@@ -502,7 +503,37 @@ public class Workpane extends Control implements WritableIdentity {
 	private void dispatchEvents() {
 		WorkpaneEvent event;
 		while( (event = events.poll()) != null ) {
-			if( event.getSource() instanceof Tool tool ) tool.fireEvent( event );
+			if( event.getSource() instanceof Tool tool ) {
+				EventType<? extends WorkpaneEvent> et = event.getEventType();
+
+				// Tricky problem here. Since this is delayed event dispatching, we may
+				// be in a bind when it comes to the tool state. If the tool is visible,
+				// then events will be propagated to the workplane. If not, then the
+				// tool events are not propagated to the workpane. We have to correctly
+				// determine how to send the events to the tool without causing
+				// duplicate events on the workpane.
+
+				if( et == ToolEvent.ADDED || et == ToolEvent.ACTIVATED || et == ToolEvent.DISPLAYED ) {
+					// The event should be propagated to the workpane
+					tool.fireEvent( event );
+
+					// Special circumstances
+					// In the event the tool is not visible or has no size, the event is
+					// not propagated to the paren node (workpane). In this case, we need
+					// to deliberately propagate the event to the workpane.
+					boolean isVisible = tool.isVisible();
+					boolean hasSize = tool.getWidth() > 0 & tool.getHeight() > 0;
+					if( !isVisible || !hasSize ) event.getWorkpane().fireEvent( event );
+					continue;
+				}
+				else if( et == ToolEvent.REMOVED || et == ToolEvent.DEACTIVATED || et == ToolEvent.CONCEALED ) {
+					tool.fireEvent( event );
+					// The event must be fired to the workpane as well because the tool
+					// has already been removed from the workpane.
+					event.getWorkpane().fireEvent( event );
+					continue;
+				}
+			}
 			fireEvent( event );
 		}
 	}
