@@ -517,10 +517,12 @@ public class Workpane extends Control implements WritableIdentity {
 					// The event should be propagated to the workpane
 					tool.fireEvent( event );
 
-					// Special circumstances
+					// # Special circumstances
 					// In the event the tool is not visible or has no size, the event is
-					// not propagated to the paren node (workpane). In this case, we need
-					// to deliberately propagate the event to the workpane.
+					// normally not propagated to the parent node (workpane). In this
+					// case, we need to deliberately propagate the event to the workpane
+					// to meet the expected event dispatch requirements but not to cause
+					// duplicate events.
 					boolean isVisible = tool.isVisible();
 					boolean hasSize = tool.getWidth() > 0 & tool.getHeight() > 0;
 					if( !isVisible || !hasSize ) event.getWorkpane().fireEvent( event );
@@ -538,10 +540,9 @@ public class Workpane extends Control implements WritableIdentity {
 		}
 	}
 
-	protected WorkpaneEvent queueEvent( WorkpaneEvent event ) {
+	protected void queueEvent( WorkpaneEvent event ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + event.getEventType() );
 		events.offer( event );
-		return event;
 	}
 
 	private void updateComponentTree( boolean changed ) {
