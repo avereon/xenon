@@ -145,4 +145,13 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 	//
 	// New logic has been added to Workpane.dispatchEvents() to prevent the race
 	// condition and avoid the duplicate event.
+
+	// 10 Sep 2025 - The problem is still present as noted by the test logs:
+	// Received event=ToolEvent[-7625366592230014981]ADDED for tool=[-7625366592232113155]
+	// Received event=ToolEvent[-7625366592233555591]ADDED for tool=[-7625366592232113155]
+	// The next thing to investigate is if the event is being copied as part of
+	// the FX event handling logic. The reason for this suspicion is that
+	// Tool.callAllocate, where the event is created, is only called once, but two
+	// distinct events are being created. We believe this is due to Event.copyFor()
+	// being called as part of the FX event handling logic.
 }
