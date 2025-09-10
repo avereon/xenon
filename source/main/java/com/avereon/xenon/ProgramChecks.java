@@ -3,7 +3,6 @@ package com.avereon.xenon;
 import com.avereon.product.Rb;
 import com.avereon.product.Release;
 import com.avereon.util.OperatingSystem;
-import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
@@ -16,7 +15,7 @@ import java.nio.file.Path;
 import static com.avereon.xenon.Xenon.PROGRAM_RELEASE_PRIOR;
 
 @CustomLog
-public class ProgramChecks implements Runnable{
+public class ProgramChecks implements Runnable {
 
 	private final Xenon program;
 
@@ -25,12 +24,16 @@ public class ProgramChecks implements Runnable{
 	}
 
 	public ProgramChecks register() {
-		program.register( ProgramEvent.STARTED, (e) -> program.getTaskManager().submit( Task.of( this ) ) );
+		program.register( ProgramEvent.STARTED, ( _ ) -> program.getTaskManager().submit( Task.of( this ) ) );
 		return this;
 	}
 
 	public void run() {
-		if( TestUtil.isTest() ) return;
+		String mode = program.getMode();
+		boolean isTestMode = XenonMode.TEST.equals( mode );
+		boolean isScreenshotMode = XenonMode.SCREENSHOT.equals( mode );
+
+		if( isTestMode || isScreenshotMode ) return;
 
 		checkForHiDpi();
 		checkForLinuxPkExec();
@@ -54,7 +57,7 @@ public class ProgramChecks implements Runnable{
 		if( !OperatingSystem.isLinux() ) return;
 
 		Path pkexec = Path.of( "/usr/bin/pkexec" );
-		if( !Files.exists( pkexec) ) {
+		if( !Files.exists( pkexec ) ) {
 			String title = Rb.text( "program", "program-linux-no-pkexec-title" );
 			String message = Rb.text( "program", "program-linux-no-pkexec-message" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
