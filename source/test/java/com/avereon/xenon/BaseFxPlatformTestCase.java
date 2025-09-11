@@ -26,12 +26,16 @@ public abstract class BaseFxPlatformTestCase extends BaseForAllTests {
 
 	@AfterEach
 	void after() {
-		Fx.run( () -> stage.close() );
+		if( stage != null ) Fx.run( () -> stage.close() );
 	}
 
 	// This method is needed in order for skins to be applied to controls
 	protected <T extends Control> T resolve( T control ) {
-		Scene scene = new Scene( control );
+		return resolve( control, 1000, 1000 );
+	}
+
+	protected <T extends Control> T resolve( T control, double width, double height ) {
+		Scene scene = new Scene( control, width, height );
 
 		Fx.run( () -> {
 			stage = new Stage( StageStyle.UNDECORATED );
