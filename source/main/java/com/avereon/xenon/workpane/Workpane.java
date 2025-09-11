@@ -4,7 +4,6 @@ import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
-import javafx.event.EventType;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
@@ -504,39 +503,12 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneEvent event;
 		while( (event = events.poll()) != null ) {
 			if( event.getSource() instanceof Tool tool ) {
-				EventType<? extends WorkpaneEvent> type = event.getEventType();
-
-				// Tricky problem here. Since this is delayed event dispatching, we may
-				// be in a bind when it comes to the tool state. If the tool is visible,
-				// then events will be propagated to the workplane. If not, then the
-				// tool events are not propagated to the workpane. We have to correctly
-				// determine how to send the events to the tool without causing
-				// duplicate events on the workpane.
-
-				if( type == ToolEvent.ADDED || type == ToolEvent.ACTIVATED || type == ToolEvent.DISPLAYED ) {
-					// The event should be propagated to the workpane
-					tool.fireEvent( event );
-
-					// # Special circumstances
-					// In the event the tool is not visible or has no size, the event is
-					// normally not propagated to the parent node (workpane). In this
-					// case, we need to deliberately propagate the event to the workpane
-					// to meet the expected event dispatch requirements but not to cause
-					// duplicate events.
-					boolean isVisible = tool.isVisible();
-					boolean hasSize = tool.getWidth() > 0 & tool.getHeight() > 0;
-					if( !isVisible || !hasSize ) event.getWorkpane().fireEvent( event );
-					continue;
-				}
-				else if( type == ToolEvent.REMOVED || type == ToolEvent.DEACTIVATED || type == ToolEvent.CONCEALED ) {
-					tool.fireEvent( event );
-					// The event must be fired to the workpane as well because the tool
-					// has already been removed from the workpane.
-					event.getWorkpane().fireEvent( event );
-					continue;
-				}
+				tool.fireEvent( event );
+				// WORKAROUND If the parent is null also fire the event to the workpane
+				if( tool.getParent() == null ) fireEvent( event );
+			} else {
+				fireEvent( event );
 			}
-			fireEvent( event );
 		}
 	}
 
