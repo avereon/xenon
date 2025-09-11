@@ -109,8 +109,8 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 			} );
 
 			change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
-				tab.setToolPane( getSkinnable() );
 				toolArea.getChildren().add( tab.getTool() );
+				tab.setToolPane( getSkinnable() );
 			} );
 		}
 
@@ -204,22 +204,13 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		double dropWidth = getDropHintWidth( bounds );
 		double dropHeight = getDropHintHeight( bounds );
 
-		switch( side ) {
-			case LEFT: {
-				return new BoundingBox( 0, 0, dropWidth, bounds.getHeight() );
-			}
-			case RIGHT: {
-				return new BoundingBox( bounds.getWidth() - dropWidth, 0, dropWidth, bounds.getHeight() );
-			}
-			case TOP: {
-				return new BoundingBox( 0, 0, bounds.getWidth(), dropHeight );
-			}
-			case BOTTOM: {
-				return new BoundingBox( 0, bounds.getHeight() - dropHeight, bounds.getWidth(), dropHeight );
-			}
-		}
+		return switch( side ) {
+			case LEFT -> new BoundingBox( 0, 0, dropWidth, bounds.getHeight() );
+			case RIGHT -> new BoundingBox( bounds.getWidth() - dropWidth, 0, dropWidth, bounds.getHeight() );
+			case TOP -> new BoundingBox( 0, 0, bounds.getWidth(), dropHeight );
+			case BOTTOM -> new BoundingBox( 0, bounds.getHeight() - dropHeight, bounds.getWidth(), dropHeight );
+		};
 
-		return bounds;
 	}
 
 	private class ToolContentArea extends Pane {
