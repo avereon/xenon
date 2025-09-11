@@ -32,15 +32,15 @@ public class ToolTab extends Control {
 
 	public ToolTab( Tool tool ) {
 		if( tool == null ) throw new NullPointerException( "Tool cannot be null" );
-		this.tool = tool;
 		getStyleClass().setAll( "tool-tab" );
+		this.tool = tool;
 	}
 
 	public final Tool getTool() {
 		return tool;
 	}
 
-	public Node getContent() {
+	public final Node getContent() {
 		return getTool();
 	}
 
