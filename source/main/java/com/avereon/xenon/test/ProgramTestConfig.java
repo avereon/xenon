@@ -25,13 +25,13 @@ public final class ProgramTestConfig {
 	/**
 	 * The long wait timeout for many operations. Common values are:
 	 * <pre>
-	 * 25000 - GitHub Actions, Mintbox Mini
+	 * 50000 - GitHub Actions, Mintbox Mini
 	 *  | Slower computers
 	 *  |
 	 *  | Faster computers
-	 * 5000 - AMD Threadripper, Intel i9</pre>
+	 * 10000 - AMD Threadripper, Intel i9</pre>
 	 */
-	public static final int LONG_TIMEOUT = 5 * TIMEOUT;
+	public static final int LONG_TIMEOUT = 10 * TIMEOUT;
 
 	@Getter
 	@Setter
