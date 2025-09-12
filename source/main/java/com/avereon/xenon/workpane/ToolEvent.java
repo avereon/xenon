@@ -1,12 +1,10 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.Jvm;
+import javafx.event.EventTarget;
 import javafx.event.EventType;
 import lombok.Getter;
 
-import java.io.PrintWriter;
 import java.io.Serial;
-import java.io.StringWriter;
 
 @Getter
 public class ToolEvent extends WorkpaneEvent {
@@ -42,12 +40,9 @@ public class ToolEvent extends WorkpaneEvent {
 
 	private final Tool tool;
 
-	private final Throwable throwable;
-
 	public ToolEvent( Object source, EventType<? extends ToolEvent> type, Workpane workpane, Tool tool ) {
 		super( source, type, workpane );
 		this.tool = tool;
-		this.throwable = new Throwable( "ToolEvent:" + type + " creation stack" );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -58,16 +53,14 @@ public class ToolEvent extends WorkpaneEvent {
 
 	@Override
 	public String toString() {
-		long eventId = System.identityHashCode( this ) | Jvm.ID;
-		long toolId = System.identityHashCode( getSource() ) | Jvm.ID;
-		StringBuilder builder = new StringBuilder( "ToolEvent[" + eventId + "]" + getEventType() + " for tool=[" + toolId + "] target=[" + getTarget() + "]" );
-		if( throwable != null ) {
-			StringWriter writer = new StringWriter();
-			throwable.printStackTrace( new PrintWriter( writer ) );
-			//builder.append( "\n" ).append( throwable );
-			builder.append( "\n" ).append( writer );
-		}
-		return builder.toString();
+		Tool tool = getTool();
+		Object source = getSource();
+		EventTarget target = getTarget();
+		String eventInfo = getClass().getSimpleName() + ":" + getEventType() + "@" + System.identityHashCode( this );
+		String toolInfo = tool == null ? "null" : tool.getClass().getSimpleName() + "@" + System.identityHashCode( tool );
+		String sourceInfo = source == null ? "null" : source.getClass().getSimpleName() + "@" + System.identityHashCode( source );
+		String targetInfo = target == null ? "null" : target.getClass().getSimpleName() + "@" + System.identityHashCode( target );
+		return eventInfo + " tool=" + toolInfo + " source=" + sourceInfo + " target=" + targetInfo;
 	}
 
 }
