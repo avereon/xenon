@@ -13,6 +13,10 @@ import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 
 public abstract class BaseFxPlatformTestCase extends BaseForAllTests {
 
+	protected static double SCENE_WIDTH = 800;
+
+	protected static double SCENE_HEIGHT = 450;
+
 	private Stage stage;
 
 	@BeforeEach
@@ -35,7 +39,7 @@ public abstract class BaseFxPlatformTestCase extends BaseForAllTests {
 
 	// This method is needed in order for skins to be applied to controls
 	protected <T extends Control> T resolve( T control ) {
-		return resolve( control, 1000, 1000 );
+		return resolve( control, SCENE_WIDTH, SCENE_HEIGHT );
 	}
 
 	protected <T extends Control> T resolve( T control, double width, double height ) {
