@@ -49,23 +49,21 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		//tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
 		//tools.setTabDragPolicy( TabPane.TabDragPolicy.REORDER );
 
-		// Add a focus listener to the tabs so when a tab is focused, the tool
+		// Add a focus listener to the tabs, so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
 		//		tools.activeProperty().addListener( ( observable, oldValue, newValue ) -> {
 		//			ToolTab tab = tools.getSelectionModel().getSelectedItem();
 		//			if( newValue && tab != null ) activateTool( tab.getTool() );
 		//		} );
 
-		// Add a selection listener to the tabs so when a tab is selected, the tool
+		// Add a selection listener to the tabs, so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
-		toolTabPane.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
+		toolTabPane.getSelectionModel().selectedItemProperty().addListener( ( _, _, newValue ) -> {
 			if( toolTabPane.focusedProperty().getValue() && newValue != null ) activateTool( newValue.getTool() );
 		} );
 
 		// Add a listener to the tab list to store the order when the tabs change
-		toolTabPane.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
-			toolsReordered();
-		} );
+		toolTabPane.getTabs().addListener( (ListChangeListener<? super ToolTab>)( _ ) -> toolsReordered() );
 	}
 
 	private void toolsReordered() {
@@ -152,8 +150,8 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
-		tool.setToolView( this );
 		toolTabPane.getTabs().add( index, new ToolTab( tool ) );
+		tool.setToolView( this );
 		tool.callAllocate();
 
 		if( toolTabPane.getTabs().size() == 1 ) setActiveTool( tool );
@@ -167,7 +165,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 
 		Tool next = null;
 		if( isActiveTool ) {
-			// If the tool was the active tool set the active tool to null
+			// If the tool was the active tool, set the active tool to null
 			if( parent != null ) parent.setActiveTool( null );
 
 			next = determineNextTool( tool );
@@ -203,7 +201,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		}
 	}
 
-	private Tool determineNextTool(Tool tool) {
+	private Tool determineNextTool( Tool tool ) {
 		Tool next = null;
 		if( toolTabPane.getTabs().size() > 1 ) {
 			int index = tool.getOrder();
@@ -233,23 +231,12 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	}
 
 	public WorkpaneEdge getEdge( Side direction ) {
-
-		switch( direction ) {
-			case TOP: {
-				return getTopEdge();
-			}
-			case LEFT: {
-				return getLeftEdge();
-			}
-			case RIGHT: {
-				return getRightEdge();
-			}
-			case BOTTOM: {
-				return getBottomEdge();
-			}
-		}
-
-		return null;
+		return switch( direction ) {
+			case TOP -> getTopEdge();
+			case LEFT -> getLeftEdge();
+			case RIGHT -> getRightEdge();
+			case BOTTOM -> getBottomEdge();
+		};
 	}
 
 	public void setEdge( Side direction, WorkpaneEdge edge ) {
@@ -314,16 +301,10 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	}
 
 	double getCenter( Orientation orientation ) {
-		switch( orientation ) {
-			case VERTICAL: {
-				return (getTopEdge().getPosition() + getBottomEdge().getPosition()) / 2;
-			}
-			case HORIZONTAL: {
-				return (getLeftEdge().getPosition() + getRightEdge().getPosition()) / 2;
-			}
-		}
-
-		return Double.NaN;
+		return switch( orientation ) {
+			case VERTICAL -> (getTopEdge().getPosition() + getBottomEdge().getPosition()) / 2;
+			case HORIZONTAL -> (getLeftEdge().getPosition() + getRightEdge().getPosition()) / 2;
+		};
 	}
 
 	void setWorkpane( Workpane parent ) {
