@@ -1,8 +1,11 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.util.ThreadUtil;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
 
+import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkpaneTest extends WorkpaneTestCase {
@@ -201,6 +204,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -215,6 +220,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -229,6 +236,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( Workpane.DEFAULT_WALL_SPLIT_RATIO );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -243,6 +252,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -257,6 +268,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 
 		WorkpaneView view2 = workpane.split( Side.TOP );
 		assertThat( view.getEdge( Side.TOP ).getPosition() ).isEqualTo( Workpane.DEFAULT_WALL_SPLIT_RATIO );
@@ -273,6 +286,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view2.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( Workpane.DEFAULT_WALL_SPLIT_RATIO );
 		assertThat( view2.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view2.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -287,6 +302,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 
 		WorkpaneView view2 = workpane.split( Side.BOTTOM );
 		assertThat( view.getEdge( Side.TOP ).getPosition() ).isEqualTo( 0d );
@@ -303,6 +320,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view2.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view2.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view2.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -317,6 +336,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 
 		WorkpaneView view2 = workpane.split( Side.RIGHT );
 		assertThat( view.getEdge( Side.TOP ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
@@ -333,6 +354,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view2.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view2.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO );
 		assertThat( view2.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -347,6 +370,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 
 		WorkpaneView view2 = workpane.split( Side.LEFT );
 		assertThat( view.getEdge( Side.TOP ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
@@ -363,6 +388,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view2.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view2.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view2.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( Workpane.DEFAULT_WALL_SPLIT_RATIO );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -377,6 +404,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -395,6 +424,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
 
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
+
 		double position = workpane.getTopDockSize() + (1 - view.getEdge( Side.TOP ).getPosition()) * size;
 
 		// The second split will return a new view
@@ -408,6 +439,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -422,6 +455,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -440,6 +475,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
 
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
+
 		double position = 1 - workpane.getBottomDockSize() - view.getEdge( Side.BOTTOM ).getPosition() * size;
 
 		// The second split will return a new view
@@ -453,6 +490,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( position );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -467,6 +506,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( Workpane.DEFAULT_VIEW_SPLIT_RATIO );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -485,6 +526,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( workpane.getLeftDockSize() );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
 
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
+
 		double position = workpane.getLeftDockSize() + (1 - view.getEdge( Side.LEFT ).getPosition()) * size;
 
 		// The second split will return a new view
@@ -498,6 +541,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( position );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -512,6 +557,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 1 - Workpane.DEFAULT_VIEW_SPLIT_RATIO );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
 	}
 
 	@Test
@@ -530,6 +577,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1 - workpane.getRightDockSize() );
 
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1 );
+
 		double position = 1 - workpane.getRightDockSize() - view.getEdge( Side.RIGHT ).getPosition() * size;
 
 		WorkpaneView view2 = workpane.split( view, Side.RIGHT, size );
@@ -542,6 +591,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view.getEdge( Side.BOTTOM ).getPosition() ).isEqualTo( 1d );
 		assertThat( view.getEdge( Side.LEFT ).getPosition() ).isEqualTo( 0d );
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( position );
+
+		assertThat( workpane.getViews() ).containsExactlyInAnyOrder( view, view1, view2 );
 	}
 
 	@Test
@@ -599,6 +650,104 @@ class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( workpane.getDefaultView() ).isEqualTo( defaultView );
 		assertThat( defaultView.getTools() ).containsExactly( tool2 );
 		assertThat( workpane.getTools() ).hasSize( 1 );
+	}
+
+	@Test
+	void addTool() {
+		// given
+		Workpane workpane = new Workpane();
+		resolve( workpane );
+		Tool tool = new MockTool( asset );
+
+		// when
+		Fx.run( () -> {
+			WorkpaneView centerView = workpane.getDefaultView();
+			workpane.addTool( tool, centerView );
+		} );
+		Fx.waitFor( TIMEOUT );
+
+		// then
+		assertThat( workpane.getViews().size() ).isEqualTo( 1 );
+		WorkpaneView centerView = workpane.getDefaultView();
+		assertThat( tool.getParent().getParent().getParent() ).isSameAs( centerView );
+	}
+
+	@Test
+	void addToolToNonDefaultView() {
+		// given
+		Workpane workpane = new Workpane();
+		// If I move resolve() to here the test fails
+		resolve( workpane );
+		Tool tool = new MockTool( asset );
+
+		// when
+		Fx.run( () -> {
+			WorkpaneView centerView = workpane.getDefaultView();
+			WorkpaneView leftView = workpane.split( centerView, Side.LEFT );
+			workpane.addTool( tool, leftView );
+		} );
+		Fx.waitFor( TIMEOUT );
+		// If I move resolve() to here the test works
+		// I assume this is because all the components get their skins
+		//resolve( workpane );
+		ThreadUtil.pause( 100 );
+
+		// then
+		assertThat( workpane.getViews().size() ).isEqualTo( 2 );
+		WorkpaneView leftView = workpane.getWallEdge( Side.LEFT ).getViews( Side.RIGHT ).iterator().next();
+		assertThat( tool.getParent().getParent().getParent() ).isSameAs( leftView );
+	}
+
+	@Test
+	void addToolWithMultipleViews() {
+		// given
+		Workpane workpane = resolve( new Workpane() );
+		WorkpaneView view = workpane.getDefaultView();
+
+		Tool tool1 = new MockTool( asset );
+		Tool tool2 = new MockTool( asset );
+		Tool tool3 = new MockTool( asset );
+
+		// when
+		Fx.run( () -> {
+			WorkpaneView centerView = workpane.getDefaultView();
+			workpane.addTool( tool1, centerView );
+		} );
+		Fx.waitForStability( TIMEOUT );
+
+		// then
+		assertThat( workpane.getViews().size() ).isEqualTo( 1 );
+		WorkpaneView centerView = workpane.getDefaultView();
+		assertThat( tool1.getParent().getParent().getParent() ).isSameAs( centerView );
+
+		// when
+		Fx.run( () -> {
+			WorkpaneView leftView = workpane.split( view, Side.LEFT );
+			workpane.addTool( tool2, leftView );
+		} );
+		Fx.waitForStability( TIMEOUT );
+		// There must be some other thread working for FX
+		//Thread.yield();
+
+		// then
+		//		WorkpaneView leftView = workpane.getWallEdge( Side.LEFT ).getViews( Side.RIGHT ).iterator().next();
+		//		assertThat( tool2.getParent().getParent().getParent() ).isSameAs( leftView );
+		//		assertThat( workpane.getViews().size() ).isEqualTo( 2 );
+		// FIXME Woohoo! Reproduced the problem
+		// TODO If this can be fixed then the workaround in Workpane.dispatchEvents() may be removed.
+		// This appears to be a test environment issue.
+
+		// when
+		Fx.run( () -> {
+			WorkpaneView rightView = workpane.split( view, Side.RIGHT );
+			workpane.addTool( tool3, rightView );
+		} );
+		Fx.waitForStability( TIMEOUT );
+
+		// then
+		WorkpaneView rightView = workpane.getWallEdge( Side.RIGHT ).getViews( Side.LEFT ).iterator().next();
+		assertThat( tool3.getParent().getParent().getParent() ).isSameAs( rightView );
+		assertThat( workpane.getViews().size() ).isEqualTo( 3 );
 	}
 
 	private Tool getActiveToolTabTool( WorkpaneView view ) {
