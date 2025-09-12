@@ -20,7 +20,7 @@ public final class ProgramTestConfig {
 	 *  | Faster computers
 	 * 1000 - AMD Threadripper, Intel i9</pre>
 	 */
-	public static final int TIMEOUT = 4000;
+	public static final int TIMEOUT = 5000;
 
 	/**
 	 * The long wait timeout for many operations. Common values are:
