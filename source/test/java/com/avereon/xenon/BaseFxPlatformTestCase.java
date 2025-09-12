@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.zerra.javafx.Fx;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.stage.Stage;
@@ -21,6 +22,7 @@ public abstract class BaseFxPlatformTestCase extends BaseForAllTests {
 		// NOTE Do not create an application for tests that only need the FX platform
 
 		// Start the FX platform
+		Platform.setImplicitExit( false );
 		Fx.startup();
 	}
 
@@ -37,11 +39,9 @@ public abstract class BaseFxPlatformTestCase extends BaseForAllTests {
 	}
 
 	protected <T extends Control> T resolve( T control, double width, double height ) {
-		Scene scene = new Scene( control, width, height );
-
 		Fx.run( () -> {
 			stage = new Stage( StageStyle.UNDECORATED );
-			stage.setScene( scene );
+			stage.setScene( new Scene( control, width, height ) );
 			// Yes, we actually have to show the stage to get the skin applied
 			stage.show();
 			stage.toBack();
