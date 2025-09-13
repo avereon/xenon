@@ -5,7 +5,7 @@ import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;

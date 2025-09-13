@@ -34,7 +34,7 @@ import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingGroup;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;

@@ -8,7 +8,7 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

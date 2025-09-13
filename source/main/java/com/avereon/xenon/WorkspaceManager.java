@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;

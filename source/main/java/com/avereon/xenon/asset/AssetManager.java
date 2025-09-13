@@ -16,7 +16,7 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zerra.event.FxEventHub;

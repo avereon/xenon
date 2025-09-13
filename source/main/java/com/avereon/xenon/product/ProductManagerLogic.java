@@ -15,7 +15,7 @@ import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.Asynchronous;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
