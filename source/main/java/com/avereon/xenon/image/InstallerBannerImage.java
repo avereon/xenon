@@ -4,7 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.zenna.icon.XRingLargeIcon;
 import com.avereon.zerra.image.Proof;
 import com.avereon.zerra.image.RenderedImage;
-import com.avereon.zerra.style.Theme;
+import com.avereon.zerra.theme.Theme;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
