@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.zerra.javafx.Fx;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -9,7 +8,6 @@ import java.util.Set;
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 public class GuidedToolReceivesGuideNodeSelectedChangesUIT extends GuidedToolUIT {
 
 	@Test

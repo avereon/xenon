@@ -9,7 +9,6 @@ import java.util.Set;
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 public class GuidedToolDoesNotReceiveGuideNodeExpandedChangeWhenExpandedDoesNotChangeUIT extends GuidedToolUIT {
 
 	@Test
