@@ -68,8 +68,8 @@ public class ProgramChecks implements Runnable {
 		if( program.isProgramUpdated() ) {
 			Release prior = Release.decode( program.getSettings().get( PROGRAM_RELEASE_PRIOR, (String)null ) );
 			Release runtime = program.getCard().getRelease();
-			String priorVersion = prior.getVersion().toHumanString();
-			String runtimeVersion = runtime.getVersion().toHumanString();
+			String priorVersion = prior.version().toHumanString();
+			String runtimeVersion = runtime.version().toHumanString();
 			String title = Rb.text( RbKey.UPDATE, "updates" );
 			String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 			Runnable action = () -> program.getAssetManager().openAsset( ProgramAboutType.URI );
