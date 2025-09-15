@@ -79,6 +79,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		// All application setup needs to be done before this point
 		long start = System.currentTimeMillis();
 		FxToolkit.setupApplication( () -> xenon );
+		Fx.waitForStability( 10 );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
 		long end = System.currentTimeMillis();
 		System.out.println( "Program start duration=" + (end - start) );
