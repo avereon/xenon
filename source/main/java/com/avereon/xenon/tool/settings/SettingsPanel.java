@@ -48,6 +48,7 @@ public class SettingsPanel extends VBox {
 		addTitle( new Label( title ), null, null, false, false );
 	}
 
+	@SuppressWarnings( "SameParameterValue" )
 	protected void addTitle( String title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
 		addTitle( new Label( title ), left, right, skipTopBlank, skipBottomBlank );
 	}
