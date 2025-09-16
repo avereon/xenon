@@ -121,6 +121,10 @@ need a path attribute to specify the path to the settings node.
 
 	</page>
 
+	<page id="advanced">
+		<page id="advanced-linux" panel="com.avereon.xenon.tool.settings.custom.panel.AdvancedLinuxPanel"/>
+	</page>
+
 	<page id="appearance">
 
 		<page id="workspace-theme">
