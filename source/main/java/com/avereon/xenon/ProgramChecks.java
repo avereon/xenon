@@ -40,13 +40,22 @@ public class ProgramChecks implements Runnable {
 		checkForProgramUpdated();
 	}
 
-	private void checkForHiDpi() {
+	public static boolean isHiDpiCapable() {
 		Screen primary = Screen.getPrimary();
-		boolean hiDpi = primary.getDpi() > 120;
-		boolean noScale = primary.getOutputScaleX() == 1.0;
-		boolean largeSize = primary.getBounds().getWidth() > 1920;
+		double scale = primary.getOutputScaleX();
+		boolean hiDpi = primary.getDpi() * scale > 120;
+		boolean largeSize = primary.getBounds().getWidth() * scale > 1920;
+		return hiDpi && largeSize;
+	}
 
-		if( noScale && hiDpi && largeSize ) {
+	public static boolean isHiDpiEnabled() {
+		Screen primary = Screen.getPrimary();
+		boolean scaled = primary.getOutputScaleX() > 1.0;
+		return scaled && isHiDpiCapable();
+	}
+
+	private void checkForHiDpi() {
+		if( !isHiDpiEnabled() ) {
 			String title = Rb.text( "program", "program-hidpi-title" );
 			String message = Rb.text( "program", "program-hidpi-message" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
