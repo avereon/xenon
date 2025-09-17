@@ -10,13 +10,10 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class AdvancedLinuxPanel extends SettingsPanel {
-
-	private GridPane pkexecGrid;
-
-	private GridPane hidpiGrid;
 
 	public AdvancedLinuxPanel( XenonProgramProduct product ) {
 		super( product );
@@ -25,9 +22,9 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		addTitle( Rb.text( product, RbKey.SETTINGS, "advanced-linux" ) );
 
 		// Create the PkExec group pane
-		TitledPane pkexePane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec" ) );
-		getChildren().add( pkexePane );
-		pkexecGrid = (GridPane)pkexePane.getContent();
+		TitledPane pkexecPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec" ) );
+		getChildren().add( pkexecPane );
+		GridPane pkexecGrid = (GridPane)pkexecPane.getContent();
 		int row = 0;
 
 		String installedString = Rb.text( product, RbKey.LABEL, "installed" );
@@ -44,7 +41,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 			Label pkexecAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() ) );
 			pkexecAssist.getStyleClass().addAll( "settings-infoarea" );
 			GridPane.setColumnSpan( pkexecAssist, GridPane.REMAINING );
-			pkexecGrid.addRow( row++, pkexecAssist );
+			pkexecGrid.addRow( row, pkexecAssist );
 
 			// TODO Would you like help installing pkexec?
 		}
@@ -54,7 +51,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 			// Create the HiDPI group pane
 			TitledPane hidpiPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi" ) );
 			getChildren().add( hidpiPane );
-			hidpiGrid = (GridPane)hidpiPane.getContent();
+			GridPane hidpiGrid = (GridPane)hidpiPane.getContent();
 			row = 0;
 
 			Screen primary = Screen.getPrimary();
@@ -72,7 +69,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 				Label hidpiAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-assist", getProgram().getCard().getName() ) );
 				hidpiAssist.getStyleClass().addAll( "settings-infoarea" );
 				GridPane.setColumnSpan( hidpiAssist, GridPane.REMAINING );
-				hidpiGrid.addRow( row++, hidpiAssist );
+				hidpiGrid.addRow( row, hidpiAssist );
 			}
 
 			// TODO Would you like help installing configuring HiDPI?
@@ -81,20 +78,8 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		// memory, or put in OS advanced common settings?
 	}
 
-	private boolean isGkSudoInstalled() {
-		return isInstalled( "/usr/bin/gksudo" );
-	}
-
-	private boolean isKdeSudoInstalled() {
-		return isInstalled( "/usr/bin/kdesudo" );
-	}
-
 	private boolean isPkExecInstalled() {
-		return isInstalled( "/usr/bin/pkexec" );
-	}
-
-	private boolean isInstalled( String path ) {
-		return Paths.get( path ).toFile().exists();
+		return Files.exists( Paths.get( "/usr/bin/pkexec" ) );
 	}
 
 }
