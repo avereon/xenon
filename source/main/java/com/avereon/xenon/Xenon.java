@@ -1559,10 +1559,12 @@ public class Xenon extends Application implements XenonProgram {
 
 	private boolean calcProgramUpdated() {
 		// Get the last release setting
-		Release previous = Release.decode( getSettings().get( PROGRAM_RELEASE, (String)null ) );
-		Release runtime = this.getCard().getRelease();
+		String previousRelease = getSettings().get( PROGRAM_RELEASE );
+		if( previousRelease == null ) return false;
 
-		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
+		Release previous = Release.decode( previousRelease );
+		Release runtime = this.getCard().getRelease();
+		boolean programUpdated = runtime.compareTo( previous ) > 0;
 
 		if( programUpdated ) getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 		getSettings().set( PROGRAM_RELEASE, Release.encode( runtime ) );
