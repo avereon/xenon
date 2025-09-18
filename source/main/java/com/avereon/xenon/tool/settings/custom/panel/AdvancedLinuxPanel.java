@@ -5,6 +5,7 @@ import com.avereon.xenon.ProgramChecks;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingsPanel;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
@@ -27,17 +28,21 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		GridPane pkexecGrid = (GridPane)pkexecPane.getContent();
 		int row = 0;
 
-		String installedString = Rb.text( product, RbKey.LABEL, "installed" );
-		String notInstalledString = Rb.text( product, RbKey.LABEL, "not-installed" );
-		boolean isPkExecInstalled = isPkExecInstalled();
-		String pkexecInstalledString = isPkExecInstalled ? installedString : notInstalledString;
-
-		Label pkexecExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-explanation", pkexecInstalledString ) );
+		Label pkexecExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-explanation" ) );
 		pkexecExplanation.getStyleClass().addAll( "settings-infoarea" );
 		GridPane.setColumnSpan( pkexecExplanation, GridPane.REMAINING );
 		pkexecGrid.addRow( row++, pkexecExplanation );
 
-		if( !isPkExecInstalled ) {
+		pkexecGrid.addRow( row++, createBlankLine() );
+
+		boolean pkexecInstalled = isPkExecInstalled();
+		String status = pkexecInstalled ? "success" : "warning";
+		String installedString = Rb.text( product, RbKey.LABEL, pkexecInstalled ? "installed" : "not-installed" );
+		Control pkexecStatus = createStatusLine( installedString, status );
+		pkexecGrid.addRow( row++, pkexecStatus );
+
+		if( !pkexecInstalled) {
+			pkexecGrid.addRow( row++, createBlankLine() );
 			Label pkexecAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() ) );
 			pkexecAssist.getStyleClass().addAll( "settings-infoarea" );
 			GridPane.setColumnSpan( pkexecAssist, GridPane.REMAINING );
@@ -65,7 +70,16 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 			GridPane.setColumnSpan( hidpiExplanation, GridPane.REMAINING );
 			hidpiGrid.addRow( row++, hidpiExplanation );
 
-			if( !ProgramChecks.isHiDpiEnabled() ) {
+			hidpiGrid.addRow( row++, createBlankLine() );
+
+			// TODO Status line
+			boolean hidpiEnabled = ProgramChecks.isHiDpiEnabled();
+			String hidpiStatus = hidpiEnabled ? "success" : "warning";
+			Control hidpiStatusLine = createStatusLine( Rb.text( product, RbKey.LABEL, hidpiEnabled ? "enabled" : "disabled" ), hidpiStatus );
+			hidpiGrid.addRow( row++, hidpiStatusLine );
+
+			if( !hidpiEnabled ) {
+				hidpiGrid.addRow( row++, createBlankLine() );
 				Label hidpiAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-assist", getProgram().getCard().getName() ) );
 				hidpiAssist.getStyleClass().addAll( "settings-infoarea" );
 				GridPane.setColumnSpan( hidpiAssist, GridPane.REMAINING );

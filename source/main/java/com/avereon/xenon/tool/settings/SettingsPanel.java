@@ -9,8 +9,8 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.zerra.javafx.Fx;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
@@ -63,11 +63,23 @@ public class SettingsPanel extends VBox {
 	}
 
 	protected void addBlankLine() {
-		Label blankLine = new Label( " " );
-		blankLine.prefWidthProperty().bind( widthProperty() );
+		getChildren().add( createBlankLine() );
+	}
+
+	protected Control createBlankLine() {
+		Label blankLine = new Label();
 		blankLine.getStyleClass().add( "settings-blank" );
-		blankLine.setAlignment( Pos.CENTER );
-		getChildren().add( blankLine );
+		blankLine.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( blankLine, GridPane.REMAINING );
+		return blankLine;
+	}
+
+	protected Control createStatusLine( String text, String status ) {
+		Label statusLine = new Label( text );
+		statusLine.getStyleClass().addAll( "settings-status", status );
+		statusLine.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( statusLine, GridPane.REMAINING );
+		return statusLine;
 	}
 
 	protected TitledPane createGroupPane( String name ) {
