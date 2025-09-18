@@ -67,7 +67,9 @@ public class ProgramChecks implements Runnable {
 			String title = Rb.text( RbKey.PROGRAM, "program-hidpi-title" );
 			//String message = Rb.text( RbKey.PROGRAM, "program-hidpi-message" );
 			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-hidpi-assist" );
-			program.getNoticeManager().addNotice( new Notice( title, message ) );
+			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
+			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
 		}
 	}
 

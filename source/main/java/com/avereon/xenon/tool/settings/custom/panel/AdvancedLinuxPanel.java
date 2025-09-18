@@ -16,15 +16,30 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 	public AdvancedLinuxPanel( XenonProgramProduct product ) {
 		super( product );
 
-		// Add the title to the panel
+		// Title
 		addTitle( Rb.text( product, RbKey.SETTINGS, "advanced-linux" ) );
 
-		// Create the PkExec group pane
+		// JVM Memory setup?, or put in OS advanced common settings?
+
+		// PkExec
+		createPkExecGroup( product );
+
+		// HiDPI
+		if( ProgramChecks.isHiDpiCapable() ) createHiDpiGroup( product );
+	}
+
+	/**
+	 * Create the PkExec group pane
+	 *
+	 * @param product The product
+	 */
+	private void createPkExecGroup( XenonProgramProduct product ) {
 		TitledPane pkexecPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec" ) );
 		getChildren().add( pkexecPane );
 		GridPane pkexecGrid = (GridPane)pkexecPane.getContent();
 		int row = 0;
 
+		// Explanation
 		Label pkexecExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-explanation" ) );
 		pkexecExplanation.getStyleClass().addAll( "settings-infoarea" );
 		GridPane.setColumnSpan( pkexecExplanation, GridPane.REMAINING );
@@ -32,12 +47,16 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 
 		pkexecGrid.addRow( row++, createBlankLine() );
 
+		// Status line
 		boolean pkexecInstalled = ProgramChecks.isPkExecInstalled();
 		String status = pkexecInstalled ? "success" : "warning";
 		String installedString = Rb.text( product, RbKey.LABEL, pkexecInstalled ? "installed" : "not-installed" );
 		Control pkexecStatus = createStatusLine( installedString, status );
 		pkexecGrid.addRow( row++, pkexecStatus );
 
+		// TODO Add the ability to ignore this issue
+
+		// Assist message
 		if( !pkexecInstalled ) {
 			pkexecGrid.addRow( row++, createBlankLine() );
 			Label pkexecAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() ) );
@@ -51,54 +70,66 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 			String rpmInstall = "sudo yum install pkexec";
 			String archInstall = "sudo pacman -S pkexec";
 
-			TextField pkexecInstall = new TextField( debianInstall );
-			pkexecInstall.setEditable( false );
-			pkexecInstall.getStyleClass().addAll( "code" );
-			//pkexecInstall.prefWidthProperty().bind( widthProperty() );
-			GridPane.setColumnSpan( pkexecInstall, GridPane.REMAINING );
-			pkexecGrid.addRow( row++, pkexecInstall );
-			// TODO Would you like help installing pkexec?
+			TextField installation = new TextField( debianInstall );
+			installation.setEditable( false );
+			installation.getStyleClass().addAll( "code" );
+			GridPane.setColumnSpan( installation, GridPane.REMAINING );
+			pkexecGrid.addRow( row++, installation );
 		}
+	}
 
-		// hidpi
-		if( ProgramChecks.isHiDpiCapable() ) {
-			// Create the HiDPI group pane
-			TitledPane hidpiPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi" ) );
-			getChildren().add( hidpiPane );
-			GridPane hidpiGrid = (GridPane)hidpiPane.getContent();
-			row = 0;
+	/**
+	 * Create the HiDPI group pane
+	 *
+	 * @param product The product
+	 */
+	private void createHiDpiGroup( XenonProgramProduct product ) {
+		TitledPane hidpiPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi" ) );
+		getChildren().add( hidpiPane );
+		GridPane hidpiGrid = (GridPane)hidpiPane.getContent();
+		int row = 0;
 
-			//			Screen primary = Screen.getPrimary();
-			//			double dpi = primary.getDpi();
-			//			double width = primary.getBounds().getWidth();
-			//			double height = primary.getBounds().getHeight();
-			//			double scale = primary.getOutputScaleX();
+		//			Screen primary = Screen.getPrimary();
+		//			double dpi = primary.getDpi();
+		//			double width = primary.getBounds().getWidth();
+		//			double height = primary.getBounds().getHeight();
+		//			double scale = primary.getOutputScaleX();
 
-			Label hidpiExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-explanation" ) );
-			hidpiExplanation.getStyleClass().addAll( "settings-infoarea" );
-			GridPane.setColumnSpan( hidpiExplanation, GridPane.REMAINING );
-			hidpiGrid.addRow( row++, hidpiExplanation );
+		// Explanation
+		Label hidpiExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-explanation" ) );
+		hidpiExplanation.getStyleClass().addAll( "settings-infoarea" );
+		GridPane.setColumnSpan( hidpiExplanation, GridPane.REMAINING );
+		hidpiGrid.addRow( row++, hidpiExplanation );
+
+		hidpiGrid.addRow( row++, createBlankLine() );
+
+		// Status line
+		boolean hidpiEnabled = ProgramChecks.isHiDpiEnabled();
+		String hidpiStatus = hidpiEnabled ? "success" : "warning";
+		Control hidpiStatusLine = createStatusLine( Rb.text( product, RbKey.LABEL, hidpiEnabled ? "enabled" : "disabled" ), hidpiStatus );
+		hidpiGrid.addRow( row++, hidpiStatusLine );
+
+		// TODO Add the ability to ignore this issue
+
+		// Assist message
+		if( !hidpiEnabled ) {
+			hidpiGrid.addRow( row++, createBlankLine() );
+			Label hidpiAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-assist", getProgram().getCard().getName() ) );
+			hidpiAssist.getStyleClass().addAll( "settings-infoarea" );
+			GridPane.setColumnSpan( hidpiAssist, GridPane.REMAINING );
+			hidpiGrid.addRow( row++, hidpiAssist );
 
 			hidpiGrid.addRow( row++, createBlankLine() );
 
-			// TODO Status line
-			boolean hidpiEnabled = ProgramChecks.isHiDpiEnabled();
-			String hidpiStatus = hidpiEnabled ? "success" : "warning";
-			Control hidpiStatusLine = createStatusLine( Rb.text( product, RbKey.LABEL, hidpiEnabled ? "enabled" : "disabled" ), hidpiStatus );
-			hidpiGrid.addRow( row++, hidpiStatusLine );
+			String gsettings = "gsettings set org.gnome.desktop.interface scaling-factor 2";
 
-			if( !hidpiEnabled ) {
-				hidpiGrid.addRow( row++, createBlankLine() );
-				Label hidpiAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-assist", getProgram().getCard().getName() ) );
-				hidpiAssist.getStyleClass().addAll( "settings-infoarea" );
-				GridPane.setColumnSpan( hidpiAssist, GridPane.REMAINING );
-				hidpiGrid.addRow( row, hidpiAssist );
-			}
-
-			// TODO Would you like help installing configuring HiDPI?
+			TextField configuration = new TextField( gsettings );
+			configuration.setEditable( false );
+			configuration.getStyleClass().addAll( "code" );
+			GridPane.setColumnSpan( configuration, GridPane.REMAINING );
+			hidpiGrid.addRow( row++, configuration );
 		}
 
-		// memory, or put in OS advanced common settings?
 	}
 
 }
