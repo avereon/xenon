@@ -15,6 +15,8 @@ public class ProgramSettingsType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
+	public static final java.net.URI ADVANCED = java.net.URI.create( uriPattern + "#advanced" );
+
 	public static final java.net.URI UPDATES = java.net.URI.create( uriPattern + "#modules-updates" );
 
 	public ProgramSettingsType( XenonProgramProduct product ) {

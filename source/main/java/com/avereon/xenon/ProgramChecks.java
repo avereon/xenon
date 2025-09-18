@@ -4,19 +4,23 @@ import com.avereon.product.Rb;
 import com.avereon.product.Release;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import javafx.stage.Screen;
 import lombok.CustomLog;
+import lombok.Getter;
 
+import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static com.avereon.xenon.Xenon.PROGRAM_RELEASE_PRIOR;
 
 @CustomLog
 public class ProgramChecks implements Runnable {
 
+	@Getter
 	private final Xenon program;
 
 	public ProgramChecks( Xenon program ) {
@@ -54,6 +58,10 @@ public class ProgramChecks implements Runnable {
 		return scaled && isHiDpiCapable();
 	}
 
+	public static boolean isPkExecInstalled() {
+		return Files.exists( Paths.get( "/usr/bin/pkexec" ) );
+	}
+
 	private void checkForHiDpi() {
 		if( !isHiDpiEnabled() ) {
 			String title = Rb.text( RbKey.PROGRAM, "program-hidpi-title" );
@@ -66,12 +74,15 @@ public class ProgramChecks implements Runnable {
 	private void checkForLinuxPkExec() {
 		if( !OperatingSystem.isLinux() ) return;
 
-		Path pkexec = Path.of( "/usr/bin/pkexec" );
-		if( !Files.exists( pkexec ) ) {
+		boolean pkexecInstalled = isPkExecInstalled();
+
+		if( !pkexecInstalled ) {
 			String title = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-title" );
 			//String message = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-message" );
-			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-pkexec-assist" );
-			program.getNoticeManager().addNotice( new Notice( title, message ) );
+			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() );
+			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
+			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
 		}
 	}
 

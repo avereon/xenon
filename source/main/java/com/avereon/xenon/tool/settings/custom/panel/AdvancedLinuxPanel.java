@@ -7,12 +7,9 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Screen;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class AdvancedLinuxPanel extends SettingsPanel {
 
@@ -35,19 +32,31 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 
 		pkexecGrid.addRow( row++, createBlankLine() );
 
-		boolean pkexecInstalled = isPkExecInstalled();
+		boolean pkexecInstalled = ProgramChecks.isPkExecInstalled();
 		String status = pkexecInstalled ? "success" : "warning";
 		String installedString = Rb.text( product, RbKey.LABEL, pkexecInstalled ? "installed" : "not-installed" );
 		Control pkexecStatus = createStatusLine( installedString, status );
 		pkexecGrid.addRow( row++, pkexecStatus );
 
-		if( !pkexecInstalled) {
+		if( !pkexecInstalled ) {
 			pkexecGrid.addRow( row++, createBlankLine() );
 			Label pkexecAssist = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() ) );
 			pkexecAssist.getStyleClass().addAll( "settings-infoarea" );
 			GridPane.setColumnSpan( pkexecAssist, GridPane.REMAINING );
-			pkexecGrid.addRow( row, pkexecAssist );
+			pkexecGrid.addRow( row++, pkexecAssist );
 
+			pkexecGrid.addRow( row++, createBlankLine() );
+
+			String debianInstall = "sudo apt install pkexec";
+			String rpmInstall = "sudo yum install pkexec";
+			String archInstall = "sudo pacman -S pkexec";
+
+			TextField pkexecInstall = new TextField( debianInstall );
+			pkexecInstall.setEditable( false );
+			pkexecInstall.getStyleClass().addAll( "code" );
+			//pkexecInstall.prefWidthProperty().bind( widthProperty() );
+			GridPane.setColumnSpan( pkexecInstall, GridPane.REMAINING );
+			pkexecGrid.addRow( row++, pkexecInstall );
 			// TODO Would you like help installing pkexec?
 		}
 
@@ -59,13 +68,13 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 			GridPane hidpiGrid = (GridPane)hidpiPane.getContent();
 			row = 0;
 
-			Screen primary = Screen.getPrimary();
-			double dpi = primary.getDpi();
-			double width = primary.getBounds().getWidth();
-			double height = primary.getBounds().getHeight();
-			double scale = primary.getOutputScaleX();
+			//			Screen primary = Screen.getPrimary();
+			//			double dpi = primary.getDpi();
+			//			double width = primary.getBounds().getWidth();
+			//			double height = primary.getBounds().getHeight();
+			//			double scale = primary.getOutputScaleX();
 
-			Label hidpiExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-explanation", width, height, dpi, scale ) );
+			Label hidpiExplanation = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-linux-hidpi-explanation" ) );
 			hidpiExplanation.getStyleClass().addAll( "settings-infoarea" );
 			GridPane.setColumnSpan( hidpiExplanation, GridPane.REMAINING );
 			hidpiGrid.addRow( row++, hidpiExplanation );
@@ -90,10 +99,6 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		}
 
 		// memory, or put in OS advanced common settings?
-	}
-
-	private boolean isPkExecInstalled() {
-		return Files.exists( Paths.get( "/usr/bin/pkexec" ) );
 	}
 
 }

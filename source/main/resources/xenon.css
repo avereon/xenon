@@ -445,7 +445,7 @@ Derived from modena.css
 	/*-fx-background: -ex-background-tabs;*/
 	-fx-background-color: transparent;
 	-fx-padding: 0;
-	-fx-text-fill: -fx-text-background-color;
+	-fx-text-fill: -fx-text-base-color;
 }
 
 .workpane .table-row-cell:odd {
@@ -747,6 +747,14 @@ Derived from modena.css
 
 .settings-status.success{
 	-fx-background-color: -ex-background-success;
+}
+
+.code {
+	/*-fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; !* 4 8 4 8 *!*/
+	/*-fx-border-color: -fx-box-border;*/
+	/*-fx-border-width: 1px;*/
+	/*-fx-text-fill: -fx-text-base-color;*/
+	-fx-font-family: Monospace;
 }
 
 /*******************************************************************************
