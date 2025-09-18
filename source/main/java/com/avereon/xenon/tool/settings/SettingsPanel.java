@@ -5,14 +5,18 @@ import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
+import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.ui.util.ActionFactory;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -72,6 +76,22 @@ public class SettingsPanel extends VBox {
 		blankLine.prefWidthProperty().bind( widthProperty() );
 		GridPane.setColumnSpan( blankLine, GridPane.REMAINING );
 		return blankLine;
+	}
+
+	protected Label createInfoArea(String text) {
+		Label infoArea = new Label(text);
+		infoArea.getStyleClass().addAll( "settings-infoarea" );
+		GridPane.setColumnSpan( infoArea, GridPane.REMAINING );
+		return infoArea;
+	}
+
+	protected Button createActionButton( String action ) {
+		ActionProxy proxy = getProgram().getActionLibrary().getAction( action );
+		Button button = ActionFactory.createButton( getProgram(), proxy );
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, _ -> proxy.fire() );
+		button.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( button, GridPane.REMAINING );
+		return button;
 	}
 
 	protected Control createStatusLine( String text, String status ) {
