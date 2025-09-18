@@ -56,8 +56,9 @@ public class ProgramChecks implements Runnable {
 
 	private void checkForHiDpi() {
 		if( !isHiDpiEnabled() ) {
-			String title = Rb.text( "program", "program-hidpi-title" );
-			String message = Rb.text( "program", "program-hidpi-message" );
+			String title = Rb.text( RbKey.PROGRAM, "program-hidpi-title" );
+			//String message = Rb.text( RbKey.PROGRAM, "program-hidpi-message" );
+			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-hidpi-assist" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
 		}
 	}
@@ -67,15 +68,16 @@ public class ProgramChecks implements Runnable {
 
 		Path pkexec = Path.of( "/usr/bin/pkexec" );
 		if( !Files.exists( pkexec ) ) {
-			String title = Rb.text( "program", "program-linux-no-pkexec-title" );
-			String message = Rb.text( "program", "program-linux-no-pkexec-message" );
+			String title = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-title" );
+			//String message = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-message" );
+			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-pkexec-assist" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
 		}
 	}
 
 	private void checkForProgramUpdated() {
 		if( program.isProgramUpdated() ) {
-			Release prior = Release.decode( program.getSettings().get( PROGRAM_RELEASE_PRIOR, (String)null ) );
+			Release prior = Release.decode( program.getSettings().get( PROGRAM_RELEASE_PRIOR, "" ) );
 			Release runtime = program.getCard().getRelease();
 			String priorVersion = prior.version().toHumanString();
 			String runtimeVersion = runtime.version().toHumanString();
