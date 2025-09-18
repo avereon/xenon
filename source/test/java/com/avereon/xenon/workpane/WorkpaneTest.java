@@ -1,6 +1,5 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.ThreadUtil;
 import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
@@ -601,9 +600,6 @@ class WorkpaneTest extends WorkpaneTestCase {
 		Tool tool1 = new MockTool( asset );
 		Tool tool2 = new MockTool( asset );
 
-		tool1.setTitle( "Tool 1" );
-		tool2.setTitle( "Tool 2" );
-
 		WorkpaneView defaultView = workpane.getDefaultView();
 		WorkpaneView leftView = workpane.split( Side.LEFT );
 
@@ -630,9 +626,6 @@ class WorkpaneTest extends WorkpaneTestCase {
 		Tool tool1 = new MockTool( asset );
 		Tool tool2 = new MockTool( asset );
 
-		tool1.setTitle( "Tool 1" );
-		tool2.setTitle( "Tool 2" );
-
 		WorkpaneView defaultView = workpane.getDefaultView();
 		WorkpaneView leftView = workpane.split( Side.LEFT );
 
@@ -655,8 +648,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void addTool() {
 		// given
-		Workpane workpane = new Workpane();
-		resolve( workpane );
+		Workpane workpane = resolve( new Workpane() );
 		Tool tool = new MockTool( asset );
 
 		// when
@@ -664,7 +656,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 			WorkpaneView centerView = workpane.getDefaultView();
 			workpane.addTool( tool, centerView );
 		} );
-		Fx.waitFor( TIMEOUT );
+		Fx.waitForStability( TIMEOUT );
 
 		// then
 		assertThat( workpane.getViews().size() ).isEqualTo( 1 );
@@ -675,9 +667,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void addToolToNonDefaultView() {
 		// given
-		Workpane workpane = new Workpane();
-		// If I move resolve() to here the test fails
-		resolve( workpane );
+		Workpane workpane = resolve( new Workpane() );
 		Tool tool = new MockTool( asset );
 
 		// when
@@ -686,16 +676,12 @@ class WorkpaneTest extends WorkpaneTestCase {
 			WorkpaneView leftView = workpane.split( centerView, Side.LEFT );
 			workpane.addTool( tool, leftView );
 		} );
-		Fx.waitFor( TIMEOUT );
-		// If I move resolve() to here the test works
-		// I assume this is because all the components get their skins
-		//resolve( workpane );
-		ThreadUtil.pause( 100 );
+		Fx.waitForStability( TIMEOUT );
 
 		// then
-		assertThat( workpane.getViews().size() ).isEqualTo( 2 );
 		WorkpaneView leftView = workpane.getWallEdge( Side.LEFT ).getViews( Side.RIGHT ).iterator().next();
 		assertThat( tool.getParent().getParent().getParent() ).isSameAs( leftView );
+		assertThat( workpane.getViews().size() ).isEqualTo( 2 );
 	}
 
 	@Test
@@ -724,27 +710,14 @@ class WorkpaneTest extends WorkpaneTestCase {
 		Fx.run( () -> {
 			WorkpaneView leftView = workpane.split( view, Side.LEFT );
 			workpane.addTool( tool2, leftView );
-		} );
-		Fx.waitForStability( TIMEOUT );
-		// There must be some other thread working for FX
-		//Thread.yield();
-
-		// then
-		//		WorkpaneView leftView = workpane.getWallEdge( Side.LEFT ).getViews( Side.RIGHT ).iterator().next();
-		//		assertThat( tool2.getParent().getParent().getParent() ).isSameAs( leftView );
-		//		assertThat( workpane.getViews().size() ).isEqualTo( 2 );
-		// FIXME Woohoo! Reproduced the problem
-		// TODO If this can be fixed then the workaround in Workpane.dispatchEvents() may be removed.
-		// This appears to be a test environment issue.
-
-		// when
-		Fx.run( () -> {
 			WorkpaneView rightView = workpane.split( view, Side.RIGHT );
 			workpane.addTool( tool3, rightView );
 		} );
 		Fx.waitForStability( TIMEOUT );
 
 		// then
+		WorkpaneView leftView = workpane.getWallEdge( Side.LEFT ).getViews( Side.RIGHT ).iterator().next();
+		assertThat( tool2.getParent().getParent().getParent() ).isSameAs( leftView );
 		WorkpaneView rightView = workpane.getWallEdge( Side.RIGHT ).getViews( Side.LEFT ).iterator().next();
 		assertThat( tool3.getParent().getParent().getParent() ).isSameAs( rightView );
 		assertThat( workpane.getViews().size() ).isEqualTo( 3 );
