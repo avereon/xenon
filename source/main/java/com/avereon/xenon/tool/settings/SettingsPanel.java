@@ -78,11 +78,19 @@ public class SettingsPanel extends VBox {
 		return blankLine;
 	}
 
-	protected Label createInfoArea(String text) {
-		Label infoArea = new Label(text);
+	protected Label createInfoArea( String text ) {
+		Label infoArea = new Label( text );
 		infoArea.getStyleClass().addAll( "settings-infoarea" );
 		GridPane.setColumnSpan( infoArea, GridPane.REMAINING );
 		return infoArea;
+	}
+
+	protected Button createActionButton( String icon, String name, Runnable action ) {
+		Button button = ActionFactory.createButton( getProgram(), icon, name );
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, _ -> action.run() );
+		button.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( button, GridPane.REMAINING );
+		return button;
 	}
 
 	protected Button createActionButton( String action ) {

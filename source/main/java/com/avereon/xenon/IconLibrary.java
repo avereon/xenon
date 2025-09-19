@@ -41,6 +41,9 @@ public class IconLibrary {
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 
+		register( "save", new SaveIcon() );
+
+
 		register( "new-folder", new NewFolderIcon() );
 
 		register( "document", new DocumentIcon() );

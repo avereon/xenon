@@ -20,4 +20,16 @@ public class ActionFactory {
 		return button;
 	}
 
+	public static Button createButton( Xenon program, String icon, String name ) {
+		Button button = new Button( name );
+		button.setId( BUTTON_ID_PREFIX + nameToId( name ) );
+		button.setGraphic( program.getIconLibrary().getIcon( icon ) );
+
+		return button;
+	}
+
+	private static String nameToId( String name ) {
+		return name.toLowerCase().replaceAll( " ", "-" );
+	}
+
 }

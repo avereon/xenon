@@ -1,14 +1,22 @@
 package com.avereon.xenon.tool.settings.custom.panel;
 
 import com.avereon.product.Rb;
+import com.avereon.util.AppConfig;
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.ProgramChecks;
-import com.avereon.xenon.RbKey;
-import com.avereon.xenon.XenonProgramProduct;
+import com.avereon.xenon.*;
 import com.avereon.xenon.tool.settings.SettingsPanel;
+import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import lombok.CustomLog;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@CustomLog
 public class AdvancedLinuxPanel extends SettingsPanel {
 
 	public AdvancedLinuxPanel( XenonProgramProduct product ) {
@@ -17,8 +25,8 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		// Title
 		addTitle( Rb.text( product, RbKey.SETTINGS, "advanced-linux" ) );
 
-		// JVM Memory setup?, or put in OS advanced common settings?
-		createJvmMemoryGroup( product );
+		// JVM Heap
+		createJvmHeapGroup( product );
 
 		// HiDPI
 		if( ProgramChecks.isHiDpiCapable() ) createHiDpiGroup( product );
@@ -32,27 +40,91 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 	 *
 	 * @param product The product
 	 */
-	private void createJvmMemoryGroup( XenonProgramProduct product ) {
-		TitledPane jvmMemoryPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-memory" ) );
+	private void createJvmHeapGroup( XenonProgramProduct product ) {
+		TitledPane jvmMemoryPane = createGroupPane( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap" ) );
 		getChildren().add( jvmMemoryPane );
 		GridPane jvmMemoryGrid = (GridPane)jvmMemoryPane.getContent();
 		int row = 0;
 
 		// Explanation
-		Label jvmMemoryExplanation = createInfoArea( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-memory-explanation" ) );
+		Label jvmMemoryExplanation = createInfoArea( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap-explanation" ) );
 		jvmMemoryGrid.addRow( row++, jvmMemoryExplanation );
 
 		jvmMemoryGrid.addRow( row++, createBlankLine() );
 
-		// NEXT Use a small grid pane to organize the settings?
-		// minimum setting
-		// maximum setting
-		// FIXME How do the settings get saved before the restart?
+		// Automatic/Manual ComboBoxes
+		String automaticText = Rb.text( product, RbKey.LABEL, "automatic" );
+		String manualText = Rb.text( product, RbKey.LABEL, "manual" );
+		ComboBox<String> jvmMemoryMinModeComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( List.of( automaticText, manualText ) ) ) );
+		ComboBox<String> jvmMemoryMaxModeComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( List.of( automaticText, manualText ) ) ) );
+		jvmMemoryMinModeComboBox.getSelectionModel().select( 0 );
+		jvmMemoryMaxModeComboBox.getSelectionModel().select( 0 );
+
+		// Memory Fields
+		Label minMemoryLabel = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap-min" ) );
+		Label maxMemoryLabel = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap-max" ) );
+		TextField minMemoryField = new TextField( "" );
+		TextField maxMemoryField = new TextField( "" );
+
+		// Unit ComboBoxes
+		ComboBox<String> minUnitComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( AppConfig.HEAP_UNITS ) ) );
+		ComboBox<String> maxUnitComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( AppConfig.HEAP_UNITS ) ) );
+		minUnitComboBox.getSelectionModel().select( 0 );
+		maxUnitComboBox.getSelectionModel().select( 0 );
+
+		// Setting grid pane
+		GridPane memorySettings = new GridPane( UiFactory.PAD, UiFactory.PAD );
+		memorySettings.addRow( 0, minMemoryLabel, jvmMemoryMinModeComboBox, minMemoryField, minUnitComboBox );
+		memorySettings.addRow( 1, maxMemoryLabel, jvmMemoryMaxModeComboBox, maxMemoryField, maxUnitComboBox );
+		GridPane.setColumnSpan( memorySettings, GridPane.REMAINING );
+		jvmMemoryGrid.addRow( row++, memorySettings );
 
 		jvmMemoryGrid.addRow( row++, createBlankLine() );
 
+		String appName = getProgram().getCard().getName();
+		Path appConfigPath = product.getProgram().getHomeFolder().resolve( "lib/app/" + appName + ".cfg" );
+		if( Objects.equals( getProgram().getMode(), XenonMode.DEV ) ) appConfigPath = Path.of( "/opt/xenon/lib/app/" + appName + ".cfg" );
+		AppConfig appConfig = AppConfig.of( appConfigPath );
+		jvmMemoryGrid.addRow(
+			row++, createActionButton(
+				"save", "Save", () -> {
+					try {
+						appConfig.save();
+					} catch( IOException exception ) {
+						log.atError().withCause( exception ).log( "Failed to save application configuration", exception );
+					}
+				}
+			)
+		);
+
 		// restart button
 		jvmMemoryGrid.addRow( row++, createActionButton( "restart" ) );
+
+		try {
+			appConfig.load();
+
+			if( appConfig.getJvmHeapMin() > 0 ) {
+				jvmMemoryMinModeComboBox.getSelectionModel().select( manualText );
+				minMemoryField.setText( String.valueOf( appConfig.getJvmHeapMin() ) );
+				String unit = appConfig.getJvmHeapMinUnit().toUpperCase();
+				if( unit.isEmpty() ) unit = AppConfig.HEAP_UNITS.getFirst();
+				minUnitComboBox.getSelectionModel().select( unit );
+			} else {
+				jvmMemoryMinModeComboBox.getSelectionModel().select( automaticText );
+			}
+
+			if( appConfig.getJvmHeapMax() > 0 ) {
+				jvmMemoryMaxModeComboBox.getSelectionModel().select( manualText );
+				maxMemoryField.setText( String.valueOf( appConfig.getJvmHeapMax() ) );
+				String unit = appConfig.getJvmHeapMaxUnit().toUpperCase();
+				if( unit.isEmpty() ) unit = AppConfig.HEAP_UNITS.getFirst();
+				maxUnitComboBox.getSelectionModel().select( unit );
+			} else {
+				jvmMemoryMaxModeComboBox.getSelectionModel().select( automaticText );
+			}
+		} catch( IOException e ) {
+			log.atWarn().withCause( e ).log( "Failed to load app config" );
+		}
 	}
 
 	/**
