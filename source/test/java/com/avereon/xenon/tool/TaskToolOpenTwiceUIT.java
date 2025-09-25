@@ -14,14 +14,14 @@ class TaskToolOpenTwiceUIT extends TaskToolUIT {
 		assertToolCount( pane, 0 );
 
 		openTaskTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 		openTaskTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ACTIVATED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );

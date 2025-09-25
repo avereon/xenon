@@ -4,9 +4,9 @@ import com.avereon.log.Log;
 import com.avereon.product.Rb;
 import com.avereon.util.*;
 import com.avereon.weave.UpdateCommandBuilder;
-import com.avereon.weave.WeaveFlag;
 import com.avereon.weave.UpdateTask;
 import com.avereon.weave.Weave;
+import com.avereon.weave.WeaveFlag;
 import com.avereon.xenon.product.ProductUpdate;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -177,7 +177,10 @@ public class RestartJob {
 					// ...and unpack the update
 					ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
 					// ...and update the program launcher
-					if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", launchPath );
+					if( update.getCard().equals( program.getCard() ) ) {
+						ucb.add( UpdateTask.PERMISSIONS, "777", launchPath );
+						if( OperatingSystem.isUnix() ) ucb.add( UpdateTask.PERMISSIONS, "777", targetPath + "/lib/runtime/lib/jspawnhelper" );
+					}
 
 					// Cleanup
 					ucb.add( UpdateTask.DELETE, deletePath );

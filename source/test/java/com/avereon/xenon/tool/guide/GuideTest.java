@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.xenon.BaseFullXenonTestCase;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
@@ -17,7 +17,7 @@ public class GuideTest extends BaseFullXenonTestCase {
 		GuideNode node = new GuideNode( getProgram(), "test", "Test" );
 		guide.addNode( node );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		assertThat( guide.getRoot().getChildren().get( 0 ) ).isEqualTo( node.getTreeItem() );
+		assertThat( guide.getRoot().getChildren().getFirst() ).isEqualTo( node.getTreeItem() );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 1 );
 
 		guide.removeNode( node );
@@ -35,9 +35,9 @@ public class GuideTest extends BaseFullXenonTestCase {
 		guide.addNode( parent );
 		guide.addNode( parent, child );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
-		assertThat( guide.getRoot().getChildren().get( 0 ) ).isEqualTo( parent.getTreeItem() );
+		assertThat( guide.getRoot().getChildren().getFirst() ).isEqualTo( parent.getTreeItem() );
 		assertThat( guide.getRoot().getChildren().size() ).isEqualTo( 1 );
-		assertThat( parent.getTreeItem().getChildren().get( 0 ) ).isEqualTo( child.getTreeItem() );
+		assertThat( parent.getTreeItem().getChildren().getFirst() ).isEqualTo( child.getTreeItem() );
 		assertThat( parent.getTreeItem().getChildren().size() ).isEqualTo( 1 );
 
 		guide.removeNode( child );

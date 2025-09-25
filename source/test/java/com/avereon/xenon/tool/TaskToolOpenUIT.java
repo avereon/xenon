@@ -14,7 +14,7 @@ class TaskToolOpenUIT extends TaskToolUIT {
 		assertToolCount( pane, 0 );
 
 		openTaskTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( TaskTool.class );
 		assertToolCount( pane, 1 );

@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.zarra.javafx.FxUtil;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,6 +9,8 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyEvent;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -26,10 +28,15 @@ public class Guide {
 
 	public static final Guide EMPTY = new Guide();
 
-	private static final Comparator<TreeItem<GuideNode>> guideNodeComparator = new GuideNodeTreeItemComparator();
+	public static final Comparator<TreeItem<GuideNode>> NATURAL = new GuideNodeTreeItemComparator();
 
 	private final TreeItem<GuideNode> root;
 
+	@Getter
+	@Setter
+	private Comparator<TreeItem<GuideNode>> guideNodeSortOrder;
+
+	@Getter
 	private SelectionMode selectionMode;
 
 	private final StringProperty titleProperty;
@@ -86,7 +93,7 @@ public class Guide {
 		// NOTE Intentionally do not force this code to run on the FX thread
 		TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
 		item.getChildren().add( node.getTreeItem() );
-		item.getChildren().sort( guideNodeComparator );
+		if( guideNodeSortOrder != null ) item.getChildren().sort( guideNodeSortOrder );
 		return node;
 	}
 
@@ -103,10 +110,6 @@ public class Guide {
 		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
 		item.getChildren().clear();
 		return this;
-	}
-
-	public SelectionMode getSelectionMode() {
-		return selectionMode;
 	}
 
 	public void setSelectionMode( SelectionMode selectionMode ) {
@@ -164,7 +167,7 @@ public class Guide {
 	 * Used for debugging.
 	 *
 	 * @param nodes The set of tree items
-	 * @return A comma delimited string of the node ids
+	 * @return A comma-delimited string of the node ids
 	 */
 	@SuppressWarnings( "unused" )
 	static String itemsToString( Set<? extends TreeItem<GuideNode>> nodes ) {
@@ -177,7 +180,7 @@ public class Guide {
 	 * Used for debugging.
 	 *
 	 * @param nodes The set of nodes
-	 * @return A comma delimited string of the node ids
+	 * @return A comma-delimited string of the node ids
 	 */
 	@SuppressWarnings( "unused" )
 	static String nodesToString( Set<GuideNode> nodes ) {

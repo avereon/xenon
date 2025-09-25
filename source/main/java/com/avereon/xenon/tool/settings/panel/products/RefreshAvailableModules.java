@@ -6,7 +6,7 @@ import com.avereon.xenon.product.ProgramProductCardComparator;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.tool.settings.panel.ModulesAvailableSettingsPanel;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 
 import java.util.ArrayList;
 import java.util.List;

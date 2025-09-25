@@ -4,7 +4,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -20,20 +20,17 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
+		// NOTE Returns immediately
 		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		Fx.waitForWithExceptions( LONG_TIMEOUT );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( pane, 2 );
 
-		// FIXME The tool came back null
-		assertThat( future.get() ).withFailMessage( "Tool should not be null" ).isNotNull();
-		assertThat( future.get().getAsset() ).withFailMessage( "Asset should not be null" ).isNotNull();
-
 		// when
 		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.REMOVED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 
 		// then

@@ -14,15 +14,15 @@ class AboutToolOpenTwiceUIT extends AboutToolUIT {
 		assertToolCount( pane, 0 );
 
 		openAboutTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getActiveTool() ).isInstanceOf( AboutTool.class );
 		assertToolCount( pane, 2 );
 
 		// Try to open the tool again and make sure there is still only one
 		openAboutTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ACTIVATED );
 
 		assertToolCount( pane, 2 );
 	}

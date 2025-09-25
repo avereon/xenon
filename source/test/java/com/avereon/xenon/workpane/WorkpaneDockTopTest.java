@@ -58,7 +58,7 @@ class WorkpaneDockTopTest extends WorkpaneTestCase {
 		// Move the dock edge
 		WorkpaneEdge edge = view.getEdge( Side.BOTTOM );
 		assertThat( edge.getPosition() ).isEqualTo( workpane.getTopDockSize() );
-		workpane.moveEdge( edge, WORKPANE_HEIGHT * 0.05 );
+		workpane.moveEdge( edge, SCENE_HEIGHT * 0.05 );
 		assertThat( edge.getPosition() ).isEqualTo( 0.25 );
 
 		// Verify the top dock size followed the dock edge

@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.JavaUtil;
+import javafx.event.EventTarget;
 import javafx.event.EventType;
 import lombok.Getter;
 
@@ -53,7 +53,14 @@ public class ToolEvent extends WorkpaneEvent {
 
 	@Override
 	public String toString() {
-		return super.toString() + ": " + JavaUtil.getClassName( getTool() );
+		Tool tool = getTool();
+		Object source = getSource();
+		EventTarget target = getTarget();
+		String eventInfo = getClass().getSimpleName() + ":" + getEventType() + "@" + System.identityHashCode( this );
+		String toolInfo = tool == null ? "null" : tool.getClass().getSimpleName() + "@" + System.identityHashCode( tool );
+		String sourceInfo = source == null ? "null" : source.getClass().getSimpleName() + "@" + System.identityHashCode( source );
+		String targetInfo = target == null ? "null" : target.getClass().getSimpleName() + "@" + System.identityHashCode( target );
+		return eventInfo + " tool=" + toolInfo + " source=" + sourceInfo + " target=" + targetInfo;
 	}
 
 }

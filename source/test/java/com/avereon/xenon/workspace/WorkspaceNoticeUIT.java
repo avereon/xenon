@@ -15,7 +15,7 @@ class WorkspaceNoticeUIT extends BaseXenonUIT {
 		// Force a notice
 		Notice notice = new Notice("title", "message");
 		getProgram().getNoticeManager().addNotice( notice );
-		getProgramEventWatcher().waitForEvent( NoticeEvent.ADDED, 1000 );
+		getProgramWatcher().waitForEvent( NoticeEvent.ADDED, 1000 );
 
 		// Find the notices pane
 		Pane noticesPane = getWorkspace().getNoticePane();

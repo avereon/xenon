@@ -19,4 +19,8 @@ public class BaseForAllTests {
 		OperatingSystem.reset();
 	}
 
+	protected void setLogLevel( Level level ) {
+		Log.setBaseLogLevel( level );
+	}
+
 }

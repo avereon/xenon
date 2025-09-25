@@ -19,7 +19,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -205,10 +205,10 @@ public class AboutTool extends GuidedTool {
 		public void update( ProductCard card ) {
 			String from = Rb.text( "tool", "about-from" );
 			productName.setText( card.getName() );
-			if( card.getRelease().getVersion().isSnapshot() ) {
+			if( card.getRelease().version().isSnapshot() ) {
 				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
 			} else {
-				productVersion.setText( card.getRelease().getVersion().toHumanString() );
+				productVersion.setText( card.getRelease().version().toHumanString() );
 			}
 			productProvider.setText( from + " " + card.getProvider() );
 		}

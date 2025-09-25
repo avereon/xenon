@@ -7,9 +7,10 @@ import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.event.FxEventWatcher;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.event.FxEventWatcher;
+import com.avereon.zerra.javafx.Fx;
 import javafx.event.Event;
+import lombok.Getter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +27,12 @@ import static com.avereon.xenon.test.ProgramTestConfig.TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * This class is a duplicate of com.avereon.zenna.BaseXenonUiTestCase which is
+ * This class is a duplicate of com.avereon.xenos.BaseFullXenonTestCase which is
  * intended to be visible for mod testing but is not available to Xenon to
- * avoid a circular dependency. Attempts at making this
- * class publicly available have run in to various challenges with the most
- * recent being with Surefire not putting JUnit 5 on the module path at test
- * time if it is also on the module path at compile time.
+ * avoid a circular dependency. Attempts at making this class publicly available
+ * have run in to various challenges. The most recent challenge is with Surefire
+ * not putting JUnit 5 on the module path at test time if it is also on the
+ * module path at compile time.
  */
 @ExtendWith( ApplicationExtension.class )
 public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
@@ -40,22 +41,26 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	protected FxRobot robot = new FxRobot();
 
+	@Getter
 	private EventWatcher programWatcher;
 
-	private FxEventWatcher programFxWatcher;
+	@Getter
+	private FxEventWatcher<Event> programFxWatcher;
 
-	private FxEventWatcher workpaneWatcher;
+	@Getter
+	private FxEventWatcher<WorkpaneEvent> workpaneWatcher;
 
 	private long initialMemoryUse;
 
 	private long finalMemoryUse;
 
-	/**
-	 * Overrides setup() in ApplicationTest and does not call super.setup().
-	 */
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
+
+		programWatcher = new EventWatcher( TIMEOUT );
+		programFxWatcher = new FxEventWatcher<>( TIMEOUT );
+		workpaneWatcher = new FxEventWatcher<>( TIMEOUT );
 
 		// For the parameters to be available using Java 9 or later, the following
 		// needs to be added to the test JVM command line parameters because
@@ -67,30 +72,36 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 		Xenon xenon = setProgram( new Xenon() );
 		xenon.setProgramParameters( Parameters.parse( ProgramTestConfig.getParameters() ) );
-		xenon.register( ProgramEvent.ANY, programWatcher = new EventWatcher( LONG_TIMEOUT ) );
-		xenon.getFxEventHub().register( Event.ANY, programFxWatcher = new FxEventWatcher( LONG_TIMEOUT ) );
+		xenon.register( ProgramEvent.ANY, programWatcher );
+		xenon.getFxEventHub().register( Event.ANY, programFxWatcher );
 
-		// Start the application; all setup needs to be done before this point
+		// Start the application
+		// All application setup needs to be done before this point
 		long start = System.currentTimeMillis();
 		FxToolkit.setupApplication( () -> xenon );
+		Fx.waitForStability( 10 );
 		programWatcher.waitForEvent( ProgramEvent.STARTED, LONG_TIMEOUT );
 		long end = System.currentTimeMillis();
 		System.out.println( "Program start duration=" + (end - start) );
 
-		// Get initial memory use after program is started
+		// Get initial memory use after the program is started
 		initialMemoryUse = getMemoryUse();
-		long initialMemoryUseTimeLimit = System.currentTimeMillis() + TIMEOUT;
+		long initialMemoryUseTimeLimit = System.currentTimeMillis() + (TIMEOUT / 2);
 		while( initialMemoryUse < minInitialMemory && System.currentTimeMillis() < initialMemoryUseTimeLimit ) {
 			initialMemoryUse = getMemoryUse();
 		}
 
+		// Check that the program is started and has a workspace
 		assertThat( getProgram() ).withFailMessage( "Program is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager() ).withFailMessage( "Workspace manager is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace() ).withFailMessage( "Active workspace is null" ).isNotNull();
 		assertThat( getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() ).withFailMessage( "Active workarea is null" ).isNotNull();
 
+		// Add a workpane event watcher to the active workarea
 		Workpane workpane = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
-		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new FxEventWatcher() );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
+
+		//System.out.println( "Created JVM " + Jvm.ID );
 	}
 
 	/**
@@ -98,19 +109,15 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 	 */
 	@AfterEach
 	protected void teardown() throws Exception {
-		FxToolkit.cleanupStages();
-
+		//System.out.println( "Destroy JVM " + Jvm.ID );
 		Xenon program = getProgram();
 		if( program != null ) {
-			FxToolkit.cleanupApplication( program );
+			FxToolkit.cleanupAfterTest( robot, program );
 			programWatcher.waitForEvent( ProgramEvent.STOPPED );
 			program.unregister( ProgramEvent.ANY, programWatcher );
 		}
 
 		Log.reset();
-
-		// Pause to let things wind down
-		//ThreadUtil.pause( TIMEOUT );
 
 		finalMemoryUse = getMemoryUse();
 		assertSafeMemoryProfile();
@@ -122,17 +129,9 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		closeProgram( false );
 	}
 
-	protected void closeProgram( boolean force ) throws Exception {
-		Fx.run( () -> getProgram().requestExit( force ) );
+	protected void closeProgram( boolean skipUserChecks ) throws Exception {
+		Fx.run( () -> getProgram().requestExit( skipUserChecks ) );
 		Fx.waitForWithExceptions( 5, TimeUnit.SECONDS );
-	}
-
-	protected EventWatcher getProgramEventWatcher() {
-		return programWatcher;
-	}
-
-	protected FxEventWatcher getProgramFxEventWatcher() {
-		return programFxWatcher;
 	}
 
 	protected Workspace getWorkspace() {
@@ -141,10 +140,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 
 	protected Workpane getWorkarea() {
 		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
-	}
-
-	protected FxEventWatcher getWorkpaneEventWatcher() {
-		return workpaneWatcher;
 	}
 
 	protected double getAllowedMemoryGrowthSize() {
@@ -172,12 +167,6 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 		double increaseAbsolute = ((double)increaseSize / (double)SizeUnitBase10.MB.getSize());
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 
-		//		String direction = "";
-		//		if( increaseSize > 0 ) direction = "more";
-		//		if( increaseSize < 0 ) direction = "less";
-		//		increaseSize = Math.abs( increaseSize );
-		//System.out.printf( "Memory use: %s -> %s = %s %s%n", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ), direction );
-
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increaseAbsolute > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format(
 				"Absolute memory growth too large %s -> %s : %s",
@@ -186,6 +175,7 @@ public abstract class BaseFullXenonTestCase extends BaseXenonTestCase {
 				FileUtil.getHumanSizeBase2( increaseSize )
 			) );
 		}
+
 		if( initialMemoryUse > SizeUnitBase2.MiB.getSize() && increasePercent > getAllowedMemoryGrowthPercent() ) {
 			throw new AssertionFailedError( String.format(
 				"Relative memory growth too large %s -> %s : %.2f%%",

@@ -16,10 +16,10 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.tool.AssetTool;
-import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
-import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zerra.event.FxEventHub;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert;
@@ -172,9 +172,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		// The current folder string is in URI format
 		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
 		log.atConfig().log( "Stored current folder: %s", currentFolderString );
+		if( currentFolderString == null ) currentFolderString = System.getProperty( "user.dir" );
 		URI currentFolderUri = URI.create( currentFolderString );
 		Path currentFolder = FileUtil.findValidFolder( currentFolderUri.toString() );
-		//if( currentFolder == null ) currentFolder = FileSystems.getDefault().getPath( System.getProperty( "user.dir" ) );
 		log.atConfig().log( "Result current folder: %s", currentFolderString );
 		setCurrentFileFolder( currentFolder.toUri() );
 		return currentFolder;
@@ -1487,7 +1487,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the tool if needed
 			ProgramTool tool = null;
 			try {
-				// If the asset is new get user input from the asset type
+				// If the asset is "new", get user input from the asset type
 				if( asset.isNew() ) {
 					if( !asset.getType().callAssetNew( program, asset ) ) return null;
 					log.atFiner().log( "Asset initialized with user values." );
@@ -1495,6 +1495,8 @@ public class AssetManager implements Controllable<AssetManager> {
 					// The asset type may have changed the URI so resolve the scheme again
 					resolveScheme( asset );
 				}
+
+				if( asset.getType() == null ) log.atError().log( "Asset type is null for: %s", asset );
 
 				if( request.isOpenTool() ) tool = program.getToolManager().openTool( request );
 			} catch( NoToolRegisteredException exception ) {

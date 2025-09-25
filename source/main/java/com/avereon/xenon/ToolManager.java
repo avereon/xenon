@@ -16,10 +16,12 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import lombok.CustomLog;
 import lombok.Getter;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
@@ -299,15 +301,17 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private Class<? extends ProgramTool> findAssetTypeToolClassByName( List<Class<? extends ProgramTool>> toolClasses, String name ) {
+	private Class<? extends ProgramTool> findAssetTypeToolClassByName( @NonNull List<Class<? extends ProgramTool>> toolClasses, String name ) {
 		return toolClasses.stream().filter( c -> c.getName().equals( name ) ).findFirst().orElse( null );
 	}
 
-	private Class<? extends ProgramTool> determineToolClassForAssetType( AssetType assetType ) {
+	private Class<? extends ProgramTool> determineToolClassForAssetType( @Nullable AssetType assetType ) {
+		if( assetType == null ) return null;
+
 		Class<? extends ProgramTool> toolClass = null;
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 
-		if( toolClasses == null ) {
+		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
 			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
@@ -316,8 +320,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			toolClass = toolClasses.getFirst();
 		} else {
 			// There is more than one tool registered for the asset type
-			log.atWarning().log( "Multiple tools registered for asset type %s", assetType.getKey() );
-			toolClasses.forEach( c -> log.atConfig().log( "  %s", c.getName() ) );
+			log.atFine().log( "Multiple tools registered for asset type %s", assetType.getKey() );
+			toolClasses.forEach( c -> log.atFiner().log( "  %s", c.getName() ) );
 			toolClass = toolClasses.getFirst();
 		}
 

@@ -9,10 +9,11 @@ module com.avereon.xenon {
 
 	// Compile-time only
 	requires static lombok;
+	requires static org.jspecify;
 
 	// Both compile-time and run-time
 	requires transitive com.avereon.zenna;
-	requires transitive com.avereon.zarra;
+	requires transitive com.avereon.zerra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;
@@ -25,7 +26,6 @@ module com.avereon.xenon {
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
-	requires jdk.crypto.ec;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires org.controlsfx.controls;
@@ -49,6 +49,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.tool.guide;
 	exports com.avereon.xenon.tool.settings;
 	exports com.avereon.xenon.tool.settings.editor;
+	exports com.avereon.xenon.trial;
 	exports com.avereon.xenon.undo;
 	exports com.avereon.xenon.util;
 	exports com.avereon.xenon.ui;
@@ -61,6 +62,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
 	opens com.avereon.xenon.undo;
+	opens com.avereon.xenon.trial;
 
 	uses com.avereon.xenon.Module;
 }

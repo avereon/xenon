@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings.editor.paint;
 
-import com.avereon.zarra.color.PaintSwatch;
-import com.avereon.zarra.color.Paints;
+import com.avereon.zerra.color.PaintSwatch;
+import com.avereon.zerra.color.Paints;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;

@@ -100,12 +100,26 @@ public class SettingsTool extends GuidedTool {
 		return new SettingsPagePanel( page, true, getProgram().getSettingsManager().getOptionProviders() );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	private SettingsPanel createCustomPanel( SettingsPage page ) {
 		try {
-			Class<? extends SettingsPanel> type = SettingsPage.getPanel( page.getPanel() );
+			Class<? extends SettingsPanel> type = null;
+			// Attempt to directly load the panel class
+			try {
+				type = (Class<? extends SettingsPanel>)getProduct().getClass().getClassLoader().loadClass( page.getPanel() );
+			} catch( ClassNotFoundException ignore ) {}
+
+			// Attempt to load the panel class from mapped types
+			if( type == null ) type = SettingsPage.getPanel( page.getPanel() );
+
+			if( type == null ) {
+				log.atWarn().log( "Settings panel not found: " + page.getPanel() );
+				return null;
+			}
+
 			return type.getConstructor( XenonProgramProduct.class ).newInstance( page.getProduct() );
-		} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e ) {
-			throw new RuntimeException( e );
+		} catch( NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exception ) {
+			throw new RuntimeException( exception );
 		}
 	}
 

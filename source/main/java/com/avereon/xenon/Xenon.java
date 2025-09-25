@@ -34,9 +34,9 @@ import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingGroup;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.util.DialogUtil;
-import com.avereon.zarra.event.FxEventHub;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.stage.DialogUtil;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -532,19 +532,9 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Restore the user interface, depends on workspace manager, default tools
 		log.atFiner().log( "Restore the user interface..." );
-		boolean useUiReader = true;
 		UiReader uiReader = new UiReader( Xenon.this );
-		@Deprecated UiRegenerator uiRegenerator = new UiRegenerator( Xenon.this );
-		if( useUiReader ) {
-			uiReader.loadWorkspaces();
-			uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		} else {
-			//			Fx.run( () -> uiRegenerator.restore( splashScreen ) );
-			//			uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			//			if( workspaceManager.getActiveWorkpane() == null ) {
-			//				log.atWarning().log( "Failed to restore active workarea" );
-			//			}
-		}
+		uiReader.loadWorkspaces();
+		uiReader.awaitLoadWorkspaces( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 
 		log.atFine().log( "User interface restored." );
 		time( "user-interface-restored" );
@@ -573,6 +563,13 @@ public class Xenon extends Application implements XenonProgram {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
 				time( "workspace-visible" );
+
+				// WORKAROUND This works to help center future dialogs
+				// but it is centered to begin with, so why is it needed?
+				Alert alert = new Alert( Alert.AlertType.INFORMATION, "This dialog is a workaround to help center future dialogs" );
+				alert.setTitle( "Xenon" );
+				DialogUtil.show( getWorkspaceManager().getActiveStage(), alert );
+				Fx.run( alert::hide );
 			} );
 		}
 
@@ -583,11 +580,7 @@ public class Xenon extends Application implements XenonProgram {
 		new ProgramChecks( this ).register();
 
 		// Initiate asset loading
-		if( useUiReader ) {
-			uiReader.loadAssets();
-		} else {
-			//			uiRegenerator.startAssetLoading();
-		}
+		uiReader.loadAssets();
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
@@ -598,7 +591,7 @@ public class Xenon extends Application implements XenonProgram {
 	private void doStartSuccess() {
 		time( "program-started" );
 
-		// Program started event should be fired after the window is shown
+		// The program-started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
 
 		// Check for staged updates
@@ -1352,7 +1345,7 @@ public class Xenon extends Application implements XenonProgram {
 				Files.createDirectories( programHomeFolder );
 			}
 
-			if( !Files.exists( programHomeFolder ) ) {
+			if( !Files.exists( programHomeFolder ) && !TestUtil.isTest() ) {
 				log.atWarning().log( "Program home folder does not exist: %s", programHomeFolder );
 			}
 		} catch( IOException exception ) {
@@ -1389,7 +1382,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "search-toggle" ).pushAction( searchToggleAction = new SearchToggleAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "modules" ).pushAction( modulesAction = new SettingsAction( this, "modules" ) );
-		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "appearance" ) );
+		getActionLibrary().getAction( "theme" ).pushAction( themeAction = new SettingsAction( this, "workspace-theme" ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 
@@ -1566,10 +1559,12 @@ public class Xenon extends Application implements XenonProgram {
 
 	private boolean calcProgramUpdated() {
 		// Get the last release setting
-		Release previous = Release.decode( getSettings().get( PROGRAM_RELEASE, (String)null ) );
-		Release runtime = this.getCard().getRelease();
+		String previousRelease = getSettings().get( PROGRAM_RELEASE );
+		if( previousRelease == null ) return false;
 
-		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
+		Release previous = Release.decode( previousRelease );
+		Release runtime = this.getCard().getRelease();
+		boolean programUpdated = runtime.compareTo( previous ) > 0;
 
 		if( programUpdated ) getSettings().set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 		getSettings().set( PROGRAM_RELEASE, Release.encode( runtime ) );

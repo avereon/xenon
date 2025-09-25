@@ -5,7 +5,7 @@ import com.avereon.log.LazyEval;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -346,7 +346,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
-			triggerEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.ADDED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error allocating tool" );
 		}
@@ -362,7 +362,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		try {
 			display();
 			displayed = true;
-			triggerEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.DISPLAYED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error displaying tool" );
 		}
@@ -377,7 +377,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			triggerEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error activating tool" );
 		}
@@ -392,7 +392,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			triggerEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deactivating tool" );
 		}
@@ -408,7 +408,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		try {
 			conceal();
 			displayed = false;
-			triggerEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.CONCEALED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error concealing tool" );
 		}
@@ -424,7 +424,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		try {
 			deallocate();
 			allocated = false;
-			triggerEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) );
+			triggerEvent( new ToolEvent( this, ToolEvent.REMOVED, pane, this ) );
 			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deallocating tool" );
@@ -432,7 +432,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	}
 
 	private void triggerEvent( ToolEvent event ) {
-		fireEvent( getWorkpane().queueEvent( event ) );
+		getWorkpane().queueEvent( event );
 	}
 
 	private void doClose() {

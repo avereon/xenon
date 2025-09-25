@@ -4,7 +4,7 @@ import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;

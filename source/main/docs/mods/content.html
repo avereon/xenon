@@ -8,10 +8,10 @@ Avereon website or must be fully qualified.
 <div>
 
 	<h1>Module Guide</h1>
-	<p>2024-03-01</p>
+	<p>2025-06-25</p>
 
 	<p>
-		This document is step-by-step instruction to create a Xenon module. These
+		This document is step-by-step instructions to create a Xenon module. These
 		instructions attempt to be both a tutorial and a reference. If you are
 		starting a new module project we recommend following the instructions in
 		order. If you are returning for reference please use the index for the
@@ -19,8 +19,8 @@ Avereon website or must be fully qualified.
 	</p>
 	<p>
 		A reference project, <a href="https://github.com/avereon/mazer">Mazer</a>,
-		is also available to provide a working reference of a Xenon module. As you work
-		through these instructions, feel free to review this project for
+		is also available to provide a working reference of a Xenon module. As you
+		work through these instructions, feel free to review this project for
 		information.
 	</p>
 
@@ -28,8 +28,9 @@ Avereon website or must be fully qualified.
 
 	<h3 id="requirements">Requirements</h3>
 	<p>
-		Xenon requires Java 17 or higher and usually adopts LTS Java versions as
-		they are released. Xenon also takes advantage of the Java module system and
+		Xenon requires Java 21 or higher and usually adopts LTS Java versions as
+		they are released. Xenon also takes advantage of the
+		<a href="https://dev.java/learn/modules/">Java module system</a> and
 		therefore your module will also need to be a Java module.
 	</p>
 
@@ -63,7 +64,7 @@ Avereon website or must be fully qualified.
   &lt;parent&gt;
     &lt;groupId&gt;com.avereon.pom&lt;/groupId&gt;
     &lt;artifactId&gt;mod&lt;/artifactId&gt;
-    &lt;version&gt;3.5.3&lt;/version&gt;
+    &lt;version&gt;3.6.2&lt;/version&gt;
   &lt;/parent&gt;
 
   &lt;groupId&gt;[your.group.id]&lt;/groupId&gt;
@@ -167,7 +168,7 @@ public class Mazer extends Module {
   "description": "${project.description}",
   "copyrightSummary": "&lt;All rights reserved.&gt;",
   "licenseSummary": "&lt;${project.name} comes with ABSOLUTELY NO WARRANTY.&gt;",
-  "javaVersion": "11",
+  "javaVersion": "21",
   "maintainers": [
   {
     "name": "&lt;John Doe&gt;",

@@ -15,14 +15,14 @@ class ProductToolOpenTwiceUIT extends ProductToolUIT {
 		assertToolCount( pane, 0 );
 
 		openProductTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 
 		// Try to open the tool again and make sure there is still only one
 		openProductTool();
-		getWorkpaneEventWatcher().waitForEvent( ToolEvent.ACTIVATED );
+		getWorkpaneWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertToolCount( pane, 2 );
 	}
 

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.5.8</version>
+		<version>3.6.4</version>
 		<relativePath/>
 	</parent>
 
@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.8</version>
+	<version>1.9</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -66,21 +66,23 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
-		<java.version>21</java.version>
+		<java.version>24</java.version>
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<weave.version>1.5</weave.version>
-		<zenna.version>0.10</zenna.version>
-		<zarra.version>0.10</zarra.version>
-		<zevra.version>0.10</zevra.version>
-		<jackson.version>2.18.3</jackson.version>
-		<reactfx.version>2.0-M5</reactfx.version>
+		<weave.version>1.6</weave.version>
+		<zenna.version>0.11</zenna.version>
+		<zerra.version>0.11</zerra.version>
+		<zevra.version>0.11</zevra.version>
+		<jackson.version>2.20.0</jackson.version>
+		<!-- Annotations caused a mismatch with version 2.20.0 -->
+		<jackson.annotations.version>2.20</jackson.annotations.version>
+		<reactfx.version>2.0-M6</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<openjfx.version>22.0.2</openjfx.version>
+		<openjfx.version>24.0.1</openjfx.version>
 		<controlsfx.version>11.2.2</controlsfx.version>
 
 		<!-- Test dependencies -->
@@ -90,7 +92,7 @@
 
 		<!-- Build plugin versions -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<cameo.version>2.11</cameo.version>
+		<cameo.version>2.12</cameo.version>
 		<curex.version>1.5.0</curex.version>
 	</properties>
 
@@ -104,8 +106,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>zarra</artifactId>
-			<version>${zarra.version}</version>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
 		</dependency>
 
 		<dependency>
@@ -135,7 +137,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
+			<version>${jackson.annotations.version}</version>
 		</dependency>
 
 		<dependency>
@@ -247,6 +249,13 @@
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj.version}</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
+			<version>${bytebuddy.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -593,6 +602,9 @@
 									<forkCount>1</forkCount>
 									<reuseForks>false</reuseForks>
 									<runOrder>alphabetical</runOrder>
+									<includes>
+										<include>**/*UIT.java</include>
+									</includes>
 									<argLine>
 										-Xmx128m
 										-Xshare:off

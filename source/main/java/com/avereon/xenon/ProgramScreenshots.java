@@ -8,8 +8,8 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.event.FxEventWatcher;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.event.FxEventWatcher;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 
 public abstract class ProgramScreenshots {
 
-	protected static final String MODE = "screenshots";
+	protected static final String PATH = "screenshots";
 
 	private static final int TIMEOUT = 5000;
 
@@ -47,7 +47,7 @@ public abstract class ProgramScreenshots {
 	private final EventWatcher programWatcher;
 
 	@Getter
-	private final FxEventWatcher workpaneWatcher;
+	private final FxEventWatcher<WorkpaneEvent> workpaneWatcher;
 
 	private double scale;
 
@@ -55,7 +55,7 @@ public abstract class ProgramScreenshots {
 
 	public ProgramScreenshots() {
 		programWatcher = new EventWatcher( TIMEOUT );
-		workpaneWatcher = new FxEventWatcher( TIMEOUT );
+		workpaneWatcher = new FxEventWatcher<>( TIMEOUT );
 	}
 
 	public final void generate( String[] args ) {
@@ -71,7 +71,7 @@ public abstract class ProgramScreenshots {
 		System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
 
 		try {
-			this.screenshotPath = Paths.get( "target" ).resolve( MODE );
+			this.screenshotPath = Paths.get( "target" ).resolve( PATH );
 			Files.createDirectories( screenshotPath );
 			startup( scale );
 
@@ -87,16 +87,12 @@ public abstract class ProgramScreenshots {
 		return scale;
 	}
 
-	protected String getExecutionMode() {
-		return MODE;
-	}
-
 	protected String getLogLevel() {
 		return XenonFlag.INFO;
 	}
 
 	protected List<String> getProgramParameters() {
-		return List.of( XenonFlag.NO_UPDATES, XenonFlag.MODE, getExecutionMode(), XenonFlag.LOG_LEVEL, getLogLevel() );
+		return List.of( XenonFlag.NO_UPDATES, XenonFlag.MODE, XenonMode.SCREENSHOT, XenonFlag.LOG_LEVEL, getLogLevel() );
 	}
 
 	protected abstract void generateScreenshots() throws InterruptedException, TimeoutException, ExecutionException;
@@ -160,7 +156,7 @@ public abstract class ProgramScreenshots {
 
 	private void startup( double scale ) throws InterruptedException, TimeoutException {
 		try {
-			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + MODE, "Xenon-" + MODE );
+			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PATH, "Xenon-" + PATH );
 			FileUtil.delete( config );
 
 			program = new Xenon();
@@ -174,7 +170,7 @@ public abstract class ProgramScreenshots {
 				}
 			} );
 			program.register( ProgramEvent.ANY, programWatcher );
-			// Startup can take a while so give it more time than usual
+			// Startup can take a while, so give it more time than usual
 			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
 			Fx.run( () -> {
 				program.getWorkspaceManager().getActiveStage().setWidth( WIDTH );

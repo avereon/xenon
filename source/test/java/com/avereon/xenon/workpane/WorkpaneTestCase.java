@@ -10,11 +10,7 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WorkpaneTestCase extends BaseFxPlatformTestCase {
-
-	static double WORKPANE_WIDTH = 1000000;
-
-	static double WORKPANE_HEIGHT = 1000000;
+public abstract class WorkpaneTestCase extends BaseFxPlatformTestCase {
 
 	protected Workpane workpane;
 
@@ -40,9 +36,9 @@ public class WorkpaneTestCase extends BaseFxPlatformTestCase {
 		assertThat( view.getEdge( Side.RIGHT ).getPosition() ).isEqualTo( 1d );
 
 		// Workpane size must be set for move methods to work correctly.
-		new Scene( workpane, WORKPANE_WIDTH, WORKPANE_HEIGHT );
-		assertThat( workpane.getWidth() ).isEqualTo( WORKPANE_WIDTH );
-		assertThat( workpane.getHeight() ).isEqualTo( WORKPANE_HEIGHT );
+		new Scene( workpane, SCENE_WIDTH, SCENE_HEIGHT );
+		assertThat( workpane.getWidth() ).isEqualTo( SCENE_WIDTH );
+		assertThat( workpane.getHeight() ).isEqualTo( SCENE_HEIGHT );
 
 		// Layout the workpane
 		workpane.layout();

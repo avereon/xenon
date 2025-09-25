@@ -2,9 +2,9 @@ package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
 import com.avereon.zenna.icon.XRingLargeIcon;
-import com.avereon.zarra.image.Proof;
-import com.avereon.zarra.image.RenderedImage;
-import com.avereon.zarra.style.Motif;
+import com.avereon.zerra.image.Proof;
+import com.avereon.zerra.image.RenderedImage;
+import com.avereon.zerra.theme.Theme;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
@@ -61,7 +61,7 @@ public class InstallerBannerImage extends RenderedImage {
 
 	public static void main( String[] commands ) {
 		RenderedImage image = new InstallerBannerImage();
-		image.setTheme( Motif.LIGHT );
+		image.setTheme( Theme.LIGHT );
 		image.relocate( 50, 50 );
 		Proof.proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.web( "#E0E0E0" ) );
 	}

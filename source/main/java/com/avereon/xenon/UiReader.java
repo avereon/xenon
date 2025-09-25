@@ -17,7 +17,7 @@ import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.workpane.*;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import com.avereon.zarra.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import lombok.CustomLog;
@@ -132,7 +132,7 @@ class UiReader {
 				if( area.getDefaultView() == null ) log.atError().log( "Missing default view for workarea: %s", area );
 			}
 
-			// If there are exceptions restoring the UI notify the user
+			// If there are exceptions, restoring the UI notify the user
 			if( !errors.isEmpty() ) notifyUserOfErrors( errors );
 		} finally {
 			spacesRestored = true;
@@ -295,7 +295,7 @@ class UiReader {
 
 			String id = settings.getName();
 			Workspace space = spaces.get( settings.get( UiFactory.PARENT_SPACE_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( space == null ) space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
@@ -325,7 +325,7 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
@@ -354,7 +354,7 @@ class UiReader {
 		try {
 			String id = settings.getName();
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
@@ -385,7 +385,7 @@ class UiReader {
 			String id = settings.getName();
 			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_VIEW_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( view == null ) view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 			// If the view is not found, then the tool is orphaned...delete the settings
@@ -451,7 +451,7 @@ class UiReader {
 			try {
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, area.getUid() );
 				Workspace space = spaces.get( settings.get( UiFactory.PARENT_SPACE_ID ) );
-				// TODO Remove in 1.8
+				// TODO Remove in 1.9-SNAPSHOT
 				if( space == null ) space = spaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 				space.addWorkarea( area );
 
@@ -475,7 +475,7 @@ class UiReader {
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( area, edge, settings ) ) {
@@ -493,7 +493,7 @@ class UiReader {
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 			Workarea area = areas.get( settings.get( UiFactory.PARENT_AREA_ID ) );
-			// TODO Remove in 1.8
+			// TODO Remove in 1.9-SNAPSHOT
 			if( area == null ) area = areas.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( area, view, settings ) ) {
@@ -548,7 +548,7 @@ class UiReader {
 			for( Tool tool : tools.values() ) {
 				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				WorkpaneView view = views.get( settings.get( UiFactory.PARENT_VIEW_ID ) );
-				// TODO Remove in 1.8
+				// TODO Remove in 1.9-SNAPSHOT
 				if( view == null ) view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 				viewToolMap.computeIfAbsent( view, k -> new HashSet<>() ).add( tool );
 			}
@@ -671,7 +671,7 @@ class UiReader {
 	 * @param settings The workarea settings.
 	 * @deprecated Remove in 1.8
 	 */
-	// TODO Remove in 1.8
+	// TODO Remove in 1.9-SNAPSHOT
 	@Deprecated( since = "1.7", forRemoval = true )
 	private void copyPaneSettings( Settings settings ) {
 		Settings rootSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.BASE );

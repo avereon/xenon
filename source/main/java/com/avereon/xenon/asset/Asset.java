@@ -10,7 +10,7 @@ import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
 import com.avereon.xenon.undo.NodeChange;
-import com.avereon.zarra.event.FxEventHub;
+import com.avereon.zerra.event.FxEventHub;
 import lombok.CustomLog;
 import lombok.Getter;
 import org.fxmisc.undo.UndoManager;
@@ -259,9 +259,9 @@ public class Asset extends Node {
 		return getValue( MODEL );
 	}
 
-	public <M> M setModel( M model ) {
+	public <M> Asset setModel( M model ) {
 		setValue( MODEL, model );
-		return model;
+		return this;
 	}
 
 	/**

@@ -48,10 +48,20 @@ public class StageUpdaterTask extends Task<Void> {
 
 		// Fix the permissions on the executable
 		Path bin = manager.getUpdaterLauncher();
-		if( !Files.exists( bin ) ) log.atWarning().log( "Unable to find updater executable: %s", bin );
-		if( !bin.toFile().canExecute() ) {
-			boolean result = !bin.toFile().setExecutable( true );
+		if( Files.exists( bin ) ) {
+			boolean result = bin.toFile().setExecutable( true, false );
 			if( !result ) log.atWarning().log( "Unable to make updater executable: %s", bin );
+		} else {
+			log.atWarning().log( "Unable to find updater executable: %s", bin );
+		}
+
+		// Fix the permission on jspawnhelper
+		Path jspawnhelper = updaterHome.resolve( "lib/runtime/lib/jspawnhelper" );
+		if( Files.exists( jspawnhelper ) ) {
+			boolean result = jspawnhelper.toFile().setExecutable( true, false );
+			if( !result ) log.atWarning().log( "Unable to make jspawnhelper executable: %s", jspawnhelper );
+		} else {
+			log.atWarning().log( "Unable to find jspawnhelper executable: %s", jspawnhelper );
 		}
 
 		return null;

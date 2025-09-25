@@ -60,11 +60,11 @@ public abstract class BaseXenonTestCase extends BaseForAllTests {
 		if( program != null ) program.getSettingsManager().getSettings( ProgramSettings.BASE ).delete();
 	}
 
-	protected Xenon getProgram() {
+	protected final Xenon getProgram() {
 		return program;
 	}
 
-	protected Xenon setProgram( Xenon program ) {
+	protected final Xenon setProgram( Xenon program ) {
 		this.program = program;
 		return program;
 	}

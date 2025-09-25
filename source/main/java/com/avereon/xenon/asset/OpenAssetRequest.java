@@ -70,16 +70,6 @@ public class OpenAssetRequest {
 	 */
 	private String toolClassName;
 
-	public OpenAssetRequest setUri( URI uri ) {
-		this.uri = uri;
-		return this;
-	}
-
-	public OpenAssetRequest setType( AssetType type ) {
-		this.type = type;
-		return this;
-	}
-
 	/**
 	 * Get the model associated with this request, if one is used. Asset open
 	 * requests occasionally have a pre-existing model that should be used with

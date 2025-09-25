@@ -501,13 +501,20 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private void dispatchEvents() {
 		WorkpaneEvent event;
-		while( (event = events.poll()) != null ) fireEvent( event );
+		while( (event = events.poll()) != null ) {
+			if( event instanceof ToolEvent toolEvent ) {
+				toolEvent.getTool().fireEvent( event );
+				// WORKAROUND If the tool parent is null also fire the event on the workpane
+				if( toolEvent.getTool().getParent() == null ) fireEvent( event );
+			} else {
+				fireEvent( event );
+			}
+		}
 	}
 
-	protected WorkpaneEvent queueEvent( WorkpaneEvent event ) {
+	protected void queueEvent( WorkpaneEvent event ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + event.getEventType() );
 		events.offer( event );
-		return event;
 	}
 
 	private void updateComponentTree( boolean changed ) {
@@ -1225,8 +1232,8 @@ public class Workpane extends Control implements WritableIdentity {
 		Workpane targetPane = view.getWorkpane();
 
 		// NOTE The next remove and add steps can get messy due to merging views
-		// It is possible that when addTool is called the target view no longer
-		// exists because it had been auto merged during removeTool. If the source
+		// It is possible that when addTool is called, the target view no longer
+		// exists, because it had been auto merged during removeTool. If the source
 		// and target views are the same then turn off auto merge because the tool
 		// would just go back where it came from otherwise.
 		boolean differentViews = sourceView != view;
@@ -1339,9 +1346,9 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta < 0 ) {
-			if( !blockingEdge.isWall() ) {
+			if( blockingEdge != null && !blockingEdge.isWall() ) {
 				double result = moveVertical( blockingEdge, offset - delta );
 				delta += result;
 			}
@@ -1363,9 +1370,9 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta > 0 ) {
-			if( !blockingEdge.isWall() ) {
+			if( blockingEdge != null && !blockingEdge.isWall() ) {
 				double result = moveVertical( blockingEdge, offset - delta );
 				delta += result;
 			}
@@ -1387,9 +1394,9 @@ public class Workpane extends Control implements WritableIdentity {
 			}
 		}
 
-		// If could move not the entire distance, try and move the next edge over.
+		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta < 0 ) {
-			if( !blockingEdge.isWall() ) {
+			if( blockingEdge != null && !blockingEdge.isWall() ) {
 				double result = moveHorizontal( blockingEdge, offset - delta );
 				delta += result;
 			}
@@ -1413,7 +1420,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 		// If we could move not the entire distance, try and move the next edge over.
 		if( offset - delta > 0 ) {
-			if( !blockingEdge.isWall() ) {
+			if( blockingEdge != null && !blockingEdge.isWall() ) {
 				double result = moveHorizontal( blockingEdge, offset - delta );
 				delta += result;
 			}
@@ -1438,7 +1445,7 @@ public class Workpane extends Control implements WritableIdentity {
 		// Notify the listeners the views will merge
 		sources.forEach( source -> fireEvent( new ViewEvent( this, ViewEvent.MERGING, this, source ) ) );
 
-		// Get needed objects.
+		// Get the necessary objects.
 		Workpane workpane = edge.getWorkpane();
 		WorkpaneEdge farEdge = targets.iterator().next().getEdge( direction );
 
@@ -1459,10 +1466,10 @@ public class Workpane extends Control implements WritableIdentity {
 		for( WorkpaneView target : targets ) {
 			WorkpaneView closestSource = getClosest( sources, target, getPerpendicularDirectionOrientation( direction ) );
 
-			// Check for default view.
+			// Check for the default view.
 			if( target.isDefault() ) setDefaultView( closestSource );
 
-			// Check for active view.
+			// Check for the active view.
 			if( target.isActive() ) setActiveView( closestSource );
 
 			// Check for tools.

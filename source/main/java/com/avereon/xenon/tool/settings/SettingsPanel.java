@@ -5,14 +5,18 @@ import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
+import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.zarra.javafx.Fx;
-import javafx.geometry.Pos;
+import com.avereon.xenon.ui.util.ActionFactory;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -48,6 +52,7 @@ public class SettingsPanel extends VBox {
 		addTitle( new Label( title ), null, null, false, false );
 	}
 
+	@SuppressWarnings( "SameParameterValue" )
 	protected void addTitle( String title, Node left, Node right, boolean skipTopBlank, boolean skipBottomBlank ) {
 		addTitle( new Label( title ), left, right, skipTopBlank, skipBottomBlank );
 	}
@@ -62,11 +67,47 @@ public class SettingsPanel extends VBox {
 	}
 
 	protected void addBlankLine() {
-		Label blankLine = new Label( " " );
-		blankLine.prefWidthProperty().bind( widthProperty() );
+		getChildren().add( createBlankLine() );
+	}
+
+	protected Control createBlankLine() {
+		Label blankLine = new Label();
 		blankLine.getStyleClass().add( "settings-blank" );
-		blankLine.setAlignment( Pos.CENTER );
-		getChildren().add( blankLine );
+		blankLine.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( blankLine, GridPane.REMAINING );
+		return blankLine;
+	}
+
+	protected Label createInfoArea( String text ) {
+		Label infoArea = new Label( text );
+		infoArea.getStyleClass().addAll( "settings-infoarea" );
+		GridPane.setColumnSpan( infoArea, GridPane.REMAINING );
+		return infoArea;
+	}
+
+	protected Button createActionButton( String icon, String name, Runnable action ) {
+		Button button = ActionFactory.createButton( getProgram(), icon, name );
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, _ -> action.run() );
+		button.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( button, GridPane.REMAINING );
+		return button;
+	}
+
+	protected Button createActionButton( String action ) {
+		ActionProxy proxy = getProgram().getActionLibrary().getAction( action );
+		Button button = ActionFactory.createButton( getProgram(), proxy );
+		button.addEventHandler( MouseEvent.MOUSE_PRESSED, _ -> proxy.fire() );
+		button.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( button, GridPane.REMAINING );
+		return button;
+	}
+
+	protected Control createStatusLine( String text, String status ) {
+		Label statusLine = new Label( text );
+		statusLine.getStyleClass().addAll( "settings-status", status );
+		statusLine.prefWidthProperty().bind( widthProperty() );
+		GridPane.setColumnSpan( statusLine, GridPane.REMAINING );
+		return statusLine;
 	}
 
 	protected TitledPane createGroupPane( String name ) {

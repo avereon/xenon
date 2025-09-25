@@ -2,15 +2,25 @@ package com.avereon.xenon;
 
 import com.avereon.product.Rb;
 import com.avereon.product.Release;
+import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import javafx.stage.Screen;
+import lombok.CustomLog;
+import lombok.Getter;
+
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static com.avereon.xenon.Xenon.PROGRAM_RELEASE_PRIOR;
 
-public class ProgramChecks implements Runnable{
+@CustomLog
+public class ProgramChecks implements Runnable {
 
+	@Getter
 	private final Xenon program;
 
 	public ProgramChecks( Xenon program ) {
@@ -18,34 +28,72 @@ public class ProgramChecks implements Runnable{
 	}
 
 	public ProgramChecks register() {
-		program.register( ProgramEvent.STARTED, (e) -> program.getTaskManager().submit( Task.of( this ) ) );
+		program.register( ProgramEvent.STARTED, ( _ ) -> program.getTaskManager().submit( Task.of( this ) ) );
 		return this;
 	}
 
 	public void run() {
+		String mode = program.getMode();
+		boolean isTestMode = XenonMode.TEST.equals( mode );
+		boolean isScreenshotMode = XenonMode.SCREENSHOT.equals( mode );
+
+		if( isTestMode || isScreenshotMode ) return;
+
 		checkForHiDpi();
+		checkForLinuxPkExec();
 		checkForProgramUpdated();
 	}
 
-	private void checkForHiDpi() {
+	public static boolean isHiDpiCapable() {
 		Screen primary = Screen.getPrimary();
-		boolean hiDpi = primary.getDpi() > 120;
-		boolean noScale = primary.getOutputScaleX() == 1.0;
-		boolean largeSize = primary.getBounds().getWidth() > 1920;
+		double scale = primary.getOutputScaleX();
+		boolean hiDpi = primary.getDpi() * scale > 120;
+		boolean largeSize = primary.getBounds().getWidth() * scale > 1920;
+		return hiDpi && largeSize;
+	}
 
-		if( noScale && hiDpi && largeSize ) {
-			String title = Rb.text( "program", "program-hidpi-title" );
-			String message = Rb.text( "program", "program-hidpi-message" );
-			program.getNoticeManager().addNotice( new Notice( title, message ) );
+	public static boolean isHiDpiEnabled() {
+		Screen primary = Screen.getPrimary();
+		boolean scaled = primary.getOutputScaleX() > 1.0;
+		return scaled && isHiDpiCapable();
+	}
+
+	public static boolean isPkExecInstalled() {
+		return Files.exists( Paths.get( "/usr/bin/pkexec" ) );
+	}
+
+	private void checkForHiDpi() {
+		if( !isHiDpiEnabled() ) {
+			String title = Rb.text( RbKey.PROGRAM, "program-hidpi-title" );
+			//String message = Rb.text( RbKey.PROGRAM, "program-hidpi-message" );
+			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-hidpi-assist" );
+			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
+			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
+		}
+	}
+
+	private void checkForLinuxPkExec() {
+		if( !OperatingSystem.isLinux() ) return;
+
+		boolean pkexecInstalled = isPkExecInstalled();
+
+		if( !pkexecInstalled ) {
+			String title = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-title" );
+			//String message = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-message" );
+			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() );
+			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
+			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
 		}
 	}
 
 	private void checkForProgramUpdated() {
 		if( program.isProgramUpdated() ) {
-			Release prior = Release.decode( program.getSettings().get( PROGRAM_RELEASE_PRIOR, (String)null ) );
+			Release prior = Release.decode( program.getSettings().get( PROGRAM_RELEASE_PRIOR, "" ) );
 			Release runtime = program.getCard().getRelease();
-			String priorVersion = prior.getVersion().toHumanString();
-			String runtimeVersion = runtime.getVersion().toHumanString();
+			String priorVersion = prior.version().toHumanString();
+			String runtimeVersion = runtime.version().toHumanString();
 			String title = Rb.text( RbKey.UPDATE, "updates" );
 			String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 			Runnable action = () -> program.getAssetManager().openAsset( ProgramAboutType.URI );
