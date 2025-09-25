@@ -19,6 +19,8 @@ import java.util.Objects;
 @CustomLog
 public class AdvancedLinuxPanel extends SettingsPanel {
 
+	// TODO Make this "just" the advanced settings panel?
+
 	public AdvancedLinuxPanel( XenonProgramProduct product ) {
 		super( product );
 
@@ -29,7 +31,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		//createJvmHeapGroup( product );
 
 		// HiDPI
-		if( ProgramChecks.isHiDpiCapable() ) createHiDpiGroup( product );
+		if( OperatingSystem.isLinux() && ProgramChecks.isHiDpiCapable() ) createHiDpiGroup( product );
 
 		// PkExec
 		if( OperatingSystem.isLinux() ) createPkExecGroup( product );
