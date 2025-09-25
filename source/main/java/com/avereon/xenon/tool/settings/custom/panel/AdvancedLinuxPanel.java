@@ -26,7 +26,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		addTitle( Rb.text( product, RbKey.SETTINGS, "advanced-linux" ) );
 
 		// JVM Heap
-		createJvmHeapGroup( product );
+		//createJvmHeapGroup( product );
 
 		// HiDPI
 		if( ProgramChecks.isHiDpiCapable() ) createHiDpiGroup( product );
@@ -59,18 +59,24 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		ComboBox<String> jvmMemoryMaxModeComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( List.of( automaticText, manualText ) ) ) );
 		jvmMemoryMinModeComboBox.getSelectionModel().select( 0 );
 		jvmMemoryMaxModeComboBox.getSelectionModel().select( 0 );
+		jvmMemoryMinModeComboBox.setDisable( true );
+		jvmMemoryMaxModeComboBox.setDisable( true );
 
 		// Memory Fields
 		Label minMemoryLabel = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap-min" ) );
 		Label maxMemoryLabel = new Label( Rb.text( product, RbKey.SETTINGS, "advanced-jvm-heap-max" ) );
 		TextField minMemoryField = new TextField( "" );
 		TextField maxMemoryField = new TextField( "" );
+		minMemoryField.setDisable( true );
+		maxMemoryField.setDisable( true );
 
 		// Unit ComboBoxes
 		ComboBox<String> minUnitComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( AppConfig.HEAP_UNITS ) ) );
 		ComboBox<String> maxUnitComboBox = new ComboBox<>( FXCollections.observableList( new ArrayList<>( AppConfig.HEAP_UNITS ) ) );
 		minUnitComboBox.getSelectionModel().select( 0 );
 		maxUnitComboBox.getSelectionModel().select( 0 );
+		minUnitComboBox.setDisable( true );
+		maxUnitComboBox.setDisable( true );
 
 		// Setting grid pane
 		GridPane memorySettings = new GridPane( UiFactory.PAD, UiFactory.PAD );
@@ -85,20 +91,9 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		Path appConfigPath = product.getProgram().getHomeFolder().resolve( "lib/app/" + appName + ".cfg" );
 		if( Objects.equals( getProgram().getMode(), XenonMode.DEV ) ) appConfigPath = Path.of( "/opt/xenon/lib/app/" + appName + ".cfg" );
 		AppConfig appConfig = AppConfig.of( appConfigPath );
-		jvmMemoryGrid.addRow(
-			row++, createActionButton(
-				"save", "Save", () -> {
-					try {
-						appConfig.save();
-					} catch( IOException exception ) {
-						log.atError().withCause( exception ).log( "Failed to save application configuration", exception );
-					}
-				}
-			)
-		);
 
 		// restart button
-		jvmMemoryGrid.addRow( row++, createActionButton( "restart" ) );
+		//jvmMemoryGrid.addRow( row++, createActionButton( "restart" ) );
 
 		try {
 			appConfig.load();
