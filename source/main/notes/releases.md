@@ -29,18 +29,18 @@ This document helps coordinate the process:
 |                       |               |             |          |
 | Avereon Libraries     |
 | zevra                 | 0.11-SNAPSHOT | 0.11        | Complete | 2025-09-25 |
-| zerra                 | 0.11-SNAPSHOT | 0.11        |          |            |
-| zenna                 | 0.11-SNAPSHOT | 0.11        |          |            |
-| curve                 | 0.4-SNAPSHOT  | 0.4         |          |            |
-| marea                 | 0.2-SNAPSHOT  | 0.2         |          |            |
-|                       |               |             |          |            |
+| zerra                 | 0.11-SNAPSHOT | 0.11        | Complete | 2025-09-25 |
+| zenna                 | 0.11-SNAPSHOT | 0.11        | Complete | 2025-09-25 |
+| curve                 | 0.4-SNAPSHOT  | 0.4         | Complete | 2025-09-25 |
+| marea                 | 0.2-SNAPSHOT  | 0.2         | Complete | 2025-09-25 |
+|                       |               |             | Complete | 2025-09-25 |
 | Avereon Maven Plugins |
 | curex                 | 1.5.0         | 1.5.0       | Complete | 2025-09-25 |
-| cameo                 | 2.12-SNAPSHOT | 2.12        |          |            |
+| cameo                 | 2.12-SNAPSHOT | 2.12        | Complete | 2025-09-25 |
 |                       |               |             |          |            |
 | Avereon Applications  |
-| weave                 | 1.6-SNAPSHOT  | 1.6         |          |            |
-| xenon                 | 1.9-SNAPSHOT  | 1.9         |          |            |
+| weave                 | 1.6-SNAPSHOT  | 1.6         | Complete | 2025-09-25 |
+| xenon                 | 1.9-SNAPSHOT  | 1.9         | Complete | 2025-09-26 |
 |                       |               |             |          |            |
 | Xenon Test Library    |
 | xenos                 | 1.9-SNAPSHOT  | 1.9         |          |            |
