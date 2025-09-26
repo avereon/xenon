@@ -5,7 +5,7 @@
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="pattern" />
-    <option name="VM_PARAMETERS" value="-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED -Dtestfx.setup.timeout=5000" />
+    <option name="VM_PARAMETERS" value="-Xmx128m --add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED -Dtestfx.setup.timeout=5000 -Dnet.bytebuddy.experimental=true" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
     <category value=".*UIT.*" />
