@@ -66,7 +66,7 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
-		<java.version>25</java.version>
+		<java.version>24</java.version>
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
@@ -293,6 +293,7 @@
 					<argLine>
 						-Xmx128m
 						-Xshare:off
+						-Dnet.bytebuddy.experimental=true
 						--add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -302,7 +303,6 @@
 						<!--										-javaagent:${org.mockito:mockito-core:jar}-->
 						-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
 						-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-						-Dnet.bytebuddy.experimental
 					</argLine>
 				</configuration>
 			</plugin>
@@ -609,6 +609,7 @@
 									<argLine>
 										-Xmx128m
 										-Xshare:off
+										-Dnet.bytebuddy.experimental=true
 										--add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -618,7 +619,6 @@
 										<!--										-javaagent:${org.mockito:mockito-core:jar}-->
 										-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
 										-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-										-Dnet.bytebuddy.experimental
 									</argLine>
 								</configuration>
 							</execution>
