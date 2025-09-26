@@ -16,7 +16,7 @@
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.9</version>
+	<version>1.10-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -70,10 +70,10 @@
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<weave.version>1.6</weave.version>
-		<zenna.version>0.11</zenna.version>
-		<zerra.version>0.11</zerra.version>
-		<zevra.version>0.11</zevra.version>
+		<weave.version>1.7-SNAPSHOT</weave.version>
+		<zenna.version>0.12-SNAPSHOT</zenna.version>
+		<zerra.version>0.12-SNAPSHOT</zerra.version>
+		<zevra.version>0.12-SNAPSHOT</zevra.version>
 		<jackson.version>2.20.0</jackson.version>
 		<!-- Annotations caused a mismatch with version 2.20.0 -->
 		<jackson.annotations.version>2.20</jackson.annotations.version>
