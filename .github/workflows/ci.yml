@@ -149,10 +149,6 @@ jobs:
           scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-dark.png 2>&1
           scp -B target/main/images/${AVN_PRODUCT}-light.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-light.png 2>&1
 
-      # For help building the MacOS icon pack
-      # https://codetinkering.com/how-to-use-jpackage-tool-cli-for-macos-apps/#notes-about-macos-application-icons
-      # target/main/images/${AVN_PRODUCT}.icns
-
       - name: Publish JavaDoc
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
@@ -417,6 +413,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} -P testui verify
 
+      - name: MacOS Icon Pack
+        run: |
+
+      # For help building the MacOS icon pack
+      # https://codetinkering.com/how-to-use-jpackage-tool-cli-for-macos-apps/#notes-about-macos-application-icons
+      # target/main/images/${AVN_PRODUCT}.icns
+
       - name: Build Packs
         run: |
           chmod a+x $JAVA_HOME/lib/jspawnhelper
@@ -424,8 +427,25 @@ jobs:
 
       - name: Publish Install Pack
         run: |
-          scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
-      #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          cd target/main/images
+          mkdir icons.iconset
+          
+          cp ${AVN_PRODUCT}.png icons.iconset/icon512x512@2x.png
+          sips -z 512 512 ${AVN_PRODUCT}.png --out icons.iconset/icon_512x512.png
+          sips -z 512 512 ${AVN_PRODUCT}.png --out icons.iconset/icon_256x256@2x.png
+          sips -z 256 256 ${AVN_PRODUCT}.png --out icons.iconset/icon_256x256.png
+          sips -z 256 256 ${AVN_PRODUCT}.png --out icons.iconset/icon_128x128@2x.png
+          sips -z 128 128 ${AVN_PRODUCT}.png --out icons.iconset/icon_128x128.png
+          sips -z 128 128 ${AVN_PRODUCT}.png --out icons.iconset/icon_64x64@2x.png
+          sips -z 64 64 ${AVN_PRODUCT}.png --out icons.iconset/icon_64x64.png
+          sips -z 64 64 ${AVN_PRODUCT}.png --out icons.iconset/icon_32x32@2x.png
+          sips -z 32 32 ${AVN_PRODUCT}.png --out icons.iconset/icon_32x32.png
+          sips -z 32 32 ${AVN_PRODUCT}.png --out icons.iconset/icon_16x16@2x.png
+          sips -z 16 16 ${AVN_PRODUCT}.png --out icons.iconset/icon_16x16.png
+          
+          iconutil -c icns icons.iconset
+          rm -R icons.iconset
+          cd -
 
       #      - name: Publish Install Pack (izpack)
       #        run: |
