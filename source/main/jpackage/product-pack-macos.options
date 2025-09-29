@@ -1,1 +1,1 @@
---icon "${basedir}/target/main/images/${project.artifactId}.png"
+--icon "${basedir}/target/main/images/${project.artifactId}.icns"
