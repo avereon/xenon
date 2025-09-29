@@ -395,6 +395,11 @@ jobs:
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
 
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - name: Maven Repository Cache
         uses: actions/cache@v4
         with:
@@ -415,18 +420,6 @@ jobs:
 
       - name: MacOS Icon Pack
         run: |
-
-      # For help building the MacOS icon pack
-      # https://codetinkering.com/how-to-use-jpackage-tool-cli-for-macos-apps/#notes-about-macos-application-icons
-      # target/main/images/${AVN_PRODUCT}.icns
-
-      - name: Build Packs
-        run: |
-          chmod a+x $JAVA_HOME/lib/jspawnhelper
-          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
-
-      - name: Publish Install Pack
-        run: |
           cd target/main/images
           mkdir icons.iconset
           
@@ -446,6 +439,20 @@ jobs:
           iconutil -c ${AVN_PRODUCT}.icns icons.iconset
           rm -R icons.iconset
           cd -
+
+      # For help building the MacOS icon pack
+      # https://codetinkering.com/how-to-use-jpackage-tool-cli-for-macos-apps/#notes-about-macos-application-icons
+      # target/main/images/${AVN_PRODUCT}.icns
+
+      - name: Build Packs
+        run: |
+          chmod a+x $JAVA_HOME/lib/jspawnhelper
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+
+      - name: Publish Install Pack
+        run: |
+          scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
+      #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
       #      - name: Publish Install Pack (izpack)
       #        run: |
