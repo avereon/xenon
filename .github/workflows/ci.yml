@@ -437,7 +437,6 @@ jobs:
           sips -z 16 16 ${AVN_PRODUCT}.png --out icons.iconset/icon_16x16.png
           
           iconutil -c icns icons.iconset
-          ls
           rm -R icons.iconset
           cd -
 
