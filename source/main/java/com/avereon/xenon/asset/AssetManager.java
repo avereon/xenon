@@ -20,6 +20,7 @@ import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import com.avereon.zerra.event.FxEventHub;
+import com.avereon.xenon.resource.ResourceSwitchedEvent;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 import javafx.scene.control.Alert;
@@ -1454,6 +1455,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Notify program of current asset change
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
+			// Also dispatch the ResourceSwitchedEvent for consumers migrating to Resource API
+			getEventBus().dispatch( new com.avereon.xenon.resource.ResourceSwitchedEvent( this, com.avereon.xenon.resource.ResourceSwitchedEvent.SWITCHED, (com.avereon.xenon.resource.Resource) previous, (com.avereon.xenon.resource.Resource) currentAsset ) );
 			log.atFiner().log( "Asset select: %s", asset );
 		}
 

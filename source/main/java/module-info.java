@@ -37,6 +37,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.asset;
 	exports com.avereon.xenon.asset.exception;
 	exports com.avereon.xenon.asset.type;
+	exports com.avereon.xenon.resource;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.index;
 	exports com.avereon.xenon.notice;
