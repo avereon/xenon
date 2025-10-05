@@ -1856,4 +1856,46 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
+	// --- Resource-based overloads for incremental migration ---
+
+	/**
+	 * Get the current resource (Resource extends Asset).
+	 */
+	@SuppressWarnings("unused")
+	public com.avereon.xenon.resource.Resource getCurrentResource() {
+		return (com.avereon.xenon.resource.Resource) currentAsset;
+	}
+
+	/**
+	 * Set the current resource (delegates to setCurrentAsset).
+	 */
+	@SuppressWarnings("unused")
+	public void setCurrentResource( com.avereon.xenon.resource.Resource resource ) {
+		setCurrentAsset( resource );
+	}
+
+	/**
+	 * Open a resource by URI (delegates to openAsset).
+	 */
+	@SuppressWarnings("unused")
+	public java.util.concurrent.Future<com.avereon.xenon.ProgramTool> openResource( java.net.URI uri ) {
+		return openAsset( uri );
+	}
+
+	/**
+	 * Open a resource by URI with pane and tool flags (delegates to openAsset).
+	 */
+	@SuppressWarnings("unused")
+	public java.util.concurrent.Future<com.avereon.xenon.ProgramTool> openResource( java.net.URI uri, com.avereon.xenon.workpane.Workpane pane, boolean openTool, boolean setActive ) {
+		return openAsset( uri, pane, openTool, setActive );
+	}
+
+	/**
+	 * Open a resource by URI with a pre-existing model (delegates to openAsset).
+	 */
+	@SuppressWarnings("unused")
+	public java.util.concurrent.Future<com.avereon.xenon.ProgramTool> openResource( java.net.URI uri, Object model ) {
+		return openAsset( uri, model );
+	}
+
 }
