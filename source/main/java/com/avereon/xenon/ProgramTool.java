@@ -193,6 +193,16 @@ public abstract class ProgramTool extends Tool {
 	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
+	 * Resource-based ready hook for incremental migration from Asset to Resource.
+	 * Default implementation delegates to the Asset-based variant.
+	 */
+	@SuppressWarnings("unused")
+	protected void ready( com.avereon.xenon.resource.OpenResourceRequest request ) throws ToolException {
+		// Delegate to the legacy API to keep behavior consistent during migration
+		ready( (OpenAssetRequest) request );
+	}
+
+	/**
 	 * Called to open or reopen the tool. This is called at least once after
 	 * {@link #ready} has been called but may be called more than once. It is
 	 * called each time the asset handled by this tool is opened. If it is
@@ -202,6 +212,16 @@ public abstract class ProgramTool extends Tool {
 	 * @param request The request used to open the asset
 	 */
 	protected void open( OpenAssetRequest request ) throws ToolException {}
+
+	/**
+	 * Resource-based open hook for incremental migration from Asset to Resource.
+	 * Default implementation delegates to the Asset-based variant.
+	 */
+	@SuppressWarnings("unused")
+	protected void open( com.avereon.xenon.resource.OpenResourceRequest request ) throws ToolException {
+		// Delegate to the legacy API to keep behavior consistent during migration
+		open( (OpenAssetRequest) request );
+	}
 
 	@Override
 	protected void activate() throws ToolException {
