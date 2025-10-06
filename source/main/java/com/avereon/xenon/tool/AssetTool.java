@@ -7,7 +7,7 @@ import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.*;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
@@ -386,7 +386,7 @@ public class AssetTool extends GuidedTool {
 					selectAsset( item.getUri() );
 				}
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 	}
@@ -404,7 +404,7 @@ public class AssetTool extends GuidedTool {
 		selectAsset( uriField.getText() );
 		try {
 			if( mode == Mode.SAVE ) requestSaveAsset();
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 		event.consume();
@@ -466,7 +466,7 @@ public class AssetTool extends GuidedTool {
 				}
 			}
 			activateUriField();
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		} finally {
 			updateActionState();
@@ -479,7 +479,7 @@ public class AssetTool extends GuidedTool {
 		if( index >= 0 ) Fx.run( () -> assetTable.edit( index, nameColumn ) );
 	}
 
-	private void requestSaveAsset() throws AssetException {
+	private void requestSaveAsset() throws ResourceException {
 		Asset target = getProgram().getAssetManager().resolve( currentFolder, currentFilename );
 		if( saveActionConsumer != null ) saveActionConsumer.accept( target );
 		close();
@@ -501,7 +501,7 @@ public class AssetTool extends GuidedTool {
 
 			// If the event is for the current folder...reload the folder
 			if( folder.equals( currentFolder ) ) loadFolder( currentFolder );
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 
@@ -535,7 +535,7 @@ public class AssetTool extends GuidedTool {
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
 				getProgram().getAssetWatchService().registerWatch( asset, eventCallback );
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 
@@ -548,7 +548,7 @@ public class AssetTool extends GuidedTool {
 						this.assets.setAll( assets );
 						if( editAsset != null ) editAssetName( editAsset );
 					} );
-				} catch( AssetException exception ) {
+				} catch( ResourceException exception ) {
 					handleAssetException( exception );
 				}
 			}
@@ -578,7 +578,7 @@ public class AssetTool extends GuidedTool {
 
 			// Reload the current folder, and start editing the new folder name
 			loadFolder( currentFolder, newFolder );
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 	}
@@ -588,7 +588,7 @@ public class AssetTool extends GuidedTool {
 		getProgram().getAssetManager().deleteAssets( selectedAssets );
 	}
 
-	private Asset getNextIndexedAsset( Asset asset ) throws AssetException {
+	private Asset getNextIndexedAsset( Asset asset ) throws ResourceException {
 		Scheme scheme = asset.getScheme();
 
 		if( !scheme.exists( asset ) ) return asset;
@@ -644,22 +644,22 @@ public class AssetTool extends GuidedTool {
 			for( Path path : FileSystems.getDefault().getRootDirectories() ) {
 				guide.addNode( createGuideNode( UriUtil.parseName( path.toUri() ), "asset-root", path.toString() ) );
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 
 		return guide;
 	}
 
-	private GuideNode createGuideNode( String name, String icon, OperatingSystem.UserFolder folder ) throws AssetException {
+	private GuideNode createGuideNode( String name, String icon, OperatingSystem.UserFolder folder ) throws ResourceException {
 		return createGuideNode( name, icon, OperatingSystem.getUserFolder( folder ) );
 	}
 
-	private GuideNode createGuideNode( String name, String icon, String path ) throws AssetException {
+	private GuideNode createGuideNode( String name, String icon, String path ) throws ResourceException {
 		return createGuideNode( name, icon, Paths.get( path ) );
 	}
 
-	private GuideNode createGuideNode( String name, String icon, Path path ) throws AssetException {
+	private GuideNode createGuideNode( String name, String icon, Path path ) throws ResourceException {
 		Asset asset = getProgram().getAssetManager().createAsset( path );
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
 		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );
@@ -679,12 +679,12 @@ public class AssetTool extends GuidedTool {
 
 			Asset newAsset = getProgram().getAssetManager().createAsset( uri );
 			asset.getScheme().rename( asset, newAsset );
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			handleAssetException( exception );
 		}
 	}
 
-	private void handleAssetException( AssetException exception ) {
+	private void handleAssetException( ResourceException exception ) {
 		notifyUser( "asset-error", exception.getMessage() );
 		log.atSevere().withCause( exception ).log();
 	}
@@ -747,7 +747,7 @@ public class AssetTool extends GuidedTool {
 				// Add the asset, as a property on the label, so it can be used for sorting
 				label.getProperties().put( "asset", asset );
 				return new ReadOnlyObjectWrapper<>( label );
-			} catch( AssetException exception ) {
+			} catch( ResourceException exception ) {
 				log.atWarn().withCause( exception ).log();
 				return new ReadOnlyObjectWrapper<>( null );
 			}

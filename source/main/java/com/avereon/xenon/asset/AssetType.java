@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.javafx.Fx;
 import lombok.CustomLog;
@@ -180,23 +180,23 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @param program
 	 * @param asset
 	 * @return True if the asset was opened, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
-	 * @throws AssetException if the asset failed to be opened.
+	 * @throws ResourceException if the asset failed to be opened.
 	 */
-	public boolean assetNew( Xenon program, Asset asset ) throws AssetException {
+	public boolean assetNew( Xenon program, Asset asset ) throws ResourceException {
 		return true;
 	}
 
-	boolean callAssetNew( Xenon program, Asset asset ) throws AssetException {
+	boolean callAssetNew( Xenon program, Asset asset ) throws ResourceException {
 		Object lock = new Object();
 		AtomicBoolean result = new AtomicBoolean();
-		AtomicReference<AssetException> resultException = new AtomicReference<>();
+		AtomicReference<ResourceException> resultException = new AtomicReference<>();
 
 		Fx.run( () -> {
 			synchronized( lock ) {
 				try {
 					log.atTrace().log( "Calling assetNew()..." );
 					result.set( assetNew( program, asset ) );
-				} catch( AssetException exception ) {
+				} catch( ResourceException exception ) {
 					resultException.set( exception );
 				} finally {
 					lock.notifyAll();
@@ -234,13 +234,13 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @param program
 	 * @param asset
 	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
-	 * @throws AssetException if the asset failed to be initialized.
+	 * @throws ResourceException if the asset failed to be initialized.
 	 */
-	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws ResourceException {
 		return true;
 	}
 
-	boolean callAssetOpen( Xenon program, Asset asset ) throws AssetException {
+	boolean callAssetOpen( Xenon program, Asset asset ) throws ResourceException {
 		return assetOpen( program, asset );
 	}
 

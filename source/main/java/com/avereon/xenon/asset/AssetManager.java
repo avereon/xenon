@@ -6,7 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.notice.Notice;
@@ -234,13 +234,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		return schemes.get( name );
 	}
 
-	private void resolveScheme( Asset asset ) throws AssetException {
+	private void resolveScheme( Asset asset ) throws ResourceException {
 		resolveScheme( asset, asset.getUri().getScheme() );
 	}
 
-	private void resolveScheme( Asset asset, String name ) throws AssetException {
+	private void resolveScheme( Asset asset, String name ) throws ResourceException {
 		Scheme scheme = getScheme( name );
-		if( scheme == null ) throw new AssetException( asset, new SchemeNotRegisteredException( name ) );
+		if( scheme == null ) throw new ResourceException( asset, new SchemeNotRegisteredException( name ) );
 		asset.setScheme( scheme );
 	}
 
@@ -549,7 +549,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		closeAssets( asset );
 	}
 
-	public Asset createAsset( Object descriptor ) throws AssetException {
+	public Asset createAsset( Object descriptor ) throws ResourceException {
 		if( descriptor instanceof URI ) {
 			return (createAsset( (URI)descriptor ));
 		} else if( descriptor instanceof File ) {
@@ -567,7 +567,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param string The asset string
 	 * @return A new asset based on the specified string.
 	 */
-	public Asset createAsset( String string ) throws AssetException {
+	public Asset createAsset( String string ) throws ResourceException {
 		if( string == null ) return null;
 
 		URI uri = UriUtil.resolve( string );
@@ -588,7 +588,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param uri The URI to create an asset from
 	 * @return The asset created from the URI
 	 */
-	public Asset createAsset( URI uri ) throws AssetException {
+	public Asset createAsset( URI uri ) throws ResourceException {
 		return doCreateAsset( null, uri );
 	}
 
@@ -599,7 +599,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The asset created from the file
 	 */
 	@Deprecated
-	public Asset createAsset( File file ) throws AssetException {
+	public Asset createAsset( File file ) throws ResourceException {
 		return doCreateAsset( null, file.toURI() );
 	}
 
@@ -609,7 +609,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param path The path to create an asset from
 	 * @return The asset created from the path
 	 */
-	public Asset createAsset( Path path ) throws AssetException {
+	public Asset createAsset( Path path ) throws ResourceException {
 		return doCreateAsset( null, path.toUri() );
 	}
 
@@ -619,11 +619,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The asset type to create an asset from
 	 * @return The asset created from the asset type
 	 */
-	public Asset createAsset( AssetType type ) throws AssetException {
+	public Asset createAsset( AssetType type ) throws ResourceException {
 		return doCreateAsset( type, null );
 	}
 
-	public Asset createAsset( AssetType type, String uri ) throws AssetException {
+	public Asset createAsset( AssetType type, String uri ) throws ResourceException {
 		return doCreateAsset( type, UriUtil.resolve( uri ) );
 	}
 
@@ -634,7 +634,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param uri The asset uri
 	 * @return The created asset
 	 */
-	public Asset createAsset( AssetType type, URI uri ) throws AssetException {
+	public Asset createAsset( AssetType type, URI uri ) throws ResourceException {
 		return doCreateAsset( type, uri );
 	}
 
@@ -644,7 +644,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param descriptors The descriptors from which to create assets
 	 * @return The list of assets created from the descriptors
 	 */
-	public Collection<Asset> createAssets( Object... descriptors ) throws AssetException {
+	public Collection<Asset> createAssets( Object... descriptors ) throws ResourceException {
 		return createAssets( List.of( descriptors ) );
 	}
 
@@ -654,7 +654,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param descriptors The descriptors from which to create assets
 	 * @return The list of assets created from the descriptors
 	 */
-	public Collection<Asset> createAssets( Collection<?> descriptors ) throws AssetException {
+	public Collection<Asset> createAssets( Collection<?> descriptors ) throws ResourceException {
 		List<Asset> assets = new ArrayList<>( descriptors.size() );
 
 		for( Object descriptor : descriptors ) {
@@ -669,7 +669,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 *
 	 * @param assets The assets to open
 	 */
-	public void openAssets( Asset... assets ) throws AssetException {
+	public void openAssets( Asset... assets ) throws ResourceException {
 		openAssets( List.of( assets ) );
 	}
 
@@ -678,7 +678,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 *
 	 * @param assets The assets to open
 	 */
-	public void openAssets( Collection<Asset> assets ) throws AssetException {
+	public void openAssets( Collection<Asset> assets ) throws ResourceException {
 		program.getTaskManager().submit( new OpenAssetTask( removeAlreadyOpenAssets( assets ) ) );
 	}
 
@@ -931,14 +931,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		return assetTypes.values().stream().flatMap( t -> t.getCodecs().stream() ).collect( Collectors.toUnmodifiableSet() );
 	}
 
-	public Asset getParent( Asset asset ) throws AssetException {
+	public Asset getParent( Asset asset ) throws ResourceException {
 		if( !UriUtil.hasParent( asset.getUri() ) ) return Asset.NONE;
 		Asset parent = asset.getParent();
 		if( parent == null ) parent = createAsset( UriUtil.getParent( asset.getUri() ) ).add( asset );
 		return parent;
 	}
 
-	public Asset resolve( Asset asset, String name ) throws AssetException {
+	public Asset resolve( Asset asset, String name ) throws ResourceException {
 		if( !asset.isFolder() ) return asset;
 		if( name == null ) return asset;
 		return createAsset( asset.getUri().resolve( name.replace( " ", "%20" ) ) );
@@ -1108,7 +1108,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		try {
 			Codec codec = asset.getCodec();
 			result = scheme.canSave( asset ) && (codec == null || codec.canSave());
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			log.atSevere().withCause( exception ).log( "Error checking if asset can be saved" );
 		}
 
@@ -1148,7 +1148,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param uri The URI of the asset
 	 * @return The asset created from the asset type and URI
 	 */
-	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
+	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws ResourceException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 
 		uri = resolveAssetAlias( uri );
@@ -1171,7 +1171,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return asset;
 	}
 
-	private boolean doOpenAsset( Asset asset ) throws AssetException {
+	private boolean doOpenAsset( Asset asset ) throws ResourceException {
 		if( isManagedAssetOpen( asset ) ) return true;
 
 		// Determine the asset type
@@ -1215,7 +1215,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private boolean doLoadAsset( Asset asset ) throws AssetException {
+	private boolean doLoadAsset( Asset asset ) throws ResourceException {
 		if( asset == null ) return false;
 
 		if( !asset.isNew() && !asset.exists() ) {
@@ -1236,7 +1236,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private boolean doReloadAsset( Asset asset ) throws AssetException {
+	private boolean doReloadAsset( Asset asset ) throws ResourceException {
 		if( asset == null || !asset.isLoaded() ) return false;
 
 		asset.load( this );
@@ -1247,7 +1247,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private boolean doSaveAsset( Asset asset ) throws AssetException {
+	private boolean doSaveAsset( Asset asset ) throws ResourceException {
 		if( asset == null || !isManagedAssetOpen( asset ) || !asset.isSafeToSave() ) return false;
 
 		if( !asset.getScheme().canSave( asset ) ) return false;
@@ -1266,7 +1266,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private boolean doCloseAsset( Asset asset ) throws AssetException {
+	private boolean doCloseAsset( Asset asset ) throws ResourceException {
 		if( asset == null ) return false;
 		if( !isManagedAssetOpen( asset ) ) return false;
 
@@ -1294,7 +1294,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	private boolean doDeleteAsset( Asset asset ) throws AssetException {
+	private boolean doDeleteAsset( Asset asset ) throws ResourceException {
 		if( asset == null ) return false;
 		if( asset.isOpen() ) doCloseAsset( asset );
 
@@ -1325,7 +1325,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			} else {
 				saveAssets( source );
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			log.atSevere().withCause( exception ).log();
 		}
 	}
@@ -1334,7 +1334,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return "asset" + (currentAsset == null ? "" : "." + currentAsset.getCodec().getDefaultExtension());
 	}
 
-	private void askForTargetAsset( Asset source, boolean saveAs, boolean rename ) throws AssetException {
+	private void askForTargetAsset( Asset source, boolean saveAs, boolean rename ) throws ResourceException {
 		Codec codec = source.getCodec();
 		if( codec == null ) codec = source.getType().getDefaultCodec();
 
@@ -1386,12 +1386,12 @@ public class AssetManager implements Controllable<AssetManager> {
 			} else if( rename ) {
 				doRenameAsset( source, target );
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			log.atError( exception ).log();
 		}
 	}
 
-	private void doSaveAsAsset( Asset source, Asset target ) throws AssetException {
+	private void doSaveAsAsset( Asset source, Asset target ) throws ResourceException {
 		if( source == null || target == null ) return;
 
 		copySettings( source, target, false );
@@ -1403,7 +1403,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAsset( target.getUri() );
 	}
 
-	private void doRenameAsset( Asset source, Asset target ) throws AssetException {
+	private void doRenameAsset( Asset source, Asset target ) throws ResourceException {
 		if( source == null || target == null ) return;
 
 		copySettings( source, target, true );
@@ -1470,7 +1470,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public ProgramTool call() throws AssetException, ExecutionException, TimeoutException, InterruptedException {
+		public ProgramTool call() throws ResourceException, ExecutionException, TimeoutException, InterruptedException {
 			// Create and configure the asset
 			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
 
@@ -1731,7 +1731,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			return result;
 		}
 
-		abstract boolean doOperation( Asset asset ) throws AssetException;
+		abstract boolean doOperation( Asset asset ) throws ResourceException;
 
 		@Override
 		public String toString() {
@@ -1748,7 +1748,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doOpenAsset( asset );
 		}
 
@@ -1761,7 +1761,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doLoadAsset( asset );
 		}
 
@@ -1774,7 +1774,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doReloadAsset( asset );
 		}
 
@@ -1787,7 +1787,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doSaveAsset( asset );
 		}
 
@@ -1800,7 +1800,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doCloseAsset( asset );
 		}
 
@@ -1813,7 +1813,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
-		public boolean doOperation( Asset asset ) throws AssetException {
+		public boolean doOperation( Asset asset ) throws ResourceException {
 			return doDeleteAsset( asset );
 		}
 

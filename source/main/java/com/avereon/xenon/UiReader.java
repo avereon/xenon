@@ -8,8 +8,8 @@ import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.asset.exception.AssetException;
-import com.avereon.xenon.asset.exception.AssetNotFoundException;
+import com.avereon.xenon.asset.exception.ResourceException;
+import com.avereon.xenon.asset.exception.ResourceNotFoundException;
 import com.avereon.xenon.asset.exception.AssetTypeNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.notice.Notice;
@@ -405,7 +405,7 @@ class UiReader {
 		}
 	}
 
-	ProgramTool loadTool( Settings settings ) throws AssetException, ToolInstantiationException {
+	ProgramTool loadTool( Settings settings ) throws ResourceException, ToolInstantiationException {
 		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
@@ -419,8 +419,8 @@ class UiReader {
 		if( assetType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
 		try {
 			asset = getProgram().getAssetManager().createAsset( assetType, uri );
-		} catch( AssetException exception ) {
-			throw new AssetNotFoundException( new Asset( assetType, uri ), exception );
+		} catch( ResourceException exception ) {
+			throw new ResourceNotFoundException( new Asset( assetType, uri ), exception );
 		}
 
 		// Create the open asset request
@@ -648,7 +648,7 @@ class UiReader {
 
 			if( exception instanceof ToolInstantiationException toolException ) {
 				messages.add( Rb.text( RbKey.PROGRAM, "tool-missing", toolException.getToolClass() ) );
-			} else if( exception instanceof AssetNotFoundException assetException ) {
+			} else if( exception instanceof ResourceNotFoundException assetException ) {
 				messages.add( Rb.text( RbKey.PROGRAM, "asset-missing", assetException.getAsset().getUri() ) );
 			} else {
 				messages.add( exception.getMessage() );

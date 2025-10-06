@@ -2,7 +2,7 @@ package com.avereon.xenon.asset.exception;
 
 import com.avereon.xenon.asset.Asset;
 
-public class NullCodecException extends AssetException {
+public class NullCodecException extends ResourceException {
 
 	private static final long serialVersionUID = 3835455673089626753L;
 

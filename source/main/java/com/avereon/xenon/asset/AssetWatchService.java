@@ -3,7 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.skill.Controllable;
 import com.avereon.xenon.ProgramThreadFactory;
 import com.avereon.xenon.XenonProgram;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.scheme.FileScheme;
 import javafx.util.Callback;
 import lombok.CustomLog;
@@ -127,7 +127,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 							// Dispatch the event
 							AssetWatchEvent.Type type = AssetWatchEvent.Type.valueOf( kind.name().substring( "ENTRY_".length() ));
 							dispatch( asset, new AssetWatchEvent( type, asset ) );
-						} catch( AssetException exception ) {
+						} catch( ResourceException exception ) {
 							log.atWarn( exception ).log();
 						}
 					}
@@ -138,7 +138,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		}
 	}
 
-	private void dispatch( Asset asset,  AssetWatchEvent event ) throws AssetException {
+	private void dispatch( Asset asset,  AssetWatchEvent event ) throws ResourceException {
 		for( Callback<AssetWatchEvent, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
 			// Don't let an individual callback stop the rest of the callbacks
 			try {
@@ -152,7 +152,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		if( !asset.isFolder() ) dispatch( getProgram().getAssetManager().getParent( asset ), event );
 	}
 
-	public void registerWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) throws AssetException {
+	public void registerWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) throws ResourceException {
 		Path path = getFileScheme().getFile( asset ).toPath();
 		try {
 			callbacks.computeIfAbsent( asset, k -> ConcurrentHashMap.newKeySet() ).add( callback );
@@ -161,7 +161,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 			watchServicePaths.put( key, path );
 			asset.setValue( JAVA_NIO_FILE_WATCH_KEY, key );
 		} catch( IOException exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		}
 		//log.atConfig().log( "Registered watch for %s", asset );
 	}

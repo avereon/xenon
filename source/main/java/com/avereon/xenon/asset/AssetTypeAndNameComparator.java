@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
 
 @CustomLog
@@ -17,7 +17,7 @@ public class AssetTypeAndNameComparator extends AssetNameComparator {
 			} else if( !isFolder1 & isFolder2 ) {
 				return 1;
 			}
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			log.atWarn().withCause( exception ).log();
 		}
 		return super.compare( o1, o2 );

@@ -2,7 +2,7 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 
 public class FaultScheme extends ProgramScheme {
 
@@ -18,7 +18,7 @@ public class FaultScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean canLoad( Asset asset ) throws ResourceException {
 		return true;
 	}
 

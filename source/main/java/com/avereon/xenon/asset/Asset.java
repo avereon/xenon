@@ -5,7 +5,7 @@ import com.avereon.data.NodeEvent;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.scheme.XenonScheme;
 import com.avereon.xenon.undo.DataNodeUndo;
@@ -283,7 +283,7 @@ public class Asset extends Node {
 		return open;
 	}
 
-	public final synchronized void open( AssetManager manager ) throws AssetException {
+	public final synchronized void open( AssetManager manager ) throws ResourceException {
 		if( isOpen() ) return;
 
 		Scheme scheme = getScheme();
@@ -299,8 +299,8 @@ public class Asset extends Node {
 		return loaded;
 	}
 
-	public synchronized final void load( AssetManager manager ) throws AssetException {
-		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be loaded" );
+	public synchronized final void load( AssetManager manager ) throws ResourceException {
+		if( !isOpen() ) throw new ResourceException( this, "Asset must be opened to be loaded" );
 
 		Scheme scheme = getScheme();
 		if( scheme != null ) {
@@ -321,8 +321,8 @@ public class Asset extends Node {
 		return saved;
 	}
 
-	public synchronized final void save( AssetManager manager ) throws AssetException {
-		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be saved" );
+	public synchronized final void save( AssetManager manager ) throws ResourceException {
+		if( !isOpen() ) throw new ResourceException( this, "Asset must be opened to be saved" );
 
 		saved = false;
 		Scheme scheme = getScheme();
@@ -339,7 +339,7 @@ public class Asset extends Node {
 		return !open;
 	}
 
-	public synchronized final void close( AssetManager manager ) throws AssetException {
+	public synchronized final void close( AssetManager manager ) throws ResourceException {
 		if( !isOpen() ) return;
 
 		Scheme scheme = getScheme();
@@ -351,12 +351,12 @@ public class Asset extends Node {
 		notifyAll();
 	}
 
-	public boolean exists() throws AssetException {
+	public boolean exists() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme != null && scheme.exists( this );
 	}
 
-	public boolean delete() throws AssetException {
+	public boolean delete() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme != null && scheme.delete( this );
 	}
@@ -364,7 +364,7 @@ public class Asset extends Node {
 	/**
 	 * Is the asset a container for other assets.
 	 */
-	public boolean isFolder() throws AssetException {
+	public boolean isFolder() throws ResourceException {
 		Scheme scheme = getScheme();
 		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking isFolder" );
 		return scheme != null && scheme.isFolder( this );
@@ -373,7 +373,7 @@ public class Asset extends Node {
 	/**
 	 * Is the asset hidden.
 	 */
-	public boolean isHidden() throws AssetException {
+	public boolean isHidden() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme != null && scheme.isHidden( this );
 	}
@@ -382,7 +382,7 @@ public class Asset extends Node {
 	 * Get the child assets if this asset is a container for other
 	 * assets.
 	 */
-	public List<Asset> listAssets() throws AssetException {
+	public List<Asset> listAssets() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme == null ? null : scheme.listAssets( this );
 	}
@@ -392,12 +392,12 @@ public class Asset extends Node {
 		return this;
 	}
 
-	public List<Asset> getChildren() throws AssetException {
+	public List<Asset> getChildren() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme.listAssets( this );
 	}
 
-	public long getSize() throws AssetException {
+	public long getSize() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme.getSize( this );
 	}

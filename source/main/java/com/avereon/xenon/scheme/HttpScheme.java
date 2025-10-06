@@ -2,7 +2,7 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
@@ -44,12 +44,12 @@ public class HttpScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean canLoad( Asset asset ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws AssetException {
+	public void load( Asset asset, Codec codec ) throws ResourceException {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		URL url = getUrl( asset );
@@ -62,10 +62,10 @@ public class HttpScheme extends ProgramScheme {
 			try( InputStream stream = connection.getInputStream() ) {
 				codec.load( asset, stream );
 			} catch( Throwable exception ) {
-				throw new AssetException( asset, exception );
+				throw new ResourceException( asset, exception );
 			}
 		} catch( Throwable exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		}
 	}
 
@@ -89,14 +89,14 @@ public class HttpScheme extends ProgramScheme {
 	/**
 	 * Get the file.
 	 */
-	private URL getUrl( Asset asset ) throws AssetException {
+	private URL getUrl( Asset asset ) throws ResourceException {
 		URL url = asset.getValue( URL );
 
 		if( url == null ) {
 			try {
 				asset.setValue( URL, url = asset.getUri().toURL() );
 			} catch( IOException exception ) {
-				throw new AssetException( asset, exception );
+				throw new ResourceException( asset, exception );
 			}
 		}
 

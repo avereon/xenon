@@ -4,7 +4,7 @@ import com.avereon.util.IdGenerator;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
 
 import java.io.InputStream;
@@ -33,17 +33,17 @@ public class NewScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean canLoad( Asset asset ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public boolean canSave( Asset asset ) throws AssetException {
+	public boolean canSave( Asset asset ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws AssetException {
+	public void load( Asset asset, Codec codec ) throws ResourceException {
 		// New assets should be loadable from a temporary location
 		if( codec != null ) {
 			Path temporaryPath = getTemporaryPath( asset );
@@ -51,14 +51,14 @@ public class NewScheme extends ProgramScheme {
 				try( InputStream inputStream = Files.newInputStream( temporaryPath ) ) {
 					codec.load( asset, inputStream );
 				} catch( Exception exception ) {
-					throw new AssetException( asset, "Unable to load " + asset.getUri(), exception );
+					throw new ResourceException( asset, "Unable to load " + asset.getUri(), exception );
 				}
 			}
 		}
 	}
 
 	@Override
-	public void save( Asset asset, Codec codec ) throws AssetException {
+	public void save( Asset asset, Codec codec ) throws ResourceException {
 		// New assets should be savable to a temporary location
 		if( codec != null ) {
 			Path temporaryPath = getTemporaryPath( asset );
@@ -66,14 +66,14 @@ public class NewScheme extends ProgramScheme {
 				try {
 					Files.createDirectories( temporaryPath.getParent() );
 				} catch( Exception exception ) {
-					throw new AssetException( asset, "Unable to create directories for " + asset.getUri(), exception );
+					throw new ResourceException( asset, "Unable to create directories for " + asset.getUri(), exception );
 				}
 				try( OutputStream outputStream = Files.newOutputStream( temporaryPath ) ) {
 					if( outputStream != null ) {
 						codec.save( asset, outputStream );
 					}
 				} catch( Exception exception ) {
-					throw new AssetException( asset, "Unable to save " + asset.getUri(), exception );
+					throw new ResourceException( asset, "Unable to save " + asset.getUri(), exception );
 				}
 			}
 		}

@@ -6,7 +6,7 @@ import com.avereon.util.IoUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
 
 import java.io.ByteArrayInputStream;
@@ -24,12 +24,12 @@ public class XenonScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean canLoad( Asset asset ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws AssetException {
+	public void load( Asset asset, Codec codec ) throws ResourceException {
 		// Most program assets don't actually load anything
 		// However, the following do:
 

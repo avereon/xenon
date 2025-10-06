@@ -5,7 +5,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.scheme.XenonScheme;
 import lombok.CustomLog;
@@ -29,7 +29,7 @@ public class ProgramNoticeType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws ResourceException {
 		asset.setModel( new NoticeModel() );
 		return true;
 	}

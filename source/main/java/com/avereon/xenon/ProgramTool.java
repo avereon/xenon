@@ -7,7 +7,7 @@ import com.avereon.skill.Identity;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
@@ -286,7 +286,7 @@ public abstract class ProgramTool extends Tool {
 		}
 	}
 
-	private static void waitForAsset( Asset asset ) throws AssetException, TimeoutException, InterruptedException {
+	private static void waitForAsset( Asset asset ) throws ResourceException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
 		EventHandler<AssetEvent> handler = e -> latch.countDown();
 		asset.register( AssetEvent.LOADED, handler );
@@ -312,7 +312,7 @@ public abstract class ProgramTool extends Tool {
 		boolean assetMissing;
 		try {
 			assetMissing = !request.getAsset().isNew() && !request.getAsset().exists();
-		} catch( AssetException exception ) {
+		} catch( ResourceException exception ) {
 			assetMissing = true;
 		}
 		final boolean finalAssetMissing = assetMissing;

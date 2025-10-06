@@ -7,7 +7,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.StandardMediaTypes;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.exception.NullCodecException;
 import lombok.CustomLog;
 
@@ -34,24 +34,24 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
+	public boolean canLoad( Asset asset ) throws ResourceException {
 		return isSupported( asset ) && getFile( asset ).canRead();
 	}
 
 	@Override
-	public boolean canSave( Asset asset ) throws AssetException {
+	public boolean canSave( Asset asset ) throws ResourceException {
 		return isSupported( asset ) && getFile( asset ).canWrite();
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws AssetException {
+	public void load( Asset asset, Codec codec ) throws ResourceException {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		File file = getFile( asset );
 		try( InputStream stream = new FileInputStream( file ) ) {
 			codec.load( asset, stream );
 		} catch( Throwable exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		} finally {
 			// TODO asset.setExternallyModified( false );
 		}
@@ -60,7 +60,7 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public void save( Asset asset, Codec codec ) throws AssetException {
+	public void save( Asset asset, Codec codec ) throws ResourceException {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		Path file = getFile( asset ).toPath();
@@ -97,7 +97,7 @@ public class FileScheme extends ProgramScheme {
 			} catch( IOException restoreException ) {
 				log.atWarn().withCause( restoreException ).log( "Unable to restore temp file: " + temp );
 			}
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		} finally {
 			// Cleanup - remove the temp file regardless of the outcome
 			if( temp != null ) {
@@ -111,32 +111,32 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public void close( Asset asset ) throws AssetException {
+	public void close( Asset asset ) throws ResourceException {
 		//assetWatcher.removeWatch( asset );
 		super.close( asset );
 	}
 
 	@Override
-	public boolean exists( Asset asset ) throws AssetException {
+	public boolean exists( Asset asset ) throws ResourceException {
 		return getFile( asset ).exists();
 	}
 
 	@Override
-	public boolean create( Asset asset ) throws AssetException {
+	public boolean create( Asset asset ) throws ResourceException {
 		try {
 			return getFile( asset ).createNewFile();
 		} catch( IOException exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		}
 	}
 
 	@Override
-	public boolean createFolder( Asset asset ) throws AssetException {
+	public boolean createFolder( Asset asset ) throws ResourceException {
 		return getFile( asset ).mkdirs();
 	}
 
 	@Override
-	public void saveAs( Asset source, Asset target ) throws AssetException {
+	public void saveAs( Asset source, Asset target ) throws ResourceException {
 		// NOTE This method should not modify the source asset
 
 		// Set the target model to the same as the source
@@ -148,45 +148,45 @@ public class FileScheme extends ProgramScheme {
 		try {
 			target.getScheme().save( target, target.getCodec() );
 		} catch( Throwable throwable ) {
-			throw new AssetException( source, throwable );
+			throw new ResourceException( source, throwable );
 		}
 	}
 
 	@Override
-	public boolean rename( Asset source, Asset target ) throws AssetException {
+	public boolean rename( Asset source, Asset target ) throws ResourceException {
 		// NOTE This method should not modify the source asset
 
 		// Rename the file
 		try {
 			return getFile( source ).renameTo( getFile( target ) );
 		} catch( Throwable throwable ) {
-			throw new AssetException( source, throwable );
+			throw new ResourceException( source, throwable );
 		}
 	}
 
 	@Override
-	public boolean delete( Asset asset ) throws AssetException {
+	public boolean delete( Asset asset ) throws ResourceException {
 		try {
 			File file = getFile( asset );
 			FileUtil.delete( file.toPath() );
 			return !file.exists();
 		} catch( Exception exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		}
 	}
 
 	@Override
-	public boolean isFolder( Asset asset ) throws AssetException {
+	public boolean isFolder( Asset asset ) throws ResourceException {
 		return getFile( asset ).isDirectory();
 	}
 
 	@Override
-	public boolean isHidden( Asset asset ) throws AssetException {
+	public boolean isHidden( Asset asset ) throws ResourceException {
 		return getFile( asset ).isHidden();
 	}
 
 	@Override
-	public List<Asset> getRoots() throws AssetException {
+	public List<Asset> getRoots() throws ResourceException {
 		if( roots == null ) {
 			roots = new ArrayList<>();
 			for( File root : File.listRoots() ) {
@@ -198,7 +198,7 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public List<Asset> listAssets( Asset asset ) throws AssetException {
+	public List<Asset> listAssets( Asset asset ) throws ResourceException {
 		if( !isFolder( asset ) ) return new ArrayList<>();
 
 		File file = getFile( asset );
@@ -209,7 +209,7 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public long getSize( Asset asset ) throws AssetException {
+	public long getSize( Asset asset ) throws ResourceException {
 		File file = getFile( asset );
 		if( file == null ) return -1;
 		if( file.isDirectory() ) {
@@ -220,7 +220,7 @@ public class FileScheme extends ProgramScheme {
 	}
 
 	@Override
-	public long getModifiedDate( Asset asset ) throws AssetException {
+	public long getModifiedDate( Asset asset ) throws ResourceException {
 		File file = getFile( asset );
 		//if( isFolder( asset ) || FileSystemView.getFileSystemView().isDrive( file ) ) throw new AssetException( asset, "Folders do not have a modified date." );
 		return file.lastModified();
@@ -231,7 +231,7 @@ public class FileScheme extends ProgramScheme {
 		try {
 			File file = getFile( asset );
 			return Files.probeContentType( file.toPath() );
-		} catch( IOException | AssetException exception ) {
+		} catch( IOException | ResourceException exception ) {
 			log.atWarning().withCause( exception ).log( "Error determining media type for asset" );
 			return StandardMediaTypes.APPLICATION_OCTET_STREAM;
 		}
@@ -241,7 +241,7 @@ public class FileScheme extends ProgramScheme {
 	public String getFirstLine( Asset asset ) {
 		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
 			return readFirstLine( input, asset.getEncoding() );
-		} catch( IOException | AssetException exception ) {
+		} catch( IOException | ResourceException exception ) {
 			log.atWarning().log( "Error determining first line for asset" );
 			log.atTrace().withCause( exception ).log();
 			return TextUtil.EMPTY;
@@ -251,7 +251,7 @@ public class FileScheme extends ProgramScheme {
 	/**
 	 * Get the file.
 	 */
-	public File getFile( Asset asset ) throws AssetException {
+	public File getFile( Asset asset ) throws ResourceException {
 		File file = asset.getValue( FILE );
 
 		if( file == null ) {
@@ -259,7 +259,7 @@ public class FileScheme extends ProgramScheme {
 				String fileString = UriUtil.decode( asset.getUri().getPath() );
 				asset.setValue( FILE, file = new File( fileString ).getCanonicalFile() );
 			} catch( IOException exception ) {
-				throw new AssetException( asset, exception );
+				throw new ResourceException( asset, exception );
 			}
 		}
 

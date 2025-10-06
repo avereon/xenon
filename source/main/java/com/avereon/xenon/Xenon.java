@@ -16,7 +16,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.AssetWatchService;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.Notice;
@@ -1195,7 +1195,7 @@ public class Xenon extends Application implements XenonProgram {
 		// Open the assets provided on the command line
 		try {
 			getAssetManager().openAssetsAndWait( getAssetManager().createAssets( uris ), 5, TimeUnit.SECONDS );
-		} catch( AssetException | ExecutionException | TimeoutException exception ) {
+		} catch( ResourceException | ExecutionException | TimeoutException exception ) {
 			log.atWarning().log( "Unable to open assets: %s", uris );
 		} catch( InterruptedException exception ) {
 			// Intentionally ignore exception
