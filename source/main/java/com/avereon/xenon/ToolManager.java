@@ -172,15 +172,6 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	/**
-	 * Resource-based overload to open a tool using an OpenResourceRequest.
-	 * Delegates to the Asset-based variant.
-	 */
-	@SuppressWarnings("unused")
-	public ProgramTool openTool( com.avereon.xenon.resource.OpenResourceRequest request ) throws NoToolRegisteredException {
-		return openTool( (OpenAssetRequest) request );
-	}
-
-	/**
 	 * This very particular method acquires a lock when creating singleton tools
 	 * that blocks other threads from creating singleton tools if there is already
 	 * a thread creating one.
