@@ -35,7 +35,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @CustomLog
-public class AssetManager implements Controllable<AssetManager> {
+public class ResourceManager implements Controllable<ResourceManager> {
 
 	private static final long DEFAULT_AUTOSAVE_MAX_TRIGGER_LIMIT = 5000;
 
@@ -89,7 +89,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean running;
 
-	public AssetManager( Xenon program ) {
+	public ResourceManager( Xenon program ) {
 		this.program = program;
 		openAssets = new CopyOnWriteArraySet<>();
 		identifiedAssets = new ConcurrentHashMap<>();
@@ -132,7 +132,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	@Override
-	public AssetManager start() {
+	public ResourceManager start() {
 		program.getActionLibrary().getAction( "new" ).pushAction( newActionHandler );
 		program.getActionLibrary().getAction( "open" ).pushAction( openActionHandler );
 		program.getActionLibrary().getAction( "reload" ).pushAction( reloadActionHandler );
@@ -155,7 +155,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	@Override
-	public AssetManager stop() {
+	public ResourceManager stop() {
 		running = false;
 
 		//program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
@@ -170,7 +170,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	public Path getCurrentFileFolder() {
 		// Determine the current folder
 		// The current folder string is in URI format
-		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY );
+		String currentFolderString = getProgram().getSettings().get( ResourceManager.CURRENT_FILE_FOLDER_SETTING_KEY );
 		log.atConfig().log( "Stored current folder: %s", currentFolderString );
 		if( currentFolderString == null ) currentFolderString = System.getProperty( "user.dir" );
 		URI currentFolderUri = URI.create( currentFolderString );
@@ -187,7 +187,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	private void setCurrentFileFolder( URI uri ) {
 		if( !FileScheme.ID.equals( uri.getScheme() ) ) return;
 		// Current folder value is store in URI format
-		getProgram().getSettings().set( AssetManager.CURRENT_FILE_FOLDER_SETTING_KEY, uri );
+		getProgram().getSettings().set( ResourceManager.CURRENT_FILE_FOLDER_SETTING_KEY, uri );
 	}
 
 	public Asset getCurrentAsset() {

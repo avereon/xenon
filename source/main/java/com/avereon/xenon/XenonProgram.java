@@ -8,7 +8,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.Program;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
-import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.ResourceWatchService;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.NoticeManager;
@@ -105,7 +105,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	ToolManager getToolManager();
 
-	AssetManager getAssetManager();
+	ResourceManager getResourceManager();
 
 	ThemeManager getThemeManager();
 

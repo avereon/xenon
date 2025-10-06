@@ -20,14 +20,14 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		Workpane pane = getWorkarea();
 		assertToolCount( pane, 0 );
 
-		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramModuleType.URI );
+		Future<ProgramTool> future = getProgram().getResourceManager().openAsset( ProgramModuleType.URI );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitFor( LONG_TIMEOUT );
 		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 
-		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getProgram().getResourceManager().closeAssets( future.get().getAsset() );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitFor( LONG_TIMEOUT );
 		assertToolCount( pane, 1 );

@@ -169,7 +169,7 @@ public abstract class ProgramTool extends Tool {
 			if( getAsset().isNewOrModified() ) {
 				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) ) ) super.close();
 			} else if( tools.size() == 1 ) {
-				getProgram().getAssetManager().close( getAsset() );
+				getProgram().getResourceManager().close( getAsset() );
 			} else {
 				super.close();
 			}

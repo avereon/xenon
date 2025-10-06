@@ -25,7 +25,7 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 		assertToolCount( getWorkarea(), 0 );
 
 		MockResourceType assetType = new MockResourceType( getProgram() );
-		getProgram().getAssetManager().addAssetType( assetType );
+		getProgram().getResourceManager().addAssetType( assetType );
 
 		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
 		getProgram().getToolManager().registerTool( assetType, registration );
@@ -38,7 +38,7 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 		//   - The task thread opening the mock tool
 		//   - The task thread opening the guide tool
 		// And openAsset only returns one future, the mock tool future
-		getProgram().getAssetManager().openAsset( MockCodec.URI );
+		getProgram().getResourceManager().openAsset( MockCodec.URI );
 		// We would expect the first tool event to be the mock tool
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		// We would expect the second tool event to be the guide tool

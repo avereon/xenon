@@ -12,15 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AssetManagerTest extends ProgramTestCase {
+public class ResourceManagerTest extends ProgramTestCase {
 
-	private AssetManager manager;
+	private ResourceManager manager;
 
 	@BeforeEach
 	@Override
 	protected void setup() throws Exception {
 		super.setup();
-		manager = new AssetManager( getProgram() );
+		manager = new ResourceManager( getProgram() );
 		manager.addScheme( new MockScheme( getProgram() ) );
 		manager.addScheme( new NewScheme( getProgram() ) );
 		manager.addAssetType( new MockResourceType( getProgram() ) );

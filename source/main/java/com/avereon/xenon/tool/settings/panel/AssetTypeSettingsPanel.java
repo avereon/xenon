@@ -123,7 +123,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 	}
 
 	private void doUpdateFields( String typeKey ) {
-		ResourceType type = getProduct().getProgram().getAssetManager().getAssetType( typeKey );
+		ResourceType type = getProduct().getProgram().getResourceManager().getAssetType( typeKey );
 
 		key.setText( type == null ? "" : type.getKey() );
 		name.setText( type == null ? "" : type.getName() );
@@ -163,11 +163,11 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 	}
 
 	private List<ResourceType> getUserAssetTypes( XenonProgramProduct product ) {
-		return product.getProgram().getAssetManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
+		return product.getProgram().getResourceManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
 	}
 
 	private List<ResourceType> getAssetTypes( XenonProgramProduct product ) {
-		return product.getProgram().getAssetManager().getAssetTypes().stream().sorted( new AssetTypeNameComparator() ).toList();
+		return product.getProgram().getResourceManager().getAssetTypes().stream().sorted( new AssetTypeNameComparator() ).toList();
 	}
 
 }

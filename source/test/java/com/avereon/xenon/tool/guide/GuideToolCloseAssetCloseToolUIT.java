@@ -17,12 +17,12 @@ class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 		Workarea area = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		assertToolCount( area, 0 );
 
-		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		Future<ProgramTool> future = getProgram().getResourceManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( area.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( area, 1 );
 
-		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getProgram().getResourceManager().closeAssets( future.get().getAsset() );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		assertToolCount( area, 0 );
 	}

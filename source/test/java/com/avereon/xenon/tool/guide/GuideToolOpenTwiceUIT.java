@@ -14,14 +14,14 @@ class GuideToolOpenTwiceUIT extends GuideToolUIT {
 		Workarea area = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 		assertToolCount( area, 0 );
 
-		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getProgram().getResourceManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		assertThat( area.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( area, 1 );
 
 		// Try to open the tool again and make sure there is still only one
 
-		getProgram().getAssetManager().openAsset( ProgramGuideType.URI );
+		getProgram().getResourceManager().openAsset( ProgramGuideType.URI );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( area.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( area, 1 );

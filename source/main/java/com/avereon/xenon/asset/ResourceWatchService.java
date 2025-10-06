@@ -46,7 +46,7 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 
 	public ResourceWatchService( XenonProgram program ) {
 		this.program = program;
-		this.fileScheme = (FileScheme)getProgram().getAssetManager().getScheme( FileScheme.ID );
+		this.fileScheme = (FileScheme)getProgram().getResourceManager().getScheme( FileScheme.ID );
 		this.watchServicePaths = new ConcurrentHashMap<>();
 		this.callbacks = new ConcurrentHashMap<>();
 	}
@@ -111,7 +111,7 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 						try {
 							Path parentPath = (Path)key.watchable();
 							Path assetPath = parentPath.resolve( eventPath );
-							Asset asset = getProgram().getAssetManager().createAsset( assetPath );
+							Asset asset = getProgram().getResourceManager().createAsset( assetPath );
 
 							// This logic is intended to catch double events and events from our own save.
 							long lastSavedTime = asset.getLastSaved();
@@ -149,7 +149,7 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 		}
 
 		// Dispatch to the parent folder if the asset is a file
-		if( !asset.isFolder() ) dispatch( getProgram().getAssetManager().getParent( asset ), event );
+		if( !asset.isFolder() ) dispatch( getProgram().getResourceManager().getParent( asset ), event );
 	}
 
 	public void registerWatch( Asset asset, Callback<ResourceWatchEvent, ?> callback ) throws ResourceException {

@@ -175,7 +175,7 @@ class UiReader {
 		getProgram().getWorkspaceManager().setActiveWorkspace( space );
 
 		// Add the welcome tool to the default workarea
-		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
+		if( !getProgram().getProgramParameters().isSet( XenonTestFlag.EMPTY_WORKSPACE ) ) getProgram().getResourceManager().openAsset( ProgramWelcomeType.URI );
 
 		spaces.put( space.getUid(), space );
 	}
@@ -263,7 +263,7 @@ class UiReader {
 
 	private void doStartAssetLoading() {
 		try {
-			assetLoadFuture = getProgram().getAssetManager().loadAssets( assets );
+			assetLoadFuture = getProgram().getResourceManager().loadAssets( assets );
 		} catch( Exception exception ) {
 			log.atWarn( exception ).log();
 		}
@@ -415,10 +415,10 @@ class UiReader {
 
 		// Create the asset
 		Asset asset;
-		ResourceType resourceType = getProgram().getAssetManager().getAssetType( assetTypeKey );
+		ResourceType resourceType = getProgram().getResourceManager().getAssetType( assetTypeKey );
 		if( resourceType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
 		try {
-			asset = getProgram().getAssetManager().createAsset( resourceType, uri );
+			asset = getProgram().getResourceManager().createAsset( resourceType, uri );
 		} catch( ResourceException exception ) {
 			throw new ResourceNotFoundException( new Asset( resourceType, uri ), exception );
 		}

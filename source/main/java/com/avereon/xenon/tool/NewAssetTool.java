@@ -58,7 +58,7 @@ public class NewAssetTool extends ProgramTool {
 		}
 
 		public void update() {
-			List<ResourceType> types = new ArrayList<>( getProgram().getAssetManager().getAssetTypes() );
+			List<ResourceType> types = new ArrayList<>( getProgram().getResourceManager().getAssetTypes() );
 			types.sort( new AssetTypeNameComparator() );
 
 			getChildren().clear();
@@ -67,7 +67,7 @@ public class NewAssetTool extends ProgramTool {
 				.filter( ResourceType::isUserType )
 				.map( AssetTypeTile::new )
 				.peek( tile -> tile.addEventFilter( MouseEvent.MOUSE_PRESSED, e -> {
-					getProgram().getAssetManager().newAsset( tile.getAssetType() );
+					getProgram().getResourceManager().newAsset( tile.getAssetType() );
 					NewAssetTool.this.close();
 				} ) )
 				.collect( Collectors.toList() ) );

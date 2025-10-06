@@ -68,7 +68,7 @@ public class ProgramChecks implements Runnable {
 			//String message = Rb.text( RbKey.PROGRAM, "program-hidpi-message" );
 			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-hidpi-assist" );
 			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
-			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			Runnable action = () -> getProgram().getResourceManager().openAsset( URI.create( uriString ) );
 			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
 		}
 	}
@@ -83,7 +83,7 @@ public class ProgramChecks implements Runnable {
 			//String message = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-message" );
 			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-pkexec-assist", getProgram().getCard().getName() );
 			String uriString = ProgramSettingsType.ADVANCED + "-" + OperatingSystem.getFamily().name().toLowerCase();
-			Runnable action = () -> getProgram().getAssetManager().openAsset( URI.create( uriString ) );
+			Runnable action = () -> getProgram().getResourceManager().openAsset( URI.create( uriString ) );
 			program.getNoticeManager().addNotice( new Notice( title, message, action ) );
 		}
 	}
@@ -96,7 +96,7 @@ public class ProgramChecks implements Runnable {
 			String runtimeVersion = runtime.version().toHumanString();
 			String title = Rb.text( RbKey.UPDATE, "updates" );
 			String message = Rb.text( RbKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-			Runnable action = () -> program.getAssetManager().openAsset( ProgramAboutType.URI );
+			Runnable action = () -> program.getResourceManager().openAsset( ProgramAboutType.URI );
 
 			Notice notice = new Notice( title, message, action );
 			notice.setBalloonStickiness( Notice.Balloon.NEVER );

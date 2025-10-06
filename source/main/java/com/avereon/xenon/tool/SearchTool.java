@@ -88,12 +88,12 @@ public class SearchTool extends ProgramTool {
 	}
 
 	public void open( @NonNull Hit hit ) {
-		getProgram().getAssetManager().openAsset( hit.getDocument().uri() );
+		getProgram().getResourceManager().openAsset( hit.getDocument().uri() );
 		reset();
 	}
 
 	public void open( @NonNull Document document ) {
-		getProgram().getAssetManager().openAsset( document.uri() );
+		getProgram().getResourceManager().openAsset( document.uri() );
 		reset();
 	}
 

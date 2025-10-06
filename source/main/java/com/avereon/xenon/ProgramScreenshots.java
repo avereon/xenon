@@ -106,7 +106,7 @@ public abstract class ProgramScreenshots {
 	}
 
 	protected void openAsset( URI uri ) throws InterruptedException, TimeoutException, ExecutionException {
-		program.getAssetManager().openAsset( uri );
+		program.getResourceManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ProgramToolEvent.READY );
 		getProgram().getTaskManager().waitFor( TIMEOUT );
 	}

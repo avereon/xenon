@@ -181,11 +181,11 @@ public class Workarea extends Workpane implements WritableIdentity {
 	private void doSetCurrentAsset( ToolEvent e ) {
 		ProgramTool tool = (ProgramTool)e.getTool();
 		if( !tool.changeCurrentAsset() ) return;
-		getWorkspace().getProgram().getAssetManager().setCurrentAsset( tool.getAsset() );
+		getWorkspace().getProgram().getResourceManager().setCurrentAsset( tool.getAsset() );
 	}
 
 	private void doClearCurrentAsset( ToolEvent e ) {
-		getWorkspace().getProgram().getAssetManager().setCurrentAsset( null );
+		getWorkspace().getProgram().getResourceManager().setCurrentAsset( null );
 	}
 
 	private void doDispatchToolEventToWorkspace( ToolEvent e ) {
@@ -219,14 +219,14 @@ public class Workarea extends Workpane implements WritableIdentity {
 
 			if( sourceTool == null ) {
 				// NOTE If the event source is null the drag came from outside the program
-				uris.forEach( u -> getProgram().getAssetManager().openAsset( u, targetView, side ) );
+				uris.forEach( u -> getProgram().getResourceManager().openAsset( u, targetView, side ) );
 			} else {
 				if( mode == TransferMode.MOVE ) {
 					// Check if being dropped on self
 					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
 					pane.moveTool( sourceTool, targetView, side, index );
 				} else if( mode == TransferMode.COPY ) {
-					getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView, side );
+					getProgram().getResourceManager().openAsset( sourceTool.getAsset(), targetView, side );
 				}
 			}
 		}

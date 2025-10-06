@@ -18,7 +18,7 @@ public class AssetTypeOptionProvider implements SettingOptionProvider {
 
 	@Override
 	public List<String> getKeys() {
-		return program.getAssetManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).map( ResourceType::getKey ).toList();
+		return program.getResourceManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).map( ResourceType::getKey ).toList();
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class AssetTypeOptionProvider implements SettingOptionProvider {
 	}
 
 	private Map<String, ResourceType> getAssetTypeMap() {
-		return program.getAssetManager().getAssetTypes().stream().collect( Collectors.toMap( ResourceType::getKey, t -> t ) );
+		return program.getResourceManager().getAssetTypes().stream().collect( Collectors.toMap( ResourceType::getKey, t -> t ) );
 	}
 
 }

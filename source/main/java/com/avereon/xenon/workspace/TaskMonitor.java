@@ -57,7 +57,7 @@ public class TaskMonitor extends AbstractMonitor {
 		update();
 
 		// If the task monitor is clicked then open the task tool
-		setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
+		setOnMouseClicked( ( event ) -> program.getResourceManager().openAsset( ProgramTaskType.URI ) );
 	}
 
 	public boolean isTextVisible() {

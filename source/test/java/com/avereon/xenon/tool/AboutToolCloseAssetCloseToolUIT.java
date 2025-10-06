@@ -21,7 +21,7 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		assertToolCount( pane, 0 );
 
 		// NOTE Returns immediately
-		Future<ProgramTool> future = getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
+		Future<ProgramTool> future = getProgram().getResourceManager().openAsset( ProgramAboutType.URI );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 
@@ -29,7 +29,7 @@ class AboutToolCloseAssetCloseToolUIT extends AboutToolUIT {
 		assertToolCount( pane, 2 );
 
 		// when
-		getProgram().getAssetManager().closeAssets( future.get().getAsset() );
+		getProgram().getResourceManager().closeAssets( future.get().getAsset() );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );
 

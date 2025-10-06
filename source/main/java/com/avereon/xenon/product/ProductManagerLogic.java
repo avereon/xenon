@@ -615,7 +615,7 @@ public class ProductManagerLogic {
 	}
 
 	private void openUpdates() {
-		Fx.run( () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) );
+		Fx.run( () -> getProgram().getResourceManager().openAsset( ProgramSettingsType.UPDATES ) );
 	}
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
@@ -623,7 +623,7 @@ public class ProductManagerLogic {
 		String title = Rb.text( RbKey.UPDATE, "updates-found" );
 		String message = Rb.text( RbKey.UPDATE, "updates-found-review" );
 
-		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramSettingsType.UPDATES ) )
+		Notice notice = new Notice( title, message, () -> getProgram().getResourceManager().openAsset( ProgramSettingsType.UPDATES ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );

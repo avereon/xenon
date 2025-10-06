@@ -283,7 +283,7 @@ public class Asset extends Node {
 		return open;
 	}
 
-	public final synchronized void open( AssetManager manager ) throws ResourceException {
+	public final synchronized void open( ResourceManager manager ) throws ResourceException {
 		if( isOpen() ) return;
 
 		Scheme scheme = getScheme();
@@ -299,7 +299,7 @@ public class Asset extends Node {
 		return loaded;
 	}
 
-	public synchronized final void load( AssetManager manager ) throws ResourceException {
+	public synchronized final void load( ResourceManager manager ) throws ResourceException {
 		if( !isOpen() ) throw new ResourceException( this, "Asset must be opened to be loaded" );
 
 		Scheme scheme = getScheme();
@@ -321,7 +321,7 @@ public class Asset extends Node {
 		return saved;
 	}
 
-	public synchronized final void save( AssetManager manager ) throws ResourceException {
+	public synchronized final void save( ResourceManager manager ) throws ResourceException {
 		if( !isOpen() ) throw new ResourceException( this, "Asset must be opened to be saved" );
 
 		saved = false;
@@ -339,7 +339,7 @@ public class Asset extends Node {
 		return !open;
 	}
 
-	public synchronized final void close( AssetManager manager ) throws ResourceException {
+	public synchronized final void close( ResourceManager manager ) throws ResourceException {
 		if( !isOpen() ) return;
 
 		Scheme scheme = getScheme();

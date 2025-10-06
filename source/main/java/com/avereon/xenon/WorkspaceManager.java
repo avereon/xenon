@@ -216,7 +216,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 		boolean autoSave = getProgram().getSettings().get( "shutdown-autosave", Boolean.class, false );
 		if( autoSave ) {
-			getProgram().getAssetManager().saveAssets( assets );
+			getProgram().getResourceManager().saveAssets( assets );
 			return true;
 		}
 
@@ -230,7 +230,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
-			if( result.get() == ButtonType.YES ) getProgram().getAssetManager().saveAssets( assets );
+			if( result.get() == ButtonType.YES ) getProgram().getResourceManager().saveAssets( assets );
 			return result.get() == ButtonType.YES || result.get() == ButtonType.NO;
 		}
 

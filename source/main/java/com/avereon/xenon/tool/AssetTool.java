@@ -266,7 +266,7 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Determine the current folder
-		Path currentFolder = getProgram().getAssetManager().getCurrentFileFolder();
+		Path currentFolder = getProgram().getResourceManager().getCurrentFileFolder();
 
 		// Select the current asset
 		URI uri;
@@ -348,7 +348,7 @@ public class AssetTool extends GuidedTool {
 
 	private void addSupportedFilters() {
 		List<ResourceFilter> filters = getProgram()
-			.getAssetManager()
+			.getResourceManager()
 			.getAssetTypes()
 			.stream()
 			.filter( ResourceType::isUserType )
@@ -434,7 +434,7 @@ public class AssetTool extends GuidedTool {
 		}
 
 		try {
-			Asset asset = getProgram().getAssetManager().createAsset( path );
+			Asset asset = getProgram().getResourceManager().createAsset( path );
 
 			uriField.setText( UriUtil.decode( path ) );
 
@@ -449,7 +449,7 @@ public class AssetTool extends GuidedTool {
 						//List<Class<? extends ProgramTool>> tools = getProgram().getToolManager().getRegisteredTools( asset.getType() );
 
 						// Use the asset manager to open the asset
-						getProgram().getAssetManager().openAsset( asset.getUri() );
+						getProgram().getResourceManager().openAsset( asset.getUri() );
 
 						// Close this tool
 						close();
@@ -462,7 +462,7 @@ public class AssetTool extends GuidedTool {
 					uriField.setText( UriUtil.resolveToString( asset.getUri(), currentFilename ) );
 				} else {
 					currentFilename = asset.getFileName();
-					loadFolder( getProgram().getAssetManager().getParent( asset ) );
+					loadFolder( getProgram().getResourceManager().getParent( asset ) );
 				}
 			}
 			activateUriField();
@@ -480,7 +480,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void requestSaveAsset() throws ResourceException {
-		Asset target = getProgram().getAssetManager().resolve( currentFolder, currentFilename );
+		Asset target = getProgram().getResourceManager().resolve( currentFolder, currentFilename );
 		if( saveActionConsumer != null ) saveActionConsumer.accept( target );
 		close();
 	}
@@ -497,7 +497,7 @@ public class AssetTool extends GuidedTool {
 		//log.atConfig().log( "External asset event: %s %s", event.type(), event.asset() );
 		try {
 			Asset folder = event.asset();
-			if( !event.asset().isFolder() ) folder = getProgram().getAssetManager().getParent( event.asset() );
+			if( !event.asset().isFolder() ) folder = getProgram().getResourceManager().getParent( event.asset() );
 
 			// If the event is for the current folder...reload the folder
 			if( folder.equals( currentFolder ) ) loadFolder( currentFolder );
@@ -525,7 +525,7 @@ public class AssetTool extends GuidedTool {
 
 			// Set the current folder with the asset manager
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
-				getProgram().getAssetManager().setCurrentFileFolder( asset );
+				getProgram().getResourceManager().setCurrentFileFolder( asset );
 			}
 
 			Fx.run( this::updateActionState );
@@ -542,7 +542,7 @@ public class AssetTool extends GuidedTool {
 		getProgram().getTaskManager().submit( Task.of(
 			"load-asset", () -> {
 				try {
-					parentAsset = getProgram().getAssetManager().getParent( asset );
+					parentAsset = getProgram().getResourceManager().getParent( asset );
 					List<Asset> assets = asset.getChildren();
 					Fx.run( () -> {
 						this.assets.setAll( assets );
@@ -570,7 +570,7 @@ public class AssetTool extends GuidedTool {
 
 			// Start with the current folder
 			String newFolderName = Rb.textOr( RbKey.LABEL, "new-folder", "New Folder" ) + "/";
-			Asset asset = getProgram().getAssetManager().resolve( currentFolder, newFolderName );
+			Asset asset = getProgram().getResourceManager().resolve( currentFolder, newFolderName );
 			Asset newFolder = getNextIndexedAsset( asset );
 
 			// Get next indexed asset
@@ -585,7 +585,7 @@ public class AssetTool extends GuidedTool {
 
 	private void doDeleteSelectedFiles() {
 		List<Asset> selectedAssets = new ArrayList<>( assetTable.getSelectionModel().getSelectedItems() );
-		getProgram().getAssetManager().deleteAssets( selectedAssets );
+		getProgram().getResourceManager().deleteAssets( selectedAssets );
 	}
 
 	private Asset getNextIndexedAsset( Asset asset ) throws ResourceException {
@@ -594,10 +594,10 @@ public class AssetTool extends GuidedTool {
 		if( !scheme.exists( asset ) ) return asset;
 
 		boolean isFolder = asset.isFolder();
-		Asset parent = getProgram().getAssetManager().getParent( asset );
+		Asset parent = getProgram().getResourceManager().getParent( asset );
 		List<String> children = scheme.listAssets( parent ).stream().map( Asset::getName ).toList();
 		String nextName = FileUtil.getNextIndexedName( children, asset.getName() ) + (isFolder ? "/" : "");
-		return getProgram().getAssetManager().resolve( parent, nextName );
+		return getProgram().getResourceManager().resolve( parent, nextName );
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
@@ -660,7 +660,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private GuideNode createGuideNode( String name, String icon, Path path ) throws ResourceException {
-		Asset asset = getProgram().getAssetManager().createAsset( path );
+		Asset asset = getProgram().getResourceManager().createAsset( path );
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
 		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );
 		return node;
@@ -677,7 +677,7 @@ public class AssetTool extends GuidedTool {
 			URI parent = UriUtil.getParent( asset.getUri() );
 			URI uri = parent.resolve( newName );
 
-			Asset newAsset = getProgram().getAssetManager().createAsset( uri );
+			Asset newAsset = getProgram().getResourceManager().createAsset( uri );
 			asset.getScheme().rename( asset, newAsset );
 		} catch( ResourceException exception ) {
 			handleAssetException( exception );

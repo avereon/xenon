@@ -190,7 +190,7 @@ public class FileScheme extends ProgramScheme {
 		if( roots == null ) {
 			roots = new ArrayList<>();
 			for( File root : File.listRoots() ) {
-				roots.add( program.getAssetManager().createAsset( root.getPath() ) );
+				roots.add( program.getResourceManager().createAsset( root.getPath() ) );
 			}
 		}
 
@@ -205,7 +205,7 @@ public class FileScheme extends ProgramScheme {
 		File[] children = file.listFiles();
 		if( children == null ) return new ArrayList<>();
 
-		return (List<Asset>)program.getAssetManager().createAssets( Arrays.asList( children ) );
+		return (List<Asset>)program.getResourceManager().createAssets( Arrays.asList( children ) );
 	}
 
 	@Override

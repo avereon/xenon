@@ -137,7 +137,7 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * @return This module
 	 */
 	protected Module registerAssetType( ResourceType type ) {
-		getProgram().getAssetManager().addAssetType( type );
+		getProgram().getResourceManager().addAssetType( type );
 		return this;
 	}
 
@@ -148,7 +148,7 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * @return This module
 	 */
 	protected Module unregisterAssetType( ResourceType type ) {
-		getProgram().getAssetManager().removeAssetType( type );
+		getProgram().getResourceManager().removeAssetType( type );
 		return this;
 	}
 

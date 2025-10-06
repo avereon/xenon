@@ -13,7 +13,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.ResourceWatchService;
 import com.avereon.xenon.asset.exception.ResourceException;
@@ -131,7 +131,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private ToolManager toolManager;
 
-	private AssetManager assetManager;
+	private ResourceManager resourceManager;
 
 	private ThemeManager themeManager;
 
@@ -361,10 +361,10 @@ public class Xenon extends Application implements XenonProgram {
 		iconLibrary = new IconLibrary( this );
 		actionLibrary = new ActionLibrary( this );
 		card = ProductCard.card( this );
-		assetManager = new AssetManager( Xenon.this ).start();
-		assetManager.getEventBus().parent( getFxEventHub() );
-		registerSchemes( assetManager );
-		registerAssetTypes( assetManager );
+		resourceManager = new ResourceManager( Xenon.this ).start();
+		resourceManager.getEventBus().parent( getFxEventHub() );
+		registerSchemes( resourceManager );
+		registerAssetTypes( resourceManager );
 		toolManager = new ToolManager( this ).start();
 		themeManager = new ThemeManager( Xenon.this ).start();
 		workspaceManager = new WorkspaceManager( Xenon.this ).start();
@@ -448,9 +448,9 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Start the asset manager
 		log.atFiner().log( "Starting asset manager..." );
-		assetManager = new AssetManager( Xenon.this ).start();
-		registerSchemes( assetManager );
-		registerAssetTypes( assetManager );
+		resourceManager = new ResourceManager( Xenon.this ).start();
+		registerSchemes( resourceManager );
+		registerAssetTypes( resourceManager );
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Asset manager started." );
 		time( "asset-manager" );
@@ -747,11 +747,11 @@ public class Xenon extends Application implements XenonProgram {
 		}
 
 		// Stop the asset manager
-		if( assetManager != null ) {
+		if( resourceManager != null ) {
 			log.atFiner().log( "Stopping asset manager..." );
-			assetManager.stop();
-			unregisterAssetTypes( assetManager );
-			unregisterSchemes( assetManager );
+			resourceManager.stop();
+			unregisterAssetTypes( resourceManager );
+			unregisterSchemes( resourceManager );
 			log.atFine().log( "Asset manager stopped." );
 		}
 
@@ -1014,9 +1014,8 @@ public class Xenon extends Application implements XenonProgram {
 		return toolManager;
 	}
 
-	@Override
-	public AssetManager getAssetManager() {
-		return assetManager;
+	public ResourceManager getResourceManager() {
+		return resourceManager;
 	}
 
 	@Override
@@ -1194,7 +1193,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Open the assets provided on the command line
 		try {
-			getAssetManager().openAssetsAndWait( getAssetManager().createAssets( uris ), 5, TimeUnit.SECONDS );
+			getResourceManager().openAssetsAndWait( getResourceManager().createAssets( uris ), 5, TimeUnit.SECONDS );
 		} catch( ResourceException | ExecutionException | TimeoutException exception ) {
 			log.atWarning().log( "Unable to open assets: %s", uris );
 		} catch( InterruptedException exception ) {
@@ -1429,7 +1428,7 @@ public class Xenon extends Application implements XenonProgram {
 		getActionLibrary().getAction( "wallpaper-tint-toggle" ).pullAction( wallpaperTintToggleAction );
 	}
 
-	private void registerSchemes( AssetManager manager ) {
+	private void registerSchemes( ResourceManager manager ) {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
 		manager.addScheme( new XenonScheme( this ) );
@@ -1439,7 +1438,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addScheme( new HttpScheme( this ) );
 	}
 
-	private void unregisterSchemes( AssetManager manager ) {
+	private void unregisterSchemes( ResourceManager manager ) {
 		manager.removeScheme( HttpScheme.ID );
 		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
@@ -1449,7 +1448,7 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeScheme( NewScheme.ID );
 	}
 
-	private void registerAssetTypes( AssetManager manager ) {
+	private void registerAssetTypes( ResourceManager manager ) {
 		manager.addAssetType( new ProgramGuideType( this ) );
 		manager.addAssetType( new ProgramAboutType( this ) );
 		manager.addAssetType( new ProgramSettingsType( this ) );
@@ -1468,7 +1467,7 @@ public class Xenon extends Application implements XenonProgram {
 		registerProgramAssetAliases( manager );
 	}
 
-	private void registerProgramAssetAliases( AssetManager manager ) {
+	private void registerProgramAssetAliases( ResourceManager manager ) {
 		// This is a reflection way of going through all the current program asset types
 		List<String> programAliases = List.of( "about", "asset", "fault", "guide", "help", "new", "notice", "properties", "search", "settings", "task", "welcome" );
 		for( String alias : programAliases ) {
@@ -1487,7 +1486,7 @@ public class Xenon extends Application implements XenonProgram {
 		}
 	}
 
-	private void unregisterAssetTypes( AssetManager manager ) {
+	private void unregisterAssetTypes( ResourceManager manager ) {
 		manager.removeAssetType( new ProgramPropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
@@ -1544,7 +1543,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private void registerTool( ToolManager manager, ResourceType resourceType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		// The problem with using the class name is it can change if the class package or name is changed.
-		ResourceType type = assetManager.getAssetType( resourceType.getKey() );
+		ResourceType type = resourceManager.getAssetType( resourceType.getKey() );
 		String name = Rb.text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
@@ -1554,7 +1553,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void unregisterTool( ToolManager manager, ResourceType resourceType, Class<? extends ProgramTool> toolClass ) {
-		manager.unregisterTool( assetManager.getAssetType( resourceType.getKey() ), toolClass );
+		manager.unregisterTool( resourceManager.getAssetType( resourceType.getKey() ), toolClass );
 	}
 
 	private boolean calcProgramUpdated() {

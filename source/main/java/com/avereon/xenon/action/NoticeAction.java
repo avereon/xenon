@@ -19,7 +19,7 @@ public class NoticeAction extends ProgramAction {
 	@Override
 	public void handle( ActionEvent event ) {
 		// Open the notice tool
-		getProgram().getAssetManager().openAsset( ProgramNoticeType.URI );
+		getProgram().getResourceManager().openAsset( ProgramNoticeType.URI );
 	}
 
 }

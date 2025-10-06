@@ -14,13 +14,13 @@ import java.util.Map;
 
 /**
  * The OpenAssetRequest holds all the metadata needed to open an asset, and
- * possibly a tool along with it. This class is used by the {@link AssetManager}
+ * possibly a tool along with it. This class is used by the {@link ResourceManager}
  * and by the {@link ToolManager}. Because there is so much potential data, it
  * has been consolidated into this class. It is in turn passed on to the
  * {@link ProgramTool} to allow tool implementations to complete the request in
  * both the ready() and open() methods.
  *
- * @see AssetManager
+ * @see ResourceManager
  * @see ToolManager
  */
 @Getter

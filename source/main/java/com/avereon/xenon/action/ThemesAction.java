@@ -18,7 +18,7 @@ public class ThemesAction extends ProgramAction {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().openAsset( ProgramThemesType.URI );
+		getProgram().getResourceManager().openAsset( ProgramThemesType.URI );
 	}
 
 }

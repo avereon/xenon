@@ -6,7 +6,7 @@ import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.scheme.FaultScheme;
@@ -53,8 +53,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		log.atTrace().log( "Notice manager starting..." );
 		try {
 			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
-			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
-			getProgram().getAssetManager().loadAssets( asset );
+			asset = getProgram().getResourceManager().createAsset( ProgramNoticeType.URI );
+			getProgram().getResourceManager().loadAssets( asset );
 			unreadCountProperty().addListener( ( p, o, n ) -> updateNoticeIcon( n.intValue() ) );
 		} catch( ResourceException exception ) {
 			log.atWarn( exception ).log( "Error starting notice manager." );
@@ -67,7 +67,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	@Override
 	public NoticeManager stop() {
 		log.atTrace().log( "Notice manager stopping..." );
-		getProgram().getAssetManager().saveAssets( asset );
+		getProgram().getResourceManager().saveAssets( asset );
 		log.atDebug().log( "Notice manager stopped." );
 		return this;
 	}
@@ -88,7 +88,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		Notice notice = new Notice( title, message, throwable, parameters ).setType( type );
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
 		notice.setAction( () -> {
-			AssetManager manager = getProgram().getAssetManager();
+			ResourceManager manager = getProgram().getResourceManager();
 			URI uri = URI.create( String.format( "%s:%d", FaultScheme.ID, System.identityHashCode( throwable ) ) );
 			manager.openAsset( uri, throwable );
 		} );

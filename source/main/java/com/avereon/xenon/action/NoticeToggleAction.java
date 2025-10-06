@@ -26,7 +26,7 @@ public class NoticeToggleAction extends ProgramAction {
 
 		if( tools.isEmpty() ) {
 			// Open the notice tool
-			getProgram().getAssetManager().openAsset( ProgramNoticeType.URI );
+			getProgram().getResourceManager().openAsset( ProgramNoticeType.URI );
 		} else {
 			// Close the notice tools
 			tools.forEach( Tool::close );

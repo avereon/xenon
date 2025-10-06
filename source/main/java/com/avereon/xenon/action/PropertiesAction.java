@@ -28,7 +28,7 @@ public class PropertiesAction extends ProgramAction {
 	@Override
 	public void handle( ActionEvent event ) {
 		// Get the settings pages for the asset type
-		Asset asset = getProgram().getAssetManager().getCurrentAsset();
+		Asset asset = getProgram().getResourceManager().getCurrentAsset();
 		SettingsPage page = asset.getType().getSettingsPages().get( "asset" );
 
 		// Set the settings for the pages
@@ -38,7 +38,7 @@ public class PropertiesAction extends ProgramAction {
 		getProgram().getTaskManager().submit( Task.of( () -> {
 			try {
 				// Show the properties tool
-				getProgram().getAssetManager().openAsset( ProgramPropertiesType.URI ).get();
+				getProgram().getResourceManager().openAsset( ProgramPropertiesType.URI ).get();
 
 				// Fire the event on the FX thread
 				Workspace workspace = getProgram().getWorkspaceManager().getActiveWorkspace();

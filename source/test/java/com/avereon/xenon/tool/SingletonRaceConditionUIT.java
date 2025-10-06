@@ -15,8 +15,8 @@ class SingletonRaceConditionUIT extends BaseToolUIT {
 
 	@Test
 	void testOpenToolRaceCondition() throws Exception {
-		getProgram().getAssetManager().openAsset( ProgramGuideType.URI, true, false );
-		getProgram().getAssetManager().openAsset( ProgramGuideType.URI, true, false );
+		getProgram().getResourceManager().openAsset( ProgramGuideType.URI, true, false );
+		getProgram().getResourceManager().openAsset( ProgramGuideType.URI, true, false );
 
 		getWorkpaneWatcher().waitForEvent( ToolEvent.ADDED );
 		Fx.waitForWithExceptions( LONG_TIMEOUT );

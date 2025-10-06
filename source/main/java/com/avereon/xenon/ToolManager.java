@@ -6,7 +6,7 @@ import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
@@ -202,10 +202,10 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
-		AssetManager assetManager = getProgram().getAssetManager();
+		ResourceManager resourceManager = getProgram().getResourceManager();
 		Collection<URI> assetDependencies = tool.getAssetDependencies();
 
-		Collection<Future<ProgramTool>> futures = assetDependencies.stream().map( uri -> assetManager.openAsset( uri, request.getPane(), true, false ) ).toList();
+		Collection<Future<ProgramTool>> futures = assetDependencies.stream().map( uri -> resourceManager.openAsset( uri, request.getPane(), true, false ) ).toList();
 
 		for( Future<ProgramTool> future : futures ) {
 			try {
