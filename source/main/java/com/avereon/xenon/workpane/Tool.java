@@ -90,23 +90,6 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		return asset.getModel();
 	}
 
-	/**
-	 * Transitional convenience: get the Resource associated to this tool.
-	 * Note: Resource currently extends Asset.
-	 */
-	@SuppressWarnings("unused")
-	public final com.avereon.xenon.resource.Resource getResource() {
-		return (com.avereon.xenon.resource.Resource) asset;
-	}
-
-	/**
-	 * Transitional convenience: get the Resource model.
-	 */
-	@SuppressWarnings("unused")
-	public final <T> T getResourceModel() {
-		return ((com.avereon.xenon.resource.Resource) asset).getModel();
-	}
-
 	public Workpane.Placement getPlacement() {
 		return DEFAULT_TOOL_PLACEMENT;
 	}
