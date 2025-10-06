@@ -341,6 +341,7 @@ jobs:
 
       - name: Build Packs
         run: |
+          sudo chmod a+x $JAVA_HOME/lib/jspawnhelper
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Publish Install Pack
@@ -445,6 +446,7 @@ jobs:
 
       - name: Build Packs
         run: |
+          chmod a+x $JAVA_HOME/lib/jspawnhelper
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Publish Install Pack
