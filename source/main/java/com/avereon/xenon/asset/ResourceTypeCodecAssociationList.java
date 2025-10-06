@@ -15,7 +15,7 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.List;
 
-public class AssetTypeCodecAssociationList extends VBox {
+public class ResourceTypeCodecAssociationList extends VBox {
 
 	private final ComboBox<Codec.Pattern> associationChoices;
 
@@ -28,7 +28,7 @@ public class AssetTypeCodecAssociationList extends VBox {
 	@Getter
 	private ResourceType resourceType;
 
-	public AssetTypeCodecAssociationList( XenonProgramProduct product) {
+	public ResourceTypeCodecAssociationList( XenonProgramProduct product) {
 		this.items = new GridPane();
 		this.items.setHgap( UiFactory.PAD );
 		this.items.setVgap( UiFactory.PAD );

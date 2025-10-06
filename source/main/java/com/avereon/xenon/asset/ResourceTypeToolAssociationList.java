@@ -10,7 +10,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
-public class AssetTypeToolAssociationList extends VBox {
+public class ResourceTypeToolAssociationList extends VBox {
 
 	@Getter
 	private final XenonProgramProduct product;
@@ -20,7 +20,7 @@ public class AssetTypeToolAssociationList extends VBox {
 	@Getter
 	private ResourceType resourceType;
 
-	public AssetTypeToolAssociationList( XenonProgramProduct product ) {
+	public ResourceTypeToolAssociationList( XenonProgramProduct product ) {
 		this.product = product;
 		this.items = new GridPane();
 		this.items.setHgap( UiFactory.PAD );

@@ -1453,7 +1453,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 
 			// Notify program of current asset change
-			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
+			getEventBus().dispatch( new ResourceSwitchedEvent( this, ResourceSwitchedEvent.SWITCHED, previous, currentAsset ) );
 			log.atFiner().log( "Asset select: %s", asset );
 		}
 

@@ -4,8 +4,8 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.ResourceType;
-import com.avereon.xenon.asset.AssetTypeCodecAssociationList;
-import com.avereon.xenon.asset.AssetTypeToolAssociationList;
+import com.avereon.xenon.asset.ResourceTypeCodecAssociationList;
+import com.avereon.xenon.asset.ResourceTypeToolAssociationList;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import javafx.scene.control.ComboBox;
@@ -48,9 +48,9 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 
 	private final Label description;
 
-	private final AssetTypeCodecAssociationList associations;
+	private final ResourceTypeCodecAssociationList associations;
 
-	private final AssetTypeToolAssociationList toolRegistrations;
+	private final ResourceTypeToolAssociationList toolRegistrations;
 
 	public AssetTypeSettingsPanel(XenonProgramProduct product ) {
 		super( product );
@@ -99,7 +99,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 		row = 0;
 
 		// Codec associations
-		associations = new AssetTypeCodecAssociationList(product);
+		associations = new ResourceTypeCodecAssociationList(product);
 		associations.prefWidthProperty().bind( codecAssocGrid.widthProperty() );
 		GridPane.setColumnSpan( associations, GridPane.REMAINING );
 		GridPane.setHgrow( associations, Priority.ALWAYS );
@@ -112,7 +112,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 		row = 0;
 
 		// Tool associations
-		toolRegistrations = new AssetTypeToolAssociationList( product );
+		toolRegistrations = new ResourceTypeToolAssociationList( product );
 		toolRegistrations.prefWidthProperty().bind( toolAssocGrid.widthProperty() );
 		GridPane.setColumnSpan( toolRegistrations, GridPane.REMAINING );
 		GridPane.setHgrow( toolRegistrations, Priority.ALWAYS );

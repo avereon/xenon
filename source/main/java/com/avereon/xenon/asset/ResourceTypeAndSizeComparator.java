@@ -4,7 +4,7 @@ import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
 
 @CustomLog
-public class AssetTypeAndSizeComparator extends AssetTypeComparator {
+public class ResourceTypeAndSizeComparator extends ResourceTypeComparator {
 
 	@Override
 	public int compare( Asset o1, Asset o2 ) {

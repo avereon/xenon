@@ -757,7 +757,7 @@ public class AssetTool extends GuidedTool {
 
 	private static final class AssetLabelComparator implements Comparator<Label> {
 
-		private final Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
+		private final Comparator<Asset> assetComparator = new ResourceTypeAndNameComparator();
 
 		@Override
 		public int compare( Label o1, Label o2 ) {
@@ -770,7 +770,7 @@ public class AssetTool extends GuidedTool {
 
 	private static final class AssetSizeComparator implements Comparator<Node> {
 
-		private final Comparator<Asset> assetComparator = new AssetTypeAndSizeComparator();
+		private final Comparator<Asset> assetComparator = new ResourceTypeAndSizeComparator();
 
 		@Override
 		public int compare( Node o1, Node o2 ) {

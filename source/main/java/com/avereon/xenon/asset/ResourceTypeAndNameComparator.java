@@ -4,13 +4,19 @@ import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
 
 @CustomLog
-public class AssetTypeComparator extends AssetNameComparator {
+public class ResourceTypeAndNameComparator extends ResourceNameComparator {
+
 
 	@Override
 	public int compare( Asset o1, Asset o2 ) {
 		try {
-			if( o1.isFolder() && !o2.isFolder() ) return -1;
-			if( !o1.isFolder() && o2.isFolder() ) return 1;
+			boolean isFolder1 = o1.isFolder();
+			boolean isFolder2 = o2.isFolder();
+			if( isFolder1 & !isFolder2 ) {
+				return -1;
+			} else if( !isFolder1 & isFolder2 ) {
+				return 1;
+			}
 		} catch( ResourceException exception ) {
 			log.atWarn().withCause( exception ).log();
 		}
