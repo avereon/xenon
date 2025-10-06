@@ -57,7 +57,7 @@ public class AssetTool extends GuidedTool {
 		SAVE
 	}
 
-	private final Callback<AssetWatchEvent, Void> eventCallback;
+	private final Callback<ResourceWatchEvent, Void> eventCallback;
 
 	private final TextField uriField;
 
@@ -493,7 +493,7 @@ public class AssetTool extends GuidedTool {
 		newFolderAction.updateEnabled();
 	}
 
-	private Void handleExternalAssetEvent( AssetWatchEvent event ) {
+	private Void handleExternalAssetEvent( ResourceWatchEvent event ) {
 		//log.atConfig().log( "External asset event: %s %s", event.type(), event.asset() );
 		try {
 			Asset folder = event.asset();
@@ -518,7 +518,7 @@ public class AssetTool extends GuidedTool {
 		try {
 			// Unregister the asset from the watcher
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
-				getProgram().getAssetWatchService().removeWatch( asset, eventCallback );
+				getProgram().getResourceWatchService().removeWatch( asset, eventCallback );
 			}
 
 			currentFolder = asset;
@@ -533,7 +533,7 @@ public class AssetTool extends GuidedTool {
 
 			// Register the asset with the watcher
 			if( FileScheme.ID.equals( asset.getScheme().getName() ) ) {
-				getProgram().getAssetWatchService().registerWatch( asset, eventCallback );
+				getProgram().getResourceWatchService().registerWatch( asset, eventCallback );
 			}
 		} catch( ResourceException exception ) {
 			handleAssetException( exception );

@@ -24,7 +24,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
  */
 @CustomLog
-public class AssetWatchService implements Controllable<AssetWatchService> {
+public class ResourceWatchService implements Controllable<ResourceWatchService> {
 
 	private static final String JAVA_NIO_FILE_WATCH_KEY = "java.nio.file.WatchKey";
 
@@ -42,9 +42,9 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 
 	private WatchService watchService;
 
-	private final Map<Asset, Set<Callback<AssetWatchEvent, ?>>> callbacks;
+	private final Map<Asset, Set<Callback<ResourceWatchEvent, ?>>> callbacks;
 
-	public AssetWatchService( XenonProgram program ) {
+	public ResourceWatchService( XenonProgram program ) {
 		this.program = program;
 		this.fileScheme = (FileScheme)getProgram().getAssetManager().getScheme( FileScheme.ID );
 		this.watchServicePaths = new ConcurrentHashMap<>();
@@ -57,7 +57,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 	}
 
 	@Override
-	public AssetWatchService start() {
+	public ResourceWatchService start() {
 		try {
 			watchService = FileSystems.getDefault().newWatchService();
 			executor = Executors.newCachedThreadPool( new ProgramThreadFactory() );
@@ -69,7 +69,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 	}
 
 	@Override
-	public AssetWatchService stop() {
+	public ResourceWatchService stop() {
 		try {
 			if( executor != null ) executor.shutdown();
 			if( watchService != null ) watchService.close();
@@ -125,8 +125,8 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 							asset.setExternallyModified( true );
 
 							// Dispatch the event
-							AssetWatchEvent.Type type = AssetWatchEvent.Type.valueOf( kind.name().substring( "ENTRY_".length() ));
-							dispatch( asset, new AssetWatchEvent( type, asset ) );
+							ResourceWatchEvent.Type type = ResourceWatchEvent.Type.valueOf( kind.name().substring( "ENTRY_".length() ));
+							dispatch( asset, new ResourceWatchEvent( type, asset ) );
 						} catch( ResourceException exception ) {
 							log.atWarn( exception ).log();
 						}
@@ -138,8 +138,8 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		}
 	}
 
-	private void dispatch( Asset asset,  AssetWatchEvent event ) throws ResourceException {
-		for( Callback<AssetWatchEvent, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
+	private void dispatch( Asset asset,  ResourceWatchEvent event ) throws ResourceException {
+		for( Callback<ResourceWatchEvent, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
 			// Don't let an individual callback stop the rest of the callbacks
 			try {
 				callback.call( event );
@@ -152,7 +152,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		if( !asset.isFolder() ) dispatch( getProgram().getAssetManager().getParent( asset ), event );
 	}
 
-	public void registerWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) throws ResourceException {
+	public void registerWatch( Asset asset, Callback<ResourceWatchEvent, ?> callback ) throws ResourceException {
 		Path path = getFileScheme().getFile( asset ).toPath();
 		try {
 			callbacks.computeIfAbsent( asset, k -> ConcurrentHashMap.newKeySet() ).add( callback );
@@ -166,7 +166,7 @@ public class AssetWatchService implements Controllable<AssetWatchService> {
 		//log.atConfig().log( "Registered watch for %s", asset );
 	}
 
-	public void removeWatch( Asset asset, Callback<AssetWatchEvent, ?> callback ) {
+	public void removeWatch( Asset asset, Callback<ResourceWatchEvent, ?> callback ) {
 		//log.atConfig().log( "Removing watch for %s", asset );
 		WatchKey key = asset.getValue( JAVA_NIO_FILE_WATCH_KEY );
 		if( key == null ) return;

@@ -15,7 +15,7 @@ import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.ResourceType;
-import com.avereon.xenon.asset.AssetWatchService;
+import com.avereon.xenon.asset.ResourceWatchService;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.index.IndexService;
@@ -143,7 +143,7 @@ public class Xenon extends Application implements XenonProgram {
 
 	private IndexService indexService;
 
-	private AssetWatchService assetWatchService;
+	private ResourceWatchService resourceWatchService;
 
 	private ProgramEventWatcher watcher;
 
@@ -457,7 +457,7 @@ public class Xenon extends Application implements XenonProgram {
 
 		// Start the asset watch service
 		log.atFiner().log( "Starting asset watch service..." );
-		assetWatchService = new AssetWatchService( Xenon.this ).start();
+		resourceWatchService = new ResourceWatchService( Xenon.this ).start();
 		if( splashScreen != null ) splashScreen.update();
 		log.atFine().log( "Asset watch service started." );
 		time( "asset-watch-service" );
@@ -740,9 +740,9 @@ public class Xenon extends Application implements XenonProgram {
 		}
 
 		// Stop the file watch service
-		if( assetWatchService != null ) {
+		if( resourceWatchService != null ) {
 			log.atFiner().log( "Stopping asset watch service..." );
-			assetWatchService.stop();
+			resourceWatchService.stop();
 			log.atFine().log( "Asset watch service stopped." );
 		}
 
@@ -1044,8 +1044,8 @@ public class Xenon extends Application implements XenonProgram {
 		return indexService;
 	}
 
-	public AssetWatchService getAssetWatchService() {
-		return assetWatchService;
+	public ResourceWatchService getResourceWatchService() {
+		return resourceWatchService;
 	}
 
 	@Override

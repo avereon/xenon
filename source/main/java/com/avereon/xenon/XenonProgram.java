@@ -9,7 +9,7 @@ import com.avereon.product.Program;
 import com.avereon.product.ProgramProduct;
 import com.avereon.settings.Settings;
 import com.avereon.xenon.asset.AssetManager;
-import com.avereon.xenon.asset.AssetWatchService;
+import com.avereon.xenon.asset.ResourceWatchService;
 import com.avereon.xenon.index.IndexService;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
@@ -117,7 +117,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	IndexService getIndexService();
 
-	AssetWatchService getAssetWatchService();
+	ResourceWatchService getAssetWatchService();
 
 	<T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler );
 
