@@ -26,7 +26,7 @@ public class AssetTypeCodecAssociationList extends VBox {
 	private final GridPane items;
 
 	@Getter
-	private AssetType assetType;
+	private ResourceType resourceType;
 
 	public AssetTypeCodecAssociationList( XenonProgramProduct product) {
 		this.items = new GridPane();
@@ -53,19 +53,19 @@ public class AssetTypeCodecAssociationList extends VBox {
 		} );
 	}
 
-	public void setAssetType( AssetType assetType ) {
-		this.assetType = assetType;
+	public void setResourceType( ResourceType resourceType ) {
+		this.resourceType = resourceType;
 		update();
 	}
 
 	private void update() {
 		items.getChildren().clear();
-		if( assetType == null ) return;
+		if( resourceType == null ) return;
 
 		// Reload the asset type associations
 		int row = 0;
 
-		for( Codec.Association association : assetType.getAssociations()) {
+		for( Codec.Association association : resourceType.getAssociations()) {
 			items.addRow( row++, new Label(association.pattern().name()), new Label(association.value()) );
 		}
 

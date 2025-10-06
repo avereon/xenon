@@ -3,7 +3,7 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.notice.NoticeModel;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @CustomLog
-public class ProgramNoticeType extends AssetType {
+public class ProgramNoticeType extends ResourceType {
 
 	private static final String mediaTypePattern = BASE_MEDIA_TYPE + ".notice";
 

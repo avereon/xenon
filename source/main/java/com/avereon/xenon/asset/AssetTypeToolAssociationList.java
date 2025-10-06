@@ -18,7 +18,7 @@ public class AssetTypeToolAssociationList extends VBox {
 	private final GridPane items;
 
 	@Getter
-	private AssetType assetType;
+	private ResourceType resourceType;
 
 	public AssetTypeToolAssociationList( XenonProgramProduct product ) {
 		this.product = product;
@@ -32,10 +32,10 @@ public class AssetTypeToolAssociationList extends VBox {
 		return product.getProgram();
 	}
 
-	public void setAssetType( AssetType assetType ) {
-		this.assetType = assetType;
-		if( assetType != null ) {
-			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+	public void setResourceType( ResourceType resourceType ) {
+		this.resourceType = resourceType;
+		if( resourceType != null ) {
+			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( resourceType ).getNode( "default" );
 			settings.register( "tool", e -> this.update() );
 		}
 		update();
@@ -43,14 +43,14 @@ public class AssetTypeToolAssociationList extends VBox {
 
 	private void update() {
 		items.getChildren().clear();
-		if( assetType == null ) return;
+		if( resourceType == null ) return;
 
 		// Reload the asset type associations
 		int row = 0;
 
-		Class<? extends ProgramTool> defaultTool = getProgram().getToolManager().getDefaultTool( assetType );
+		Class<? extends ProgramTool> defaultTool = getProgram().getToolManager().getDefaultTool( resourceType );
 
-		for( Class<? extends ProgramTool> tool : assetType.getRegisteredTools() ) {
+		for( Class<? extends ProgramTool> tool : resourceType.getRegisteredTools() ) {
 			boolean isDefault = tool == defaultTool;
 
 			// Tool label
@@ -72,7 +72,7 @@ public class AssetTypeToolAssociationList extends VBox {
 	}
 
 	private void setDefaultTool( Class<? extends ProgramTool> tool ) {
-		getProgram().getToolManager().setDefaultTool( assetType, tool );
+		getProgram().getToolManager().setDefaultTool( resourceType, tool );
 	}
 
 }

@@ -4,7 +4,7 @@ import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.MockGuidedTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.ToolRegistration;
-import com.avereon.xenon.asset.MockAssetType;
+import com.avereon.xenon.asset.MockResourceType;
 import com.avereon.xenon.asset.MockCodec;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.zerra.javafx.Fx;
@@ -24,7 +24,7 @@ public abstract class GuidedToolUIT extends BaseToolUIT {
 
 		assertToolCount( getWorkarea(), 0 );
 
-		MockAssetType assetType = new MockAssetType( getProgram() );
+		MockResourceType assetType = new MockResourceType( getProgram() );
 		getProgram().getAssetManager().addAssetType( assetType );
 
 		ToolRegistration registration = new ToolRegistration( getProgram(), MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );

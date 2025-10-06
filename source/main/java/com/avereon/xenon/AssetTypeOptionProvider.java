@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 
@@ -18,7 +18,7 @@ public class AssetTypeOptionProvider implements SettingOptionProvider {
 
 	@Override
 	public List<String> getKeys() {
-		return program.getAssetManager().getAssetTypes().stream().filter( AssetType::isUserType ).sorted( new AssetTypeNameComparator() ).map( AssetType::getKey ).toList();
+		return program.getAssetManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).map( ResourceType::getKey ).toList();
 	}
 
 	@Override
@@ -26,8 +26,8 @@ public class AssetTypeOptionProvider implements SettingOptionProvider {
 		return getAssetTypeMap().get( key ).getName();
 	}
 
-	private Map<String, AssetType> getAssetTypeMap() {
-		return program.getAssetManager().getAssetTypes().stream().collect( Collectors.toMap( AssetType::getKey, t -> t ) );
+	private Map<String, ResourceType> getAssetTypeMap() {
+		return program.getAssetManager().getAssetTypes().stream().collect( Collectors.toMap( ResourceType::getKey, t -> t ) );
 	}
 
 }

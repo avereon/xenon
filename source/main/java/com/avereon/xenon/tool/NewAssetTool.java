@@ -5,7 +5,7 @@ import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import javafx.geometry.Pos;
@@ -58,13 +58,13 @@ public class NewAssetTool extends ProgramTool {
 		}
 
 		public void update() {
-			List<AssetType> types = new ArrayList<>( getProgram().getAssetManager().getAssetTypes() );
+			List<ResourceType> types = new ArrayList<>( getProgram().getAssetManager().getAssetTypes() );
 			types.sort( new AssetTypeNameComparator() );
 
 			getChildren().clear();
 			getChildren().addAll( types
 				.stream()
-				.filter( AssetType::isUserType )
+				.filter( ResourceType::isUserType )
 				.map( AssetTypeTile::new )
 				.peek( tile -> tile.addEventFilter( MouseEvent.MOUSE_PRESSED, e -> {
 					getProgram().getAssetManager().newAsset( tile.getAssetType() );
@@ -77,9 +77,9 @@ public class NewAssetTool extends ProgramTool {
 
 	private class AssetTypeTile extends VBox {
 
-		private final AssetType type;
+		private final ResourceType type;
 
-		AssetTypeTile( AssetType type ) {
+		AssetTypeTile( ResourceType type ) {
 			this.type = type;
 			getStyleClass().add( "asset-type-tile" );
 
@@ -97,7 +97,7 @@ public class NewAssetTool extends ProgramTool {
 			getChildren().add( description );
 		}
 
-		AssetType getAssetType() {
+		ResourceType getAssetType() {
 			return type;
 		}
 

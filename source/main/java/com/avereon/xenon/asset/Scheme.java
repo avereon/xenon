@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * The Scheme class represents a URI scheme in the context of a {@link Asset} . See <a href="http://en.wikipedia.org/wiki/URI_scheme">URI_scheme on
- * Wikipedia</a> for more information regarding URI schemes. Scheme, {@link AssetType}
+ * Wikipedia</a> for more information regarding URI schemes. Scheme, {@link ResourceType}
  * and {@link Codec} are used together by the asset manager to manage assets.
  * <p>
  * The scheme is responsible for defining and implementing how an asset is handled for connection and transport purposes. The scheme is solely responsible for

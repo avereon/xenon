@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings.panel;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.AssetTypeCodecAssociationList;
 import com.avereon.xenon.asset.AssetTypeToolAssociationList;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
@@ -34,7 +34,7 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 
 	private final Label assetTypesLabel;
 
-	private final ComboBox<AssetType> assetTypes;
+	private final ComboBox<ResourceType> assetTypes;
 
 	private final Label keyLabel;
 
@@ -123,14 +123,14 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 	}
 
 	private void doUpdateFields( String typeKey ) {
-		AssetType type = getProduct().getProgram().getAssetManager().getAssetType( typeKey );
+		ResourceType type = getProduct().getProgram().getAssetManager().getAssetType( typeKey );
 
 		key.setText( type == null ? "" : type.getKey() );
 		name.setText( type == null ? "" : type.getName() );
 		description.setText( type == null ? "" : type.getDescription() );
 
-		associations.setAssetType( type );
-		toolRegistrations.setAssetType( type );
+		associations.setResourceType( type );
+		toolRegistrations.setResourceType( type );
 
 //		if( type == null ) return;`
 //
@@ -162,11 +162,11 @@ public class AssetTypeSettingsPanel extends SettingsPanel {
 //		//defaultCodec.getSupported( Codec.Pattern.EXTENSION );
 	}
 
-	private List<AssetType> getUserAssetTypes( XenonProgramProduct product ) {
-		return product.getProgram().getAssetManager().getAssetTypes().stream().filter( AssetType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
+	private List<ResourceType> getUserAssetTypes( XenonProgramProduct product ) {
+		return product.getProgram().getAssetManager().getAssetTypes().stream().filter( ResourceType::isUserType ).sorted( new AssetTypeNameComparator() ).toList();
 	}
 
-	private List<AssetType> getAssetTypes( XenonProgramProduct product ) {
+	private List<ResourceType> getAssetTypes( XenonProgramProduct product ) {
 		return product.getProgram().getAssetManager().getAssetTypes().stream().sorted( new AssetTypeNameComparator() ).toList();
 	}
 

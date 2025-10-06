@@ -23,7 +23,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		manager = new AssetManager( getProgram() );
 		manager.addScheme( new MockScheme( getProgram() ) );
 		manager.addScheme( new NewScheme( getProgram() ) );
-		manager.addAssetType( new MockAssetType( getProgram() ) );
+		manager.addAssetType( new MockResourceType( getProgram() ) );
 	}
 
 	@Test
@@ -225,12 +225,12 @@ public class AssetManagerTest extends ProgramTestCase {
 	void testAutoDetectAssetTypeWithOpaqueUri() throws Exception {
 		Asset asset = manager.createAsset( URI.create( "mock:test" ) );
 		manager.autoDetectAssetType( asset );
-		assertThat( asset.getType() ).isInstanceOf( MockAssetType.class );
+		assertThat( asset.getType() ).isInstanceOf( MockResourceType.class );
 	}
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( new MockAssetType( getProgram() ).getKey() );
+		ResourceType type = manager.getAssetType( new MockResourceType( getProgram() ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );

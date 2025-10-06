@@ -28,7 +28,7 @@ import java.util.Map;
 @Accessors( chain = true )
 public class OpenAssetRequest {
 
-	private AssetType type;
+	private ResourceType type;
 
 	private URI uri;
 

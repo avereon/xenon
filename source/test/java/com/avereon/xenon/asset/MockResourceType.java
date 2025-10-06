@@ -3,7 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 
-public class MockAssetType extends AssetType {
+public class MockResourceType extends ResourceType {
 
 	private static final String NAME = "Mock Asset";
 
@@ -11,11 +11,11 @@ public class MockAssetType extends AssetType {
 
 	private final String key;
 
-	public MockAssetType( XenonProgramProduct product ) {
+	public MockResourceType( XenonProgramProduct product ) {
 		this( product, "mock", new MockCodec() );
 	}
 
-	public MockAssetType( XenonProgramProduct product, String key, Codec defaultCodec ) {
+	public MockResourceType( XenonProgramProduct product, String key, Codec defaultCodec ) {
 		super( product, key );
 		this.key = key;
 		setDefaultCodec( defaultCodec );

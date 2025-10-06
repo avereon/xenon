@@ -54,7 +54,7 @@ public abstract class Codec implements Predicate<Asset> {
 	}
 
 	@Getter
-	private AssetType assetType;
+	private ResourceType resourceType;
 
 	private final Map<Pattern, Set<String>> supportedMatches;
 
@@ -76,8 +76,8 @@ public abstract class Codec implements Predicate<Asset> {
 
 	public abstract void save( Asset asset, OutputStream output ) throws IOException;
 
-	public void setAssetType( AssetType type ) {
-		this.assetType = type;
+	public void setResourceType( ResourceType type ) {
+		this.resourceType = type;
 	}
 
 	public final String getDefaultExtension() {

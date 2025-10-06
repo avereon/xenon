@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * The AssetType class represents an asset type. An asset must always
  * have an asset type and may be directly specified, or determined by the the
  * URI. Asset types may have one or more associated codecs. {@link Scheme},
- * {@link AssetType} and {@link Codec} work together to save and load assets.
+ * {@link ResourceType} and {@link Codec} work together to save and load assets.
  * <h2>Determining Asset Type</h2>
  * Asset types can usually be determined by using the asset URI. Some
  * asset types can be determined using just the URI scheme. If the asset
@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
  * @author ecco
  */
 @CustomLog
-public abstract class AssetType implements Comparable<AssetType> {
+public abstract class ResourceType implements Comparable<ResourceType> {
 
 	protected static final String BASE_MEDIA_TYPE = "application/vnd.avereon.xenon.program";
 
@@ -75,7 +75,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private Map<String,SettingsPage> settingsPages;
 
-	public AssetType( XenonProgramProduct product, String rbKey ) {
+	public ResourceType( XenonProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( rbKey == null ) throw new NullPointerException( "Resource bundle key cannot be null" );
 		this.product = product;
@@ -144,7 +144,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( codec == null ) return;
 		synchronized( codec ) {
 			codecs.add( codec );
-			codec.setAssetType( this );
+			codec.setResourceType( this );
 		}
 	}
 
@@ -152,7 +152,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( codec == null ) return;
 		synchronized( codec ) {
 			codecs.remove( codec );
-			codec.setAssetType( null );
+			codec.setResourceType( null );
 			if( getDefaultCodec() == codec ) setDefaultCodec( null );
 		}
 	}
@@ -250,7 +250,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	}
 
 	@Override
-	public int compareTo( AssetType type ) {
+	public int compareTo( ResourceType type ) {
 		return getName().compareTo( type.getName() );
 	}
 

@@ -1,14 +1,14 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 
 /**
  * Represents a bitmap image.
  */
-public class BitmapImageType extends AssetType {
+public class BitmapImageType extends ResourceType {
 
 	private static final String assetTypeKey = "image:bitmap";
 

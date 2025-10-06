@@ -2,9 +2,9 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.BasePartXenonTestCase;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.MockAssetType;
+import com.avereon.xenon.asset.MockResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ public class NewSchemeTest extends BasePartXenonTestCase {
 	private Codec codec;
 
 	@Mock
-	private AssetType assetType;
+	private ResourceType resourceType;
 
 	private Asset asset;
 
@@ -36,9 +36,9 @@ public class NewSchemeTest extends BasePartXenonTestCase {
 	protected void setup() throws Exception {
 		super.setup();
 		scheme = new NewScheme( getProgram() );
-		asset = new Asset( assetType, NewScheme.uri() );
+		asset = new Asset( resourceType, NewScheme.uri() );
 
-		lenient().when( assetType.getDefaultCodec() ).thenReturn( codec );
+		lenient().when( resourceType.getDefaultCodec() ).thenReturn( codec );
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class NewSchemeTest extends BasePartXenonTestCase {
 	@Test
 	void getTemporaryPath() {
 		// given
-		Asset asset = new Asset( new MockAssetType( getProgram() ), NewScheme.uri() );
+		Asset asset = new Asset( new MockResourceType( getProgram() ), NewScheme.uri() );
 		Path expected = Path.of( NewScheme.NEW_ASSET_TEMP_STORAGE_FOLDER );
 		expected = expected.resolve( asset.getUri().getSchemeSpecificPart() );
 		expected = expected.resolve( NewScheme.NEW_ASSET_TEMP_STORAGE_CONTENT );

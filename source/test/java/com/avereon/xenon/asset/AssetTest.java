@@ -83,7 +83,7 @@ class AssetTest extends BaseAssetTestCase {
 
 	@Test
 	void isNew() {
-		Asset asset = new Asset( new MockAssetType( getProduct() ), URI.create( "new:" + UUID.randomUUID() ) );
+		Asset asset = new Asset( new MockResourceType( getProduct() ), URI.create( "new:" + UUID.randomUUID() ) );
 		assertThat( asset.isNew() ).isTrue();
 	}
 

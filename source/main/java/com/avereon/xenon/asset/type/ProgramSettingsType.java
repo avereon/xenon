@@ -4,12 +4,12 @@ import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 import com.avereon.xenon.scheme.XenonScheme;
 
-public class ProgramSettingsType extends AssetType {
+public class ProgramSettingsType extends ResourceType {
 
 	private static final String uriPattern = XenonScheme.ID + ":/settings";
 

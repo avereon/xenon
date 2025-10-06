@@ -89,11 +89,11 @@ public class Asset extends Node {
 		this( null, java.net.URI.create( uri ) );
 	}
 
-	public Asset( AssetType type ) {
+	public Asset( ResourceType type ) {
 		this( type, null );
 	}
 
-	public Asset( AssetType type, URI uri ) {
+	public Asset( ResourceType type, URI uri ) {
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
@@ -141,11 +141,11 @@ public class Asset extends Node {
 		return this;
 	}
 
-	public AssetType getType() {
+	public ResourceType getType() {
 		return getValue( TYPE );
 	}
 
-	public void setType( AssetType type ) {
+	public void setType( ResourceType type ) {
 		setValue( TYPE, type );
 	}
 
@@ -441,7 +441,7 @@ public class Asset extends Node {
 	@Override
 	public String toString() {
 		URI uri = getUri();
-		AssetType type = getType();
+		ResourceType type = getType();
 		String assetTypeName = type == null ? "Unknown" : type.getName();
 		return "[" + assetTypeName + "](" + System.identityHashCode( this ) + ")" + (isNew() ? "" : " uri=" + uri);
 	}
@@ -449,7 +449,7 @@ public class Asset extends Node {
 	private String getDefaultName() {
 		URI uri = getUri();
 		String path = uri.getPath();
-		AssetType type = getType();
+		ResourceType type = getType();
 		String name = null;
 
 		// If the asset is new return the type name

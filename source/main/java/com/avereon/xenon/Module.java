@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.*;
 import com.avereon.settings.Settings;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.image.VectorImage;
@@ -136,7 +136,7 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * @param type The asset type to register
 	 * @return This module
 	 */
-	protected Module registerAssetType( AssetType type ) {
+	protected Module registerAssetType( ResourceType type ) {
 		getProgram().getAssetManager().addAssetType( type );
 		return this;
 	}
@@ -147,7 +147,7 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * @param type The asset type to unregister
 	 * @return This module
 	 */
-	protected Module unregisterAssetType( AssetType type ) {
+	protected Module unregisterAssetType( ResourceType type ) {
 		getProgram().getAssetManager().removeAssetType( type );
 		return this;
 	}
@@ -155,12 +155,12 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	/**
 	 * A convenience method to register a tool.
 	 *
-	 * @param assetType The asset type associated with the tool
+	 * @param resourceType The asset type associated with the tool
 	 * @param metadata The tool registration
 	 * @return This module
 	 */
-	protected Module registerTool( AssetType assetType, ToolRegistration metadata ) {
-		getProgram().getToolManager().registerTool( assetType, metadata );
+	protected Module registerTool( ResourceType resourceType, ToolRegistration metadata ) {
+		getProgram().getToolManager().registerTool( resourceType, metadata );
 		return this;
 	}
 
@@ -168,25 +168,25 @@ public abstract class Module implements XenonProgramProduct, Comparable<Module> 
 	 * A convenience method to register a tool.
 	 *
 	 * @param product The program product providing the asset type and tool
-	 * @param assetType The asset type associated with the tool
+	 * @param resourceType The asset type associated with the tool
 	 * @param toolClass The tool class
 	 * @return The tool registration
 	 */
-	protected ToolRegistration registerTool( XenonProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+	protected ToolRegistration registerTool( XenonProgramProduct product, ResourceType resourceType, Class<? extends ProgramTool> toolClass ) {
 		ToolRegistration registration = new ToolRegistration( product, toolClass );
-		getProgram().getToolManager().registerTool( assetType, registration );
+		getProgram().getToolManager().registerTool( resourceType, registration );
 		return registration;
 	}
 
 	/**
 	 * A convenience method to unregister a tool.
 	 *
-	 * @param assetType The asset type associated with the tool
+	 * @param resourceType The asset type associated with the tool
 	 * @param type The tool class
 	 * @return This module
 	 */
-	protected Module unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
-		getProgram().getToolManager().unregisterTool( assetType, type );
+	protected Module unregisterTool( ResourceType resourceType, Class<? extends ProgramTool> type ) {
+		getProgram().getToolManager().unregisterTool( resourceType, type );
 		return this;
 	}
 

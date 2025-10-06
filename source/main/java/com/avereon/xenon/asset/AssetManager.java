@@ -7,8 +7,8 @@ import com.avereon.skill.Controllable;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.exception.ResourceException;
-import com.avereon.xenon.asset.type.ProgramAssetNewType;
-import com.avereon.xenon.asset.type.ProgramAssetType;
+import com.avereon.xenon.asset.type.ProgramResourceNewType;
+import com.avereon.xenon.asset.type.ProgramResourceType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.NewScheme;
@@ -53,7 +53,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Scheme> schemes;
 
-	private final Map<String, AssetType> assetTypes;
+	private final Map<String, ResourceType> assetTypes;
 
 	private final Map<Codec.Pattern, Map<String, Set<Codec>>> registeredCodecs;
 
@@ -210,8 +210,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return getOpenAssets().stream().filter( Asset::isModified ).collect( Collectors.toSet() );
 	}
 
-	Set<AssetType> getUserAssetTypes() {
-		return assetTypes.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet() );
+	Set<ResourceType> getUserAssetTypes() {
+		return assetTypes.values().stream().filter( ResourceType::isUserType ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -287,9 +287,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param key The asset type key
 	 * @return The asset type associated to the key
 	 */
-	public AssetType getAssetType( String key ) {
+	public ResourceType getAssetType( String key ) {
 		if( key == null ) return null;
-		AssetType type = assetTypes.get( key );
+		ResourceType type = assetTypes.get( key );
 		if( type == null ) log.atWarning().log( "Asset type not found: %s", key );
 		return type;
 	}
@@ -299,7 +299,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 *
 	 * @return The set of supported asset types
 	 */
-	public Collection<AssetType> getAssetTypes() {
+	public Collection<ResourceType> getAssetTypes() {
 		return Collections.unmodifiableCollection( assetTypes.values() );
 	}
 
@@ -308,7 +308,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 *
 	 * @param type The asset type to add
 	 */
-	public void addAssetType( AssetType type ) {
+	public void addAssetType( ResourceType type ) {
 		if( type == null ) return;
 
 		synchronized( assetTypes ) {
@@ -337,7 +337,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 *
 	 * @param type The asset type to remove
 	 */
-	public void removeAssetType( AssetType type ) {
+	public void removeAssetType( ResourceType type ) {
 		if( type == null ) return;
 		synchronized( assetTypes ) {
 			if( !assetTypes.containsKey( type.getKey() ) ) return;
@@ -377,7 +377,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The new asset type
 	 * @return The future to get the new asset tool
 	 */
-	public Future<ProgramTool> newAsset( AssetType type ) {
+	public Future<ProgramTool> newAsset( ResourceType type ) {
 		return newAsset( type, true, true );
 	}
 
@@ -390,7 +390,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The new asset type
 	 * @return The future to get the new asset tool
 	 */
-	public Future<ProgramTool> newAsset( AssetType type, boolean openTool, boolean setActive ) {
+	public Future<ProgramTool> newAsset( ResourceType type, boolean openTool, boolean setActive ) {
 		return newAsset( type, null, null, openTool, setActive );
 	}
 
@@ -403,7 +403,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The new asset type
 	 * @return The future to get the new asset tool
 	 */
-	private Future<ProgramTool> newAsset( AssetType type, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
+	private Future<ProgramTool> newAsset( ResourceType type, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( null );
 		request.setType( type );
@@ -619,11 +619,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The asset type to create an asset from
 	 * @return The asset created from the asset type
 	 */
-	public Asset createAsset( AssetType type ) throws ResourceException {
+	public Asset createAsset( ResourceType type ) throws ResourceException {
 		return doCreateAsset( type, null );
 	}
 
-	public Asset createAsset( AssetType type, String uri ) throws ResourceException {
+	public Asset createAsset( ResourceType type, String uri ) throws ResourceException {
 		return doCreateAsset( type, UriUtil.resolve( uri ) );
 	}
 
@@ -634,7 +634,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param uri The asset uri
 	 * @return The created asset
 	 */
-	public Asset createAsset( AssetType type, URI uri ) throws ResourceException {
+	public Asset createAsset( ResourceType type, URI uri ) throws ResourceException {
 		return doCreateAsset( type, uri );
 	}
 
@@ -962,14 +962,14 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param asset The asset for which to resolve the asset type
 	 * @return The auto detected asset type
 	 */
-	public AssetType autoDetectAssetType( Asset asset ) {
-		AssetType type = null;
+	public ResourceType autoDetectAssetType( Asset asset ) {
+		ResourceType type = null;
 
 		// Look for asset types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( asset ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
 		Codec codec = codecs.isEmpty() ? null : codecs.getFirst();
-		if( codec != null ) type = codec.getAssetType();
+		if( codec != null ) type = codec.getResourceType();
 
 		// Assign values to asset
 		if( codec != null ) asset.setCodec( codec );
@@ -1002,13 +1002,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		String firstLine = asset.getScheme().getFirstLine( asset );
 
 		Set<Codec> codecs = new HashSet<>();
-		for( AssetType assetType : getAssetTypes() ) {
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.URI, uri ) );
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.SCHEME, uri ) );
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.MEDIATYPE, mediaType ) );
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.EXTENSION, fileName ) );
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.FILENAME, fileName ) );
-			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.FIRSTLINE, firstLine ) );
+		for( ResourceType resourceType : getAssetTypes() ) {
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.URI, uri ) );
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.SCHEME, uri ) );
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.MEDIATYPE, mediaType ) );
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.EXTENSION, fileName ) );
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.FILENAME, fileName ) );
+			codecs.addAll( resourceType.getSupportedCodecs( Codec.Pattern.FIRSTLINE, firstLine ) );
 		}
 		return codecs;
 	}
@@ -1148,7 +1148,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param uri The URI of the asset
 	 * @return The asset created from the asset type and URI
 	 */
-	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws ResourceException {
+	private synchronized Asset doCreateAsset( ResourceType type, URI uri ) throws ResourceException {
 		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 
 		uri = resolveAssetAlias( uri );
@@ -1175,7 +1175,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( isManagedAssetOpen( asset ) ) return true;
 
 		// Determine the asset type
-		AssetType type = asset.getType();
+		ResourceType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
 
 		if( type == null ) {
@@ -1344,7 +1344,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		Path assetPath = folder.resolve( filename );
 
 		// Build a URI to open the asset tool
-		String uriString = ProgramAssetType.URI + "?mode=" + AssetTool.Mode.SAVE + "&uri=" + assetPath.toUri();
+		String uriString = ProgramResourceType.URI + "?mode=" + AssetTool.Mode.SAVE + "&uri=" + assetPath.toUri();
 		log.atTrace().log( "save asset uri=%s", URI.create( uriString ) );
 
 		final Asset finalAsset = source;
@@ -1422,7 +1422,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( delete ) sourceSettings.delete();
 	}
 
-	private Map<Codec, AssetFilter> generateAssetFilters( AssetType type ) {
+	private Map<Codec, AssetFilter> generateAssetFilters( ResourceType type ) {
 		Map<Codec, AssetFilter> filters = new HashMap<>();
 		type.getCodecs().forEach( c -> filters.put( c, new CodecAssetFilter( c ) ) );
 		return filters;
@@ -1528,12 +1528,12 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			Collection<AssetType> types = getUserAssetTypes();
+			Collection<ResourceType> types = getUserAssetTypes();
 
 			if( types.size() == 1 ) {
 				newAsset( types.iterator().next() );
 			} else {
-				openAsset( ProgramAssetNewType.URI );
+				openAsset( ProgramResourceNewType.URI );
 			}
 		}
 
@@ -1558,7 +1558,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
-			openAsset( ProgramAssetType.OPEN_URI );
+			openAsset( ProgramResourceType.OPEN_URI );
 
 			isHandling = false;
 			updateActionState();

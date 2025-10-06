@@ -3,13 +3,13 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 import com.avereon.xenon.scheme.XenonScheme;
 
 @Deprecated
-public class ProgramModuleType extends AssetType {
+public class ProgramModuleType extends ResourceType {
 
 	private static final String uriPattern = XenonScheme.ID + ":/modules";
 

@@ -351,7 +351,7 @@ public class AssetTool extends GuidedTool {
 			.getAssetManager()
 			.getAssetTypes()
 			.stream()
-			.filter( AssetType::isUserType )
+			.filter( ResourceType::isUserType )
 			.flatMap( t -> t.getCodecs().stream() )
 			.map( CodecAssetFilter::new )
 			.sorted()

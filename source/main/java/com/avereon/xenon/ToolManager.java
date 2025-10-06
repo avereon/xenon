@@ -7,7 +7,7 @@ import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -42,7 +42,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private final Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
 
-	private final Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
+	private final Map<ResourceType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
 
 	private final Set<Class<?>> singletonLocks = new CopyOnWriteArraySet<>();
 
@@ -61,23 +61,23 @@ public class ToolManager implements Controllable<ToolManager> {
 		return toolClassMetadata.get( tool.getClass() );
 	}
 
-	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
+	public void registerTool( ResourceType resourceType, ToolRegistration metadata ) {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
+		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool registered: assetType=%s -> tool=%s", resourceType.getKey(), type.getName() );
 	}
 
-	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
+	public void unregisterTool( ResourceType resourceType, Class<? extends ProgramTool> type ) {
 		toolClassMetadata.remove( type );
 
-		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
+		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( resourceType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
-		log.atFine().log( "Tool unregistered: assetType=%s -> tool=%s", assetType.getKey(), type.getName() );
+		log.atFine().log( "Tool unregistered: assetType=%s -> tool=%s", resourceType.getKey(), type.getName() );
 	}
 
 	/**
@@ -98,12 +98,12 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( asset == null ) throw new NullPointerException( "Asset cannot be null" );
 
 		// Get the asset type to look up the registered tool classes
-		AssetType assetType = asset.getType();
+		ResourceType resourceType = asset.getType();
 
 		// Determine which tool class will be used
 		Class<? extends ProgramTool> requestedToolClass = request.getToolClass();
-		if( requestedToolClass == null ) requestedToolClass = determineToolClassForAssetType( assetType );
-		if( requestedToolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
+		if( requestedToolClass == null ) requestedToolClass = determineToolClassForAssetType( resourceType );
+		if( requestedToolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + resourceType );
 		final Class<? extends ProgramTool> toolClass = requestedToolClass;
 		request.setToolClass( toolClass );
 
@@ -267,35 +267,35 @@ public class ToolManager implements Controllable<ToolManager> {
 		return instanceMode == null ? ToolInstanceMode.UNLIMITED : instanceMode;
 	}
 
-	public List<Class<? extends ProgramTool>> getRegisteredTools( AssetType assetType ) {
-		return new ArrayList<>( assetTypeToolClasses.get( assetType ) );
+	public List<Class<? extends ProgramTool>> getRegisteredTools( ResourceType resourceType ) {
+		return new ArrayList<>( assetTypeToolClasses.get( resourceType ) );
 	}
 
-	public Class<? extends ProgramTool> getDefaultTool( AssetType assetType ) {
-		return determineToolClassForAssetType( assetType );
+	public Class<? extends ProgramTool> getDefaultTool( ResourceType resourceType ) {
+		return determineToolClassForAssetType( resourceType );
 	}
 
-	public void setDefaultTool( AssetType assetType, Class<? extends ProgramTool> tool ) {
-		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+	public void setDefaultTool( ResourceType resourceType, Class<? extends ProgramTool> tool ) {
+		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( resourceType );
 		if( toolClasses.remove( tool ) ) toolClasses.addFirst( tool );
 
 		// Set the default tool setting
-		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+		Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( resourceType ).getNode( "default" );
 		settings.set( "tool", tool.getName() );
 	}
 
 	public void updateDefaultToolsFromSettings() {
 		// Go through each asset type and set the default tool from the settings
-		for( Map.Entry<AssetType, List<Class<? extends ProgramTool>>> entry : assetTypeToolClasses.entrySet() ) {
-			AssetType assetType = entry.getKey();
-			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( assetType ).getNode( "default" );
+		for( Map.Entry<ResourceType, List<Class<? extends ProgramTool>>> entry : assetTypeToolClasses.entrySet() ) {
+			ResourceType resourceType = entry.getKey();
+			Settings settings = getProgram().getSettingsManager().getAssetTypeSettings( resourceType ).getNode( "default" );
 			String defaultTool = settings.get( "tool" );
 			if( defaultTool != null ) {
 				Class<? extends ProgramTool> toolClass = findAssetTypeToolClassByName( entry.getValue(), defaultTool );
 				if( toolClass != null ) {
-					setDefaultTool( assetType, toolClass );
+					setDefaultTool( resourceType, toolClass );
 				} else {
-					log.atWarn().log( "%s default tool class not found: %s", assetType.getName(), defaultTool );
+					log.atWarn().log( "%s default tool class not found: %s", resourceType.getName(), defaultTool );
 				}
 			}
 		}
@@ -305,22 +305,22 @@ public class ToolManager implements Controllable<ToolManager> {
 		return toolClasses.stream().filter( c -> c.getName().equals( name ) ).findFirst().orElse( null );
 	}
 
-	private Class<? extends ProgramTool> determineToolClassForAssetType( @Nullable AssetType assetType ) {
-		if( assetType == null ) return null;
+	private Class<? extends ProgramTool> determineToolClassForAssetType( @Nullable ResourceType resourceType ) {
+		if( resourceType == null ) return null;
 
 		Class<? extends ProgramTool> toolClass = null;
-		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
+		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( resourceType );
 
 		if( toolClasses == null || toolClasses.isEmpty() ) {
 			// There are no registered tools for the asset type
-			log.atWarning().log( "No tools registered for asset type %s", assetType.getKey() );
+			log.atWarning().log( "No tools registered for asset type %s", resourceType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
-			log.atFine().log( "One tool registered for asset type %s", assetType.getKey() );
+			log.atFine().log( "One tool registered for asset type %s", resourceType.getKey() );
 			toolClass = toolClasses.getFirst();
 		} else {
 			// There is more than one tool registered for the asset type
-			log.atFine().log( "Multiple tools registered for asset type %s", assetType.getKey() );
+			log.atFine().log( "Multiple tools registered for asset type %s", resourceType.getKey() );
 			toolClasses.forEach( c -> log.atFiner().log( "  %s", c.getName() ) );
 			toolClass = toolClasses.getFirst();
 		}

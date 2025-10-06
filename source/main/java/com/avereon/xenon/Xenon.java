@@ -14,7 +14,7 @@ import com.avereon.util.*;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetManager;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.AssetWatchService;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.*;
@@ -1459,8 +1459,8 @@ public class Xenon extends Application implements XenonProgram {
 		manager.addAssetType( new ProgramHelpType( this ) );
 		manager.addAssetType( new ProgramModuleType( this ) );
 		manager.addAssetType( new ProgramTaskType( this ) );
-		manager.addAssetType( new ProgramAssetNewType( this ) );
-		manager.addAssetType( new ProgramAssetType( this ) );
+		manager.addAssetType( new ProgramResourceNewType( this ) );
+		manager.addAssetType( new ProgramResourceType( this ) );
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
 		manager.addAssetType( new ProgramPropertiesType( this ) );
@@ -1477,7 +1477,7 @@ public class Xenon extends Application implements XenonProgram {
 			targetChars[ 0 ] = Character.toUpperCase( targetChars[ 0 ] );
 			String targetClassName = "Program" + new String( targetChars ) + "Type";
 			try {
-				Class<?> targetClass = Class.forName( AssetType.class.getPackageName() + ".type." + targetClassName );
+				Class<?> targetClass = Class.forName( ResourceType.class.getPackageName() + ".type." + targetClassName );
 				Field uriField = targetClass.getField( "URI" );
 				URI targetUri = (URI)uriField.get( null );
 				manager.registerAssetAlias( aliasUri, targetUri );
@@ -1491,8 +1491,8 @@ public class Xenon extends Application implements XenonProgram {
 		manager.removeAssetType( new ProgramPropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
-		manager.removeAssetType( new ProgramAssetType( this ) );
-		manager.removeAssetType( new ProgramAssetNewType( this ) );
+		manager.removeAssetType( new ProgramResourceType( this ) );
+		manager.removeAssetType( new ProgramResourceNewType( this ) );
 		manager.removeAssetType( new ProgramTaskType( this ) );
 		manager.removeAssetType( new ProgramModuleType( this ) );
 		manager.removeAssetType( new ProgramHelpType( this ) );
@@ -1514,8 +1514,8 @@ public class Xenon extends Application implements XenonProgram {
 		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, new ProgramFaultType( this ), FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
-		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
-		registerTool( manager, new ProgramAssetType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, new ProgramResourceNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, new ProgramResourceType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 		registerTool( manager, new ProgramHelpType( this ), HelpTool.class, ToolInstanceMode.UNLIMITED, "help", "help" );
 		registerTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
@@ -1529,8 +1529,8 @@ public class Xenon extends Application implements XenonProgram {
 	private void unregisterTools( ToolManager manager ) {
 		unregisterTool( manager, new ProgramPropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramHelpType( this ), HelpTool.class );
-		unregisterTool( manager, new ProgramAssetType( this ), AssetTool.class );
-		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
+		unregisterTool( manager, new ProgramResourceType( this ), AssetTool.class );
+		unregisterTool( manager, new ProgramResourceNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
 		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );
 		unregisterTool( manager, new ProgramModuleType( this ), ProductTool.class );
@@ -1542,9 +1542,9 @@ public class Xenon extends Application implements XenonProgram {
 		unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
 	}
 
-	private void registerTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+	private void registerTool( ToolManager manager, ResourceType resourceType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		// The problem with using the class name is it can change if the class package or name is changed.
-		AssetType type = assetManager.getAssetType( assetType.getKey() );
+		ResourceType type = assetManager.getAssetType( resourceType.getKey() );
 		String name = Rb.text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
@@ -1553,8 +1553,8 @@ public class Xenon extends Application implements XenonProgram {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
-		manager.unregisterTool( assetManager.getAssetType( assetType.getKey() ), toolClass );
+	private void unregisterTool( ToolManager manager, ResourceType resourceType, Class<? extends ProgramTool> toolClass ) {
+		manager.unregisterTool( assetManager.getAssetType( resourceType.getKey() ), toolClass );
 	}
 
 	private boolean calcProgramUpdated() {

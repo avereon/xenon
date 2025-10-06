@@ -1,14 +1,14 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 
 /**
  * Represents a vector image.
  */
-public class VectorImageType extends AssetType {
+public class VectorImageType extends ResourceType {
 
 	private static final String assetTypeKey = "image:vector";
 

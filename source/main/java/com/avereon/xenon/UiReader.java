@@ -6,7 +6,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.exception.ResourceNotFoundException;
@@ -415,12 +415,12 @@ class UiReader {
 
 		// Create the asset
 		Asset asset;
-		AssetType assetType = getProgram().getAssetManager().getAssetType( assetTypeKey );
-		if( assetType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
+		ResourceType resourceType = getProgram().getAssetManager().getAssetType( assetTypeKey );
+		if( resourceType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
 		try {
-			asset = getProgram().getAssetManager().createAsset( assetType, uri );
+			asset = getProgram().getAssetManager().createAsset( resourceType, uri );
 		} catch( ResourceException exception ) {
-			throw new ResourceNotFoundException( new Asset( assetType, uri ), exception );
+			throw new ResourceNotFoundException( new Asset( resourceType, uri ), exception );
 		}
 
 		// Create the open asset request

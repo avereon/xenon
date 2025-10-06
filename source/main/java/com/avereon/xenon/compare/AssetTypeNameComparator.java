@@ -1,13 +1,13 @@
 package com.avereon.xenon.compare;
 
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 
 import java.util.Comparator;
 
-public class AssetTypeNameComparator implements Comparator<AssetType> {
+public class AssetTypeNameComparator implements Comparator<ResourceType> {
 
 	@Override
-	public int compare( AssetType o1, AssetType o2 ) {
+	public int compare( ResourceType o1, ResourceType o2 ) {
 		return o1.getName().compareTo( o2.getName() );
 	}
 
