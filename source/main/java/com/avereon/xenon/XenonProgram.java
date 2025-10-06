@@ -117,7 +117,7 @@ public interface XenonProgram extends Program, ProgramProduct, XenonProgramProdu
 
 	IndexService getIndexService();
 
-	ResourceWatchService getAssetWatchService();
+	ResourceWatchService getResourceWatchService();
 
 	<T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler );
 

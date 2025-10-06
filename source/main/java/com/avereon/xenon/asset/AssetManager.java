@@ -1351,7 +1351,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		final Codec finalCodec = codec;
 		program.getTaskManager().submit( Task.of( () -> {
 			try {
-				Map<Codec, AssetFilter> filters = generateAssetFilters( finalAsset.getType() );
+				Map<Codec, ResourceFilter> filters = generateAssetFilters( finalAsset.getType() );
 				AssetTool tool = (AssetTool)openAsset( URI.create( uriString ) ).get();
 				tool.getFilters().addAll( 0, filters.values() );
 				tool.setSelectedFilter( filters.get( finalCodec ) );
@@ -1362,7 +1362,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		} ) );
 	}
 
-	private void doAfterAssetTool( AssetTool tool, Map<Codec, AssetFilter> filters, Asset source, Asset target, boolean saveAs, boolean rename ) {
+	private void doAfterAssetTool( AssetTool tool, Map<Codec, ResourceFilter> filters, Asset source, Asset target, boolean saveAs, boolean rename ) {
 		try {
 			Asset folder = target.isFolder() ? target : getParent( target );
 
@@ -1370,7 +1370,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			setCurrentFileFolder( folder );
 
 			// If the user specified a codec use it to set the codec and asset type
-			Map<AssetFilter, Codec> filterCodecs = MapUtil.mirror( filters );
+			Map<ResourceFilter, Codec> filterCodecs = MapUtil.mirror( filters );
 			Codec selectedCodec = filterCodecs.get( tool.getSelectedFilter() );
 
 			// If the extension is not already supported use the default extension from the codec
@@ -1422,9 +1422,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( delete ) sourceSettings.delete();
 	}
 
-	private Map<Codec, AssetFilter> generateAssetFilters( ResourceType type ) {
-		Map<Codec, AssetFilter> filters = new HashMap<>();
-		type.getCodecs().forEach( c -> filters.put( c, new CodecAssetFilter( c ) ) );
+	private Map<Codec, ResourceFilter> generateAssetFilters( ResourceType type ) {
+		Map<Codec, ResourceFilter> filters = new HashMap<>();
+		type.getCodecs().forEach( c -> filters.put( c, new CodecResourceFilter( c ) ) );
 		return filters;
 	}
 

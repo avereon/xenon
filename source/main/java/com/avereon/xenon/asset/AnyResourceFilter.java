@@ -3,7 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 
-public class AnyAssetFilter implements AssetFilter {
+public class AnyResourceFilter implements ResourceFilter {
 
 	@Override
 	public String getDescription() {

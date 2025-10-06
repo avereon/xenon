@@ -67,7 +67,7 @@ public class AssetTool extends GuidedTool {
 
 	private final Label userMessage;
 
-	private final ComboBox<AssetFilter> filters;
+	private final ComboBox<ResourceFilter> filters;
 
 	private final TableColumn<Asset, Node> iconColumn;
 
@@ -127,9 +127,9 @@ public class AssetTool extends GuidedTool {
 
 		// Asset filters
 		filters = new ComboBox<>();
-		AssetFilter anyAssetFilter = new AnyAssetFilter();
-		filters.getItems().add( anyAssetFilter );
-		filters.getSelectionModel().select( anyAssetFilter );
+		ResourceFilter anyResourceFilter = new AnyResourceFilter();
+		filters.getItems().add( anyResourceFilter );
+		filters.getSelectionModel().select( anyResourceFilter );
 
 		// User notice bar
 		userMessage = new Label( "user message" );
@@ -229,19 +229,19 @@ public class AssetTool extends GuidedTool {
 		closeUserNotice();
 	}
 
-	public ObservableList<AssetFilter> getFilters() {
+	public ObservableList<ResourceFilter> getFilters() {
 		return filters.getItems();
 	}
 
-	public AssetFilter getSelectedFilter() {
+	public ResourceFilter getSelectedFilter() {
 		return filters.getSelectionModel().getSelectedItem();
 	}
 
-	public void setSelectedFilter( AssetFilter filter ) {
+	public void setSelectedFilter( ResourceFilter filter ) {
 		Fx.run( () -> this.filters.getSelectionModel().select( filter ) );
 	}
 
-	public ObservableValue<AssetFilter> selectedFilter() {
+	public ObservableValue<ResourceFilter> selectedFilter() {
 		return filters.getSelectionModel().selectedItemProperty();
 	}
 
@@ -347,13 +347,13 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void addSupportedFilters() {
-		List<AssetFilter> filters = getProgram()
+		List<ResourceFilter> filters = getProgram()
 			.getAssetManager()
 			.getAssetTypes()
 			.stream()
 			.filter( ResourceType::isUserType )
 			.flatMap( t -> t.getCodecs().stream() )
-			.map( CodecAssetFilter::new )
+			.map( CodecResourceFilter::new )
 			.sorted()
 			.collect( Collectors.toList() );
 		getFilters().addAll( 0, filters );

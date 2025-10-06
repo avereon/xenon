@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CustomLog
-public class CodecAssetFilter implements AssetFilter {
+public class CodecResourceFilter implements ResourceFilter {
 
 	private final Codec codec;
 
-	public CodecAssetFilter( Codec codec ) {
+	public CodecResourceFilter( Codec codec ) {
 		if( codec == null ) throw new NullPointerException( "Codec cannot be null" );
 		this.codec = codec;
 	}
