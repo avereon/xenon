@@ -290,7 +290,7 @@ public class Asset extends Node {
 		if( scheme != null ) scheme.open( this );
 		open = true;
 
-		getEventHub().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
+		getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.OPENED, this ) );
 
 		notifyAll();
 	}
@@ -312,7 +312,7 @@ public class Asset extends Node {
 		setModified( false );
 		loaded = true;
 
-		getEventHub().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
+		getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.LOADED, this ) );
 
 		notifyAll();
 	}
@@ -330,7 +330,7 @@ public class Asset extends Node {
 		setModified( false );
 		saved = true;
 
-		getEventHub().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
+		getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.SAVED, this ) );
 
 		notifyAll();
 	}
@@ -346,7 +346,7 @@ public class Asset extends Node {
 		if( scheme != null ) scheme.close( this );
 		open = false;
 
-		getEventHub().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
+		getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.CLOSED, this ) );
 
 		notifyAll();
 	}
@@ -415,9 +415,9 @@ public class Asset extends Node {
 		//			}
 		//		}
 		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
-			getEventHub().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
+			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.UNMODIFIED, Asset.this ) );
 		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
-			getEventHub().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
+			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.MODIFIED, Asset.this ) );
 		}
 		super.dispatch( event );
 	}

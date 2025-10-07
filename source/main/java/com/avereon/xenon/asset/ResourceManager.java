@@ -1200,7 +1200,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		log.atFiner().log( "Asset initialized with default values." );
 
 		// Register the general asset listener
-		asset.register( AssetEvent.ANY, generalAssetWatcher );
+		asset.register( ResourceEvent.ANY, generalAssetWatcher );
 
 		// Open the asset
 		asset.open( this );
@@ -1208,7 +1208,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Add the asset to the list of open assets
 		openAssets.add( asset );
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.OPENED, asset ) );
 		log.atDebug().log( "Asset opened: %s", asset );
 
 		updateActionState();
@@ -1229,7 +1229,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Load the asset
 		log.atTrace().log( "Loading asset " + asset.getUri() );
 		asset.load( this );
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.LOADED, asset ) );
 		log.atInfo().log( "Loaded: %s", asset );
 
 		updateActionState();
@@ -1240,7 +1240,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( asset == null || !asset.isLoaded() ) return false;
 
 		asset.load( this );
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.LOADED, asset ) );
 		log.atFiner().log( "Asset reloaded: %s", asset );
 
 		updateActionState();
@@ -1259,7 +1259,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		// TODO Update the asset type.
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.SAVED, asset ) );
 		log.atInfo().log( "Saved: %s", asset );
 
 		updateActionState();
@@ -1274,7 +1274,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		asset.close( this );
 
 		// Unregister the general asset listener
-		asset.unregister( AssetEvent.ANY, generalAssetWatcher );
+		asset.unregister( ResourceEvent.ANY, generalAssetWatcher );
 
 		// Remove the asset from the list of open assets
 		openAssets.remove( asset );
@@ -1287,7 +1287,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Recommended not to delete the asset settings.
 		// Maybe have a settings cleanup task and/or user actions
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.CLOSED, asset ) );
 		log.atDebug().log( "Asset closed: %s", asset );
 
 		updateActionState();
@@ -1301,7 +1301,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Delete the asset
 		asset.delete();
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.DELETED, asset ) );
+		getEventBus().dispatch( new ResourceEvent( this, ResourceEvent.DELETED, asset ) );
 		log.atDebug().log( "Asset deleted: %s", asset );
 
 		updateActionState();
@@ -1439,8 +1439,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 			// "Disconnect" the old current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
-				currentAsset.getEventHub().unregister( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.DEACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().unregister( ResourceEvent.ANY, currentAssetWatcher );
 			}
 
 			// Change current asset
@@ -1448,8 +1448,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 			// "Connect" the new current asset
 			if( currentAsset != null ) {
-				currentAsset.getEventHub().register( AssetEvent.ANY, currentAssetWatcher );
-				currentAsset.getEventHub().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
+				currentAsset.getEventHub().register( ResourceEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.ACTIVATED, currentAsset ) );
 			}
 
 			// Notify program of current asset change
@@ -1833,21 +1833,21 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	private class CurrentAssetWatcher implements EventHandler<AssetEvent> {
+	private class CurrentAssetWatcher implements EventHandler<ResourceEvent> {
 
 		@Override
-		public void handle( AssetEvent event ) {
+		public void handle( ResourceEvent event ) {
 			//System.err.println( "asset event=" + event );
-			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
-			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
+			if( event.getEventType() == ResourceEvent.MODIFIED ) updateActionState();
+			if( event.getEventType() == ResourceEvent.UNMODIFIED ) updateActionState();
 		}
 
 	}
 
-	private class GeneralAssetWatcher implements EventHandler<AssetEvent> {
+	private class GeneralAssetWatcher implements EventHandler<ResourceEvent> {
 
 		@Override
-		public void handle( AssetEvent event ) {
+		public void handle( ResourceEvent event ) {
 			autosave.request();
 		}
 

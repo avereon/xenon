@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.ResourceEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.notice.Notice;
@@ -288,8 +288,8 @@ public abstract class ProgramTool extends Tool {
 
 	private static void waitForAsset( Asset asset ) throws ResourceException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
-		EventHandler<AssetEvent> handler = e -> latch.countDown();
-		asset.register( AssetEvent.LOADED, handler );
+		EventHandler<ResourceEvent> handler = e -> latch.countDown();
+		asset.register( ResourceEvent.LOADED, handler );
 		try {
 			if( asset.exists() && !asset.isLoaded() ) {
 				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
@@ -299,7 +299,7 @@ public abstract class ProgramTool extends Tool {
 				}
 			}
 		} finally {
-			asset.unregister( AssetEvent.LOADED, handler );
+			asset.unregister( ResourceEvent.LOADED, handler );
 		}
 	}
 

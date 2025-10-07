@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.ResourceEvent;
 import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.*;
 import javafx.scene.Node;
@@ -60,7 +60,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	@Getter
 	private boolean displayed;
 
-	private EventHandler<AssetEvent> closer;
+	private EventHandler<ResourceEvent> closer;
 
 	public Tool( Asset asset ) {
 		this.asset = asset;
@@ -343,7 +343,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
+			getAsset().register( ResourceEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
 			triggerEvent( new ToolEvent( this, ToolEvent.ADDED, pane, this ) );
@@ -425,7 +425,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			deallocate();
 			allocated = false;
 			triggerEvent( new ToolEvent( this, ToolEvent.REMOVED, pane, this ) );
-			getAsset().getEventHub().unregister( AssetEvent.CLOSED, closer );
+			getAsset().getEventHub().unregister( ResourceEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deallocating tool" );
 		}

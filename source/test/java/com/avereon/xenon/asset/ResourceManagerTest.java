@@ -71,11 +71,11 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isOpen() ).isFalse();
 
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetEvent.OPENED );
+		watcher.waitForEvent( ResourceEvent.OPENED );
 		assertThat( asset.isOpen() ).isTrue();
 	}
 
@@ -84,7 +84,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isOpen() ).isFalse();
 
 		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
@@ -96,11 +96,11 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isLoaded() ).isFalse();
 
 		manager.loadAssets( asset );
-		watcher.waitForEvent( AssetEvent.LOADED );
+		watcher.waitForEvent( ResourceEvent.LOADED );
 		assertThat( asset.isOpen() ).isTrue();
 		assertThat( asset.isLoaded() ).isTrue();
 	}
@@ -110,7 +110,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isLoaded() ).isFalse();
 
 		manager.loadAssetsAndWait( asset );
@@ -123,17 +123,17 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isLoaded() ).isFalse();
 
 		manager.loadAssetsAndWait( asset );
 		assertThat( asset.isOpen() ).isTrue();
 		assertThat( asset.isLoaded() ).isTrue();
-		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( AssetEvent.LOADED );
-		AssetEvent event = watcher.getLastEvent();
+		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( ResourceEvent.LOADED );
+		ResourceEvent event = watcher.getLastEvent();
 
 		manager.reloadAssetsAndWait( asset );
-		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( AssetEvent.LOADED );
+		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( ResourceEvent.LOADED );
 		assertThat( event ).isNotEqualTo( watcher.getLastEvent() );
 	}
 
@@ -142,17 +142,17 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetEvent.OPENED );
+		watcher.waitForEvent( ResourceEvent.OPENED );
 		assertThat( asset.isOpen() ).isTrue();
 
 		// Asset must be loaded to be saved
 		manager.loadAssets( asset );
-		watcher.waitForEvent( AssetEvent.LOADED );
+		watcher.waitForEvent( ResourceEvent.LOADED );
 		assertThat( asset.isLoaded() ).isTrue();
 
 		// And an asset must be modified to be saved
@@ -160,7 +160,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		assertThat( asset.isSafeToSave() ).isTrue();
 
 		manager.saveAssets( asset );
-		watcher.waitForEvent( AssetEvent.SAVED );
+		watcher.waitForEvent( ResourceEvent.SAVED );
 		assertThat( asset.isSaved() ).isTrue();
 	}
 
@@ -169,7 +169,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 		assertThat( asset.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
@@ -178,7 +178,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 
 		// Asset must be loaded to be saved
 		manager.loadAssets( asset );
-		watcher.waitForEvent( AssetEvent.LOADED );
+		watcher.waitForEvent( ResourceEvent.LOADED );
 		assertThat( asset.isLoaded() ).isTrue();
 
 		// And an asset must be modified to be saved
@@ -194,15 +194,15 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 
 		// Asset must be open to be closed
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetEvent.OPENED );
+		watcher.waitForEvent( ResourceEvent.OPENED );
 		assertThat( asset.isOpen() ).isTrue();
 
 		manager.closeAssets( asset );
-		watcher.waitForEvent( AssetEvent.CLOSED );
+		watcher.waitForEvent( ResourceEvent.CLOSED );
 		assertThat( asset.isOpen() ).isFalse();
 	}
 
@@ -211,7 +211,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventHub().register( ResourceEvent.ANY, watcher );
 
 		// Asset must be open to be closed
 		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );

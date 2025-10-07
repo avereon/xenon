@@ -7,22 +7,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
-public class AssetWatcher implements EventHandler<AssetEvent> {
+public class AssetWatcher implements EventHandler<ResourceEvent> {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2500;
 
-	private Map<EventType<? extends AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
+	private Map<EventType<? extends ResourceEvent>, ResourceEvent> events = new ConcurrentHashMap<>();
 
-	private AssetEvent lastEvent;
+	private ResourceEvent lastEvent;
 
 	@Override
-	public synchronized void handle( AssetEvent event ) {
+	public synchronized void handle( ResourceEvent event ) {
 		events.put( event.getEventType(), event );
 		lastEvent = event;
 		notifyAll();
 	}
 
-	public void waitForEvent( EventType<AssetEvent> type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( EventType<ResourceEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
@@ -36,7 +36,7 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( EventType<AssetEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( EventType<ResourceEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -51,7 +51,7 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type.getName() );
 	}
 
-	public AssetEvent getLastEvent() {
+	public ResourceEvent getLastEvent() {
 		return lastEvent;
 	}
 
