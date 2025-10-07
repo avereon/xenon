@@ -3,7 +3,7 @@ package com.avereon.xenon.workpane;
 import com.avereon.event.EventHandler;
 import com.avereon.log.LazyEval;
 import com.avereon.skill.WritableIdentity;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceEvent;
 import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.*;
@@ -51,7 +51,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 
 	private final ObjectProperty<CloseOperation> closeOperation;
 
-	private final Asset asset;
+	private final Resource resource;
 
 	private WorkpaneView parent;
 
@@ -62,8 +62,8 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 
 	private EventHandler<ResourceEvent> closer;
 
-	public Tool( Asset asset ) {
-		this.asset = asset;
+	public Tool( Resource resource ) {
+		this.resource = resource;
 
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
@@ -82,12 +82,12 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> getWorkpane().setActiveTool( this ) );
 	}
 
-	public final Asset getAsset() {
-		return asset;
+	public final Resource getResource() {
+		return resource;
 	}
 
 	public final <T> T getAssetModel() {
-		return asset.getModel();
+		return resource.getModel();
 	}
 
 	public Workpane.Placement getPlacement() {
@@ -331,8 +331,8 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	 * @return True if this is the last tool of its type, false otherwise.
 	 */
 	protected boolean isLastTool() {
-		Asset asset = getAsset();
-		return getWorkpane().getTools( getClass() ).stream().filter( t -> t.getAsset() == asset ).count() == 1;
+		Resource resource = getResource();
+		return getWorkpane().getTools( getClass() ).stream().filter( t -> t.getResource() == resource ).count() == 1;
 	}
 
 	/**
@@ -343,7 +343,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().register( ResourceEvent.CLOSED, closer = ( e ) -> this.doClose() );
+			getResource().register( ResourceEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
 			triggerEvent( new ToolEvent( this, ToolEvent.ADDED, pane, this ) );
@@ -425,7 +425,7 @@ public abstract class Tool extends StackPane implements WritableIdentity {
 			deallocate();
 			allocated = false;
 			triggerEvent( new ToolEvent( this, ToolEvent.REMOVED, pane, this ) );
-			getAsset().getEventHub().unregister( ResourceEvent.CLOSED, closer );
+			getResource().getEventHub().unregister( ResourceEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.atError( exception ).log( "Error deallocating tool" );
 		}

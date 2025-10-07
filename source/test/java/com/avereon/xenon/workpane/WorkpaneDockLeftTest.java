@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +23,8 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 		assertThat( workpane.isDockSpace( Side.LEFT, view ) ).isTrue();
 		assertThat( workpane.isDockSpace( Side.RIGHT, view ) ).isTrue();
 
-		Asset asset = new Asset( "mock:asset" );
-		MockTool tool = new MockTool( asset );
+		Resource resource = new Resource( "mock:asset" );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool
@@ -44,8 +44,8 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testLeftDockSizeMovesWithTool() {
-		Asset asset = new Asset( "mock:asset" );
-		MockTool tool = new MockTool( asset );
+		Resource resource = new Resource( "mock:asset" );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool
@@ -67,8 +67,8 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testDockLeftInLandscapeMode() {
-		Asset asset = new Asset( "mock:asset" );
-		MockTool tool = new MockTool( asset );
+		Resource resource = new Resource( "mock:asset" );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool
@@ -86,15 +86,15 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testDockLeftInLandscapeModeWithTopAndBottomDocks() {
-		Asset asset = new Asset( "mock:asset" );
+		Resource resource = new Resource( "mock:asset" );
 
-		MockTool topTool = new MockTool( asset );
+		MockTool topTool = new MockTool( resource );
 		topTool.setPlacement( Workpane.Placement.DOCK_TOP );
 
-		MockTool bottomTool = new MockTool( asset );
+		MockTool bottomTool = new MockTool( resource );
 		bottomTool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
 
-		MockTool tool = new MockTool( asset );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool
@@ -114,8 +114,8 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testDockLeftInPortraitMode() {
-		Asset asset = new Asset( "mock:asset" );
-		MockTool tool = new MockTool( asset );
+		Resource resource = new Resource( "mock:asset" );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool
@@ -133,15 +133,15 @@ class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	void testDockLeftInPortraitModeWithTopAndBottomDocks() {
-		Asset asset = new Asset( "mock:asset" );
+		Resource resource = new Resource( "mock:asset" );
 
-		MockTool topTool = new MockTool( asset );
+		MockTool topTool = new MockTool( resource );
 		topTool.setPlacement( Workpane.Placement.DOCK_TOP );
 
-		MockTool bottomTool = new MockTool( asset );
+		MockTool bottomTool = new MockTool( resource );
 		bottomTool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
 
-		MockTool tool = new MockTool( asset );
+		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
 
 		// Add the tool

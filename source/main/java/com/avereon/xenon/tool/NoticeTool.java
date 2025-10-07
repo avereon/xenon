@@ -6,7 +6,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
@@ -32,8 +32,8 @@ public class NoticeTool extends ProgramTool {
 
 	private EventHandler<NodeEvent> assetHandler;
 
-	public NoticeTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public NoticeTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-notice" );
 
 		String clearAllText = Rb.text( RbKey.TOOL, "notice-clear-all" );

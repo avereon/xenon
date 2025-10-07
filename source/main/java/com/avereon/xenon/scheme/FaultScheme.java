@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.exception.ResourceException;
 
 public class FaultScheme extends ProgramScheme {
@@ -13,12 +13,12 @@ public class FaultScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean exists( Asset asset ) {
+	public boolean exists( Resource resource ) {
 		return true;
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws ResourceException {
+	public boolean canLoad( Resource resource ) throws ResourceException {
 		return true;
 	}
 

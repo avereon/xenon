@@ -2,7 +2,7 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.ResourceException;
@@ -29,8 +29,8 @@ public class ProgramNoticeType extends ResourceType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) throws ResourceException {
-		asset.setModel( new NoticeModel() );
+	public boolean assetOpen( Xenon program, Resource resource ) throws ResourceException {
+		resource.setModel( new NoticeModel() );
 		return true;
 	}
 
@@ -72,7 +72,7 @@ public class ProgramNoticeType extends ResourceType {
 		}
 
 		@Override
-		public void load( Asset asset, InputStream input ) throws IOException {
+		public void load( Resource resource, InputStream input ) throws IOException {
 			NoticeModel notices = new NoticeModel();
 
 			log.atTrace().log( "Load program notices..." );
@@ -80,16 +80,16 @@ public class ProgramNoticeType extends ResourceType {
 			// TODO Remove old notices...
 
 			notices.setModified( false );
-			asset.setModel( notices );
+			resource.setModel( notices );
 		}
 
 		@Override
-		public void save( Asset asset, OutputStream output ) throws IOException {
-			NoticeModel notices = asset.getModel();
+		public void save( Resource resource, OutputStream output ) throws IOException {
+			NoticeModel notices = resource.getModel();
 
 			log.atTrace().log( "Save program notices..." );
 
-			asset.setModified( false );
+			resource.setModified( false );
 		}
 
 	}

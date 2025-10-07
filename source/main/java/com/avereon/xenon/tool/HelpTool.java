@@ -2,7 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
@@ -24,8 +24,8 @@ public class HelpTool extends GuidedTool {
 
 	private final WebView web;
 
-	public HelpTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public HelpTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "help" ) );
 
@@ -42,7 +42,7 @@ public class HelpTool extends GuidedTool {
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		// The asset type should load the help content
 		// The asset model should be a Markdown document
-		String content = request.getAsset().getModel();
+		String content = request.getResource().getModel();
 		//log.atConfig().log( "content=" + content );
 		//content = content == null ? "null" : content;
 		//mdfx.setMdString( content );

@@ -170,7 +170,7 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	 * method is valuable if the asset requires user interaction when creating new
 	 * assets.
 	 * <p>
-	 * Unlike the {@link #assetOpen(Xenon, Asset)} method this method is
+	 * Unlike the {@link #assetOpen(Xenon, Resource)} method this method is
 	 * only called for new assets. If the asset is not new, this method will not
 	 * be called, unlike the process for opening or restoring existing assets.
 	 * <p>
@@ -178,15 +178,15 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	 * directly on UI components.
 	 *
 	 * @param program
-	 * @param asset
+	 * @param resource
 	 * @return True if the asset was opened, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
 	 * @throws ResourceException if the asset failed to be opened.
 	 */
-	public boolean assetNew( Xenon program, Asset asset ) throws ResourceException {
+	public boolean assetNew( Xenon program, Resource resource ) throws ResourceException {
 		return true;
 	}
 
-	boolean callAssetNew( Xenon program, Asset asset ) throws ResourceException {
+	boolean callAssetNew( Xenon program, Resource resource ) throws ResourceException {
 		Object lock = new Object();
 		AtomicBoolean result = new AtomicBoolean();
 		AtomicReference<ResourceException> resultException = new AtomicReference<>();
@@ -195,7 +195,7 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 			synchronized( lock ) {
 				try {
 					log.atTrace().log( "Calling assetNew()..." );
-					result.set( assetNew( program, asset ) );
+					result.set( assetNew( program, resource ) );
 				} catch( ResourceException exception ) {
 					resultException.set( exception );
 				} finally {
@@ -223,25 +223,25 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	 * method can provide the specified asset with an initial state prior to being
 	 * loaded or used in a tool.
 	 * <p>
-	 * Unlike the {@link #assetNew(Xenon, Asset)} method this method is
+	 * Unlike the {@link #assetNew(Xenon, Resource)} method this method is
 	 * always called whenever an asset is opened, new or otherwise. This method
 	 * should not be used for user interaction. User interaction should be
-	 * implemented in the {@link #assetNew(Xenon, Asset)} method.
+	 * implemented in the {@link #assetNew(Xenon, Resource)} method.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components. <br>
 	 *
 	 * @param program
-	 * @param asset
+	 * @param resource
 	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
 	 * @throws ResourceException if the asset failed to be initialized.
 	 */
-	public boolean assetOpen( Xenon program, Asset asset ) throws ResourceException {
+	public boolean assetOpen( Xenon program, Resource resource ) throws ResourceException {
 		return true;
 	}
 
-	boolean callAssetOpen( Xenon program, Asset asset ) throws ResourceException {
-		return assetOpen( program, asset );
+	boolean callAssetOpen( Xenon program, Resource resource ) throws ResourceException {
+		return assetOpen( program, resource );
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import lombok.CustomLog;
 public class ResourceTypeAndSizeComparator extends ResourceTypeComparator {
 
 	@Override
-	public int compare( Asset o1, Asset o2 ) {
+	public int compare( Resource o1, Resource o2 ) {
 		try {
 			if( o1.isFolder() && o2.isFolder() ) return Long.compare( o1.getSize(), o2.getSize() );
 			if( !o1.isFolder() && !o2.isFolder() ) return Long.compare( o1.getSize(), o2.getSize() );

@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,8 @@ class SettingsToolGetRequiredAssetsUIT extends SettingsToolUIT {
 
 	@Test
 	void execute() {
-		Asset asset = new Asset( ProgramSettingsType.URI );
-		SettingsTool tool = new SettingsTool( getProgram(), asset );
+		Resource resource = new Resource( ProgramSettingsType.URI );
+		SettingsTool tool = new SettingsTool( getProgram(), resource );
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets ).contains( ProgramGuideType.URI );
 	}

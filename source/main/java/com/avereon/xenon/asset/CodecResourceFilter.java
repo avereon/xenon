@@ -22,11 +22,11 @@ public class CodecResourceFilter implements ResourceFilter {
 	}
 
 	@Override
-	public boolean accept( Asset asset ) {
+	public boolean accept( Resource resource ) {
 		try {
-			if( asset == null ) return false;
-			if( asset.isFolder() ) return true;
-			return codec.isSupported( asset );
+			if( resource == null ) return false;
+			if( resource.isFolder() ) return true;
+			return codec.isSupported( resource );
 		} catch( Exception exception ) {
 			log.atWarn( exception ).log();
 			return false;

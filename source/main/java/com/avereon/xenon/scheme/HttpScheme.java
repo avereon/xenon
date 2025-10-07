@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.NullCodecException;
@@ -44,35 +44,35 @@ public class HttpScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws ResourceException {
+	public boolean canLoad( Resource resource ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws ResourceException {
-		if( codec == null ) throw new NullCodecException( asset );
+	public void load( Resource resource, Codec codec ) throws ResourceException {
+		if( codec == null ) throw new NullCodecException( resource );
 
-		URL url = getUrl( asset );
+		URL url = getUrl( resource );
 		try {
 			URLConnection connection = url.openConnection();
 
-			asset.setEncoding( connection.getContentEncoding() );
-			asset.setMediaType( connection.getContentType() );
+			resource.setEncoding( connection.getContentEncoding() );
+			resource.setMediaType( connection.getContentType() );
 
 			try( InputStream stream = connection.getInputStream() ) {
-				codec.load( asset, stream );
+				codec.load( resource, stream );
 			} catch( Throwable exception ) {
-				throw new ResourceException( asset, exception );
+				throw new ResourceException( resource, exception );
 			}
 		} catch( Throwable exception ) {
-			throw new ResourceException( asset, exception );
+			throw new ResourceException( resource, exception );
 		}
 	}
 
 	@Override
-	public boolean exists( Asset asset ) {
+	public boolean exists( Resource resource ) {
 		try {
-			HttpRequest request = HttpRequest.newBuilder().uri( asset.getUri() ).build();
+			HttpRequest request = HttpRequest.newBuilder().uri( resource.getUri() ).build();
 			HttpResponse<String> response = getClient().send( request, HttpResponse.BodyHandlers.ofString() );
 			return response.statusCode() < 500 & response.statusCode() != 404;
 		} catch( IOException | InterruptedException exception ) {
@@ -89,14 +89,14 @@ public class HttpScheme extends ProgramScheme {
 	/**
 	 * Get the file.
 	 */
-	private URL getUrl( Asset asset ) throws ResourceException {
-		URL url = asset.getValue( URL );
+	private URL getUrl( Resource resource ) throws ResourceException {
+		URL url = resource.getValue( URL );
 
 		if( url == null ) {
 			try {
-				asset.setValue( URL, url = asset.getUri().toURL() );
+				resource.setValue( URL, url = resource.getUri().toURL() );
 			} catch( IOException exception ) {
-				throw new ResourceException( asset, exception );
+				throw new ResourceException( resource, exception );
 			}
 		}
 

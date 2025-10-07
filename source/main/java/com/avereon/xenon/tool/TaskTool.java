@@ -7,7 +7,7 @@ import com.avereon.xenon.XenonMode;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;
@@ -41,8 +41,8 @@ public class TaskTool extends ProgramTool {
 
 	private EventHandler<TaskEvent> taskManagerWatcher;
 
-	public TaskTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public TaskTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		tasks = new CopyOnWriteArraySet<>();
 
 		setId( "tool-task" );

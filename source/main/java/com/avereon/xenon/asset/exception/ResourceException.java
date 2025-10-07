@@ -1,37 +1,37 @@
 package com.avereon.xenon.asset.exception;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 
 public class ResourceException extends Exception {
 
 	private static final long serialVersionUID = -4061564873726896880L;
 
-	private Asset asset;
+	private Resource resource;
 
-	public ResourceException( Asset asset ) {
-		this( asset, null, null );
+	public ResourceException( Resource resource ) {
+		this( resource, null, null );
 	}
 
-	public ResourceException( Asset asset, String message ) {
-		this( asset, message, null );
+	public ResourceException( Resource resource, String message ) {
+		this( resource, message, null );
 	}
 
-	public ResourceException( Asset asset, Throwable cause ) {
-		this( asset, cause.getMessage(), cause );
+	public ResourceException( Resource resource, Throwable cause ) {
+		this( resource, cause.getMessage(), cause );
 	}
 
-	public ResourceException( Asset asset, String message, Throwable cause ) {
+	public ResourceException( Resource resource, String message, Throwable cause ) {
 		super( message, cause );
-		this.asset = asset;
+		this.resource = resource;
 	}
 
-	public Asset getAsset() {
-		return asset;
+	public Resource getAsset() {
+		return resource;
 	}
 
 	@Override
 	public String getMessage() {
-		return super.getMessage() + ": " + asset;
+		return super.getMessage() + ": " + resource;
 	}
 
 }

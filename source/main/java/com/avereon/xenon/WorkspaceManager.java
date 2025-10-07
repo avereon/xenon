@@ -4,7 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
@@ -180,17 +180,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		throw new IllegalStateException( "No workspace stages available" );
 	}
 
-	public Set<Tool> getAssetTools( Asset asset ) {
-		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getTools().stream() ).filter( t -> t.getAsset() == asset ).collect( Collectors.toSet() );
+	public Set<Tool> getAssetTools( Resource resource ) {
+		return workspaces.stream().flatMap( w -> w.getWorkareas().stream() ).flatMap( a -> a.getTools().stream() ).filter( t -> t.getResource() == resource ).collect( Collectors.toSet() );
 	}
 
-	public Set<Asset> getModifiedAssets() {
+	public Set<Resource> getModifiedAssets() {
 		return workspaces
 			.stream()
 			.flatMap( w -> w.getWorkareas().stream() )
 			.flatMap( a -> a.getTools().stream() )
-			.map( Tool::getAsset )
-			.filter( Asset::isNewOrModified )
+			.map( Tool::getResource )
+			.filter( Resource::isNewOrModified )
 			.collect( Collectors.toSet() );
 	}
 
@@ -200,23 +200,23 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	 * @param workspace This workspace to check
 	 * @return The modified assets in the workspace
 	 */
-	public Set<Asset> getModifiedAssets( Workspace workspace ) {
-		return workspace.getWorkareas().stream().flatMap( a -> a.getTools().stream() ).map( Tool::getAsset ).filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
+	public Set<Resource> getModifiedAssets( Workspace workspace ) {
+		return workspace.getWorkareas().stream().flatMap( a -> a.getTools().stream() ).map( Tool::getResource ).filter( Resource::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	/**
 	 * Handle modified assets by asking the user what to do with them. The assets
 	 * can be provided from any scope (program, workspace, workarea, tool, etc.).
 	 *
-	 * @param assets The modified assets to handle
+	 * @param resources The modified assets to handle
 	 * @return False if the user chooses to cancel the operation
 	 */
-	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
-		if( assets.isEmpty() ) return true;
+	public boolean handleModifiedAssets( ProgramScope scope, Set<Resource> resources ) {
+		if( resources.isEmpty() ) return true;
 
 		boolean autoSave = getProgram().getSettings().get( "shutdown-autosave", Boolean.class, false );
 		if( autoSave ) {
-			getProgram().getResourceManager().saveAssets( assets );
+			getProgram().getResourceManager().saveAssets( resources );
 			return true;
 		}
 
@@ -230,7 +230,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
-			if( result.get() == ButtonType.YES ) getProgram().getResourceManager().saveAssets( assets );
+			if( result.get() == ButtonType.YES ) getProgram().getResourceManager().saveAssets( resources );
 			return result.get() == ButtonType.YES || result.get() == ButtonType.NO;
 		}
 

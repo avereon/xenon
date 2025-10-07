@@ -6,7 +6,7 @@ import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -33,8 +33,8 @@ public class PropertiesTool extends ProgramTool {
 
 	private final EventHandler<PropertiesToolEvent> hideHandler;
 
-	public PropertiesTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public PropertiesTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-properties" );
 
 		scroller = new ScrollPane();

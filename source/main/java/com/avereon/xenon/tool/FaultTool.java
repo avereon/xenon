@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import javafx.scene.control.TextArea;
@@ -20,8 +20,8 @@ public class FaultTool extends ProgramTool {
 
 	private EventHandler<ProgramEvent> closingHandler;
 
-	public FaultTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public FaultTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-fault" );
 
 		text = new TextArea();
@@ -33,7 +33,7 @@ public class FaultTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getAsset().getName() );
+		setTitle( getResource().getName() );
 		setGraphic( getProgram().getIconLibrary().getIcon( "fault" ) );
 		// Tasks have to finish before the program exits so this ensures the tool will close
 		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> getProgram().getTaskManager().submit( Task.of( "", this::close ) ) );
@@ -41,7 +41,7 @@ public class FaultTool extends ProgramTool {
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
-		Throwable throwable = getAsset().getModel();
+		Throwable throwable = getResource().getModel();
 
 		if( throwable != null ) {
 			StringWriter writer = new StringWriter();

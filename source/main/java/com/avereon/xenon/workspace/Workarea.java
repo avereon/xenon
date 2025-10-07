@@ -5,7 +5,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.workpane.*;
 import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;
@@ -155,12 +155,12 @@ public class Workarea extends Workpane implements WritableIdentity {
 		return getWorkspace().getProgram();
 	}
 
-	public Set<Asset> getAssets() {
-		return getTools().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
+	public Set<Resource> getAssets() {
+		return getTools().stream().map( Tool::getResource ).collect( Collectors.toSet() );
 	}
 
-	public Set<Asset> getModifiedAssets() {
-		return getAssets().stream().filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
+	public Set<Resource> getModifiedAssets() {
+		return getAssets().stream().filter( Resource::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	//	@Override
@@ -181,7 +181,7 @@ public class Workarea extends Workpane implements WritableIdentity {
 	private void doSetCurrentAsset( ToolEvent e ) {
 		ProgramTool tool = (ProgramTool)e.getTool();
 		if( !tool.changeCurrentAsset() ) return;
-		getWorkspace().getProgram().getResourceManager().setCurrentAsset( tool.getAsset() );
+		getWorkspace().getProgram().getResourceManager().setCurrentAsset( tool.getResource() );
 	}
 
 	private void doClearCurrentAsset( ToolEvent e ) {
@@ -226,7 +226,7 @@ public class Workarea extends Workpane implements WritableIdentity {
 					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
 					pane.moveTool( sourceTool, targetView, side, index );
 				} else if( mode == TransferMode.COPY ) {
-					getProgram().getResourceManager().openAsset( sourceTool.getAsset(), targetView, side );
+					getProgram().getResourceManager().openAsset( sourceTool.getResource(), targetView, side );
 				}
 			}
 		}

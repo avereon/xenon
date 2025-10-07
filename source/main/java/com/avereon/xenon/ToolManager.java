@@ -5,7 +5,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Controllable;
 import com.avereon.util.IdGenerator;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -94,11 +94,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		TaskManager.taskThreadCheck();
 
 		// Verify the request parameters
-		Asset asset = request.getAsset();
-		if( asset == null ) throw new NullPointerException( "Asset cannot be null" );
+		Resource resource = request.getResource();
+		if( resource == null ) throw new NullPointerException( "Asset cannot be null" );
 
 		// Get the asset type to look up the registered tool classes
-		ResourceType resourceType = asset.getType();
+		ResourceType resourceType = resource.getType();
 
 		// Determine which tool class will be used
 		Class<? extends ProgramTool> requestedToolClass = request.getToolClass();
@@ -364,7 +364,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenAssetRequest request ) throws Exception {
-		Asset asset = request.getAsset();
+		Resource resource = request.getResource();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 
 		// Get the registered product for this tool class
@@ -377,14 +377,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		Task<ProgramTool> createToolTask = Task.of(
 			taskName, () -> {
 				// Create the new tool instance
-				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Asset.class );
-				ProgramTool tool = constructor.newInstance( product, asset );
+				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( XenonProgramProduct.class, Resource.class );
+				ProgramTool tool = constructor.newInstance( product, resource );
 
 				// Set the id before using settings
 				tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
 				tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
-				tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
-				if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
+				tool.getSettings().set( Resource.SETTINGS_URI_KEY, tool.getResource().getUri() );
+				if( tool.getResource().getType() != null ) tool.getSettings().set( Resource.SETTINGS_TYPE_KEY, tool.getResource().getType().getKey() );
 				addToolListenerForSettings( tool );
 				log.atFine().log( "Tool instance created: %s", tool.getClass().getName() );
 				return tool;

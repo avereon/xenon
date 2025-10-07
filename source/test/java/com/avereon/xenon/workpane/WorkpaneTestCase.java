@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.xenon.BaseFxPlatformTestCase;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,7 @@ public abstract class WorkpaneTestCase extends BaseFxPlatformTestCase {
 
 	protected Workpane workpane;
 
-	protected Asset asset = new Asset( URI.create( "" ) );
+	protected Resource resource = new Resource( URI.create( "" ) );
 
 	WorkpaneView view;
 

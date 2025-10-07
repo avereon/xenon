@@ -11,7 +11,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testAddToolAllocateCheck() {
-		MockTool tool = new MockTool( asset );
+		MockTool tool = new MockTool( resource );
 		tool.setWorkpane( workpane );
 		workpane.addTool( tool, false );
 		assertThat( workpane.getTools().contains( tool ) ).isTrue();
@@ -21,7 +21,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testAddRemoveToolEvents() {
-		MockTool tool = new MockTool( asset );
+		MockTool tool = new MockTool( resource );
 
 		// Add the tool but do not set it active.
 		workpane.addTool( tool, false );
@@ -48,7 +48,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testAddSelectRemoveToolEvents() {
-		MockTool tool = new MockTool( asset );
+		MockTool tool = new MockTool( resource );
 		assertThat( workpane.getActiveTool() ).isNull();
 
 		// Add the tool and set it active.
@@ -76,9 +76,9 @@ class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	void testSelectToolEvents() {
-		MockTool tool1 = new MockTool( asset );
-		MockTool tool2 = new MockTool( asset );
-		MockTool tool3 = new MockTool( asset );
+		MockTool tool1 = new MockTool( resource );
+		MockTool tool2 = new MockTool( resource );
+		MockTool tool3 = new MockTool( resource );
 		assertThat( tool1.getEvents().size() ).isEqualTo( 0 );
 		assertThat( tool2.getEvents().size() ).isEqualTo( 0 );
 		assertThat( tool3.getEvents().size() ).isEqualTo( 0 );
@@ -140,9 +140,9 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testSetActiveTool() {
 		// given
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
-		Tool tool3 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
+		Tool tool3 = new MockTool( resource );
 
 		tool1.setTitle( "Tool 1" );
 		tool2.setTitle( "Tool 2" );
@@ -597,8 +597,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testCloseLastToolInDefaultView() {
 		// given
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
 
 		WorkpaneView defaultView = workpane.getDefaultView();
 		WorkpaneView leftView = workpane.split( Side.LEFT );
@@ -623,8 +623,8 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testCloseToolInViewThatCanAutoMerge() {
 		// given
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
 
 		WorkpaneView defaultView = workpane.getDefaultView();
 		WorkpaneView leftView = workpane.split( Side.LEFT );
@@ -649,7 +649,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 	void addTool() {
 		// given
 		Workpane workpane = resolve( new Workpane() );
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 
 		// when
 		Fx.run( () -> {
@@ -668,7 +668,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 	void addToolToNonDefaultView() {
 		// given
 		Workpane workpane = resolve( new Workpane() );
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 
 		// when
 		Fx.run( () -> {
@@ -690,9 +690,9 @@ class WorkpaneTest extends WorkpaneTestCase {
 		Workpane workpane = resolve( new Workpane() );
 		WorkpaneView view = workpane.getDefaultView();
 
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
-		Tool tool3 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
+		Tool tool3 = new MockTool( resource );
 
 		// when
 		Fx.run( () -> {

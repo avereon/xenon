@@ -4,7 +4,7 @@ import com.avereon.data.NodeSettings;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.PropertiesToolEvent;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.type.ProgramPropertiesType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -28,11 +28,11 @@ public class PropertiesAction extends ProgramAction {
 	@Override
 	public void handle( ActionEvent event ) {
 		// Get the settings pages for the asset type
-		Asset asset = getProgram().getResourceManager().getCurrentAsset();
-		SettingsPage page = asset.getType().getSettingsPages().get( "asset" );
+		Resource resource = getProgram().getResourceManager().getCurrentAsset();
+		SettingsPage page = resource.getType().getSettingsPages().get( "asset" );
 
 		// Set the settings for the pages
-		page.setSettings( new NodeSettings( asset.getModel() ) );
+		page.setSettings( new NodeSettings( resource.getModel() ) );
 
 		// Switch to a task thread to get the tool
 		getProgram().getTaskManager().submit( Task.of( () -> {

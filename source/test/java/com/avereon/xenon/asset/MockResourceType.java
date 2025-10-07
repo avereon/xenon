@@ -37,7 +37,7 @@ public class MockResourceType extends ResourceType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Resource resource ) {
 		return true;
 	}
 

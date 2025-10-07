@@ -42,7 +42,7 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 
 	private WatchService watchService;
 
-	private final Map<Asset, Set<Callback<ResourceWatchEvent, ?>>> callbacks;
+	private final Map<Resource, Set<Callback<ResourceWatchEvent, ?>>> callbacks;
 
 	public ResourceWatchService( XenonProgram program ) {
 		this.program = program;
@@ -111,22 +111,22 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 						try {
 							Path parentPath = (Path)key.watchable();
 							Path assetPath = parentPath.resolve( eventPath );
-							Asset asset = getProgram().getResourceManager().createAsset( assetPath );
+							Resource resource = getProgram().getResourceManager().createAsset( assetPath );
 
 							// This logic is intended to catch double events and events from our own save.
-							long lastSavedTime = asset.getLastSaved();
+							long lastSavedTime = resource.getLastSaved();
 
 							// This timeout needs to be long enough for the OS to react.
 							// In the case of network assets it can take a couple of seconds.
 							if( System.currentTimeMillis() - lastSavedTime < OS_REACTION_TIME ) continue;
-							asset.setLastSaved( System.currentTimeMillis() );
+							resource.setLastSaved( System.currentTimeMillis() );
 
 							// Update the externally modified flag
-							asset.setExternallyModified( true );
+							resource.setExternallyModified( true );
 
 							// Dispatch the event
 							ResourceWatchEvent.Type type = ResourceWatchEvent.Type.valueOf( kind.name().substring( "ENTRY_".length() ));
-							dispatch( asset, new ResourceWatchEvent( type, asset ) );
+							dispatch( resource, new ResourceWatchEvent( type, resource ) );
 						} catch( ResourceException exception ) {
 							log.atWarn( exception ).log();
 						}
@@ -138,8 +138,8 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 		}
 	}
 
-	private void dispatch( Asset asset,  ResourceWatchEvent event ) throws ResourceException {
-		for( Callback<ResourceWatchEvent, ?> callback : this.callbacks.getOrDefault( asset, Set.of() ) ) {
+	private void dispatch( Resource resource, ResourceWatchEvent event ) throws ResourceException {
+		for( Callback<ResourceWatchEvent, ?> callback : this.callbacks.getOrDefault( resource, Set.of() ) ) {
 			// Don't let an individual callback stop the rest of the callbacks
 			try {
 				callback.call( event );
@@ -149,32 +149,33 @@ public class ResourceWatchService implements Controllable<ResourceWatchService> 
 		}
 
 		// Dispatch to the parent folder if the asset is a file
-		if( !asset.isFolder() ) dispatch( getProgram().getResourceManager().getParent( asset ), event );
+		if( !resource.isFolder() ) dispatch( getProgram().getResourceManager().getParent( resource ), event );
 	}
 
-	public void registerWatch( Asset asset, Callback<ResourceWatchEvent, ?> callback ) throws ResourceException {
-		Path path = getFileScheme().getFile( asset ).toPath();
+	public void registerWatch( Resource resource, Callback<ResourceWatchEvent, ?> callback ) throws ResourceException {
+		Path path = getFileScheme().getFile( resource ).toPath();
 		try {
-			callbacks.computeIfAbsent( asset, k -> ConcurrentHashMap.newKeySet() ).add( callback );
+			callbacks.computeIfAbsent( resource, k -> ConcurrentHashMap.newKeySet() ).add( callback );
 
 			WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
 			watchServicePaths.put( key, path );
-			asset.setValue( JAVA_NIO_FILE_WATCH_KEY, key );
+			resource.setValue( JAVA_NIO_FILE_WATCH_KEY, key );
 		} catch( IOException exception ) {
-			throw new ResourceException( asset, exception );
+			throw new ResourceException( resource, exception );
 		}
 		//log.atConfig().log( "Registered watch for %s", asset );
 	}
 
-	public void removeWatch( Asset asset, Callback<ResourceWatchEvent, ?> callback ) {
+	public void removeWatch( Resource resource, Callback<ResourceWatchEvent, ?> callback ) {
 		//log.atConfig().log( "Removing watch for %s", asset );
-		WatchKey key = asset.getValue( JAVA_NIO_FILE_WATCH_KEY );
+		WatchKey key = resource.getValue( JAVA_NIO_FILE_WATCH_KEY );
 		if( key == null ) return;
 		key.cancel();
 		watchServicePaths.remove( key );
 
 		// Remove the callback
-		callbacks.computeIfPresent( asset, ( k, v ) -> {
+		callbacks.computeIfPresent(
+			resource, ( k, v ) -> {
 			v.remove( callback );
 			return v.isEmpty() ? null : v;
 		} );

@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideContext;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -25,8 +25,8 @@ public class MockGuidedTool extends GuidedTool {
 
 	private int guideNodesSelectedEventCount;
 
-	public MockGuidedTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public MockGuidedTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		Guide guide = createGuide();
 		getGuideContext().getGuides().add( guide );
 		getGuideContext().setCurrentGuide( guide );

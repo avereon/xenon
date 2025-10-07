@@ -35,8 +35,8 @@ public class ResourceManagerTest extends ProgramTestCase {
 	void testNewAsset() throws Exception {
 		// New assets have an asset type when created.
 		// The URI is assigned when the asset is saved.
-		Asset newAsset = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
-		assertThat( newAsset.isNew() ).isTrue();
+		Resource newResource = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
+		assertThat( newResource.isNew() ).isTrue();
 	}
 
 	@Test
@@ -44,95 +44,95 @@ public class ResourceManagerTest extends ProgramTestCase {
 		// Old assets have a URI when created.
 		// The asset type is assigned when the asset is opened.
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset oldAsset = manager.createAsset( uri );
-		assertThat( oldAsset.isNew() ).isFalse();
+		Resource oldResource = manager.createAsset( uri );
+		assertThat( oldResource.isNew() ).isFalse();
 	}
 
 	@Test
 	void testCreateAssetWithUri() throws Exception {
 		URI uri = URI.create( "mock:///home/user/temp/test.txt" );
-		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
-		assertThat( asset.getUri() ).isEqualTo( uri );
-		assertThat( asset.isOpen() ).isFalse();
+		Resource resource = manager.createAsset( uri );
+		assertThat( resource.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
+		assertThat( resource.getUri() ).isEqualTo( uri );
+		assertThat( resource.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testCreateAssetWithString() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
-		assertThat( asset.getUri() ).isEqualTo( URI.create( uri ) );
-		assertThat( asset.isOpen() ).isFalse();
+		Resource resource = manager.createAsset( uri );
+		assertThat( resource.getScheme() ).isEqualTo( manager.getScheme( MockScheme.ID ) );
+		assertThat( resource.getUri() ).isEqualTo( URI.create( uri ) );
+		assertThat( resource.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testOpenAssets() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isOpen() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isOpen() ).isFalse();
 
-		manager.openAssets( asset );
+		manager.openAssets( resource );
 		watcher.waitForEvent( ResourceEvent.OPENED );
-		assertThat( asset.isOpen() ).isTrue();
+		assertThat( resource.isOpen() ).isTrue();
 	}
 
 	@Test
 	void testOpenAssetsAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isOpen() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isOpen() ).isFalse();
 
-		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
-		assertThat( asset.isOpen() ).isTrue();
+		manager.openAssetsAndWait( resource, 1, TimeUnit.SECONDS );
+		assertThat( resource.isOpen() ).isTrue();
 	}
 
 	@Test
 	void testLoadAssets() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isLoaded() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isLoaded() ).isFalse();
 
-		manager.loadAssets( asset );
+		manager.loadAssets( resource );
 		watcher.waitForEvent( ResourceEvent.LOADED );
-		assertThat( asset.isOpen() ).isTrue();
-		assertThat( asset.isLoaded() ).isTrue();
+		assertThat( resource.isOpen() ).isTrue();
+		assertThat( resource.isLoaded() ).isTrue();
 	}
 
 	@Test
 	void testLoadAssetsAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isLoaded() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isLoaded() ).isFalse();
 
-		manager.loadAssetsAndWait( asset );
-		assertThat( asset.isOpen() ).isTrue();
-		assertThat( asset.isLoaded() ).isTrue();
+		manager.loadAssetsAndWait( resource );
+		assertThat( resource.isOpen() ).isTrue();
+		assertThat( resource.isLoaded() ).isTrue();
 	}
 
 	@Test
 	void testReloadAssets() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isLoaded() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isLoaded() ).isFalse();
 
-		manager.loadAssetsAndWait( asset );
-		assertThat( asset.isOpen() ).isTrue();
-		assertThat( asset.isLoaded() ).isTrue();
+		manager.loadAssetsAndWait( resource );
+		assertThat( resource.isOpen() ).isTrue();
+		assertThat( resource.isLoaded() ).isTrue();
 		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( ResourceEvent.LOADED );
 		ResourceEvent event = watcher.getLastEvent();
 
-		manager.reloadAssetsAndWait( asset );
+		manager.reloadAssetsAndWait( resource );
 		assertThat( watcher.getLastEvent().getEventType() ).isEqualTo( ResourceEvent.LOADED );
 		assertThat( event ).isNotEqualTo( watcher.getLastEvent() );
 	}
@@ -140,99 +140,99 @@ public class ResourceManagerTest extends ProgramTestCase {
 	@Test
 	void testSaveAssets() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isSaved() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
-		manager.openAssets( asset );
+		manager.openAssets( resource );
 		watcher.waitForEvent( ResourceEvent.OPENED );
-		assertThat( asset.isOpen() ).isTrue();
+		assertThat( resource.isOpen() ).isTrue();
 
 		// Asset must be loaded to be saved
-		manager.loadAssets( asset );
+		manager.loadAssets( resource );
 		watcher.waitForEvent( ResourceEvent.LOADED );
-		assertThat( asset.isLoaded() ).isTrue();
+		assertThat( resource.isLoaded() ).isTrue();
 
 		// And an asset must be modified to be saved
-		asset.setModified( true );
-		assertThat( asset.isSafeToSave() ).isTrue();
+		resource.setModified( true );
+		assertThat( resource.isSafeToSave() ).isTrue();
 
-		manager.saveAssets( asset );
+		manager.saveAssets( resource );
 		watcher.waitForEvent( ResourceEvent.SAVED );
-		assertThat( asset.isSaved() ).isTrue();
+		assertThat( resource.isSaved() ).isTrue();
 	}
 
 	@Test
 	void testSaveAssetsAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
-		assertThat( asset.isSaved() ).isFalse();
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
+		assertThat( resource.isSaved() ).isFalse();
 
 		// Asset must be open to be saved
-		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
-		assertThat( asset.isOpen() ).isTrue();
+		manager.openAssetsAndWait( resource, 1, TimeUnit.SECONDS );
+		assertThat( resource.isOpen() ).isTrue();
 
 		// Asset must be loaded to be saved
-		manager.loadAssets( asset );
+		manager.loadAssets( resource );
 		watcher.waitForEvent( ResourceEvent.LOADED );
-		assertThat( asset.isLoaded() ).isTrue();
+		assertThat( resource.isLoaded() ).isTrue();
 
 		// And an asset must be modified to be saved
-		asset.setModified( true );
-		assertThat( asset.isSafeToSave() ).isTrue();
+		resource.setModified( true );
+		assertThat( resource.isSafeToSave() ).isTrue();
 
-		manager.saveAssetsAndWait( asset );
-		assertThat( asset.isSaved() ).isTrue();
+		manager.saveAssetsAndWait( resource );
+		assertThat( resource.isSaved() ).isTrue();
 	}
 
 	@Test
 	void testCloseAssets() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
 
 		// Asset must be open to be closed
-		manager.openAssets( asset );
+		manager.openAssets( resource );
 		watcher.waitForEvent( ResourceEvent.OPENED );
-		assertThat( asset.isOpen() ).isTrue();
+		assertThat( resource.isOpen() ).isTrue();
 
-		manager.closeAssets( asset );
+		manager.closeAssets( resource );
 		watcher.waitForEvent( ResourceEvent.CLOSED );
-		assertThat( asset.isOpen() ).isFalse();
+		assertThat( resource.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testCloseAssetsAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
-		Asset asset = manager.createAsset( uri );
+		Resource resource = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( ResourceEvent.ANY, watcher );
+		resource.getEventHub().register( ResourceEvent.ANY, watcher );
 
 		// Asset must be open to be closed
-		manager.openAssetsAndWait( asset, 1, TimeUnit.SECONDS );
-		assertThat( asset.isOpen() ).isTrue();
+		manager.openAssetsAndWait( resource, 1, TimeUnit.SECONDS );
+		assertThat( resource.isOpen() ).isTrue();
 
-		manager.closeAssetsAndWait( asset );
-		assertThat( asset.isOpen() ).isFalse();
+		manager.closeAssetsAndWait( resource );
+		assertThat( resource.isOpen() ).isFalse();
 	}
 
 	@Test
 	void testAutoDetectAssetTypeWithOpaqueUri() throws Exception {
-		Asset asset = manager.createAsset( URI.create( "mock:test" ) );
-		manager.autoDetectAssetType( asset );
-		assertThat( asset.getType() ).isInstanceOf( MockResourceType.class );
+		Resource resource = manager.createAsset( URI.create( "mock:test" ) );
+		manager.autoDetectAssetType( resource );
+		assertThat( resource.getType() ).isInstanceOf( MockResourceType.class );
 	}
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
 		ResourceType type = manager.getAssetType( new MockResourceType( getProgram() ).getKey() );
-		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
-		Set<Codec> codecs = manager.autoDetectCodecs( asset );
+		Resource resource = manager.createAsset( URI.create( "mock:test.mock" ) );
+		Set<Codec> codecs = manager.autoDetectCodecs( resource );
 		assertThat( codecs ).isEqualTo( type.getCodecs() );
 	}
 
@@ -243,15 +243,15 @@ public class ResourceManagerTest extends ProgramTestCase {
 
 	@Test
 	void canRenameAssetWithNewAsset() throws Exception {
-		Asset asset = manager.createAsset( manager.getAssetType( FileScheme.ID ), "mock://test.mock" );
-		assertThat( manager.canRenameAsset( asset ) ).isFalse();
+		Resource resource = manager.createAsset( manager.getAssetType( FileScheme.ID ), "mock://test.mock" );
+		assertThat( manager.canRenameAsset( resource ) ).isFalse();
 	}
 
 	@Test
 	void canRenameAssetWithOldAsset() throws Exception {
-		Asset asset = manager.createAsset( "mock://test.mock" );
-		manager.openAssetsAndWait( asset, 100, TimeUnit.MILLISECONDS );
-		assertThat( manager.canRenameAsset( asset ) ).isTrue();
+		Resource resource = manager.createAsset( "mock://test.mock" );
+		manager.openAssetsAndWait( resource, 100, TimeUnit.MILLISECONDS );
+		assertThat( manager.canRenameAsset( resource ) ).isTrue();
 	}
 
 	@Test

@@ -8,7 +8,7 @@ public class ResourceTypeAndNameComparator extends ResourceNameComparator {
 
 
 	@Override
-	public int compare( Asset o1, Asset o2 ) {
+	public int compare( Resource o1, Resource o2 ) {
 		try {
 			boolean isFolder1 = o1.isFolder();
 			boolean isFolder2 = o2.isFolder();

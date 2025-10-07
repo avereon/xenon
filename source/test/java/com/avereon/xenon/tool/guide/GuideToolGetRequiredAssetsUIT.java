@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +13,8 @@ class GuideToolGetRequiredAssetsUIT extends GuideToolUIT {
 
 	@Test
 	void execute() {
-		Asset asset = new Asset( ProgramGuideType.URI );
-		GuideTool tool = new GuideTool( getProgram(), asset );
+		Resource resource = new Resource( ProgramGuideType.URI );
+		GuideTool tool = new GuideTool( getProgram(), resource );
 
 		Set<URI> assets = tool.getAssetDependencies();
 		assertThat( assets.size() ).isEqualTo( 0 );

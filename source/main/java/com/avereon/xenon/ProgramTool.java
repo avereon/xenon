@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.ResourceException;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeoutException;
  *   <dt>Constructor</dt>
  *   <dd>The {@link Tool constructor} is called only once and should
  *   create all the UI components needed for the tool. However, the provided
- *   {@link Asset} may not be loaded and should not be used in the constructor
+ *   {@link Resource} may not be loaded and should not be used in the constructor
  *   other than to call {@code super(asset)}. After the constructor completes,
  *   the tool will added to the workarea, possibly before the asset is loaded.</dd>
  *
@@ -114,11 +114,11 @@ public abstract class ProgramTool extends Tool {
 
 	private boolean setActiveWhenOpen;
 
-	public ProgramTool( XenonProgramProduct product, Asset asset ) {
-		super( asset );
+	public ProgramTool( XenonProgramProduct product, Resource resource ) {
+		super( resource );
 		this.product = product;
-		setTitle( asset.getName() );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( asset.getIcon(), "broken" ) );
+		setTitle( resource.getName() );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( resource.getIcon(), "broken" ) );
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
@@ -139,7 +139,7 @@ public abstract class ProgramTool extends Tool {
 	}
 
 	public Settings getAssetSettings() {
-		return getProgram().getSettingsManager().getAssetSettings( getAsset() );
+		return getProgram().getSettingsManager().getAssetSettings( getResource() );
 	}
 
 	public Settings getSettings() {
@@ -162,14 +162,14 @@ public abstract class ProgramTool extends Tool {
 
 	@Override
 	public void close() {
-		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
+		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getResource() );
 		if( !tools.contains( this ) ) return;
 
 		Fx.run( () -> {
-			if( getAsset().isNewOrModified() ) {
-				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) ) ) super.close();
+			if( getResource().isNewOrModified() ) {
+				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getResource() ) ) ) super.close();
 			} else if( tools.size() == 1 ) {
-				getProgram().getResourceManager().close( getAsset() );
+				getProgram().getResourceManager().close( getResource() );
 			} else {
 				super.close();
 			}
@@ -262,7 +262,7 @@ public abstract class ProgramTool extends Tool {
 			waitForTool( tool );
 			return null;
 		} ).link( () -> {
-			waitForAsset( request.getAsset() );
+			waitForAsset( request.getResource() );
 			return null;
 		} ).link( () -> {
 			tool.callToolReady( request );
@@ -286,20 +286,20 @@ public abstract class ProgramTool extends Tool {
 		}
 	}
 
-	private static void waitForAsset( Asset asset ) throws ResourceException, TimeoutException, InterruptedException {
+	private static void waitForAsset( Resource resource ) throws ResourceException, TimeoutException, InterruptedException {
 		CountDownLatch latch = new CountDownLatch( 1 );
 		EventHandler<ResourceEvent> handler = e -> latch.countDown();
-		asset.register( ResourceEvent.LOADED, handler );
+		resource.register( ResourceEvent.LOADED, handler );
 		try {
-			if( asset.exists() && !asset.isLoaded() ) {
+			if( resource.exists() && !resource.isLoaded() ) {
 				boolean timeout = !latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
 				if( timeout ) {
 					//log.atWarning().log( "Timeout waiting for asset to load: %s", asset );
-					throw new TimeoutException( "Timeout waiting for asset to load: " + asset );
+					throw new TimeoutException( "Timeout waiting for asset to load: " + resource );
 				}
 			}
 		} finally {
-			asset.unregister( ResourceEvent.LOADED, handler );
+			resource.unregister( ResourceEvent.LOADED, handler );
 		}
 	}
 
@@ -311,7 +311,7 @@ public abstract class ProgramTool extends Tool {
 		// TODO This logic, and notice, about missing assets should be moved to the asset manager
 		boolean assetMissing;
 		try {
-			assetMissing = !request.getAsset().isNew() && !request.getAsset().exists();
+			assetMissing = !request.getResource().isNew() && !request.getResource().exists();
 		} catch( ResourceException exception ) {
 			assetMissing = true;
 		}
@@ -323,7 +323,7 @@ public abstract class ProgramTool extends Tool {
 			// Notify the user if the asset is missing
 			if( finalAssetMissing ) {
 				String title = Rb.text(RbKey.ASSET, "asset-missing" );
-				String message = Rb.text( RbKey.ASSET, "asset-is-missing", request.getAsset().getSimpleName(), request.getAsset().getUri() );
+				String message = Rb.text( RbKey.ASSET, "asset-is-missing", request.getResource().getSimpleName(), request.getResource().getUri() );
 				Notice notice = new Notice( title, message );
 				getProgram().getNoticeManager().addNotice( notice );
 			}

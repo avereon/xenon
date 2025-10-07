@@ -12,17 +12,17 @@ public class MockScheme extends BaseScheme {
 	}
 
 	@Override
-	public boolean exists( Asset asset ) {
+	public boolean exists( Resource resource ) {
 		return true;
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) {
+	public boolean canLoad( Resource resource ) {
 		return true;
 	}
 
 	@Override
-	public boolean canSave( Asset asset ) {
+	public boolean canSave( Resource resource ) {
 		return true;
 	}
 

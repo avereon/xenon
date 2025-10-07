@@ -11,7 +11,7 @@ public class AnyResourceFilter implements ResourceFilter {
 	}
 
 	@Override
-	public boolean accept( Asset asset ) {
+	public boolean accept( Resource resource ) {
 		return true;
 	}
 

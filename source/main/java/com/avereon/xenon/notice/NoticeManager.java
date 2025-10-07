@@ -5,7 +5,7 @@ import com.avereon.skill.Controllable;
 import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
@@ -35,7 +35,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private final IntegerProperty unreadCount;
 
-	private Asset asset;
+	private Resource resource;
 
 	public NoticeManager( Xenon program ) {
 		this.program = program;
@@ -53,8 +53,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		log.atTrace().log( "Notice manager starting..." );
 		try {
 			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
-			asset = getProgram().getResourceManager().createAsset( ProgramNoticeType.URI );
-			getProgram().getResourceManager().loadAssets( asset );
+			resource = getProgram().getResourceManager().createAsset( ProgramNoticeType.URI );
+			getProgram().getResourceManager().loadAssets( resource );
 			unreadCountProperty().addListener( ( p, o, n ) -> updateNoticeIcon( n.intValue() ) );
 		} catch( ResourceException exception ) {
 			log.atWarn( exception ).log( "Error starting notice manager." );
@@ -67,7 +67,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	@Override
 	public NoticeManager stop() {
 		log.atTrace().log( "Notice manager stopping..." );
-		getProgram().getResourceManager().saveAssets( asset );
+		getProgram().getResourceManager().saveAssets( resource );
 		log.atDebug().log( "Notice manager stopped." );
 		return this;
 	}
@@ -161,7 +161,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private NoticeModel getNoticeList() {
-		return asset.getModel();
+		return resource.getModel();
 	}
 
 	private void updateUnreadCount() {

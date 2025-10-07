@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
+class GuideToolCloseResourceCloseToolUIT extends GuideToolUIT {
 
 	@Test
 	void execute() throws Exception {
@@ -22,7 +22,7 @@ class GuideToolCloseAssetCloseToolUIT extends GuideToolUIT {
 		assertThat( area.getActiveTool() ).isInstanceOf( GuideTool.class );
 		assertToolCount( area, 1 );
 
-		getProgram().getResourceManager().closeAssets( future.get().getAsset() );
+		getProgram().getResourceManager().closeAssets( future.get().getResource() );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		assertToolCount( area, 0 );
 	}

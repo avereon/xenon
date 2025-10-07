@@ -53,7 +53,7 @@ public class OpenAssetRequest {
 	/**
 	 * The asset created from the asset type and URI
 	 */
-	private Asset asset;
+	private Resource resource;
 
 	/**
 	 * The tool id if restoring a tool.

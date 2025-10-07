@@ -34,11 +34,11 @@ public class ResourceEvent extends Event {
 
 	public static final EventType<ResourceEvent> DELETED = new EventType<>( ASSET, "DELETED" );
 
-	private final Asset asset;
+	private final Resource resource;
 
-	public ResourceEvent( Object source, EventType<? extends ResourceEvent> type, Asset asset ) {
+	public ResourceEvent( Object source, EventType<? extends ResourceEvent> type, Resource resource ) {
 		super( source, type );
-		this.asset = asset;
+		this.resource = resource;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -49,9 +49,9 @@ public class ResourceEvent extends Event {
 
 	@Override
 	public String toString() {
-		Asset asset = getAsset();
-		if( asset == null ) return super.toString() + ": null";
-		return super.toString() + ": " + asset;
+		Resource resource = getResource();
+		if( resource == null ) return super.toString() + ": null";
+		return super.toString() + ": " + resource;
 	}
 
 }

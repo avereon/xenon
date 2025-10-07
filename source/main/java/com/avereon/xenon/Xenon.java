@@ -12,7 +12,7 @@ import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.action.*;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceManager;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.ResourceWatchService;
@@ -608,7 +608,7 @@ public class Xenon extends Application implements XenonProgram {
 	}
 
 	private void indexProgramDocuments() {
-		AboutTool about = new AboutTool( this, new Asset( ProgramAboutType.URI ) );
+		AboutTool about = new AboutTool( this, new Resource( ProgramAboutType.URI ) );
 		String icon = "about";
 		String name = Rb.text( RbKey.TOOL, "about-name" );
 		getIndexService().submit( "about", new Document( ProgramAboutType.URI, icon, name, about.getIndexContent() ) );

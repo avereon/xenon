@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Objects;
 
 @CustomLog
-public class Asset extends Node {
+public class Resource extends Node {
 
-	public static final Asset NONE = new Asset( java.net.URI.create( XenonScheme.ID + ":none" ) );
+	public static final Resource NONE = new Resource( java.net.URI.create( XenonScheme.ID + ":none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
@@ -72,7 +72,7 @@ public class Asset extends Node {
 
 	private volatile boolean saved;
 
-	private Asset parent;
+	private Resource parent;
 
 	// Ready to use flag. This indicates the asset is now ready to be used,
 	// particularly by tools. If the asset is new or has been loaded then the
@@ -80,20 +80,20 @@ public class Asset extends Node {
 
 	//private volatile boolean ready;
 
-	public Asset( URI uri ) {
+	public Resource( URI uri ) {
 		this( null, uri );
 	}
 
 	// Testing only
-	public Asset( String uri ) {
+	public Resource( String uri ) {
 		this( null, java.net.URI.create( uri ) );
 	}
 
-	public Asset( ResourceType type ) {
+	public Resource( ResourceType type ) {
 		this( type, null );
 	}
 
-	public Asset( ResourceType type, URI uri ) {
+	public Resource( ResourceType type, URI uri ) {
 		this.eventHub = new FxEventHub().parent( super.getEventHub() );
 		this.undoManager = DataNodeUndo.manager( this );
 
@@ -127,7 +127,7 @@ public class Asset extends Node {
 		return getValue( NAME, getDefaultName() );
 	}
 
-	public Asset setName( String name ) {
+	public Resource setName( String name ) {
 		setValue( NAME, name );
 		return this;
 	}
@@ -136,7 +136,7 @@ public class Asset extends Node {
 		return getValue( ICON, "file" );
 	}
 
-	public Asset setIcon( String icon ) {
+	public Resource setIcon( String icon ) {
 		setValue( ICON, icon );
 		return this;
 	}
@@ -259,7 +259,7 @@ public class Asset extends Node {
 		return getValue( MODEL );
 	}
 
-	public <M> Asset setModel( M model ) {
+	public <M> Resource setModel( M model ) {
 		setValue( MODEL, model );
 		return this;
 	}
@@ -382,17 +382,17 @@ public class Asset extends Node {
 	 * Get the child assets if this asset is a container for other
 	 * assets.
 	 */
-	public List<Asset> listAssets() throws ResourceException {
+	public List<Resource> listAssets() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme == null ? null : scheme.listAssets( this );
 	}
 
-	Asset add( Asset child ) {
+	Resource add( Resource child ) {
 		setValue( child.getUri().toString(), child );
 		return this;
 	}
 
-	public List<Asset> getChildren() throws ResourceException {
+	public List<Resource> getChildren() throws ResourceException {
 		Scheme scheme = getScheme();
 		return scheme.listAssets( this );
 	}
@@ -415,9 +415,9 @@ public class Asset extends Node {
 		//			}
 		//		}
 		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
-			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.UNMODIFIED, Asset.this ) );
+			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.UNMODIFIED, Resource.this ) );
 		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
-			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.MODIFIED, Asset.this ) );
+			getEventHub().dispatch( new ResourceEvent( this, ResourceEvent.MODIFIED, Resource.this ) );
 		}
 		super.dispatch( event );
 	}
@@ -434,7 +434,7 @@ public class Asset extends Node {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( !(object instanceof Asset that) ) return false;
+		if( !(object instanceof Resource that) ) return false;
 		return this == that || Objects.equals( this.getUri(), that.getUri() );
 	}
 

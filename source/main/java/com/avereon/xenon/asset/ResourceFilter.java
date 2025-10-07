@@ -7,14 +7,14 @@ import java.util.function.Predicate;
 /**
  * <p>
  * The {@link ResourceFilter} is an interface for filtering
- * {@link Asset}) objects.
+ * {@link Resource}) objects.
  * <p>
  * {@link ResourceFilter} objects may be used in conjunction with many
  * asset classes to filter assets for display or any other purpose. A
  * typical use is with the <code>AssetTool</code> to filter the assets
  * shown.
  */
-public interface ResourceFilter extends DataFilter<Asset>, Predicate<Asset>, Comparable<ResourceFilter> {
+public interface ResourceFilter extends DataFilter<Resource>, Predicate<Resource>, Comparable<ResourceFilter> {
 
 	/**
 	 * <p>
@@ -33,15 +33,15 @@ public interface ResourceFilter extends DataFilter<Asset>, Predicate<Asset>, Com
 	/**
 	 * Test the specified asset.
 	 *
-	 * @param asset The asset to test.
+	 * @param resource The asset to test.
 	 * @return True if the asset should be included, false otherwise.
 	 */
 	@Override
-	boolean accept( Asset asset );
+	boolean accept( Resource resource );
 
 	@Override
-	default boolean test( Asset asset ) {
-		return accept( asset );
+	default boolean test( Resource resource ) {
+		return accept( resource );
 	}
 
 	@Override

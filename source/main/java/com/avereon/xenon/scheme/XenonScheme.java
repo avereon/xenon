@@ -4,7 +4,7 @@ import com.avereon.index.Document;
 import com.avereon.product.Rb;
 import com.avereon.util.IoUtil;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
@@ -24,26 +24,26 @@ public class XenonScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws ResourceException {
+	public boolean canLoad( Resource resource ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws ResourceException {
+	public void load( Resource resource, Codec codec ) throws ResourceException {
 		// Most program assets don't actually load anything
 		// However, the following do:
 
 		// Help content
-		URI uri = asset.getUri();
+		URI uri = resource.getUri();
 		if( uri.getScheme().equals( ID ) ) {
 			if( uri.getSchemeSpecificPart().equals( "help" ) ) {
-				loadHelp( asset, codec );
+				loadHelp( resource, codec );
 			}
 		}
 	}
 
-	private void loadHelp( Asset asset, Codec codec ) {
-		URI uri = asset.getUri();
+	private void loadHelp( Resource resource, Codec codec ) {
+		URI uri = resource.getUri();
 
 		String content;
 		try {
@@ -62,7 +62,7 @@ public class XenonScheme extends ProgramScheme {
 		}
 
 		try {
-			codec.load( asset, new ByteArrayInputStream( content.getBytes( StandardCharsets.UTF_8 ) ) );
+			codec.load( resource, new ByteArrayInputStream( content.getBytes( StandardCharsets.UTF_8 ) ) );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}

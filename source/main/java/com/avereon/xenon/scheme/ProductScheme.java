@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.Codec;
 
@@ -14,28 +14,28 @@ public abstract class ProductScheme extends BaseScheme {
 	}
 
 	@Override
-	public boolean exists( Asset asset ) {
+	public boolean exists( Resource resource ) {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws ResourceException {
+	public void load( Resource resource, Codec codec ) throws ResourceException {
 		if( codec != null ) {
 			try {
-				codec.load( asset, null );
+				codec.load( resource, null );
 			} catch( IOException exception ) {
-				throw new ResourceException( asset, "Unable to load " + asset.getUri(), exception );
+				throw new ResourceException( resource, "Unable to load " + resource.getUri(), exception );
 			}
 		}
 	}
 
 	@Override
-	public void save( Asset asset, Codec codec ) throws ResourceException {
+	public void save( Resource resource, Codec codec ) throws ResourceException {
 		if( codec != null ) {
 			try {
-				codec.save( asset, null );
+				codec.save( resource, null );
 			} catch( IOException exception ) {
-				throw new ResourceException( asset, "Unable to save asset", exception );
+				throw new ResourceException( resource, "Unable to save asset", exception );
 			}
 		}
 	}

@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.product.Rb;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -26,8 +26,8 @@ public class SettingsTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public SettingsTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public SettingsTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-settings" );
 
 		panelCache = new ConcurrentHashMap<>();

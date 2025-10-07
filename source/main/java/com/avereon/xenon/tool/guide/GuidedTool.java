@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolException;
@@ -30,8 +30,8 @@ public abstract class GuidedTool extends ProgramTool {
 
 	private final GuideSelectedNodesListener guideSelectedNodesListener;
 
-	public GuidedTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public GuidedTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		guideContext = new GuideContext( this );
 		guideExpandedNodesListener = new GuideExpandedNodesListener();
 		guideSelectedNodesListener = new GuideSelectedNodesListener();

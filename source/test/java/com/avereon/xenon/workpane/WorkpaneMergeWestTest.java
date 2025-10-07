@@ -99,8 +99,8 @@ class WorkpaneMergeWestTest extends WorkpaneTestCase {
 		assertThat( workpane.getActiveView() ).isEqualTo( east );
 		assertThat( workpane.getDefaultView() ).isEqualTo( east );
 
-		Tool view = new MockTool( asset );
-		Tool view1 = new MockTool( asset );
+		Tool view = new MockTool( resource );
+		Tool view1 = new MockTool( resource );
 		workpane.addTool( view, this.view );
 		workpane.addTool( view1, east );
 
@@ -290,8 +290,8 @@ class WorkpaneMergeWestTest extends WorkpaneTestCase {
 	@Test
 	void testAutoMergeWest() {
 		WorkpaneView view1 = workpane.split( view, Side.RIGHT );
-		Tool tool = new MockTool( asset );
-		Tool tool1 = new MockTool( asset );
+		Tool tool = new MockTool( resource );
+		Tool tool1 = new MockTool( resource );
 
 		workpane.addTool( tool, view );
 		workpane.addTool( tool1, view1 );
@@ -305,9 +305,9 @@ class WorkpaneMergeWestTest extends WorkpaneTestCase {
 	void testAutoMergeMergeWestWithMultipleViews() {
 		WorkpaneView southwest = workpane.split( view, Side.BOTTOM );
 		WorkpaneView southeast = workpane.split( southwest, Side.RIGHT );
-		Tool view = new MockTool( asset );
-		Tool view1 = new MockTool( asset );
-		Tool view2 = new MockTool( asset );
+		Tool view = new MockTool( resource );
+		Tool view1 = new MockTool( resource );
+		Tool view2 = new MockTool( resource );
 		workpane.addTool( view, this.view );
 		workpane.addTool( view1, southwest );
 		workpane.addTool( view2, southeast );

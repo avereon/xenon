@@ -83,14 +83,14 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
 
-		log.atDebug().log( "Drag start: %s", LazyEval.of( () -> tool.getAsset().getUri() ) );
+		log.atDebug().log( "Drag start: %s", LazyEval.of( () -> tool.getResource().getUri() ) );
 
 		TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes( tool );
 		Dragboard board = tab.startDragAndDrop( modes );
 
 		ClipboardContent content = new ClipboardContent();
-		content.putString( tool.getAsset().getUri().toString() );
-		content.putUrl( tool.getAsset().getUri().toString() );
+		content.putString( tool.getResource().getUri().toString() );
+		content.putUrl( tool.getResource().getUri().toString() );
 		board.setContent( content );
 
 		SnapshotParameters parameters = new SnapshotParameters();
@@ -136,7 +136,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		ToolTab tab = getSkinnable();
 		Tool tool = tab.getTool();
-		log.atDebug().log( "Drag done: %s", LazyEval.of( () -> tool.getAsset().getUri() ) );
+		log.atDebug().log( "Drag done: %s", LazyEval.of( () -> tool.getResource().getUri() ) );
 	}
 
 	private boolean isShowContextMenu( Tool tool ) {

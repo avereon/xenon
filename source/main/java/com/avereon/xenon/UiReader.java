@@ -5,7 +5,7 @@ import com.avereon.log.LogLevel;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.exception.ResourceException;
@@ -55,7 +55,7 @@ class UiReader {
 
 	private final Map<String, Tool> tools = new HashMap<>();
 
-	private final Set<Asset> assets = new HashSet<>();
+	private final Set<Resource> resources = new HashSet<>();
 
 	private Workspace activeSpace;
 
@@ -79,7 +79,7 @@ class UiReader {
 
 	private boolean spacesRestored;
 
-	private Future<Collection<Asset>> assetLoadFuture;
+	private Future<Collection<Resource>> assetLoadFuture;
 
 	public UiReader( Xenon program ) {
 		this.program = program;
@@ -263,7 +263,7 @@ class UiReader {
 
 	private void doStartAssetLoading() {
 		try {
-			assetLoadFuture = getProgram().getResourceManager().loadAssets( assets );
+			assetLoadFuture = getProgram().getResourceManager().loadAssets( resources );
 		} catch( Exception exception ) {
 			log.atWarn( exception ).log();
 		}
@@ -383,7 +383,7 @@ class UiReader {
 	Tool loadToolForLinking( Settings settings ) {
 		try {
 			String id = settings.getName();
-			URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
+			URI uri = settings.get( Resource.SETTINGS_URI_KEY, URI.class );
 			WorkpaneView view = views.get( settings.get( UiFactory.PARENT_VIEW_ID ) );
 			// TODO Remove in 1.9-SNAPSHOT
 			if( view == null ) view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
@@ -396,7 +396,7 @@ class UiReader {
 
 			Tool tool = loadTool( settings );
 			if( isActive( settings ) ) viewActiveTools.put( view, tool );
-			assets.add( tool.getAsset() );
+			resources.add( tool.getResource() );
 			tools.put( id, tool );
 			return tool;
 		} catch( Exception exception ) {
@@ -407,26 +407,26 @@ class UiReader {
 
 	ProgramTool loadTool( Settings settings ) throws ResourceException, ToolInstantiationException {
 		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
-		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
-		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
+		URI uri = settings.get( Resource.SETTINGS_URI_KEY, URI.class );
+		String assetTypeKey = settings.get( Resource.SETTINGS_TYPE_KEY );
 		Integer order = settings.get( Tool.ORDER, Integer.class, -1 );
 
 		if( "program:/guide".equals( assetTypeKey ) ) assetTypeKey = XenonScheme.ID + ":/guide";
 
 		// Create the asset
-		Asset asset;
+		Resource resource;
 		ResourceType resourceType = getProgram().getResourceManager().getAssetType( assetTypeKey );
 		if( resourceType == null ) throw new AssetTypeNotFoundException( assetTypeKey );
 		try {
-			asset = getProgram().getResourceManager().createAsset( resourceType, uri );
+			resource = getProgram().getResourceManager().createAsset( resourceType, uri );
 		} catch( ResourceException exception ) {
-			throw new ResourceNotFoundException( new Asset( resourceType, uri ), exception );
+			throw new ResourceNotFoundException( new Resource( resourceType, uri ), exception );
 		}
 
 		// Create the open asset request
 		OpenAssetRequest openAssetRequest = new OpenAssetRequest();
 		openAssetRequest.setToolId( settings.getName() );
-		openAssetRequest.setAsset( asset );
+		openAssetRequest.setResource( resource );
 		openAssetRequest.setToolClassName( toolClassName );
 
 		// Restore the tool
@@ -564,7 +564,7 @@ class UiReader {
 				toolList.forEach( tool -> {
 					try {
 						area.addTool( tool, view, false );
-						log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getAsset().getUri() ) );
+						log.atDebug().log( "Tool linked: %s: %s", LazyEval.of( tool::getClass ), LazyEval.of( () -> tool.getResource().getUri() ) );
 					} catch( Exception exception ) {
 						errors.add( exception );
 					}

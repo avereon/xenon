@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.workpane.Workpane;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,8 +47,8 @@ public class MockProgramTool extends ProgramTool {
 
 	private Set<URI> assetDependencies = new CopyOnWriteArraySet<>();
 
-	public MockProgramTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public MockProgramTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 	}
 
 	@Override

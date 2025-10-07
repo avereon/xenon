@@ -10,22 +10,22 @@ public class ResourceSwitchedEvent extends ResourceEvent {
 
 	public static final EventType<ResourceSwitchedEvent> SWITCHED = new EventType<>( ASSET_SWITCHED, "SWITCHED" );
 
-	private Asset oldAsset;
+	private Resource oldResource;
 
-	private Asset newAsset;
+	private Resource newResource;
 
-	public ResourceSwitchedEvent( Object source, EventType<? extends ResourceSwitchedEvent> type, Asset oldAsset, Asset newAsset ) {
-		super( source, type, newAsset );
-		this.oldAsset = oldAsset;
-		this.newAsset = newAsset;
+	public ResourceSwitchedEvent( Object source, EventType<? extends ResourceSwitchedEvent> type, Resource oldResource, Resource newResource ) {
+		super( source, type, newResource );
+		this.oldResource = oldResource;
+		this.newResource = newResource;
 	}
 
-	public Asset getOldAsset() {
-		return oldAsset;
+	public Resource getOldAsset() {
+		return oldResource;
 	}
 
-	public Asset getNewAsset() {
-		return newAsset;
+	public Resource getNewAsset() {
+		return newResource;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -36,7 +36,7 @@ public class ResourceSwitchedEvent extends ResourceEvent {
 
 	@Override
 	public String toString() {
-		return super.toString() + ": " + (oldAsset == null ? "null" : oldAsset.getUri()) + " -> " + (newAsset == null ? "null" : newAsset.getUri());
+		return super.toString() + ": " + (oldResource == null ? "null" : oldResource.getUri()) + " -> " + (newResource == null ? "null" : newResource.getUri());
 	}
 
 }

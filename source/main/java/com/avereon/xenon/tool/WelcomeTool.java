@@ -4,7 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.*;
 import com.avereon.xenon.action.DesktopBrowserAction;
 import com.avereon.xenon.action.SettingsAction;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,8 +27,8 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double SLOPE_RADIUS = 5000;
 
-	public WelcomeTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public WelcomeTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-welcome" );
 
 		Node icon = product.getProgram().getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );

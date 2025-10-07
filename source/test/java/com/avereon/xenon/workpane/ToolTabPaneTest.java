@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.xenon.BaseFxPlatformTestCase;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Button;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ToolTabPaneTest extends BaseFxPlatformTestCase {
 
-	protected Asset asset = new Asset( URI.create( "" ) );
+	protected Resource resource = new Resource( URI.create( "" ) );
 
 	@Test
 	void testButton() {
@@ -37,9 +37,9 @@ public class ToolTabPaneTest extends BaseFxPlatformTestCase {
 	public void testAddToolTab() {
 		// given
 		ToolTabPane toolTabPane = new ToolTabPane();
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
-		Tool tool3 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
+		Tool tool3 = new MockTool( resource );
 		ToolTab tab1 = new ToolTab( tool1 );
 		ToolTab tab2 = new ToolTab( tool2 );
 		ToolTab tab3 = new ToolTab( tool3 );
@@ -60,9 +60,9 @@ public class ToolTabPaneTest extends BaseFxPlatformTestCase {
 	public void testRemoveToolTab() {
 		// given
 		ToolTabPane toolTabPane = new ToolTabPane();
-		Tool tool1 = new MockTool( asset );
-		Tool tool2 = new MockTool( asset );
-		Tool tool3 = new MockTool( asset );
+		Tool tool1 = new MockTool( resource );
+		Tool tool2 = new MockTool( resource );
+		Tool tool3 = new MockTool( resource );
 		ToolTab tab1 = new ToolTab( tool1 );
 		ToolTab tab2 = new ToolTab( tool2 );
 		ToolTab tab3 = new ToolTab( tool3 );

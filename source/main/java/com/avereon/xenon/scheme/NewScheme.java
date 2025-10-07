@@ -2,7 +2,7 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.exception.ResourceException;
 import lombok.CustomLog;
@@ -33,66 +33,66 @@ public class NewScheme extends ProgramScheme {
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws ResourceException {
+	public boolean canLoad( Resource resource ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public boolean canSave( Asset asset ) throws ResourceException {
+	public boolean canSave( Resource resource ) throws ResourceException {
 		return true;
 	}
 
 	@Override
-	public void load( Asset asset, Codec codec ) throws ResourceException {
+	public void load( Resource resource, Codec codec ) throws ResourceException {
 		// New assets should be loadable from a temporary location
 		if( codec != null ) {
-			Path temporaryPath = getTemporaryPath( asset );
+			Path temporaryPath = getTemporaryPath( resource );
 			if( temporaryPath != null && Files.exists( temporaryPath ) ) {
 				try( InputStream inputStream = Files.newInputStream( temporaryPath ) ) {
-					codec.load( asset, inputStream );
+					codec.load( resource, inputStream );
 				} catch( Exception exception ) {
-					throw new ResourceException( asset, "Unable to load " + asset.getUri(), exception );
+					throw new ResourceException( resource, "Unable to load " + resource.getUri(), exception );
 				}
 			}
 		}
 	}
 
 	@Override
-	public void save( Asset asset, Codec codec ) throws ResourceException {
+	public void save( Resource resource, Codec codec ) throws ResourceException {
 		// New assets should be savable to a temporary location
 		if( codec != null ) {
-			Path temporaryPath = getTemporaryPath( asset );
+			Path temporaryPath = getTemporaryPath( resource );
 			if( temporaryPath != null ) {
 				try {
 					Files.createDirectories( temporaryPath.getParent() );
 				} catch( Exception exception ) {
-					throw new ResourceException( asset, "Unable to create directories for " + asset.getUri(), exception );
+					throw new ResourceException( resource, "Unable to create directories for " + resource.getUri(), exception );
 				}
 				try( OutputStream outputStream = Files.newOutputStream( temporaryPath ) ) {
 					if( outputStream != null ) {
-						codec.save( asset, outputStream );
+						codec.save( resource, outputStream );
 					}
 				} catch( Exception exception ) {
-					throw new ResourceException( asset, "Unable to save " + asset.getUri(), exception );
+					throw new ResourceException( resource, "Unable to save " + resource.getUri(), exception );
 				}
 			}
 		}
 	}
 
-	Path getTemporaryPath( Asset asset ) {
-		if( asset == null ) return null;
+	Path getTemporaryPath( Resource resource ) {
+		if( resource == null ) return null;
 
 		// The URI should have a unique ID in the uri fragment
-		URI uri = asset.getUri();
+		URI uri = resource.getUri();
 		if( uri == null ) return null;
 		String id = uri.getSchemeSpecificPart();
 		if( id == null ) return null;
 
-		Path path = asset.getValue( NEW_ASSET_TEMP_PATH );
+		Path path = resource.getValue( NEW_ASSET_TEMP_PATH );
 		if( path != null ) return path;
 
 		Path tempPath = getProgram().getDataFolder().resolve( NEW_ASSET_TEMP_STORAGE_FOLDER ).resolve( id ).resolve( NEW_ASSET_TEMP_STORAGE_CONTENT );
-		asset.setValue( NEW_ASSET_TEMP_PATH, tempPath );
+		resource.setValue( NEW_ASSET_TEMP_PATH, tempPath );
 		return tempPath;
 	}
 

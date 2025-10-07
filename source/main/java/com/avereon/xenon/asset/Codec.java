@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 
 @CustomLog
-public abstract class Codec implements Predicate<Asset> {
+public abstract class Codec implements Predicate<Resource> {
 
 	public enum Pattern {
 		MEDIATYPE {
@@ -72,9 +72,9 @@ public abstract class Codec implements Predicate<Asset> {
 
 	public abstract boolean canSave();
 
-	public abstract void load( Asset asset, InputStream input ) throws IOException;
+	public abstract void load( Resource resource, InputStream input ) throws IOException;
 
-	public abstract void save( Asset asset, OutputStream output ) throws IOException;
+	public abstract void save( Resource resource, OutputStream output ) throws IOException;
 
 	public void setResourceType( ResourceType type ) {
 		this.resourceType = type;
@@ -114,8 +114,8 @@ public abstract class Codec implements Predicate<Asset> {
 		return supportedMatches.getOrDefault( type, Set.of() ).stream().anyMatch( p -> type.accept( p, value ) );
 	}
 
-	public final boolean isSupported( Asset asset ) {
-		return supportedMatches.keySet().stream().anyMatch( k -> isSupported( k, asset.getFileName() ) );
+	public final boolean isSupported( Resource resource ) {
+		return supportedMatches.keySet().stream().anyMatch( k -> isSupported( k, resource.getFileName() ) );
 	}
 
 	public int getPriority() {
@@ -123,8 +123,8 @@ public abstract class Codec implements Predicate<Asset> {
 	}
 
 	@Override
-	public final boolean test( Asset asset ) {
-		return isSupported( asset );
+	public final boolean test( Resource resource ) {
+		return isSupported( resource );
 	}
 
 	@Override

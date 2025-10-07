@@ -5,7 +5,7 @@ import com.avereon.xenon.mod.MockMod;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 
-public abstract class BaseAssetTestCase {
+public abstract class BaseResourceTestCase {
 
 	@Getter
 	private XenonProgramProduct product;

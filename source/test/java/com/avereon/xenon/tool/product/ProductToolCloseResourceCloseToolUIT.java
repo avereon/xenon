@@ -13,7 +13,7 @@ import java.util.concurrent.Future;
 import static com.avereon.xenon.test.ProgramTestConfig.LONG_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
+class ProductToolCloseResourceCloseToolUIT extends ProductToolUIT {
 
 	@Test
 	void execute() throws Exception {
@@ -27,7 +27,7 @@ class ProductToolCloseAssetCloseToolUIT extends ProductToolUIT {
 		assertThat( pane.getActiveTool() ).isInstanceOf( SettingsTool.class );
 		assertToolCount( pane, 2 );
 
-		getProgram().getResourceManager().closeAssets( future.get().getAsset() );
+		getProgram().getResourceManager().closeAssets( future.get().getResource() );
 		getWorkpaneWatcher().waitForEvent( ToolEvent.REMOVED );
 		Fx.waitFor( LONG_TIMEOUT );
 		assertToolCount( pane, 1 );

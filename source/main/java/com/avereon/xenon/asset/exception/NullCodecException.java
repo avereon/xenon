@@ -1,25 +1,25 @@
 package com.avereon.xenon.asset.exception;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 
 public class NullCodecException extends ResourceException {
 
 	private static final long serialVersionUID = 3835455673089626753L;
 
-	public NullCodecException( Asset asset ) {
-		super( asset );
+	public NullCodecException( Resource resource ) {
+		super( resource );
 	}
 
-	public NullCodecException( Asset asset, String message ) {
-		super( asset, message );
+	public NullCodecException( Resource resource, String message ) {
+		super( resource, message );
 	}
 
-	public NullCodecException( Asset asset, Throwable cause ) {
-		super( asset, cause );
+	public NullCodecException( Resource resource, Throwable cause ) {
+		super( resource, cause );
 	}
 
-	public NullCodecException( Asset asset, String message, Throwable cause ) {
-		super( asset, message, cause );
+	public NullCodecException( Resource resource, String message, Throwable cause ) {
+		super( resource, message, cause );
 	}
 
 }

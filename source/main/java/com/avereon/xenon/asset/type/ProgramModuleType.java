@@ -2,7 +2,7 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
@@ -34,8 +34,8 @@ public class ProgramModuleType extends ResourceType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) {
-		asset.setModel( program.getCard() );
+	public boolean assetOpen( Xenon program, Resource resource ) {
+		resource.setModel( program.getCard() );
 		return true;
 	}
 

@@ -2,7 +2,7 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
@@ -33,7 +33,7 @@ public class ProgramAboutType extends ResourceType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Resource resource ) {
 		// Arguably "the program" is the asset model for the about data type. But
 		// that is a pretty big model. Not only that but the about tool needs to
 		// watch for changes in several things as well as things that do not
@@ -43,7 +43,7 @@ public class ProgramAboutType extends ResourceType {
 		// is "less" helpful even though it is an encouraged pattern. Maybe the
 		// answer is use events when possible and use polling when needed. Can
 		// polling be setup and used in an event driven manner?
-		asset.setModel( program );
+		resource.setModel( program );
 		return true;
 	}
 

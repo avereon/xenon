@@ -2,10 +2,10 @@ package com.avereon.xenon.asset;
 
 import java.util.Comparator;
 
-public class ResourceNameComparator implements Comparator<Asset> {
+public class ResourceNameComparator implements Comparator<Resource> {
 
 	@Override
-	public int compare( Asset o1, Asset o2 ) {
+	public int compare( Resource o1, Resource o2 ) {
 		return o1.getName().compareTo( o2.getName() );
 	}
 

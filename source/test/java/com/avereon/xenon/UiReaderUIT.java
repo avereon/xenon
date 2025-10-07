@@ -4,7 +4,7 @@ import com.avereon.settings.MapSettings;
 import com.avereon.settings.Settings;
 import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.test.ProgramTestConfig;
 import com.avereon.xenon.tool.AboutTool;
@@ -347,8 +347,8 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		settings.set( Tool.ORDER, 5 );
 
 		String assetTypeKey = new ProgramAboutType( program ).getKey();
-		settings.set( Asset.SETTINGS_TYPE_KEY, assetTypeKey );
-		settings.set( Asset.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
+		settings.set( Resource.SETTINGS_TYPE_KEY, assetTypeKey );
+		settings.set( Resource.SETTINGS_URI_KEY, ProgramAboutType.URI.toString() );
 
 		return settings;
 	}
@@ -359,9 +359,9 @@ class UiReaderUIT extends BaseFullXenonTestCase {
 		assertThat( tool.getOrder() ).isEqualTo( settings.get( Tool.ORDER, Integer.class ) );
 		assertThat( tool.getClass().getName() ).isEqualTo( settings.get( Tool.SETTINGS_TYPE_KEY ) );
 
-		assertThat( tool.getAsset() ).isNotNull();
-		assertThat( tool.getAsset().getType().getKey() ).isEqualTo( settings.get( Asset.SETTINGS_TYPE_KEY, String.class ) );
-		assertThat( tool.getAsset().getUri().toString() ).isEqualTo( settings.get( Asset.SETTINGS_URI_KEY, String.class ) );
+		assertThat( tool.getResource() ).isNotNull();
+		assertThat( tool.getResource().getType().getKey() ).isEqualTo( settings.get( Resource.SETTINGS_TYPE_KEY, String.class ) );
+		assertThat( tool.getResource().getUri().toString() ).isEqualTo( settings.get( Resource.SETTINGS_URI_KEY, String.class ) );
 	}
 
 }

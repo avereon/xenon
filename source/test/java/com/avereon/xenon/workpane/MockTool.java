@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -46,8 +46,8 @@ public class MockTool extends Tool {
 
 	private boolean canFindWorkpaneFromSelf;
 
-	public MockTool( Asset asset ) {
-		super( asset );
+	public MockTool( Resource resource ) {
+		super( resource );
 		setTitle( "MockTool-" + counter.getAndIncrement() );
 		setBackground( new Background( new BackgroundFill( new Color( 0, 0.5, 1, 0.25 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
 		setPlacement( super.getPlacement() );

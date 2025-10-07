@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import javafx.application.Application;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 public class WorkpaneMain extends Application {
 
-	private static final Asset asset = Asset.NONE;
+	private static final Resource RESOURCE = Resource.NONE;
 
 	@Override
 	public void start( Stage stage ) {
@@ -44,8 +44,8 @@ public class WorkpaneMain extends Application {
 		pane.split( view0, Side.BOTTOM, 1 / 3f );
 		WorkpaneView view1 = pane.split( view0, Side.RIGHT, 0.5f );
 
-		pane.addTool( new MockTool( asset ), view0 );
-		pane.addTool( new MockTool( asset ), view1 );
+		pane.addTool( new MockTool( RESOURCE ), view0 );
+		pane.addTool( new MockTool( RESOURCE ), view1 );
 
 		return pane;
 	}

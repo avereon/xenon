@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.BasePartXenonTestCase;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.MockResourceType;
@@ -30,70 +30,70 @@ public class NewSchemeTest extends BasePartXenonTestCase {
 	@Mock
 	private ResourceType resourceType;
 
-	private Asset asset;
+	private Resource resource;
 
 	@BeforeEach
 	protected void setup() throws Exception {
 		super.setup();
 		scheme = new NewScheme( getProgram() );
-		asset = new Asset( resourceType, NewScheme.uri() );
+		resource = new Resource( resourceType, NewScheme.uri() );
 
 		lenient().when( resourceType.getDefaultCodec() ).thenReturn( codec );
 	}
 
 	@Test
 	void canLoad() throws Exception {
-		assertThat( scheme.canLoad( asset ) ).isTrue();
+		assertThat( scheme.canLoad( resource ) ).isTrue();
 	}
 
 	@Test
 	void canSave() throws Exception {
-		assertThat( scheme.canSave( asset ) ).isTrue();
+		assertThat( scheme.canSave( resource ) ).isTrue();
 	}
 
 	@Test
 	void load() throws Exception {
 		// given
-		Path path = scheme.getTemporaryPath( asset );
+		Path path = scheme.getTemporaryPath( resource );
 		Files.createDirectories( path.getParent() );
 		Files.createFile( path );
 		path.toFile().deleteOnExit();
 
 		// when
-		scheme.load( asset, codec );
+		scheme.load( resource, codec );
 
 		// then
-		verify( codec, times( 1 ) ).load( eq( asset ), any( InputStream.class ) );
+		verify( codec, times( 1 ) ).load( eq( resource ), any( InputStream.class ) );
 	}
 
 	@Test
 	void loadWithoutContent() throws Exception {
 		// when
-		scheme.load( asset, codec );
+		scheme.load( resource, codec );
 
 		// then
-		verify( codec, times( 0 ) ).load( eq( asset ), any( InputStream.class ) );
+		verify( codec, times( 0 ) ).load( eq( resource ), any( InputStream.class ) );
 	}
 
 	@Test
 	void save() throws Exception {
 		// when
-		scheme.save( asset, codec );
+		scheme.save( resource, codec );
 
 		// then
-		verify( codec, times( 1 ) ).save( eq( asset ), any( OutputStream.class ) );
+		verify( codec, times( 1 ) ).save( eq( resource ), any( OutputStream.class ) );
 	}
 
 	@Test
 	void getTemporaryPath() {
 		// given
-		Asset asset = new Asset( new MockResourceType( getProgram() ), NewScheme.uri() );
+		Resource resource = new Resource( new MockResourceType( getProgram() ), NewScheme.uri() );
 		Path expected = Path.of( NewScheme.NEW_ASSET_TEMP_STORAGE_FOLDER );
-		expected = expected.resolve( asset.getUri().getSchemeSpecificPart() );
+		expected = expected.resolve( resource.getUri().getSchemeSpecificPart() );
 		expected = expected.resolve( NewScheme.NEW_ASSET_TEMP_STORAGE_CONTENT );
 
 		// when
-		Path path = scheme.getTemporaryPath( asset );
+		Path path = scheme.getTemporaryPath( resource );
 
 		// then
 		assertThat( path.toString() ).endsWith( expected.toString() );

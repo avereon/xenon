@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.BasePartXenonTestCase;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.MockCodec;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,9 @@ public class FileSchemeTest extends BasePartXenonTestCase {
 		Path path = Paths.get( System.getProperty( "user.dir" ) ).resolve( "target" ).resolve( "xenon-save-test.txt" );
 		Files.createDirectories( path.getParent() );
 
-		Asset asset = new Asset( path.toUri() );
+		Resource resource = new Resource( path.toUri() );
 		Codec codec = new MockCodec();
-		scheme.save( asset, codec );
+		scheme.save( resource, codec );
 
 		assertTrue( Files.exists( path ) );
 		Files.deleteIfExists( path );

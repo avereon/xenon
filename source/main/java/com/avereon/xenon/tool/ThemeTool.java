@@ -6,7 +6,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ThemeMetadata;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.css.*;
@@ -35,8 +35,8 @@ public class ThemeTool extends GuidedTool {
 
 	private final VBox layout;
 
-	public ThemeTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public ThemeTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 
 		chooser = new ComboBox<>();
 		sample = generateSamplePane();

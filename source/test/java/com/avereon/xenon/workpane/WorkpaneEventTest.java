@@ -176,7 +176,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		// given
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 
 		FxEventWatcher<Event> workpaneWatcher = new FxEventWatcher<>();
 		area.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
@@ -208,7 +208,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 	@Test
 	void testAddTool() {
 		// given
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 
@@ -241,7 +241,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 	void testRemoveTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 		area.addTool( tool, view );
 
 		FxEventWatcher<Event> workpaneWatcher = new FxEventWatcher<>();
@@ -271,7 +271,7 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 	void testCloseTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
-		Tool tool = new MockTool( asset );
+		Tool tool = new MockTool( resource );
 		area.addTool( tool, view );
 
 		FxEventWatcher<Event> workpaneWatcher = new FxEventWatcher<>();
@@ -305,8 +305,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Workpane area = new Workpane();
 		WorkpaneView southView = area.getDefaultView();
 		WorkpaneView northView = area.split( southView, Side.TOP );
-		Tool northTool = new MockTool( asset );
-		Tool southTool = new MockTool( asset );
+		Tool northTool = new MockTool( resource );
+		Tool southTool = new MockTool( resource );
 		area.addTool( northTool, northView );
 		area.addTool( southTool, southView );
 		area.setActiveTool( southTool );
@@ -330,8 +330,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 	void testSetActiveToolWithToolNotAdded() {
 		Workpane area = new Workpane();
 		WorkpaneView southView = area.getDefaultView();
-		Tool northTool = new MockTool( asset );
-		Tool southTool = new MockTool( asset );
+		Tool northTool = new MockTool( resource );
+		Tool southTool = new MockTool( resource );
 		area.addTool( southTool, southView );
 		area.setActiveTool( southTool );
 
@@ -349,8 +349,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		Workpane area1 = new Workpane();
 		WorkpaneView view0 = area0.getDefaultView();
 		WorkpaneView view1 = area1.getDefaultView();
-		Tool tool0 = new MockTool( asset );
-		Tool tool1 = new MockTool( asset );
+		Tool tool0 = new MockTool( resource );
+		Tool tool1 = new MockTool( resource );
 		area0.addTool( tool0, view0 );
 		area1.addTool( tool1, view1 );
 		area0.setActiveTool( tool0 );

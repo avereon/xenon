@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.tool.AboutTool;
@@ -15,8 +15,8 @@ public class ToolManagerUIT extends BaseFullXenonTestCase {
 	@Test
 	void testOpenDependencies() throws Exception {
 		// given
-		Asset asset = getProgram().getResourceManager().createAsset( ProgramAboutType.URI );
-		ProgramTool tool = new AboutTool( getProgram(), asset );
+		Resource resource = getProgram().getResourceManager().createAsset( ProgramAboutType.URI );
+		ProgramTool tool = new AboutTool( getProgram(), resource );
 		OpenAssetRequest request = new OpenAssetRequest();
 
 		// when
@@ -29,8 +29,8 @@ public class ToolManagerUIT extends BaseFullXenonTestCase {
 	@Test
 	void testOpenDependenciesReturnFalseOnException() throws Exception {
 		// given
-		Asset asset = getProgram().getResourceManager().createAsset( ProgramAboutType.URI );
-		ProgramTool tool = new MockProgramTool( getProgram(), asset );
+		Resource resource = getProgram().getResourceManager().createAsset( ProgramAboutType.URI );
+		ProgramTool tool = new MockProgramTool( getProgram(), resource );
 		tool.getAssetDependencies().add( URI.create( "mock:///not-really-an-asset" ) );
 		OpenAssetRequest request = new OpenAssetRequest();
 

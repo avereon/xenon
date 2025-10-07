@@ -38,9 +38,9 @@ public class AutoDetectCodec extends Codec {
 	}
 
 	@Override
-	public void load( Asset asset, InputStream input ) {}
+	public void load( Resource resource, InputStream input ) {}
 
 	@Override
-	public void save( Asset asset, OutputStream output ) {}
+	public void save( Resource resource, OutputStream output ) {}
 
 }

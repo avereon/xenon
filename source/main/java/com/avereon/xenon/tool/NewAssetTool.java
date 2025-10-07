@@ -4,7 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
@@ -27,8 +27,8 @@ public class NewAssetTool extends ProgramTool {
 
 	private final AssetTypeView view;
 
-	public NewAssetTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public NewAssetTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-asset-new" );
 
 		view = new AssetTypeView();
