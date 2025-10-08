@@ -5,12 +5,12 @@ import com.avereon.log.LogLevel;
 import com.avereon.product.Rb;
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
-import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.exception.AssetTypeNotFoundException;
 import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.exception.ResourceNotFoundException;
-import com.avereon.xenon.asset.exception.AssetTypeNotFoundException;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.scheme.XenonScheme;
@@ -405,13 +405,32 @@ class UiReader {
 		}
 	}
 
+	private String mapResourceType( String resourceTypeKey ) {
+		if( resourceTypeKey == null ) return null;
+
+		if( resourceTypeKey.startsWith( "com.avereon." ) ) {
+			// com.avereon.cartesia.Design2dAssetType
+			int startIndex = resourceTypeKey.lastIndexOf( "AssetType" );
+			if( startIndex >= 0 ) {
+				int endIndex = startIndex + 9;
+				String prefix = resourceTypeKey.substring( 0, startIndex );
+				String suffix = resourceTypeKey.substring( endIndex );
+				resourceTypeKey = prefix + "ResourceType" + suffix;
+			}
+
+			if( "program:/guide".equals( resourceTypeKey ) ) resourceTypeKey = XenonScheme.ID + ":/guide";
+		}
+
+		return resourceTypeKey;
+	}
+
 	ProgramTool loadTool( Settings settings ) throws ResourceException, ToolInstantiationException {
 		String toolClassName = settings.get( Tool.SETTINGS_TYPE_KEY );
 		URI uri = settings.get( Resource.SETTINGS_URI_KEY, URI.class );
 		String assetTypeKey = settings.get( Resource.SETTINGS_TYPE_KEY );
 		Integer order = settings.get( Tool.ORDER, Integer.class, -1 );
 
-		if( "program:/guide".equals( assetTypeKey ) ) assetTypeKey = XenonScheme.ID + ":/guide";
+		assetTypeKey = mapResourceType( assetTypeKey );
 
 		// Create the asset
 		Resource resource;
