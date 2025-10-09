@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.*;
 import com.avereon.settings.Settings;
-import com.avereon.xenon.asset.ResourceType;
+import com.avereon.xenon.resource.ResourceType;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.zerra.image.VectorImage;

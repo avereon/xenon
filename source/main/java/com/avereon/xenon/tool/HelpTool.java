@@ -2,8 +2,8 @@ package com.avereon.xenon.tool;
 
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.zerra.color.Paints;

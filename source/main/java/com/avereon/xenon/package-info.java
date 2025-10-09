@@ -19,7 +19,7 @@
  *   	     </ul>
  *   	   <li>Asset Manager
  *   	     <ul>
- *   	       <li>Asset - {@link com.avereon.xenon.asset.ResourceEvent AssetEvent}</li>
+ *   	       <li>Asset - {@link com.avereon.xenon.resource.ResourceEvent AssetEvent}</li>
  *   	     </ul>
  *   	   </li>
  *   	   <li>Product Manager - {@link com.avereon.xenon.product.ModEvent ModEvent}</li>

@@ -1,8 +1,8 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.OpenAssetRequest;
+import com.avereon.xenon.resource.type.ProgramAboutType;
 import com.avereon.xenon.tool.AboutTool;
 import org.junit.jupiter.api.Test;
 

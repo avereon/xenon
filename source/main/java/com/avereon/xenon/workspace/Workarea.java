@@ -5,7 +5,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.workpane.*;
 import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;

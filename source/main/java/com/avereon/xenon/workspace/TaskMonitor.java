@@ -2,7 +2,7 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramTaskType;
+import com.avereon.xenon.resource.type.ProgramTaskType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.task.TaskManagerEvent;

@@ -1,10 +1,10 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.BasePartXenonTestCase;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.ResourceType;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.MockResourceType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.ResourceType;
+import com.avereon.xenon.resource.Codec;
+import com.avereon.xenon.resource.MockResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

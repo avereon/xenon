@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideContext;
 import com.avereon.xenon.tool.guide.GuideNode;

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.type.ProgramTaskType;
+import com.avereon.xenon.resource.type.ProgramTaskType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;

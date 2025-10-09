@@ -1,6 +1,6 @@
 package com.avereon.xenon.compare;
 
-import com.avereon.xenon.asset.ResourceType;
+import com.avereon.xenon.resource.ResourceType;
 
 import java.util.Comparator;
 

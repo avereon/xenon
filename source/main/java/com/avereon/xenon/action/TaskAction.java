@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramTaskType;
+import com.avereon.xenon.resource.type.ProgramTaskType;
 import javafx.event.ActionEvent;
 
 public class TaskAction extends ProgramAction {

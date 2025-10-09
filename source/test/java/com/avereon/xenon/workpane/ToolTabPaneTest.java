@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.xenon.BaseFxPlatformTestCase;
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Button;
 import org.junit.jupiter.api.Test;

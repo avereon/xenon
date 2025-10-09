@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;

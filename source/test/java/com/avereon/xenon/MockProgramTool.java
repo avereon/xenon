@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.workpane.Workpane;
 import lombok.Getter;
 import lombok.Setter;

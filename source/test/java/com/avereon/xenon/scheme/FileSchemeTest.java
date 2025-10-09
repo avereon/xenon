@@ -1,9 +1,9 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.BasePartXenonTestCase;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.MockCodec;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.Codec;
+import com.avereon.xenon.resource.MockCodec;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;

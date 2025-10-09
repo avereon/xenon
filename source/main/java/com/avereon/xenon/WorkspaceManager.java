@@ -4,7 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Controllable;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.asset.Resource;
+import com.avereon.xenon.resource.Resource;
 import com.avereon.zerra.stage.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;

@@ -2,9 +2,9 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.IdGenerator;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.exception.ResourceException;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.Codec;
+import com.avereon.xenon.resource.exception.ResourceException;
 import lombok.CustomLog;
 
 import java.io.InputStream;

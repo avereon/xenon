@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.asset.type.ProgramGuideType;
+import com.avereon.xenon.resource.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workspace.Workarea;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,7 @@ package com.avereon.xenon.scheme;
 import com.avereon.util.LimitedInputStream;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Scheme;
+import com.avereon.xenon.resource.Scheme;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;

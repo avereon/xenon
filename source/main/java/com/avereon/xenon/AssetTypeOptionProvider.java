@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.asset.ResourceType;
+import com.avereon.xenon.resource.ResourceType;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 

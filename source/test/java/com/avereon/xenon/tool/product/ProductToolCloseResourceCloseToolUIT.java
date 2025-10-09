@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.asset.type.ProgramModuleType;
+import com.avereon.xenon.resource.type.ProgramModuleType;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;

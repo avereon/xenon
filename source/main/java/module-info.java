@@ -34,13 +34,13 @@ module com.avereon.xenon {
 	// General exports
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
-	exports com.avereon.xenon.asset;
-	exports com.avereon.xenon.asset.exception;
-	exports com.avereon.xenon.asset.type;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.index;
 	exports com.avereon.xenon.notice;
 	exports com.avereon.xenon.product;
+	exports com.avereon.xenon.resource;
+	exports com.avereon.xenon.resource.exception;
+	exports com.avereon.xenon.resource.type;
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
 	exports com.avereon.xenon.test;

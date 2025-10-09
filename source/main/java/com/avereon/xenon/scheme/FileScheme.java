@@ -4,11 +4,11 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.StandardMediaTypes;
-import com.avereon.xenon.asset.exception.ResourceException;
-import com.avereon.xenon.asset.exception.NullCodecException;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.Codec;
+import com.avereon.xenon.resource.StandardMediaTypes;
+import com.avereon.xenon.resource.exception.ResourceException;
+import com.avereon.xenon.resource.exception.NullCodecException;
 import lombok.CustomLog;
 
 import java.io.*;

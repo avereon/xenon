@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.type.ProgramGuideType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.type.ProgramGuideType;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;

@@ -8,7 +8,7 @@ import com.avereon.product.Rb;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramSettingsType;
+import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskChain;

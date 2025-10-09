@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.asset.type.ProgramNoticeType;
+import com.avereon.xenon.resource.type.ProgramNoticeType;
 import javafx.event.ActionEvent;
 
 public class NoticeAction extends ProgramAction {

@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramAction;
-import com.avereon.xenon.asset.type.ProgramSearchType;
+import com.avereon.xenon.resource.type.ProgramSearchType;
 import com.avereon.xenon.tool.SearchTool;
 import com.avereon.xenon.workpane.Tool;
 import javafx.event.ActionEvent;

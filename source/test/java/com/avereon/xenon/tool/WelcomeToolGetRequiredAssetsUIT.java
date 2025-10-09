@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool;
 
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.type.ProgramWelcomeType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.type.ProgramWelcomeType;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
