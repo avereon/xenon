@@ -59,14 +59,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -122,14 +123,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
@@ -203,14 +205,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
@@ -262,14 +265,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
@@ -320,14 +324,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
@@ -393,19 +398,20 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
@@ -498,14 +504,15 @@ jobs:
           distribution: ${{env.JAVA_DISTRO}}
           java-version: ${{env.JAVA_VERSION}}
           java-package: ${{env.JAVA_PACKAGE}}
+          cache: 'maven'
 
-      - name: Maven Repository Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+#      - name: Maven Repository Cache
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
 
       - name: Download Artifacts
         uses: actions/download-artifact@v5
