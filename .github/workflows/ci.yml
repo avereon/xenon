@@ -62,7 +62,7 @@ jobs:
           cache: 'maven'
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java
 
@@ -75,7 +75,7 @@ jobs:
           mvn ${{env.MAVEN_PARMS}} test
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
       - name: Upload Artifacts for Next Steps
         uses: actions/upload-artifact@v4
