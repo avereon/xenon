@@ -244,7 +244,7 @@ public class ActionProxy implements EventTarget, EventHandler<ActionEvent> {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		if( event.isConsumed() || actionStack.size() == 0 || !isEnabled() ) return;
+		if( event.isConsumed() || actionStack.isEmpty() || !isEnabled() ) return;
 		actionStack.peek().handle( event );
 		setState( getNextState() );
 		event.consume();

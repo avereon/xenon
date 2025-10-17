@@ -18,6 +18,7 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
 import lombok.CustomLog;
+import lombok.Getter;
 
 import java.net.URI;
 import java.util.Collections;
@@ -106,6 +107,7 @@ public abstract class ProgramTool extends Tool {
 
 	public static final int TOOL_READY_TIMEOUT = 2;
 
+	@Getter
 	private final XenonProgramProduct product;
 
 	private boolean isReady;
@@ -120,10 +122,6 @@ public abstract class ProgramTool extends Tool {
 		setTitle( resource.getName() );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( resource.getIcon(), "broken" ) );
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
-	}
-
-	public final XenonProgramProduct getProduct() {
-		return product;
 	}
 
 	public final Xenon getProgram() {
