@@ -196,7 +196,7 @@ public class AdvancedLinuxPanel extends SettingsPanel {
 		pkexecGrid.addRow( row++, createBlankLine() );
 
 		// Status line
-		boolean pkexecInstalled = ProgramChecks.isPkExecInstalled();
+		boolean pkexecInstalled = ProgramChecks.isLinuxPkExecInstalled();
 		String status = pkexecInstalled ? "success" : "warning";
 		String installedString = Rb.text( product, RbKey.LABEL, pkexecInstalled ? "installed" : "not-installed" );
 		Control pkexecStatus = createStatusLine( installedString, status );

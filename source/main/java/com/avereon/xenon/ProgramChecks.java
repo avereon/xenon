@@ -58,12 +58,12 @@ public class ProgramChecks implements Runnable {
 		return scaled && isHiDpiCapable();
 	}
 
-	public static boolean isPkExecInstalled() {
+	public static boolean isLinuxPkExecInstalled() {
 		return Files.exists( Paths.get( "/usr/bin/pkexec" ) );
 	}
 
 	private void checkForHiDpi() {
-		if( !isHiDpiEnabled() ) {
+		if( isHiDpiCapable() && !isHiDpiEnabled() ) {
 			String title = Rb.text( RbKey.PROGRAM, "program-hidpi-title" );
 			//String message = Rb.text( RbKey.PROGRAM, "program-hidpi-message" );
 			String message = Rb.text( RbKey.SETTINGS, "advanced-linux-hidpi-assist" );
@@ -76,7 +76,7 @@ public class ProgramChecks implements Runnable {
 	private void checkForLinuxPkExec() {
 		if( !OperatingSystem.isLinux() ) return;
 
-		boolean pkexecInstalled = isPkExecInstalled();
+		boolean pkexecInstalled = isLinuxPkExecInstalled();
 
 		if( !pkexecInstalled ) {
 			String title = Rb.text( RbKey.PROGRAM, "program-linux-no-pkexec-title" );
