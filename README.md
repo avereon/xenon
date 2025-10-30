@@ -59,17 +59,20 @@ The framework provides the following features:
 
 #### Version 1.x
 
-| Release                                              | Feature Goals                                                                 |      Status |
-|------------------------------------------------------|-------------------------------------------------------------------------------|------------:|
-| [1.8](https://github.com/avereon/xenon/milestone/10) |                                                                               |    Planning |
-| [1.7](https://github.com/avereon/xenon/milestone/9)  | General improvements and bug fixes                                            | In Progress |
-| [1.6](https://github.com/avereon/xenon/milestone/8)  | Java 17, Java FX 17, [Acorn Mod](https://github.com/avereon/acorn), bug fixes | 01 Jan 2023 |
-| [1.5](https://github.com/avereon/xenon/milestone/7)  | Two-step save, asset reload, bug fixes                                        | 09 Oct 2021 |
-| [1.4](https://github.com/avereon/xenon/milestone/6)  | SVG Icons, [Cartesia Mod](https://github.com/avereon/carta)                   | 28 May 2021 |
-| [1.3](https://github.com/avereon/xenon/milestone/5)  | Java 14, Java FX 14, flat icons, jpackage installers                          | 03 Jul 2020 |
-| [1.2](https://github.com/avereon/xenon/milestone/4)  | Theme modification, more dark and light themes                                | 03 May 2020 |
-| [1.1](https://github.com/avereon/xenon/milestone/3)  | Example Mod (Mazer)                                                           | 22 Feb 2020 |
-| [1.0](https://github.com/avereon/xenon/milestone/2) | Documentation, licensing, housekeeping                      | 28 Nov 2019 |
+| Release                                               | Feature Goals                                                                 |      Status |
+|-------------------------------------------------------|-------------------------------------------------------------------------------|------------:|
+| [1.11](https://github.com/avereon/xenon/milestone/13) |                                                                               |    Planning |
+| [1.10](https://github.com/avereon/xenon/milestone/12) | Java 25, Java FX 25                                                           | In Progress |
+| [1.9](https://github.com/avereon/xenon/milestone/11)  | General improvements and bug fixes                                            | 25 Sep 2025 |
+| [1.8](https://github.com/avereon/xenon/milestone/10)  | Java 21, Java FX 21, Menu trays, bug fixes                                    | 29 Apr 2025 |
+| [1.7](https://github.com/avereon/xenon/milestone/9)   | General improvements and bug fixes                                            | 03 Feb 2024 |
+| [1.6](https://github.com/avereon/xenon/milestone/8)   | Java 17, Java FX 17, [Acorn Mod](https://github.com/avereon/acorn), bug fixes | 01 Jan 2023 |
+| [1.5](https://github.com/avereon/xenon/milestone/7)   | Two-step save, asset reload, bug fixes                                        | 09 Oct 2021 |
+| [1.4](https://github.com/avereon/xenon/milestone/6)   | SVG Icons, [Cartesia Mod](https://github.com/avereon/carta)                   | 28 May 2021 |
+| [1.3](https://github.com/avereon/xenon/milestone/5)   | Java 14, Java FX 14, flat icons, jpackage installers                          | 03 Jul 2020 |
+| [1.2](https://github.com/avereon/xenon/milestone/4)   | Theme modification, more dark and light themes                                | 03 May 2020 |
+| [1.1](https://github.com/avereon/xenon/milestone/3)   | Example Mod (Mazer)                                                           | 22 Feb 2020 |
+| [1.0](https://github.com/avereon/xenon/milestone/2)   | Documentation, licensing, housekeeping                                        | 28 Nov 2019 |
 
 #### Version 0.x
 
