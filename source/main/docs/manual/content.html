@@ -9,7 +9,7 @@ Avereon website or must be fully qualified.
 <div>
 
 	<h1>User Guide</h1>
-	<p>2019-11-29</p>
+	<p>2025-11-05</p>
 
 	<h2 id="getting-started">Getting Started</h2>
 
@@ -52,26 +52,30 @@ Avereon website or must be fully qualified.
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-asset">Asset</dt>
+		<dt id="terminology-resource">Resource</dt>
 		<dd>
-			A asset is something on which Xenon operates. Specifically assets
+			A resource is something on which Xenon operates. Specifically resources
 			are things that are 'opened' and 'closed' and sometimes 'loaded' and
-			'saved'. Assets are defined by Uniform Resource Identifiers (URIs) and
-			a URI is used to identify a specific asset to Xenon. Some examples of
-			assets are: 1. An SSH connection to another computer. 2. A file on the
-			local file system. 3. The built-in about asset.
+			'saved'. Resources are defined by Uniform Resource Identifiers (URIs) and
+			a URI is used to identify a specific resource to Xenon. Some examples of
+			resources are:
+			<ul>
+				<li>An SSH connection to another computer.</li>
+				<li>A file on the local file system.</li>
+				<li>The built-in about resource.</li>
+			</ul>
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-asset-type">Asset Type</dt>
+		<dt id="terminology-resource-type">Resource Type</dt>
 		<dd>
-			Assets are always assigned an asset type in order to identify what
-			tools are available for that asset. If an asset type cannot be
-			determined then Xenon is unable to operate on that asset. Asset
+			Resources are always assigned a resource type in order to identify what
+			tools are available for that resource. If a resource type cannot be
+			determined then Xenon is unable to operate on that resource. Resource
 			types are also used to determine what tools can be used on a particular
-			asset. Asset types are very similar to media types as defined by IANA
+			resource. Resource types are very similar to media types as defined by IANA
 			(<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">https://www.iana.org/assignments/media-types/media-types.xhtml</a>)
-			and are usually associated directly with a media type.
+			and are commonly associated directly with a media type.
 		</dd>
 	</dl>
 	<dl>
@@ -92,7 +96,7 @@ Avereon website or must be fully qualified.
 		<dt id="terminology-tool">Tool</dt>
 		<dd>
 			A tool is a graphical component that provides specific functionality to
-			operate on an asset. Some examples of tools are: a text editor, a image
+			operate on a resource. Some examples of tools are: a text editor, an image
 			viewer, a calculator and an SSH terminal. Tools are provided and
 			implemented by mods.
 		</dd>
@@ -166,8 +170,8 @@ Avereon website or must be fully qualified.
 		<dt id="terminology-mod">Mod</dt>
 		<dd>
 			A mod is a binary package that provides specific functionality. In
-			specific it provides tools to operate on assets. Mods may also provide
-			additional asset types and actions that can be used by other mods.
+			specific, it provides tools to operate on resources. Mods may also provide
+			additional resource types and actions that can be used by other mods.
 		</dd>
 	</dl>
 	<dl>
@@ -199,14 +203,14 @@ Avereon website or must be fully qualified.
 
 	<code>${XENON_HOME}/bin/java -m com.avereon.xenon</code>
 
-	<h3 id="cli-uris">URIs (Assets)</h3>
+	<h3 id="cli-uris">URIs (Resources)</h3>
 	<p>
 		Providing a URI to Xenon on the command line instructs Xenon to treat the
-		URI as an asset and attempt to open that asset after starting. Any
+		URI as a resource and attempt to open that resource after starting. Any
 		valid URI should be acceptable but may not be able to be supported by Xenon
 		if a supporting mod has not been installed. Any URI that does not specify a
 		scheme will be interpreted as a file URI. Relative URIs will be resolved
-		against user.path system property of the invoking JVM.
+		against the <code>user.path</code> system property of the invoking JVM.
 	</p>
 
 	<h3 id="basic-options">Basic Options</h3>
@@ -333,7 +337,7 @@ Avereon website or must be fully qualified.
 		Whenever the program is restarted it should return the user to where they
 		left off unless the user specifically changes the settings not to. This
 		means that the program should open the same workspaces with the same
-		workareas with the same tools and assets loaded.
+		workareas with the same tools and resources loaded.
 	</p>
 
 </div>
