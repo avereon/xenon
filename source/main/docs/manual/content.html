@@ -247,6 +247,33 @@ Avereon website or must be fully qualified.
 		</dd>
 	</dl>
 	<dl>
+		<dt id="cli-option-mode">--mode &lt;name&gt;</dt>
+		<dd>
+			<p>
+				Start the program with the desired mode. Supported modes are <code>test</code>
+				and <code>dev</code>. These modes are for development purposes and not
+				intended for general use.
+			</p>
+			<p>
+				The <code>test</code> mode changes the following program behavior:
+			</p>
+			<ul>
+				<li>The program is prevented from printing the program header on the command line.</li>
+				<li>The program is prevented from running program checks at startup.</li>
+			</ul>
+			<p>
+				The <code>dev</code> mode changes the following program behavior:
+			</p>
+			<ul>
+				<li>The program adds the Development menu on the menu bar.</li>
+				<li>The program adds testing buttons to the Task tool.</li>
+				<li>The program uses <code>target/program</code> as the program home folder.</li>
+				<li>The program home folder is created at startup if it does not exist.</li>
+				<li>The updater folder is changed to <code>target/xenon-updater</code>.</li>
+			</ul>
+		</dd>
+	</dl>
+	<dl>
 		<dt id="cli-option-profile">--profile &lt;name&gt;</dt>
 		<dd>
 			Start the program with a named profile. Normally this is not necessary but
