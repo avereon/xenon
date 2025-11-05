@@ -37,7 +37,7 @@ public class MyTool extends ProgramTool {
 	<p>
 		Tools are only useful on resources of certain types. In order to associate a
 		tool with the resource types that it can work with it must be registered with
-		the program tool manager. It is common for a mod to register both the resource
+		the program tool manager. It is common for a module to register both the resource
 		type and the tools for the resource type, but it is also possible to register
 		tools	for existing resource types.
 	</p>
@@ -49,7 +49,7 @@ public class MyTool extends ProgramTool {
 		type media type</a>. The tool name should be retrieved from a resource
 		bundle and the icon should be retrieved from the program icon library. A
 		ToolRegistration object is created to collect all the information and passed
-		to the program tool manager to complete the registration. When a mod is
+		to the program tool manager to complete the registration. When a module is
 		disabled or uninstalled the tools should also be unregistered.
 	</p>
 	<pre>
