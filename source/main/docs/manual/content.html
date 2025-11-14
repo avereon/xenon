@@ -9,7 +9,7 @@ Avereon website or must be fully qualified.
 <div>
 
 	<h1>User Guide</h1>
-	<p>2019-11-29</p>
+	<p>2025-11-05</p>
 
 	<h2 id="getting-started">Getting Started</h2>
 
@@ -18,8 +18,8 @@ Avereon website or must be fully qualified.
 		framework that provides services common to modern desktop applications
 		like selection tabs, dockable work areas, notifications and many others.
 		We hope you find the framework useful as you get to know its features and
-		capabilities. We particularly encourage you to <a href="/product/xenon/mods">
-		discover the mods</a> available for Xenon that provide capabilities to
+		capabilities. We particularly encourage you to <a href="/product/xenon/modules">
+		discover the modules</a> available for Xenon that provide capabilities to
 		accomplish all kinds of tasks.
 	</p>
 
@@ -52,26 +52,30 @@ Avereon website or must be fully qualified.
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-asset">Asset</dt>
+		<dt id="terminology-resource">Resource</dt>
 		<dd>
-			A asset is something on which Xenon operates. Specifically assets
+			A resource is something on which Xenon operates. Specifically resources
 			are things that are 'opened' and 'closed' and sometimes 'loaded' and
-			'saved'. Assets are defined by Uniform Resource Identifiers (URIs) and
-			a URI is used to identify a specific asset to Xenon. Some examples of
-			assets are: 1. An SSH connection to another computer. 2. A file on the
-			local file system. 3. The built-in about asset.
+			'saved'. Resources are defined by Uniform Resource Identifiers (URIs) and
+			a URI is used to identify a specific resource to Xenon. Some examples of
+			resources are:
+			<ul>
+				<li>An SSH connection to another computer.</li>
+				<li>A file on the local file system.</li>
+				<li>The built-in about resource.</li>
+			</ul>
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-asset-type">Asset Type</dt>
+		<dt id="terminology-resource-type">Resource Type</dt>
 		<dd>
-			Assets are always assigned an asset type in order to identify what
-			tools are available for that asset. If an asset type cannot be
-			determined then Xenon is unable to operate on that asset. Asset
+			Resources are always assigned a resource type in order to identify what
+			tools are available for that resource. If a resource type cannot be
+			determined then Xenon is unable to operate on that resource. Resource
 			types are also used to determine what tools can be used on a particular
-			asset. Asset types are very similar to media types as defined by IANA
+			resource. Resource types are very similar to media types as defined by IANA
 			(<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">https://www.iana.org/assignments/media-types/media-types.xhtml</a>)
-			and are usually associated directly with a media type.
+			and are commonly associated directly with a media type.
 		</dd>
 	</dl>
 	<dl>
@@ -80,6 +84,15 @@ Avereon website or must be fully qualified.
 			A workspace is everything in a Xenon window. Xenon allows multiple
 			workspaces to be open at any given time. Workspaces allow the user to
 			switch between workareas quickly.
+		</dd>
+	</dl>
+	<dl>
+		<dt id="terminology-project">Project</dt>
+		<dd>
+			A project is a user defined collection of resources. Xenon provides a
+			generic project to help users organize resources into logical groups.
+			Modules may add specific types of projects to provide more specific
+			constraints and features.
 		</dd>
 	</dl>
 	<dl>
@@ -92,9 +105,9 @@ Avereon website or must be fully qualified.
 		<dt id="terminology-tool">Tool</dt>
 		<dd>
 			A tool is a graphical component that provides specific functionality to
-			operate on an asset. Some examples of tools are: a text editor, a image
+			operate on a resource. Some examples of tools are: a text editor, an image
 			viewer, a calculator and an SSH terminal. Tools are provided and
-			implemented by mods.
+			implemented by modules.
 		</dd>
 	</dl>
 	<dl>
@@ -156,18 +169,18 @@ Avereon website or must be fully qualified.
 	<dl>
 		<dt id="terminology-product">Product</dt>
 		<dd>
-			The program and mods are collectively referred to as products. You will notice
-			that program updates and mod updates are handled with the same tools and
+			The program and modules are collectively referred to as products. You will notice
+			that program updates and modules updates are handled with the same tools and
 			workflow. Anytime you see the term product it may refer to either the program,
-			mods or both.
+			modules or both.
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-mod">Mod</dt>
+		<dt id="terminology-modules">Modules</dt>
 		<dd>
-			A mod is a binary package that provides specific functionality. In
-			specific it provides tools to operate on assets. Mods may also provide
-			additional asset types and actions that can be used by other mods.
+			A modules is a binary package that provides specific functionality. In
+			specific, it provides tools to operate on resources. Mods may also provide
+			additional resource types and actions that can be used by other modules.
 		</dd>
 	</dl>
 	<dl>
@@ -199,14 +212,14 @@ Avereon website or must be fully qualified.
 
 	<code>${XENON_HOME}/bin/java -m com.avereon.xenon</code>
 
-	<h3 id="cli-uris">URIs (Assets)</h3>
+	<h3 id="cli-uris">URIs (Resources)</h3>
 	<p>
 		Providing a URI to Xenon on the command line instructs Xenon to treat the
-		URI as an asset and attempt to open that asset after starting. Any
+		URI as a resource and attempt to open that resource after starting. Any
 		valid URI should be acceptable but may not be able to be supported by Xenon
-		if a supporting mod has not been installed. Any URI that does not specify a
-		scheme will be interpreted as a file URI. Relative URIs will be resolved
-		against user.path system property of the invoking JVM.
+		if a supporting module has not been installed. Any URI that does not specify
+		a scheme will be interpreted as a file URI. Relative URIs will be resolved
+		against the <code>user.path</code> system property of the invoking JVM.
 	</p>
 
 	<h3 id="basic-options">Basic Options</h3>
@@ -240,6 +253,33 @@ Avereon website or must be fully qualified.
 		<dd>
 			Start the program without showing the splash screen. This option is
 			useful in conjunction with the --daemon option.
+		</dd>
+	</dl>
+	<dl>
+		<dt id="cli-option-mode">--mode &lt;name&gt;</dt>
+		<dd>
+			<p>
+				These modes are for development purposes and not intended for general
+				use. Start the program with the desired mode. Supported modes are
+				<code>test</code>	and <code>dev</code>.
+			</p>
+			<p>
+				The <code>test</code> mode changes the following program behavior:
+			</p>
+			<ul>
+				<li>The program is prevented from printing the program header on the command line.</li>
+				<li>The program is prevented from running program checks at startup.</li>
+			</ul>
+			<p>
+				The <code>dev</code> mode changes the following program behavior:
+			</p>
+			<ul>
+				<li>The program adds the Development menu on the menu bar.</li>
+				<li>The program adds testing buttons to the Task tool.</li>
+				<li>The program uses <code>target/program</code> as the program home folder.</li>
+				<li>The program home folder is created at startup if it does not exist.</li>
+				<li>The updater folder is changed to <code>target/xenon-updater</code>.</li>
+			</ul>
 		</dd>
 	</dl>
 	<dl>
@@ -333,7 +373,7 @@ Avereon website or must be fully qualified.
 		Whenever the program is restarted it should return the user to where they
 		left off unless the user specifically changes the settings not to. This
 		means that the program should open the same workspaces with the same
-		workareas with the same tools and assets loaded.
+		workareas with the same tools and resources loaded.
 	</p>
 
 </div>
