@@ -14,15 +14,21 @@ class XenonLauncherConfig {
 	 * @return The product info for the program.
 	 */
 	static ProductCard loadProductInfo() {
-		if( card == null ) card = ProductCard.info( Xenon.class );
-		return card;
+		// NEXT Where to load a rebrand file from?
+		return updateProductCard( ProductCard.info( Xenon.class ) );
 	}
 
 	static ProductCard loadProductCard() {
+		// NEXT Where to load a rebrand file from?
+		return updateProductCard( ProductCard.card( Xenon.class ) );
+	}
+
+	private static ProductCard updateProductCard( ProductCard fullCard ) {
 		// Fill out the rest of the product card
 		// Some fields may already be populated, like installation folder
-		ProductCard fullCard = ProductCard.card( Xenon.class );
-		fullCard.setInstallFolder( card.getInstallFolder() );
+		if( card != null ) {
+			fullCard.setInstallFolder( card.getInstallFolder() );
+		}
 		return card = fullCard;
 	}
 
