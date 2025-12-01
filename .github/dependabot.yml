@@ -13,3 +13,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Ignore versions that include "ea"
+    ignore:
+      - dependency-name: "*" # Applies to all dependencies in this ecosystem
+        versions: ["*ea*"] # Matches any version containing "ea"
