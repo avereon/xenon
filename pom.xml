@@ -82,7 +82,7 @@
 
 		<!-- Runtime dependencies -->
 		<!-- Version numbers reviewed 28 Apr 2025 -->
-		<openjfx.version>25.0.1</openjfx.version>
+		<openjfx.version>26-ea+19</openjfx.version>
 		<controlsfx.version>11.2.2</controlsfx.version>
 
 		<!-- Test dependencies -->
