@@ -13,6 +13,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
-    ignore: # Ignore versions that include "ea"
-      - dependency-name: "*" # Applies to all dependencies in this ecosystem
-        versions: ["*ea*"] # Matches any version containing "ea"
+    ignore:
+      - dependency-name: "javafx*"
+        versions: ["[25-ea+1,25.0.0)","[26-ea+1,26.0.0)","[27-ea+1,27.0.0)"]
