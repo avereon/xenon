@@ -118,7 +118,7 @@ jobs:
           cache: 'maven'
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
@@ -192,7 +192,7 @@ jobs:
           cache: 'maven'
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
@@ -244,7 +244,7 @@ jobs:
           cache: 'maven'
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
@@ -295,7 +295,7 @@ jobs:
           cache: 'maven'
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
@@ -366,7 +366,7 @@ jobs:
           xcode-version: latest-stable
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
@@ -459,7 +459,7 @@ jobs:
           cache: 'maven'
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: build
           path: target
