@@ -76,7 +76,7 @@
 		<zevra.version>0.12-SNAPSHOT</zevra.version>
 		<jackson.version>2.20.1</jackson.version>
 		<!-- Annotations caused a mismatch with version 2.20.0 -->
-		<jackson.annotations.version>2.20</jackson.annotations.version>
+		<jackson.annotations.version>2.21</jackson.annotations.version>
 		<reactfx.version>2.0-M6</reactfx.version>
 		<undofx.version>2.1.1</undofx.version>
 
